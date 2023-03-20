@@ -1,0 +1,120 @@
+/*
+ * AccessToken.java
+ *
+ * 16 mar 2023
+ */
+package it.gov.pagopa.swclient.mil.idp.bean;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * 
+ * @author Antonio Tarricone
+ */
+public class AccessToken {
+	/*
+	 * access_token
+	 */
+	@JsonProperty("access_token")
+	private String accessToken;
+
+	/*
+	 * refresh_token
+	 */
+	@JsonProperty("refresh_token")
+	private String refreshToken;
+
+	/*
+	 * token_type
+	 */
+	@JsonProperty("token_type")
+	private String tokenType = "Bearer";
+
+	/*
+	 * expires_in
+	 */
+	@JsonProperty("expires_in")
+	private int expiresIn;
+
+	/**
+	 * 
+	 * @return the accessToken
+	 */
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	/**
+	 * 
+	 * @param accessToken the accessToken to set
+	 */
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	/**
+	 * 
+	 * @return the refreshToken
+	 */
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	/**
+	 * 
+	 * @param refreshToken the refreshToken to set
+	 */
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	/**
+	 * 
+	 * @return the tokenType
+	 */
+	public String getTokenType() {
+		return tokenType;
+	}
+
+	/**
+	 * 
+	 * @param tokenType the tokenType to set
+	 */
+	public void setTokenType(String tokenType) {
+		this.tokenType = tokenType;
+	}
+
+	/**
+	 * 
+	 * @return the expiresIn
+	 */
+	public int getExpiresIn() {
+		return expiresIn;
+	}
+
+	/**
+	 * 
+	 * @param expiresIn the expiresIn to set
+	 */
+	public void setExpiresIn(int expiresIn) {
+		this.expiresIn = expiresIn;
+	}
+
+	/**
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return new StringBuilder("AccessToken [accessToken=")
+			.append(accessToken)
+			.append(", refreshToken=")
+			.append(refreshToken)
+			.append(", tokenType=")
+			.append(tokenType)
+			.append(", expiresIn=")
+			.append(expiresIn)
+			.append("]")
+			.toString();
+	}
+}
