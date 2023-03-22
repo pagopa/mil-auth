@@ -13,9 +13,6 @@ import javax.inject.Inject;
 import com.nimbusds.jose.JOSEException;
 
 import io.quarkus.logging.Log;
-import io.quarkus.redis.datasource.ReactiveRedisDataSource;
-import io.quarkus.redis.datasource.keys.ReactiveKeyCommands;
-import io.quarkus.redis.datasource.value.ReactiveValueCommands;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
@@ -30,37 +27,24 @@ public class KeyRetriever {
 	/*
 	 * 
 	 */
-	private ReactiveKeyCommands<String> keyCommands;
-
-	/*
-	 * 
-	 */
-	private ReactiveValueCommands<String, KeyPair> valueCommands;
+	@Inject
+	RedisClient redisClient;
 
 	/*
 	 * 
 	 */
 	@Inject
 	KeyPairGenerator keyPairGenerator;
-	
-	/**
-	 * 
-	 * @param reactive
-	 */
-	public KeyRetriever(ReactiveRedisDataSource reactive) { 
-        valueCommands = reactive.value(KeyPair.class); 
-        keyCommands = reactive.key();  
-    }
-	
+
 	/**
 	 * 
 	 * @return
 	 */
 	public Uni<KeyPair> getKeyPair() {
 		Log.debug("Retrieve kids.");
-		return keyCommands.keys("*") // Retrieve kids.
+		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
-			.onItem().transformToUniAndMerge(valueCommands::get) // For each kid retrieve the key pair.
+			.onItem().transformToUniAndMerge(redisClient::get) // For each kid retrieve the key pair.
 			.filter(keyPair -> keyPair.getExp() > Instant.now().getEpochSecond()) // Filter expired key pairs.
 			.collect() // Collect all key pairs.
 			.asList() // Convert the key pair events in an event that is the list of key pair.
@@ -79,13 +63,13 @@ public class KeyRetriever {
 
 						// Store it in Redis.
 						Log.debug("Store generated key pair in Redis.");
-						valueCommands.set(keyPair.getKid(), keyPair);
-
-						// Set when Redis has to remove it.
-						Log.debug("Set when Redis has to remove generated key pair.");
-						keyCommands.expireat(keyPair.getKid(), keyPair.getExp());
-
-						return Uni.createFrom().item(keyPair);
+						return redisClient.set(keyPair.getKid(), keyPair)
+							.chain(() -> {
+								// Set when Redis has to remove it.
+								Log.debug("Set when Redis has to remove generated key pair.");
+								redisClient.expireat(keyPair.getKid(), keyPair.getExp());
+								return Uni.createFrom().item(keyPair);
+							});
 					} catch (JOSEException e) {
 						Log.fatalf(e, "Error while generating key pair.");
 						return Uni.createFrom().failure(e);
@@ -115,9 +99,9 @@ public class KeyRetriever {
 	 */
 	public Uni<PublicKeys> getPublicKeys() {
 		Log.debug("Retrieve public keys.");
-		return keyCommands.keys("*") // Retrieve kids.
+		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
-			.onItem().transformToUniAndMerge(valueCommands::get) // For each kid retrieve the key pair.
+			.onItem().transformToUniAndMerge(redisClient::get) // For each kid retrieve the key pair.
 			.filter(keyPair -> keyPair.getExp() > Instant.now().getEpochSecond()) // Filter expired key pairs.
 			.map(keyPair -> keyPair.getPublicKey()) // Extract the public key from the key pair.
 			.collect() // Collect all key pairs.
