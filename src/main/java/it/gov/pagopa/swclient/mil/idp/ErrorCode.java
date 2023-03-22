@@ -39,9 +39,7 @@ public final class ErrorCode {
 	public static final String ERROR_WHILE_CREDENTIALS_VERIFICATION = MODULE_ID + "000011";
 	public static final String CREDENTIALS_INCONSISTENCY = MODULE_ID + "000012";
 
-	public static final String ERROR_WHILE_RETRIEVING_KIDS = MODULE_ID + "000013";
-	public static final String ERROR_WHILE_RETRIEVING_KEYS = MODULE_ID + "000014";
-	public static final String ERROR_WHILE_GENERATING_KEY = MODULE_ID + "000015";
+	public static final String ERROR_WHILE_RETRIEVING_KEYS = MODULE_ID + "000013";
 
 	private ErrorCode() {
 	}

@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import com.nimbusds.jose.JOSEException;
 
 import io.quarkus.logging.Log;
+import io.quarkus.redis.datasource.ReactiveRedisDataSource;
 import io.quarkus.redis.datasource.keys.ReactiveKeyCommands;
 import io.quarkus.redis.datasource.value.ReactiveValueCommands;
 import io.smallrye.mutiny.Multi;
@@ -40,8 +41,17 @@ public class KeyRetriever {
 	 * 
 	 */
 	@Inject
-	private KeyPairGenerator keyPairGenerator;
-
+	KeyPairGenerator keyPairGenerator;
+	
+	/**
+	 * 
+	 * @param reactive
+	 */
+	public KeyRetriever(ReactiveRedisDataSource reactive) { 
+        valueCommands = reactive.value(KeyPair.class); 
+        keyCommands = reactive.key();  
+    }
+	
 	/**
 	 * 
 	 * @return

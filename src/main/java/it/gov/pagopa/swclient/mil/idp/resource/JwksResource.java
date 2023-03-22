@@ -32,22 +32,10 @@ import it.gov.pagopa.swclient.mil.service.KeyRetriever;
 @Path("/.well-known/jwks.json")
 public class JwksResource {
 	/*
-	 * Cryptoperiod of RSA keys in millis.
-	 */
-	@ConfigProperty(name = "cryptoperiod", defaultValue = "86400000")
-	private long cryptoperiod;
-
-	/*
-	 * Key size (modulus) of RSA keys in bits.
-	 */
-	@ConfigProperty(name = "keysize", defaultValue = "4096")
-	private int keysize;
-
-	/*
 	 * 
 	 */
 	@Inject
-	private KeyRetriever keyRetriever;
+	KeyRetriever keyRetriever;
 
 	/**
 	 * 
@@ -72,6 +60,6 @@ public class JwksResource {
 		Log.debugf("get - Input parameters: n/a");
 
 		return keyRetriever.getPublicKeys() // Retrieve keys.
-			.onFailure().transform(this::errorOnRetrievingKeys); // Error while retrieving keys.
+			.onFailure().transform(this::errorOnRetrievingKeys).log(); // Error while retrieving keys.
 	}
 }

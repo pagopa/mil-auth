@@ -30,13 +30,13 @@ public class KeyPairGenerator {
 	 * Cryptoperiod of RSA keys in millis.
 	 */
 	@ConfigProperty(name = "cryptoperiod", defaultValue = "86400000")
-	private long cryptoperiod;
+	long cryptoperiod;
 
 	/*
 	 * Key size (modulus) of RSA keys in bits.
 	 */
 	@ConfigProperty(name = "keysize", defaultValue = "4096")
-	private int keysize;
+	int keysize;
 	
 	/**
 	 * 
