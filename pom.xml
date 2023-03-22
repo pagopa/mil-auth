@@ -2,13 +2,10 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	
 	<groupId>it.gov.pagopa.swclient.mil</groupId>
 	<artifactId>idp</artifactId>
 	<version>1.0.0</version>
-	
 	<description>Identity Provider Microservice for Multi-channel Integration Layer of SW Client Project</description>
-	
 	<developers>
 		<developer>
 			<name>Antonio Tarricone</name>
@@ -21,29 +18,21 @@
 			<organization>PagoPA S.p.A.</organization>
 		</developer>
 	</developers>
-	
 	<properties>
 		<java.version>17</java.version>
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
-		
 		<compiler-plugin.version>3.11.0</compiler-plugin.version>
 		<surefire-plugin.version>3.0.0</surefire-plugin.version>
 		<sonar-plugin.version>3.9.1.2184</sonar-plugin.version>
-		
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
 		<quarkus.platform.version>2.16.4.Final</quarkus.platform.version>
-		
 		<skipITs>true</skipITs>
-		
 		<common.version>1.1.5</common.version>
-		<nimbus-jose-jwt.version>9.28</nimbus-jose-jwt.version>
-		
 		<sonar.host.url>https://sonarcloud.io:443/</sonar.host.url>
 		<sonar.organization>pagopa</sonar.organization>
 		<sonar.projectKey>pagopa_mil-idp</sonar.projectKey>
@@ -51,7 +40,6 @@
 		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
 		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
-	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -63,7 +51,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
 	<dependencies>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -79,15 +66,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-smallrye-health</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-arc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-mongodb-panache</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -101,9 +80,7 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>${nimbus-jose-jwt.version}</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-junit5</artifactId>
@@ -121,16 +98,10 @@
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-panache-mock</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-jacoco</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
 	<build>
 		<plugins>
 			<plugin>
@@ -188,7 +159,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	
 	<profiles>
 		<!-- To clone and install dependencies:                                 -->
 		<!--   mvn clean validate -Pbootstrap -Dmaven.home=<path to Maven home> -->
@@ -239,7 +209,6 @@
 				<quarkus.package.type>native</quarkus.package.type>
 			</properties>
 		</profile>
-		
 		<!-- To execute SCA with SonarCloud:                                      -->
 		<!--   1. export SONAR_TOKEN=<sonar token provided by PagoPA DevOps team> -->
 		<!--   2. mvn verify -Pvalidate                                       -->

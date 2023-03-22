@@ -27,6 +27,7 @@ import io.smallrye.mutiny.groups.UniOnFailure;
 import io.smallrye.mutiny.operators.uni.UniOnFailureTransform;
 import it.gov.pagopa.swclient.mil.bean.Errors;
 import it.gov.pagopa.swclient.mil.idp.ErrorCode;
+import it.gov.pagopa.swclient.mil.idp.bean.KeyType;
 import it.gov.pagopa.swclient.mil.idp.dao.ClientEntity;
 import it.gov.pagopa.swclient.mil.idp.dao.ClientRepository;
 import it.gov.pagopa.swclient.mil.idp.dao.ResourceOwnerCredentialsEntity;
@@ -122,6 +123,9 @@ public class UniOptionalTest {
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException {
+		System.out.println(KeyType.RSA.name());
+		System.out.println(KeyType.RSA.toString());
+		
 		String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
 		String channel = "POS";
 		String username = "antonio.tarricone";
