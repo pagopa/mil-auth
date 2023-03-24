@@ -5,26 +5,14 @@
  */
 package it.gov.pagopa.swclient.mil.idp.resource;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import io.quarkus.logging.Log;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.groups.UniOnFailure;
-import io.smallrye.mutiny.operators.uni.UniOnFailureTransform;
 import it.gov.pagopa.swclient.mil.bean.Errors;
 import it.gov.pagopa.swclient.mil.idp.ErrorCode;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyType;
@@ -125,7 +113,7 @@ public class UniOptionalTest {
 	public static void main(String[] args) throws NoSuchAlgorithmException {
 		System.out.println(KeyType.RSA.name());
 		System.out.println(KeyType.RSA.toString());
-		
+
 		String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
 		String channel = "POS";
 		String username = "antonio.tarricone";

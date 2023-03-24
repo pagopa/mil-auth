@@ -14,7 +14,7 @@ public class KeyPair {
 	 * Private exponent
 	 */
 	private String d;
-	
+
 	/*
 	 * Public exponent
 	 */
@@ -29,12 +29,12 @@ public class KeyPair {
 	 * Key ID
 	 */
 	private String kid;
-	
+
 	/*
 	 * Chinese remainder theorem exponent of the first factor
 	 */
 	private String dp;
-	
+
 	/*
 	 * Chinese remainder theorem exponent of the second factor
 	 */
@@ -59,7 +59,7 @@ public class KeyPair {
 	 * Second prime factor
 	 */
 	private String q;
-	
+
 	/*
 	 * First Chinese remainder theorem coefficient
 	 */
@@ -320,7 +320,7 @@ public class KeyPair {
 	public void setIat(long iat) {
 		this.iat = iat;
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -335,7 +335,7 @@ public class KeyPair {
 	@Override
 	public String toString() {
 		return new StringBuilder("KeyPair [d=")
-			.append(d)
+			.append("***")
 			.append(", e=")
 			.append(e)
 			.append(", use=")

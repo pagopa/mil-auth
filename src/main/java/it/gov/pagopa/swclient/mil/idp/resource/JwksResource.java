@@ -16,14 +16,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.bean.Errors;
 import it.gov.pagopa.swclient.mil.idp.ErrorCode;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKeys;
-import it.gov.pagopa.swclient.mil.service.KeyRetriever;
+import it.gov.pagopa.swclient.mil.idp.service.KeyRetriever;
 
 /**
  * 

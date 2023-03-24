@@ -3,7 +3,7 @@
  *
  * 22 mar 2023
  */
-package it.gov.pagopa.swclient.mil.service;
+package it.gov.pagopa.swclient.mil.idp.service;
 
 import java.util.Date;
 import java.util.UUID;
@@ -37,7 +37,7 @@ public class KeyPairGenerator {
 	 */
 	@ConfigProperty(name = "keysize", defaultValue = "4096")
 	int keysize;
-	
+
 	/**
 	 * 
 	 * @return

@@ -14,32 +14,31 @@ public class ResourceOwnerCredentialsEntity {
 	 * 
 	 */
 	private String username;
-	
+
 	/*
 	 * 
 	 */
 	private String salt;
-	
+
 	/*
 	 * 
 	 */
 	private String passwordHash;
-	
+
 	/*
 	 * 
 	 */
 	private String acquirerId;
-	
+
 	/*
 	 * 
 	 */
 	private String channel;
-	
+
 	/*
 	 * 
 	 */
 	private String merchantId;
-	
 
 	/**
 	 * 
@@ -112,7 +111,7 @@ public class ResourceOwnerCredentialsEntity {
 	public void setPasswordHash(String passwordHash) {
 		this.passwordHash = passwordHash;
 	}
-	
+
 	/**
 	 * 
 	 * @return the acquirerId
@@ -159,7 +158,7 @@ public class ResourceOwnerCredentialsEntity {
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
-	
+
 	/**
 	 * @see java.lang.Object#toString()
 	 */

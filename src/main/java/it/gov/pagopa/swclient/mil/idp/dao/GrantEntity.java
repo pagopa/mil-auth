@@ -16,27 +16,27 @@ public class GrantEntity {
 	 * 
 	 */
 	private String acquirerId;
-	
+
 	/*
 	 * 
 	 */
 	private String channel;
-	
+
 	/*
 	 * 
 	 */
 	private String clientId;
-	
+
 	/*
 	 * 
 	 */
 	private String merchantId;
-	
+
 	/*
 	 * 
 	 */
 	private String terminalId;
-	
+
 	/*
 	 * 
 	 */
@@ -182,7 +182,5 @@ public class GrantEntity {
 			.append("]")
 			.toString();
 	}
-	
-	
 
 }

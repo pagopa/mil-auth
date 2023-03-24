@@ -19,7 +19,7 @@ public class ClientEntity {
 	 * 
 	 */
 	public String channel;
-	
+
 	/*
 	 * 
 	 */
@@ -30,7 +30,7 @@ public class ClientEntity {
 	 */
 	public ClientEntity() {
 	}
-	
+
 	/**
 	 * 
 	 * @param clientId
@@ -74,7 +74,7 @@ public class ClientEntity {
 	public void setChannel(String channel) {
 		this.channel = channel;
 	}
-	
+
 	/**
 	 * 
 	 * @return the description

@@ -3,7 +3,7 @@
  *
  * 22 mar 2023
  */
-package it.gov.pagopa.swclient.mil.service;
+package it.gov.pagopa.swclient.mil.idp.service;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class RedisClient {
 		valueCommands = reactive.value(String.class, KeyPair.class);
 		keyCommands = reactive.key(String.class);
 	}
-	
+
 	/**
 	 * 
 	 * @param pattern
@@ -48,7 +48,7 @@ public class RedisClient {
 	public Uni<List<String>> keys(String pattern) {
 		return keyCommands.keys(pattern);
 	}
-	
+
 	/**
 	 * 
 	 * @param kid
@@ -57,7 +57,7 @@ public class RedisClient {
 	public Uni<KeyPair> get(String kid) {
 		return valueCommands.get(kid);
 	}
-	
+
 	/**
 	 * 
 	 * @param kid
@@ -67,7 +67,7 @@ public class RedisClient {
 	public Uni<Void> set(String kid, KeyPair keyPair) {
 		return valueCommands.set(kid, keyPair);
 	}
-	
+
 	/**
 	 * 
 	 * @param kid

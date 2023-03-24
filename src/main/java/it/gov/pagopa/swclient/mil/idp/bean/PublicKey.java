@@ -5,6 +5,8 @@
  */
 package it.gov.pagopa.swclient.mil.idp.bean;
 
+import java.util.Objects;
+
 /**
  * 
  * @author Antonio Tarricone
@@ -24,7 +26,7 @@ public class PublicKey {
 	 * Key ID
 	 */
 	private String kid;
-	
+
 	/*
 	 * Modulus
 	 */
@@ -205,4 +207,29 @@ public class PublicKey {
 			.append("]")
 			.toString();
 	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(e, exp, iat, kid, kty, n, use);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PublicKey other = (PublicKey) obj;
+		return Objects.equals(e, other.e) && exp == other.exp && iat == other.iat && Objects.equals(kid, other.kid) && kty == other.kty && Objects.equals(n, other.n) && use == other.use;
+	}
+	
+	
 }

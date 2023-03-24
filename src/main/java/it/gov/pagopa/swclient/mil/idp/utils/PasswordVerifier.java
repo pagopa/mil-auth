@@ -28,11 +28,11 @@ public class PasswordVerifier {
 		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
 		byte[] saltBytes = Base64.getDecoder().decode(salt);
 		byte[] hashBytes = Base64.getDecoder().decode(hash);
-		
+
 		byte[] data = new byte[passwordBytes.length + saltBytes.length];
 		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
 		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-		
+
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		byte[] calcHashBytes = digest.digest(data);
 		return Arrays.equals(calcHashBytes, hashBytes);

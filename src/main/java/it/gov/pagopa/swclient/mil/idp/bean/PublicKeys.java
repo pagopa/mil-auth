@@ -6,6 +6,7 @@
 package it.gov.pagopa.swclient.mil.idp.bean;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 
@@ -56,5 +57,28 @@ public class PublicKeys {
 			.append(keys)
 			.append("]")
 			.toString();
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(keys);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PublicKeys other = (PublicKeys) obj;
+		return Objects.equals(keys, other.keys);
 	}
 }
