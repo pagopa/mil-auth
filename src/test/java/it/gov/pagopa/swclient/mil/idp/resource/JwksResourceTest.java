@@ -178,7 +178,6 @@ public class JwksResourceTest {
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", equalTo(List.of(ErrorCode.ERROR_WHILE_RETRIEVING_KEYS)));
-
 	}
 
 	/**
