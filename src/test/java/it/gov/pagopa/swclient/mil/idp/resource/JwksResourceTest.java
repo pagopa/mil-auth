@@ -67,13 +67,6 @@ public class JwksResourceTest {
 		 * Test
 		 */
 		given()
-			.headers(
-				"RequestId", "1de3c885-5584-4910-b43a-4ad6e3fd55f9",
-				"Version", "1.0.0",
-				"AcquirerId", "12345",
-				"Channel", "POS",
-				"MerchantId", "123456",
-				"TerminalId", "12345678")
 			.when()
 			.get()
 			.then()
@@ -121,13 +114,6 @@ public class JwksResourceTest {
 		 * Test
 		 */
 		given()
-			.headers(
-				"RequestId", "1de3c885-5584-4910-b43a-4ad6e3fd55f9",
-				"Version", "1.0.0",
-				"AcquirerId", "12345",
-				"Channel", "POS",
-				"MerchantId", "123456",
-				"TerminalId", "12345678")
 			.when()
 			.get()
 			.then()
@@ -165,13 +151,6 @@ public class JwksResourceTest {
 		 * Test
 		 */
 		given()
-			.headers(
-				"RequestId", "1de3c885-5584-4910-b43a-4ad6e3fd55f9",
-				"Version", "1.0.0",
-				"AcquirerId", "12345",
-				"Channel", "POS",
-				"MerchantId", "123456",
-				"TerminalId", "12345678")
 			.when()
 			.get()
 			.then()
@@ -204,13 +183,6 @@ public class JwksResourceTest {
 		 * Test
 		 */
 		given()
-			.headers(
-				"RequestId", "1de3c885-5584-4910-b43a-4ad6e3fd55f9",
-				"Version", "1.0.0",
-				"AcquirerId", "12345",
-				"Channel", "POS",
-				"MerchantId", "123456",
-				"TerminalId", "12345678")
 			.when()
 			.get()
 			.then()
@@ -250,13 +222,6 @@ public class JwksResourceTest {
 		 * Test
 		 */
 		given()
-			.headers(
-				"RequestId", "1de3c885-5584-4910-b43a-4ad6e3fd55f9",
-				"Version", "1.0.0",
-				"AcquirerId", "12345",
-				"Channel", "POS",
-				"MerchantId", "123456",
-				"TerminalId", "12345678")
 			.when()
 			.get()
 			.then()

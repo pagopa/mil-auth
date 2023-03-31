@@ -60,14 +60,6 @@ public class PublicKeys {
 	}
 
 	/**
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return Objects.hash(keys);
-	}
-
-	/**
 	 * @see java.lang.Object#equals(Object)
 	 */
 	@Override

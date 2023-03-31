@@ -209,14 +209,6 @@ public class PublicKey {
 	}
 
 	/**
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return Objects.hash(e, exp, iat, kid, kty, n, use);
-	}
-
-	/**
 	 * @see java.lang.Object#equals(Object)
 	 */
 	@Override
@@ -228,8 +220,12 @@ public class PublicKey {
 		if (getClass() != obj.getClass())
 			return false;
 		PublicKey other = (PublicKey) obj;
-		return Objects.equals(e, other.e) && exp == other.exp && iat == other.iat && Objects.equals(kid, other.kid) && kty == other.kty && Objects.equals(n, other.n) && use == other.use;
+		return Objects.equals(e, other.e)
+			&& exp == other.exp
+			&& iat == other.iat
+			&& Objects.equals(kid, other.kid)
+			&& kty == other.kty
+			&& Objects.equals(n, other.n)
+			&& use == other.use;
 	}
-	
-	
 }
