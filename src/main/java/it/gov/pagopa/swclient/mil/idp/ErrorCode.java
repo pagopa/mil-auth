@@ -40,6 +40,13 @@ public final class ErrorCode {
 	public static final String CREDENTIALS_INCONSISTENCY = MODULE_ID + "000012";
 
 	public static final String ERROR_WHILE_RETRIEVING_KEYS = MODULE_ID + "000013";
+	public static final String ERROR_WHILE_FINDING_GRANTS  = MODULE_ID + "000014";
+	public static final String ERROR_WHILE_GENERATING_REFRESHED_TOKEN  = MODULE_ID + "000015";
+	public static final String ERROR_PARSING_TOKEN = MODULE_ID + "000016";
+	public static final String ERROR_CHECKING_TOKEN = MODULE_ID + "000017";
+	public static final String ERROR_GENERATING_TOKEN = MODULE_ID + "000018";
+	
+	public static final String GRANT_TYPE_INCONSISTENT =  MODULE_ID + "000019";
 
 	private ErrorCode() {
 	}
