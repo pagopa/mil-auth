@@ -36,6 +36,35 @@ public class AccessToken {
 	@JsonProperty("expires_in")
 	private int expiresIn;
 
+	
+	/**
+	 * 
+	 * @param accessToken
+	 * @param refreshToken
+	 * @param expiresIn
+	 */
+	public AccessToken(String accessToken, String refreshToken, int expiresIn) {
+		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
+		this.expiresIn = expiresIn;
+	}
+
+	/**
+	 * 
+	 * @param accessToken
+	 * @param expiresIn
+	 */
+	public AccessToken(String accessToken, int expiresIn) {
+		this.accessToken = accessToken;
+		this.expiresIn = expiresIn;
+	}
+	
+	/**
+	 * 
+	 */
+	public AccessToken() {
+	}
+
 	/**
 	 * 
 	 * @return the accessToken
