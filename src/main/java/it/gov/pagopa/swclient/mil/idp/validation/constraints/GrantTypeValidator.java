@@ -12,7 +12,8 @@ import it.gov.pagopa.swclient.mil.idp.bean.GetAccessToken;
 
 /**
  * If grant_type = password, username and password must not be null and refresh_token must be null.
- * If grant_type = refresh_token, refresh token must not be null and username and password must be null.
+ * If grant_type = refresh_token, refresh token must not be null and username and password must be
+ * null.
  * 
  * @author Antonio Tarricone
  */

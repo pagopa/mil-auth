@@ -34,16 +34,15 @@ public class AccessToken {
 	 * expires_in
 	 */
 	@JsonProperty("expires_in")
-	private int expiresIn;
+	private long expiresIn;
 
-	
 	/**
 	 * 
 	 * @param accessToken
 	 * @param refreshToken
 	 * @param expiresIn
 	 */
-	public AccessToken(String accessToken, String refreshToken, int expiresIn) {
+	public AccessToken(String accessToken, String refreshToken, long expiresIn) {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.expiresIn = expiresIn;
@@ -54,11 +53,11 @@ public class AccessToken {
 	 * @param accessToken
 	 * @param expiresIn
 	 */
-	public AccessToken(String accessToken, int expiresIn) {
+	public AccessToken(String accessToken, long expiresIn) {
 		this.accessToken = accessToken;
 		this.expiresIn = expiresIn;
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -117,7 +116,7 @@ public class AccessToken {
 	 * 
 	 * @return the expiresIn
 	 */
-	public int getExpiresIn() {
+	public long getExpiresIn() {
 		return expiresIn;
 	}
 
@@ -125,7 +124,7 @@ public class AccessToken {
 	 * 
 	 * @param expiresIn the expiresIn to set
 	 */
-	public void setExpiresIn(int expiresIn) {
+	public void setExpiresIn(long expiresIn) {
 		this.expiresIn = expiresIn;
 	}
 

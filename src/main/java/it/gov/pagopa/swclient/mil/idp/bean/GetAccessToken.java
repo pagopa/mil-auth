@@ -39,12 +39,14 @@ public class GetAccessToken {
 	@FormParam("password")
 	@Pattern(regexp = "^[ -~]{1,64}$", message = "[" + ErrorCode.PASSWORD_MUST_MATCH_REGEXP + "] password must match \"{regexp}\"")
 	private String password;
-	
+
 	/*
 	 * refresh_token
 	 */
 	@FormParam("refresh_token")
-	//@Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\\\.[a-zA-Z0-9_-]{1,1024}\\\\.[a-zA-Z0-9_-]{1,1024}$", message = "[" + ErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP + "] refresh_token must match \"{regexp}\"")
+	// @Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\\\.[a-zA-Z0-9_-]{1,1024}\\\\.[a-zA-Z0-9_-]{1,1024}$",
+	// message = "[" + ErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP + "] refresh_token must match
+	// \"{regexp}\"")
 	@Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$", message = "[" + ErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP + "] refresh_token must match \"{regexp}\"")
 	private String refreshToken;
 
@@ -55,7 +57,7 @@ public class GetAccessToken {
 	@NotNull(message = "[" + ErrorCode.CLIENT_ID_MUST_NOT_BE_NULL + "] client_id must not be null")
 	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + ErrorCode.CLIENT_ID_MUST_MATCH_REGEXP + "] client_id must match \"{regexp}\"")
 	private String clientId;
-	
+
 	/*
 	 * scope
 	 */
