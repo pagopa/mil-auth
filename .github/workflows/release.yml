@@ -105,46 +105,47 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
 
-# deploy:
-#   needs: release
-#   
-#   if: needs.release.outputs.new_release_published == 'true'
-# 
-#   runs-on: ubuntu-latest
-#   
-#   environment: dev-cd
-#   
-#   permissions:
-#     id-token: write
-#
-#   steps:
-#     #
-#     # Login to Azure.
-#     #
-#     - name: Login to Azure
-#       uses: azure/login@v1
-#       with:
-#         client-id: ${{ secrets.AZURE_CLIENT_ID }}
-#         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-#         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-#
-#     #
-#     # Update Container App
-#     #
-#     - name: Update Container App
-#       uses: azure/CLI@v1
-#       with:
-#         inlineScript: |
-#           az config set extension.use_dynamic_install=yes_without_prompt
-#           az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image s${{ needs.release.outputs.new_release_version }}
-#     
-#     # Run Integration Test
-#     #- name: Integration Test
-#     #- uses: actions/setup-node@v3
-#     #  with:
-#     #    node-version: 18.12.0
-#     #  run: |
-#     #    npm install -g newman
-#     #    newman run src/test/postman/Payment_Notice_Service.postman_collection.json -e src/test/postman/Azure_DEV.postman_environment.json --bail
-#     
-#     # TODO: Run Performance Test
+  deploy:
+    needs: release
+    
+    if: needs.release.outputs.new_release_published == 'true'
+  
+    runs-on: ubuntu-latest
+    
+    environment: dev-cd
+    
+    permissions:
+      id-token: write
+ 
+    steps:
+      #
+      # Login to Azure.
+      #
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+ 
+      #
+      # Update Container App
+      #
+      - name: Update Container App
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image s${{ needs.release.outputs.new_release_version }}
+      
+      # Run Integration Test
+      #- name: Integration Test
+      #- uses: actions/setup-node@v3
+      #  with:
+      #    node-version: 18.12.0
+      #  run: |
+      #    npm install -g newman
+      #    newman run src/test/postman/Payment_Notice_Service.postman_collection.json -e src/test/postman/Azure_DEV.postman_environment.json --bail
+      
+      # TODO: Run Performance Test
+ 
