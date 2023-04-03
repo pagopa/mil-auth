@@ -6,6 +6,7 @@
 package it.gov.pagopa.swclient.mil.idp.service;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -128,7 +129,7 @@ public class KeyRetriever {
 		Log.debugf("Retrieve public key: ", kid);
 		return redisClient.get(kid)
 			.map(keyPair -> {
-				if (keyPair == null || keyPair.getExp() < Instant.now().getEpochSecond()) {
+				if (keyPair == null || keyPair.getExp() < new Date().getTime()) {
 					Log.warnf("Key %s not found or expired.", kid);
 					return Optional.empty();
 				} else {
