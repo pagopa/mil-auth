@@ -5,12 +5,15 @@
  */
 package it.gov.pagopa.swclient.mil.idp.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 
  * @author Antonio Tarricone
  */
+@JsonInclude(Include.NON_NULL)
 public class AccessToken {
 	/*
 	 * access_token

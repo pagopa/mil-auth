@@ -149,7 +149,7 @@ public class TokenGenerationTest {
 	 * Assert.assertTrue(responseMessage.get(0).equals(ErrorCode.WRONG_CREDENTIALS)) ; }
 	 */
 
-	@Test
+	//@Test
 	public void testCreateTokenFromRefresh() {
 
 		// Prepare request

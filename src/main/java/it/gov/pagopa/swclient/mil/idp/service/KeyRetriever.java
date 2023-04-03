@@ -6,6 +6,7 @@
 package it.gov.pagopa.swclient.mil.idp.service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
+import it.gov.pagopa.swclient.mil.idp.bean.PublicKey;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKeys;
 
 /**
@@ -116,5 +118,23 @@ public class KeyRetriever {
 			.collect() // Collect all key pairs.
 			.asList() // Convert the key pair events in an event that is the list of key pair.
 			.map(publicKeys -> new PublicKeys(publicKeys));
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Uni<Optional<PublicKey>> getPublicKey(String kid) {
+		Log.debugf("Retrieve public key: ", kid);
+		return redisClient.get(kid)
+			.map(keyPair -> {
+				if (keyPair == null || keyPair.getExp() < Instant.now().getEpochSecond()) {
+					Log.warnf("Key %s not found or expired.", kid);
+					return Optional.empty();
+				} else {
+					Log.debugf("Key %s found.", kid);
+					return Optional.of(keyPair.getPublicKey());
+				}
+			});
 	}
 }
