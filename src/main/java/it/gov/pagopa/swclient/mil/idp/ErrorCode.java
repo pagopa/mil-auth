@@ -48,6 +48,20 @@ public final class ErrorCode {
 
 	public static final String GRANT_TYPE_INCONSISTENT = MODULE_ID + "000019";
 
+	public static final String GRANTS_NOT_FOUND = MODULE_ID + "00001A";
+
+	public static final String ERROR_WHILE_SIGNING_TOKENS = MODULE_ID + "00001B";
+
+	public static final String WRONG_REFRESH_TOKEN_ALGORITHM = MODULE_ID + "00001C";
+	public static final String WRONG_REFRESH_TOKEN_ISSUER = MODULE_ID + "00001D";
+	public static final String WRONG_REFRESH_TOKEN_ISSUE_TIME = MODULE_ID + "00001E";
+	public static final String REFRESH_TOKEN_EXPIRED = MODULE_ID + "00001F";
+	public static final String WRONG_REFRESH_TOKEN_AUDIENCE = MODULE_ID + "000020";
+	public static final String WRONG_REFRESH_TOKEN_SCOPE = MODULE_ID + "000021";
+	public static final String KEY_NOT_FOUND = MODULE_ID + "000022";
+	public static final String WRONG_SIGNATURE = MODULE_ID + "000023";
+	public static final String ERROR_WHILE_SIGNATURE_VERIFICATION = MODULE_ID + "000024";
+
 	private ErrorCode() {
 	}
 }

@@ -44,9 +44,7 @@ public class GetAccessToken {
 	 * refresh_token
 	 */
 	@FormParam("refresh_token")
-	// @Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\\\.[a-zA-Z0-9_-]{1,1024}\\\\.[a-zA-Z0-9_-]{1,1024}$",
-	// message = "[" + ErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP + "] refresh_token must match
-	// \"{regexp}\"")
+	@NotNull(message = "[" + ErrorCode.GRANT_TYPE_MUST_NOT_BE_NULL + "] refresh_token must not be null")
 	@Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$", message = "[" + ErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP + "] refresh_token must match \"{regexp}\"")
 	private String refreshToken;
 

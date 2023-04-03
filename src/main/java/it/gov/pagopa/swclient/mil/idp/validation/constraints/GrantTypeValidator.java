@@ -21,10 +21,13 @@ public class GrantTypeValidator implements ConstraintValidator<GrantType, GetAcc
 	@Override
 	public boolean isValid(GetAccessToken getAccessToken, ConstraintValidatorContext context) {
 		boolean isValid = false;
-		if (getAccessToken.getGrantType().equals("password")) {
-			isValid = (getAccessToken.getUsername() != null && getAccessToken.getPassword() != null && getAccessToken.getRefreshToken() == null);
-		} else {
-			isValid = (getAccessToken.getUsername() == null && getAccessToken.getPassword() == null && getAccessToken.getRefreshToken() != null);
+		String grantType = getAccessToken.getGrantType();
+		if (grantType != null) {
+			if (grantType.equals("password")) {
+				isValid = (getAccessToken.getUsername() != null && getAccessToken.getPassword() != null && getAccessToken.getRefreshToken() == null);
+			} else {
+				isValid = (getAccessToken.getUsername() == null && getAccessToken.getPassword() == null && getAccessToken.getRefreshToken() != null);
+			}
 		}
 		return isValid;
 	}
