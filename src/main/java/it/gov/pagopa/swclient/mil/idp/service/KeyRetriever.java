@@ -7,10 +7,13 @@ package it.gov.pagopa.swclient.mil.idp.service;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.nimbusds.jose.JOSEException;
 
@@ -18,6 +21,8 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
+import it.gov.pagopa.swclient.mil.idp.bean.KeyType;
+import it.gov.pagopa.swclient.mil.idp.bean.KeyUse;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKey;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKeys;
 
@@ -39,6 +44,59 @@ public class KeyRetriever {
 	@Inject
 	KeyPairGenerator keyPairGenerator;
 
+	/*
+	 * For POC.
+	 */
+	@ConfigProperty(name = "poc", defaultValue = "false")
+	boolean poc;
+
+	@ConfigProperty(name = "d")
+	Optional<String> d;
+
+	@ConfigProperty(name = "e")
+	Optional<String> e;
+
+	@ConfigProperty(name = "use")
+	Optional<String> use;
+
+	@ConfigProperty(name = "kid")
+	Optional<String> kid;
+
+	@ConfigProperty(name = "dp")
+	Optional<String> dp;
+
+	@ConfigProperty(name = "dq")
+	Optional<String> dq;
+
+	@ConfigProperty(name = "n")
+	Optional<String> n;
+
+	@ConfigProperty(name = "p")
+	Optional<String> p;
+
+	@ConfigProperty(name = "kty")
+	Optional<String> kty;
+
+	@ConfigProperty(name = "q")
+	Optional<String> q;
+
+	@ConfigProperty(name = "qi")
+	Optional<String> qi;
+
+	@ConfigProperty(name = "exp")
+	Optional<Long> exp;
+
+	@ConfigProperty(name = "iat")
+	Optional<Long> iat;
+
+	/**
+	 * 
+	 * @return
+	 */
+	private KeyPair getConfigKeyPair() {
+		return new KeyPair(d.get(), e.get(), KeyUse.valueOf(use.get()), kid.get(), dp.get(), dq.get(), n.get(), p.get(), KeyType.valueOf(kty.get()), q.get(), qi.get(), exp.get(), iat.get());
+	}
+
 	/**
 	 * Return the valid (not expired yet) key pair with the greatest expiration. If there are no valid
 	 * key pair a new one is generated.
@@ -47,6 +105,10 @@ public class KeyRetriever {
 	 */
 	public Uni<KeyPair> getKeyPair() {
 		Log.debug("Retrieve kids.");
+		if (poc) {
+			Log.warn("**** POC MODE ****");
+			return Uni.createFrom().item(getConfigKeyPair());
+		}
 		return redisClient.keys("*") // Retrieve kids.
 			.log()
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
@@ -111,6 +173,10 @@ public class KeyRetriever {
 	 */
 	public Uni<PublicKeys> getPublicKeys() {
 		Log.debug("Retrieve public keys.");
+		if (poc) {
+			Log.warn("**** POC MODE ****");
+			return Uni.createFrom().item(new PublicKeys(List.of(getConfigKeyPair().getPublicKey())));
+		}
 		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid retrieve the key pair.
@@ -127,6 +193,10 @@ public class KeyRetriever {
 	 */
 	public Uni<Optional<PublicKey>> getPublicKey(String kid) {
 		Log.debugf("Retrieve public key: ", kid);
+		if (poc) {
+			Log.warn("**** POC MODE ****");
+			return Uni.createFrom().item(Optional.of(getConfigKeyPair().getPublicKey()));
+		}
 		return redisClient.get(kid)
 			.map(keyPair -> {
 				if (keyPair == null || keyPair.getExp() < new Date().getTime()) {

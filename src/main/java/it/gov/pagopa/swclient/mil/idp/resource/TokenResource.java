@@ -357,7 +357,7 @@ public class TokenResource {
 		return keyRetriever.getKeyPair()
 			.chain(key -> {
 				Date now = new Date();
-				
+
 				JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, key.getKid(), true, null, null);
 
 				Log.debug("Generate access token.");
@@ -368,14 +368,14 @@ public class TokenResource {
 					.expirationTime(new Date(now.getTime() + accessDuration * 1000))
 					.claim("scope", concat(grantEntity.getGrants()))
 					.build();
-				
+
 				SignedJWT accessToken = new SignedJWT(header, accessPayload);
 
 				try {
 					JWSSigner signer = new RSASSASigner(getPrivateKey(key));
 					Log.debug("Sign access token.");
 					accessToken.sign(signer);
-					
+
 					String refreshTokenStr = null;
 					if (Objects.equals(getAccessToken.getScope(), "offline_access") || Objects.equals(getAccessToken.getGrantType(), "refresh_token")) {
 						Log.debug("Generate refresh token.");
@@ -390,15 +390,15 @@ public class TokenResource {
 							.claim("merchantId", commonHeader.getMerchantId())
 							.claim("clientId", getAccessToken.getClientId())
 							.build();
-						
+
 						SignedJWT refreshToken = new SignedJWT(header, refreshPayload);
-						
+
 						Log.debug("Sign refresh token.");
 						refreshToken.sign(signer);
-						
+
 						refreshTokenStr = refreshToken.serialize();
 					}
-					
+
 					AccessToken token = new AccessToken(accessToken.serialize(), refreshTokenStr, accessDuration);
 					Log.debug("Tokens generated successfully.");
 					return Uni.createFrom().item(token);
