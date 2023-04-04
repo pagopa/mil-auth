@@ -17,6 +17,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.util.Base64URL;
 
@@ -24,6 +25,8 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
+import it.gov.pagopa.swclient.mil.idp.bean.KeyType;
+import it.gov.pagopa.swclient.mil.idp.bean.KeyUse;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKey;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKeys;
 
