@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -149,7 +148,7 @@ public class TokenGenerationTest {
 	 * Assert.assertTrue(responseMessage.get(0).equals(ErrorCode.WRONG_CREDENTIALS)) ; }
 	 */
 
-	//@Test
+	// @Test
 	public void testCreateTokenFromRefresh() {
 
 		// Prepare request
