@@ -15,6 +15,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * 
  * @author Antonio Tarricone
  */
+@RegisterForReflection
 @JsonInclude(Include.NON_NULL)
 public class AccessToken {
 	/*
