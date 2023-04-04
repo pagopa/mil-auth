@@ -5,10 +5,13 @@
  */
 package it.gov.pagopa.swclient.mil.idp.bean;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 /**
  * 
  * @author Antonio Tarricone
  */
+@RegisterForReflection
 public class KeyPair {
 	/*
 	 * Private exponent

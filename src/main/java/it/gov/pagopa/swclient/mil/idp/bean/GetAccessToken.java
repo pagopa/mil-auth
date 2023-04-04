@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.FormParam;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.gov.pagopa.swclient.mil.idp.ErrorCode;
 import it.gov.pagopa.swclient.mil.idp.validation.constraints.GrantType;
 
@@ -16,6 +17,7 @@ import it.gov.pagopa.swclient.mil.idp.validation.constraints.GrantType;
  * 
  * @author Antonio Tarricone
  */
+@RegisterForReflection
 @GrantType(message = "[" + ErrorCode.GRANT_TYPE_INCONSISTENT + "] If grant_type equals to password, username and password must not be null and refresh_token must be null. If grant_type equals to refresh_token, refresh_token must not be null and username and password must be null.")
 public class GetAccessToken {
 	/*
