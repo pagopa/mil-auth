@@ -14,6 +14,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * 
  * @author Antonio Tarricone
  */
+@RegisterForReflection
 public class PublicKeys {
 	/*
 	 * 
