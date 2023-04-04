@@ -328,7 +328,7 @@ public class KeyPair {
 	 * 
 	 * @return
 	 */
-	public PublicKey getPublicKey() {
+	public PublicKey publicKey() {
 		return new PublicKey(e, use, kid, n, kty, exp, iat);
 	}
 
