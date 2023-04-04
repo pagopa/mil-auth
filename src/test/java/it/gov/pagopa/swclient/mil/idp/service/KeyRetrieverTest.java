@@ -333,7 +333,7 @@ public class KeyRetrieverTest {
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
-			.assertItem(new PublicKeys(List.of(validKey0.getPublicKey(), validKey1.getPublicKey())));
+			.assertItem(new PublicKeys(List.of(validKey0.publicKey(), validKey1.publicKey())));
 
 	}
 
