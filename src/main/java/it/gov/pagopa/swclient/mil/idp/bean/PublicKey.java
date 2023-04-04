@@ -7,10 +7,13 @@ package it.gov.pagopa.swclient.mil.idp.bean;
 
 import java.util.Objects;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 /**
  * 
  * @author Antonio Tarricone
  */
+@RegisterForReflection
 public class PublicKey {
 	/*
 	 * Public exponent
