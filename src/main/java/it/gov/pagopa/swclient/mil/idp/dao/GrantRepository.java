@@ -32,14 +32,14 @@ public class GrantRepository {
 			"clientId", "5254f087-1214-45cd-94ae-fda53c835197",
 			"merchantId", "28405fHfk73x88D",
 			"terminalId", "*"));
-		
+
 		Document doc11 = new Document(Map.of(
 			"acquirerId", "4585625",
 			"channel", "POS",
 			"clientId", "5254f087-1214-45cd-94ae-fda53c835197",
 			"merchantId", "12346789",
 			"terminalId", "*"));
-		
+
 		Document doc12 = new Document(Map.of(
 			"acquirerId", "4585625",
 			"channel", "POS",

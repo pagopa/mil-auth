@@ -7,19 +7,12 @@ package it.gov.pagopa.swclient.mil.idp.service;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.util.Base64URL;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
@@ -46,28 +39,6 @@ public class KeyRetriever {
 	@Inject
 	KeyPairGenerator keyPairGenerator;
 
-	/*
-	 * **** PROVIDED KEY PAIR MODE ****
-	 */
-	@ConfigProperty(name = "provided_key_pair", defaultValue = "false")
-	boolean providedKeyPair;
-
-	@ConfigProperty(name = "key_pair")
-	Optional<String> keyPairJsonBase64Url;
-
-	/**
-	 * 
-	 * @return
-	 */
-	private KeyPair getConfigKeyPair() {
-		try {
-			String keyPairJson = Base64URL.from(keyPairJsonBase64Url.get()).decodeToString();
-			return new ObjectMapper().readValue(keyPairJson, KeyPair.class);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	/**
 	 * Return the valid (not expired yet) key pair with the greatest expiration. If there are no valid
 	 * key pair a new one is generated.
@@ -75,21 +46,6 @@ public class KeyRetriever {
 	 * @return
 	 */
 	public Uni<KeyPair> getKeyPair() {
-		Log.debug("Retrieve kids.");
-		if (providedKeyPair) {
-			Log.warn("**** PROVIDED KEY PAIR MODE ****");
-			return Uni.createFrom().item(getConfigKeyPair());
-		}
-		return getManagedKeyPair();
-	}
-	
-	/**
-	 * Return the valid (not expired yet) key pair with the greatest expiration. If there are no valid
-	 * key pair a new one is generated.
-	 * 
-	 * @return
-	 */
-	public Uni<KeyPair> getManagedKeyPair() {
 		Log.debug("Retrieve kids.");
 		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
@@ -145,19 +101,6 @@ public class KeyRetriever {
 	 */
 	public Uni<PublicKeys> getPublicKeys() {
 		Log.debug("Retrieve public keys.");
-		if (providedKeyPair) {
-			Log.warn("**** PROVIDED KEY PAIR MODE ****");
-			return Uni.createFrom().item(new PublicKeys(List.of(getConfigKeyPair().publicKey())));
-		}
-		return getManagedPublicKeys();
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Uni<PublicKeys> getManagedPublicKeys() {
-		Log.debug("Retrieve public keys.");
 		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid retrieve the key pair.
@@ -173,19 +116,6 @@ public class KeyRetriever {
 	 * @return
 	 */
 	public Uni<Optional<PublicKey>> getPublicKey(String kid) {
-		Log.debugf("Retrieve public key: ", kid);
-		if (providedKeyPair) {
-			Log.warn("**** PROVIDED KEY PAIR MODE ****");
-			return Uni.createFrom().item(Optional.of(getConfigKeyPair().publicKey()));
-		}
-		return getManagedPublicKey(kid);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Uni<Optional<PublicKey>> getManagedPublicKey(String kid) {
 		Log.debugf("Retrieve public key: ", kid);
 		return redisClient.get(kid)
 			.map(keyPair -> {
