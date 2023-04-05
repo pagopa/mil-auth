@@ -68,12 +68,8 @@ public class KeyRetrieverTest {
 			.thenReturn(Uni.createFrom().item(new ArrayList<String>()));
 
 		Mockito
-			.when(redisClient.set(anyString(), any(KeyPair.class)))
+			.when(redisClient.setex(anyString(), anyLong(), any(KeyPair.class)))
 			.thenReturn(Uni.createFrom().voidItem());
-
-		Mockito
-			.when(redisClient.expireat(anyString(), anyLong()))
-			.thenReturn(Uni.createFrom().item(Boolean.TRUE));
 
 		/*
 		 * Test
@@ -98,7 +94,7 @@ public class KeyRetrieverTest {
 			.thenReturn(Uni.createFrom().item(new ArrayList<String>()));
 
 		Mockito
-			.when(redisClient.set(anyString(), any(KeyPair.class)))
+			.when(redisClient.setex(anyString(), anyLong(), any(KeyPair.class)))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
 		/*
@@ -123,12 +119,8 @@ public class KeyRetrieverTest {
 			.thenReturn(Uni.createFrom().item(new ArrayList<String>()));
 
 		Mockito
-			.when(redisClient.set(anyString(), any(KeyPair.class)))
+			.when(redisClient.setex(anyString(), anyLong(), any(KeyPair.class)))
 			.thenReturn(Uni.createFrom().voidItem());
-
-		Mockito
-			.when(redisClient.expireat(anyString(), anyLong()))
-			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
 		/*
 		 * Test
