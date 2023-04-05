@@ -64,10 +64,10 @@ public class RedisClient {
 	 * @param keyPair
 	 * @return
 	 */
-//	public Uni<Void> set(String kid, KeyPair keyPair) {
-//		return valueCommands.set(kid, keyPair);
-//	}
-	
+	// public Uni<Void> set(String kid, KeyPair keyPair) {
+	// return valueCommands.set(kid, keyPair);
+	// }
+
 	/**
 	 * 
 	 * @param kid
@@ -85,7 +85,7 @@ public class RedisClient {
 	 * @param exp
 	 * @return
 	 */
-//	public Uni<Boolean> _expireat(String kid, long exp) {
-//		return keyCommands.expireat(kid, exp);
-//	}
+	// public Uni<Boolean> _expireat(String kid, long exp) {
+	// return keyCommands.expireat(kid, exp);
+	// }
 }

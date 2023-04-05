@@ -56,7 +56,7 @@ public class JwksResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<PublicKeys> get() {
 		Log.debugf("get - Input parameters: n/a");
-		return keyRetriever.getManagedPublicKeys() // Retrieve keys.
+		return keyRetriever.getPublicKeys() // Retrieve keys.
 			.onFailure().transform(this::errorOnRetrievingKeys).log(); // Error while retrieving keys.
 	}
 }
