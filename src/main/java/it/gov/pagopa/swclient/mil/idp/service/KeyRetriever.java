@@ -138,6 +138,14 @@ public class KeyRetriever {
 			Log.warn("**** PROVIDED KEY PAIR MODE ****");
 			return Uni.createFrom().item(new PublicKeys(List.of(getConfigKeyPair().publicKey())));
 		}
+		return getManagedPublicKeys();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Uni<PublicKeys> getManagedPublicKeys() {
 		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid retrieve the key pair.
