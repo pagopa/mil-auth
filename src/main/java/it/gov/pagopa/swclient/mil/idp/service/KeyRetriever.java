@@ -25,8 +25,6 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
-import it.gov.pagopa.swclient.mil.idp.bean.KeyType;
-import it.gov.pagopa.swclient.mil.idp.bean.KeyUse;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKey;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKeys;
 
@@ -103,11 +101,8 @@ public class KeyRetriever {
 
 						// Store it in Redis.
 						Log.debug("Store generated key pair in Redis.");
-						return redisClient.set(keyPair.getKid(), keyPair)
+						return redisClient.setex(keyPair.getKid(), (keyPair.getExp() - keyPair.getIat()) / 1000, keyPair)
 							.chain(() -> {
-								// Set when Redis has to remove it.
-								Log.debug("Set when Redis has to remove generated key pair.");
-								redisClient.expireat(keyPair.getKid(), keyPair.getExp());
 								return Uni.createFrom().item(keyPair);
 							});
 					} catch (JOSEException e) {
