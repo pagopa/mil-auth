@@ -80,6 +80,17 @@ public class KeyRetriever {
 			Log.warn("**** PROVIDED KEY PAIR MODE ****");
 			return Uni.createFrom().item(getConfigKeyPair());
 		}
+		return getManagedKeyPair();
+	}
+	
+	/**
+	 * Return the valid (not expired yet) key pair with the greatest expiration. If there are no valid
+	 * key pair a new one is generated.
+	 * 
+	 * @return
+	 */
+	public Uni<KeyPair> getManagedKeyPair() {
+		Log.debug("Retrieve kids.");
 		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid retrieve the key pair.
@@ -146,6 +157,7 @@ public class KeyRetriever {
 	 * @return
 	 */
 	public Uni<PublicKeys> getManagedPublicKeys() {
+		Log.debug("Retrieve public keys.");
 		return redisClient.keys("*") // Retrieve kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transform the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid retrieve the key pair.
@@ -166,6 +178,15 @@ public class KeyRetriever {
 			Log.warn("**** PROVIDED KEY PAIR MODE ****");
 			return Uni.createFrom().item(Optional.of(getConfigKeyPair().publicKey()));
 		}
+		return getManagedPublicKey(kid);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Uni<Optional<PublicKey>> getManagedPublicKey(String kid) {
+		Log.debugf("Retrieve public key: ", kid);
 		return redisClient.get(kid)
 			.map(keyPair -> {
 				if (keyPair == null || keyPair.getExp() < new Date().getTime()) {
