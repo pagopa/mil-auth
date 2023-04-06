@@ -1,6 +1,7 @@
 package it.gov.pagopa.swclient.mil.idp.resource;
 
 import static io.restassured.RestAssured.given;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -245,7 +246,7 @@ public class TokenGenerationTest {
 
 	 @Test
 		public void testCreateTokenFromRefresh() {
-
+		//TODO: Generate key ffrom key Generator.
 		 String e ="AQAB";
 		 KeyUse use = KeyUse.sig;
 		 String kid = "82f6353e-39b6-4a60-9fe5-cdce55a290bd";
@@ -325,9 +326,10 @@ public class TokenGenerationTest {
 
 	 @Test
 		public void testCreateTokenFromRefreshExpiredKey() {
-
-		 String e ="AQAB";
-		 KeyUse use = KeyUse.sig;
+		 /*
+		  * I tried deleting those steps until line 350, but if I did, the test wouldn't work, I need to look into it.
+		  */
+	
 		 String kid = "82f6353e-39b6-4a60-9fe5-cdce55a290bd";
 		 String n = "i5x1lYLgZXwOdGZb0m8Bx1IqsedN4P9qLSsokxmqFxu6My5bFGhhVWA4OHdtTPACfYVNoRY85aH7RJOKe06PIuSct4nkAS0VBCOWamaJ0_Z9H083fiLrfPEwViNVW8GGnlzxmNkPZ4TAP8K7ceI660NSe-0OsK87seRLEpfgGAb2yFxR5y1MMsO9lHxVfW7BlfAYpF8zvOAafq-OwwZ8Av4Tz2NwPZDcl6vQ_XE5l6yXD8zRJxn7oeycEj7zavx5WLFzSl9Ox6oxHb_nfi3i2mWMmkBU8sUItDm729vyeUJ1njjpkDkY4KtLJvf_txJ3XKbTwQJ-fUCmawlcCaPS0D71t6YdnUI3GdhApq9-xL8J5S8sgDZdbFDhKOnpWpOd1hd_igb8KZG2eRguFY2R0hjGmWUIiyJ-Vc8XmD1QZwOvutKsaL8pwgpeEJ-C1x4ltJ5QyDeUSE5hsZWrg_c-KqC7u-FxvPE05X-O4aepksTuk0D0eo9TOlA7zw61x3V-A_zAYBPpevsANf2oPIrTdgWbODGVC3cIJuRJMN4QELGqYN7gcLho_1uiR6XcOmfynYfSFRXVou78tEyV_27U7cvUXmY6-Xl5FmqMy3thqMd1-Ak_UW7GXhkakradcP8PvT9fwozIG53seH14X4WDzjvXIKaS0NMOUi0dHKIOpWk";
 		 KeyType kty = KeyType.RSA;
@@ -346,7 +348,7 @@ public class TokenGenerationTest {
 					"hsnut4VDuwCg-IEGbzthY6oVjJwUuSMs6atdyyBMcnWKV-sqYUqIP8iAqQBjFYcEwsVCbb_AubAbHrlQm42T2XCweTmnvZXqI7PMK5_aYp9DTwqI30Sr-usgjgQJkyMUG7jQj-EvY99xkYX7j9ilrslnkuE01OY0PWkvR_Jo09seG68EUBq3TBSOdSP_Cuwi9JxripytPVOXfnsdn4zuTxxjE8ZSxq6Ql6nm5tQ-Ni6JdQWzE6JqCTuwUtPGYP6hcCeASTGKTusy7t3zMkC1hdT5o77dlTGkbZt60gA-alRQoy8f0UkuDXgiIwDr9FILTyZHiDqu1UavDA-PfJ_PSA",
 	1680695652675l, 1680609252675l);
 			Mockito.when(keyRetriever.getKeyPair()).thenReturn(Uni.createFrom().item(k)); 
-			Mockito.when(keyRetriever.getPublicKey(kid))
+			Mockito.when(keyRetriever.getPublicKey(anyString()))
 			.thenReturn(Uni.createFrom().item(Optional.empty()));
 			//Need to simulate a key pair object.
 			// Prepare request

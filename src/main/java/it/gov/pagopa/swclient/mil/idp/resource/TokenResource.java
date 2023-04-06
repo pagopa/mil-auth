@@ -127,6 +127,12 @@ public class TokenResource {
 	 */
 	@Inject
 	KeyRetriever keyRetriever;
+	
+	@Inject
+	TokenStringGenerator tokenStringGenerator;
+	
+	@Inject
+	RefreshTokenStringGenerator refreshTokenStringGenerator;
 
 	/**
 	 * Verify channel consistency.
@@ -330,6 +336,7 @@ public class TokenResource {
 		return factory.generatePrivate(spec);
 	}
 
+
 	/**
 	 * 
 	 * @param keyPair
@@ -356,54 +363,21 @@ public class TokenResource {
 		Log.debug("Retrieve key pair.");
 		return keyRetriever.getKeyPair()
 			.chain(key -> {
+				JWSSigner signer;
+				try {
+					signer = new RSASSASigner(getPrivateKey(key));
 				Date now = new Date();
 				
 				JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, key.getKid(), true, null, null);
-
-				Log.debug("Generate access token.");
-				JWTClaimsSet accessPayload = new JWTClaimsSet.Builder()
-					.issuer(issuer)
-					.audience(accessAudience)
-					.issueTime(now)
-					.expirationTime(new Date(now.getTime() + accessDuration * 1000))
-					.claim("scope", concat(grantEntity.getGrants()))
-					.build();
+				SignedJWT accessToken = tokenStringGenerator.generateAccessToken(header, key, getAccessToken, commonHeader, grantEntity, signer);
+				String refreshTokenStr = refreshTokenStringGenerator.generateRefreshTokenString(commonHeader, getAccessToken, header, signer);
 				
-				SignedJWT accessToken = new SignedJWT(header, accessPayload);
-
-				try {
-					JWSSigner signer = new RSASSASigner(getPrivateKey(key));
-					Log.debug("Sign access token.");
-					accessToken.sign(signer);
-					
-					String refreshTokenStr = null;
-					if (Objects.equals(getAccessToken.getScope(), "offline_access") || Objects.equals(getAccessToken.getGrantType(), "refresh_token")) {
-						Log.debug("Generate refresh token.");
-						JWTClaimsSet refreshPayload = new JWTClaimsSet.Builder()
-							.issuer(issuer)
-							.audience(refreshAudience)
-							.issueTime(now)
-							.expirationTime(new Date(now.getTime() + refreshDuration * 1000))
-							.claim("scope", "offline_access")
-							.claim("acquirerId", commonHeader.getAcquirerId())
-							.claim("channel", commonHeader.getChannel())
-							.claim("merchantId", commonHeader.getMerchantId())
-							.claim("clientId", getAccessToken.getClientId())
-							.build();
-						
-						SignedJWT refreshToken = new SignedJWT(header, refreshPayload);
-						
-						Log.debug("Sign refresh token.");
-						refreshToken.sign(signer);
-						
-						refreshTokenStr = refreshToken.serialize();
-					}
-					
-					AccessToken token = new AccessToken(accessToken.serialize(), refreshTokenStr, accessDuration);
-					Log.debug("Tokens generated successfully.");
-					return Uni.createFrom().item(token);
-				} catch (JOSEException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-					Log.errorf(e, "Error during tokens signing.");
+				AccessToken token = new AccessToken(accessToken.serialize(), refreshTokenStr, accessDuration);
+				Log.debug("Tokens generated successfully.");
+				return Uni.createFrom().item(token);
+				} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 					return Uni.createFrom().failure(e);
 				}
 			});
