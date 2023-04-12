@@ -40,17 +40,12 @@ public class TokenStringGenerator {
 	@ConfigProperty(name = "access.audience")
 	private List<String> accessAudience;
 
-
 	/*
 	 * .
 	 */
 	@ConfigProperty(name = "access.duration")
 	private long accessDuration;
-	
 
-	
-
-	
 	private String concat(List<String> strings) {
 		StringBuffer buffer = new StringBuffer();
 		strings.forEach(x -> {
@@ -59,31 +54,25 @@ public class TokenStringGenerator {
 		});
 		return buffer.toString().trim();
 	}
-	
-	public SignedJWT generateAccessToken(JWSHeader header,  KeyPair key, GetAccessToken getAccessToken, CommonHeader commonHeader, GrantEntity grantEntity, JWSSigner signer)
-	{
+
+	public SignedJWT generateAccessToken(JWSHeader header, KeyPair key, GetAccessToken getAccessToken,
+			CommonHeader commonHeader, GrantEntity grantEntity, JWSSigner signer) {
 		Log.debug("Generate access token.");
 		Date now = new Date();
 
-		JWTClaimsSet accessPayload = new JWTClaimsSet.Builder()
-			.issuer(issuer)
-			.audience(accessAudience)
-			.issueTime(now)
-			.expirationTime(new Date(now.getTime() + accessDuration * 1000))
-			.claim("scope", concat(grantEntity.getGrants()))
-			.build();
+		JWTClaimsSet accessPayload = new JWTClaimsSet.Builder().issuer(issuer).audience(accessAudience).issueTime(now)
+				.expirationTime(new Date(now.getTime() + accessDuration * 1000))
+				.claim("scope", concat(grantEntity.getGrants())).build();
 		SignedJWT accessToken = new SignedJWT(header, accessPayload);
 		try {
 			Log.debug("Sign access token.");
 			accessToken.sign(signer);
-				
-				return accessToken;
-			}
-		catch (JOSEException e) {
+
+			return accessToken;
+		} catch (JOSEException e) {
 			Log.errorf(e, "Error during tokens signing.");
 			return null;
 		}
 	}
-	
-}
 
+}
