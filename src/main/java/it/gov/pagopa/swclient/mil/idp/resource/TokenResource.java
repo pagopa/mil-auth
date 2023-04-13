@@ -38,6 +38,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.bson.Document;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -59,6 +60,7 @@ import it.gov.pagopa.swclient.mil.idp.bean.AccessToken;
 import it.gov.pagopa.swclient.mil.idp.bean.GetAccessToken;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKey;
+import it.gov.pagopa.swclient.mil.idp.client.PoyntClient;
 import it.gov.pagopa.swclient.mil.idp.dao.ClientEntity;
 import it.gov.pagopa.swclient.mil.idp.dao.ClientRepository;
 import it.gov.pagopa.swclient.mil.idp.dao.GrantEntity;
@@ -130,6 +132,11 @@ public class TokenResource {
 	@Inject
 	KeyRetriever keyRetriever;
 
+	
+	@RestClient
+	PoyntClient poyntClient;
+	
+	
 	@Inject
 	TokenStringGenerator tokenStringGenerator;
 
@@ -611,8 +618,10 @@ public class TokenResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<AccessToken> createOrRefreshToken(@Valid @BeanParam CommonHeader commonHeader,
 			@Valid @BeanParam GetAccessToken getAccessToken) {
-		if (getAccessToken.getGrantType().equals("password")) {
+		if (getAccessToken.isPasswordGrantType()) {
 			return createToken(commonHeader, getAccessToken);
+		} else if (getAccessToken.isPoyntTokenGrantType()) {
+			return createTokenByPoyntToken(commonHeader, getAccessToken);
 		} else {
 			return refreshToken(commonHeader, getAccessToken);
 		}
@@ -666,6 +675,66 @@ public class TokenResource {
 				});
 	}
 
+	/**
+	 * Create access and refresh tokens by means of username/password.
+	 * 
+	 * @param commonHeader
+	 * @param getAccessToken
+	 * @return
+	 */
+	private Uni<AccessToken> createTokenByPoyntToken(CommonHeader commonHeader, GetAccessToken getAccessToken) {
+		Log.debugf("createTokenByPoyntToken - Input parameters: %s, %s", commonHeader, getAccessToken);
+
+		String channel = commonHeader.getChannel();
+		String extToken = getAccessToken.getExtToken();
+		String addData = getAccessToken.getAddData();
+		String merchantId = commonHeader.getMerchantId();
+		String acquirerId = commonHeader.getAcquirerId();
+
+		/*
+		 * Verify Poynt token.
+		 */
+		Log.debug("Verify Poynt token.");
+		return poyntClient.getBusinessObject("Bearer "+ extToken, addData)
+			.onFailure(
+				t -> !(t instanceof NotAuthorizedException) && !(t instanceof InternalServerErrorException))
+			.transform(t -> {
+				Log.errorf(t, "[%s] Error while vaidating Poynt Token.", ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN);
+				return new InternalServerErrorException(
+					Response.status(Status.INTERNAL_SERVER_ERROR)
+						.entity(new Errors(List.of(
+							ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN)))
+						.build());
+			})
+			.onItem()
+			.invoke(businessObject -> 
+			{
+				if(businessObject.getStatus()!= 200)
+				{
+					throw new NotAuthorizedException(Response.status(Status.UNAUTHORIZED)
+							.entity(new Errors(List.of(
+									ErrorCode.EXT_TOKEN_NOT_VALID)))
+								.build());
+				}
+				
+			}
+			)
+			.onFailure(
+					t -> !(t instanceof NotAuthorizedException) && !(t instanceof InternalServerErrorException))
+			.transform(t -> {
+				Log.errorf(t, "[%s] Error while vaidating Poynt Token.", ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN);
+				return new InternalServerErrorException(
+					Response.status(Status.INTERNAL_SERVER_ERROR)
+						.entity(new Errors(List.of(
+							ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN)))
+						.build());}
+				)
+			.chain(() -> {
+				return commonProcessing(commonHeader, getAccessToken);
+			});
+	}
+
+	
 	/**
 	 * 
 	 * @param commonHeader

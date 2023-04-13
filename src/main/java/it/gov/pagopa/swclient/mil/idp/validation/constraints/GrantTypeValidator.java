@@ -5,30 +5,79 @@
  */
 package it.gov.pagopa.swclient.mil.idp.validation.constraints;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import it.gov.pagopa.swclient.mil.idp.bean.GetAccessToken;
+import it.gov.pagopa.swclient.mil.idp.bean.GrantType;
 
 /**
- * If grant_type = password, username and password must not be null and refresh_token must be null.
- * If grant_type = refresh_token, refresh token must not be null and username and password must be
- * null.
+ * +---------------+----------+----------+---------------+----------------------+
+ * | grant_type    | username | password | refresh_token | ext_token | add_data |
+ * +---------------+----------+----------+---------------+-----------+----------+
+ * | password      | not null | not null | null          | null      | null     |
+ * | refresh_token | null     | null     | not null      | null      | null     |
+ * | poynt_token   | null     | null     | null          | not null  | not null |
+ * +---------------+----------+----------+---------------+-----------+----------+
  * 
  * @author Antonio Tarricone
  */
-public class GrantTypeValidator implements ConstraintValidator<GrantType, GetAccessToken> {
+public class GrantTypeValidator implements ConstraintValidator<it.gov.pagopa.swclient.mil.idp.validation.constraints.GrantTypeInterface, GetAccessToken> {
+	/*
+	 * 
+	 */
+	private static final Map<String, Predicate<GetAccessToken>> VALIDATOR = new HashMap<>();
+	static {
+		VALIDATOR.put(GrantType.PASSWORD, new Predicate<GetAccessToken>() {
+			@Override
+			public boolean test(GetAccessToken getAccessToken) {
+				return getAccessToken.getUsername() != null
+					&& getAccessToken.getPassword() != null
+					&& getAccessToken.getRefreshToken() == null
+					&& getAccessToken.getExtToken() == null
+					&& getAccessToken.getAddData() == null;
+			}
+		
+		});
+		
+		VALIDATOR.put(GrantType.REFRESH_TOKEN, new Predicate<GetAccessToken>() {
+			@Override
+			public boolean test(GetAccessToken getAccessToken) {
+				return getAccessToken.getUsername() == null
+					&& getAccessToken.getPassword() == null
+					&& getAccessToken.getRefreshToken() != null
+					&& getAccessToken.getExtToken() == null
+					&& getAccessToken.getAddData() == null;
+			}
+		
+		});
+		
+		VALIDATOR.put(GrantType.POYNT_TOKEN, new Predicate<GetAccessToken>() {
+			@Override
+			public boolean test(GetAccessToken getAccessToken) {
+				return getAccessToken.getUsername() == null
+					&& getAccessToken.getPassword() == null
+					&& getAccessToken.getRefreshToken() == null
+					&& getAccessToken.getExtToken() != null
+					&& getAccessToken.getAddData() != null;
+			}
+		});
+	}
+	
+	/**
+	 * @see javax.validation.ConstraintValidator#isValid(Object, ConstraintValidatorContext)
+	 */
 	@Override
 	public boolean isValid(GetAccessToken getAccessToken, ConstraintValidatorContext context) {
-		boolean isValid = false;
-		String grantType = getAccessToken.getGrantType();
-		if (grantType != null) {
-			if (grantType.equals("password")) {
-				isValid = (getAccessToken.getUsername() != null && getAccessToken.getPassword() != null && getAccessToken.getRefreshToken() == null);
-			} else {
-				isValid = (getAccessToken.getUsername() == null && getAccessToken.getPassword() == null && getAccessToken.getRefreshToken() != null);
+		return VALIDATOR.getOrDefault(getAccessToken.getGrantType(), new Predicate<GetAccessToken>() {
+			@Override
+			public boolean test(GetAccessToken t) {
+				return false;
 			}
-		}
-		return isValid;
+		}).test(getAccessToken);
 	}
 }

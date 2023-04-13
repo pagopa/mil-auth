@@ -58,6 +58,11 @@ public final class ErrorCode {
 	public static final String KEY_NOT_FOUND = MODULE_ID + "00001F";
 	public static final String WRONG_SIGNATURE = MODULE_ID + "000020";
 	public static final String ERROR_WHILE_SIGNATURE_VERIFICATION = MODULE_ID + "000021";
+	
+	public static final String EXT_TOKEN_MUST_MATCH_REGEXP = MODULE_ID + "000022";
+	public static final String ADD_DATA_MUST_MATCH_REGEXP = MODULE_ID + "000023";
+	public static final String ERROR_WHILE_VALIDATING_EXT_TOKEN = MODULE_ID + "000024";
+	public static final String EXT_TOKEN_NOT_VALID = MODULE_ID + "000025";
 
 	private ErrorCode() {
 	}

@@ -16,9 +16,13 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * If grant_type = password, username and password must not be null and refresh_token must be null.
- * If grant_type = refresh_token, refresh token must not be null and username and password must be
- * null.
+ * +---------------+----------+----------+---------------+----------------------+
+ * | grant_type    | username | password | refresh_token | ext_token | add_data |
+ * +---------------+----------+----------+---------------+-----------+----------+
+ * | password      | not null | not null | null          | null      | null     |
+ * | refresh_token | null     | null     | not null      | null      | null     |
+ * | poynt_token   | null     | null     | null          | not null  | not null |
+ * +---------------+----------+----------+---------------+-----------+----------+
  * 
  * @author Antonio Tarricone
  */
@@ -28,7 +32,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = {
 	GrantTypeValidator.class
 })
-public @interface GrantType {
+public @interface GrantTypeInterface {
 	String message() default "";
 
 	Class<?>[] groups() default {};
