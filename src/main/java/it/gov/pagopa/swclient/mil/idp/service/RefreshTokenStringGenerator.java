@@ -1,4 +1,4 @@
-package it.gov.pagopa.swclient.mil.idp.resource;
+package it.gov.pagopa.swclient.mil.idp.service;
 
 import java.util.Date;
 import java.util.List;

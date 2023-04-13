@@ -66,6 +66,8 @@ import it.gov.pagopa.swclient.mil.idp.dao.GrantRepository;
 import it.gov.pagopa.swclient.mil.idp.dao.ResourceOwnerCredentialsEntity;
 import it.gov.pagopa.swclient.mil.idp.dao.ResourceOwnerCredentialsRepository;
 import it.gov.pagopa.swclient.mil.idp.service.KeyRetriever;
+import it.gov.pagopa.swclient.mil.idp.service.RefreshTokenStringGenerator;
+import it.gov.pagopa.swclient.mil.idp.service.TokenStringGenerator;
 import it.gov.pagopa.swclient.mil.idp.utils.PasswordVerifier;
 
 /**
@@ -293,14 +295,7 @@ public class TokenResource {
 	 * @param strings
 	 * @return
 	 */
-	private String concat(List<String> strings) {
-		StringBuffer buffer = new StringBuffer();
-		strings.forEach(x -> {
-			buffer.append(x);
-			buffer.append(" ");
-		});
-		return buffer.toString().trim();
-	}
+
 
 	/**
 	 * 
@@ -346,7 +341,6 @@ public class TokenResource {
 			JWSSigner signer;
 			try {
 				signer = new RSASSASigner(getPrivateKey(key));
-				Date now = new Date();
 
 				JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null,
 						null, key.getKid(), true, null, null);

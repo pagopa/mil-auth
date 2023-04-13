@@ -307,9 +307,6 @@ public class TokenGenerationTest {
 			Assert.assertTrue(responseMap.containsKey("expires_in"));
 
 			String refreshToken = responsePath.getString("refresh_token");
-			String accessToekn = responsePath.getString("access_token");
-			String tokenType = responsePath.getString("token_type");
-			String expiresIn = responsePath.getString("expires_in");
 		resp.then().statusCode(200);
 			System.out.println(refreshToken);
 
@@ -330,11 +327,6 @@ public class TokenGenerationTest {
 		  * I tried deleting those steps until line 350, but if I did, the test wouldn't work, I need to look into it.
 		  */
 	
-		 String kid = "82f6353e-39b6-4a60-9fe5-cdce55a290bd";
-		 String n = "i5x1lYLgZXwOdGZb0m8Bx1IqsedN4P9qLSsokxmqFxu6My5bFGhhVWA4OHdtTPACfYVNoRY85aH7RJOKe06PIuSct4nkAS0VBCOWamaJ0_Z9H083fiLrfPEwViNVW8GGnlzxmNkPZ4TAP8K7ceI660NSe-0OsK87seRLEpfgGAb2yFxR5y1MMsO9lHxVfW7BlfAYpF8zvOAafq-OwwZ8Av4Tz2NwPZDcl6vQ_XE5l6yXD8zRJxn7oeycEj7zavx5WLFzSl9Ox6oxHb_nfi3i2mWMmkBU8sUItDm729vyeUJ1njjpkDkY4KtLJvf_txJ3XKbTwQJ-fUCmawlcCaPS0D71t6YdnUI3GdhApq9-xL8J5S8sgDZdbFDhKOnpWpOd1hd_igb8KZG2eRguFY2R0hjGmWUIiyJ-Vc8XmD1QZwOvutKsaL8pwgpeEJ-C1x4ltJ5QyDeUSE5hsZWrg_c-KqC7u-FxvPE05X-O4aepksTuk0D0eo9TOlA7zw61x3V-A_zAYBPpevsANf2oPIrTdgWbODGVC3cIJuRJMN4QELGqYN7gcLho_1uiR6XcOmfynYfSFRXVou78tEyV_27U7cvUXmY6-Xl5FmqMy3thqMd1-Ak_UW7GXhkakradcP8PvT9fwozIG53seH14X4WDzjvXIKaS0NMOUi0dHKIOpWk";
-		 KeyType kty = KeyType.RSA;
-		 long exp = 1680695652675l;
-		 long iat = 1680609252675l;
 		 KeyPair k = new KeyPair("OCCNJzAIHdSrjQFPvgCR0vvGHWKz7RZSLdmRhN4HAyZLC-OBi2lRZDz8LTtaLlm5bpQmevIRRnKCLXYxcNRK-Ei3dpRRnWVt8w2JnboehCAu-mTjFutcCA2BFMg8u1hI0ibknEH7ju8QSTH1INpGPKoCob7SrpasZZ61zcJQPeii0zdGWC3eWfRWpbj8t6JM4oY1qfN6Pd9M14yl1OMo_Rz_gttj1uSDwtg4-4NHF6Kz0o7RsSohf147-pvjSao58L3ab1Z0uhHCkEbD_vbcole8GJFvdXBgSPCDBWdeCoD8_0C7KZfC2CQVYRPH8uZSJWYOcKSbjKhun06SeW-qwyTiQZpL91txpkh7XNbx3RrKBMbX7NfJF6eTdcv2zCljzwUjrzhlvKZQXypXKjE9by4n6bRH49ZlO2dlq5B8f5jiwSTEl3C4t1NgT8gL9_Hy2BkmlrudXEZtNfONOkCKK47DBiwh0SFxNVsCMWF_qHvwUvQIBjjPpZABzSJSBch7rFVxepk1ch706Y9MuzKJ4Lc9po2KCnW4Bm2XHbUQjFONZUA4aL34RB8TIRlFFrISf9cOkWEx74BUUm3gPuniNwASQeJG9LbQEHfv4it979htxN8kGuMDqUlV4-X_rNSjYjaAoyJjsEnxZb7h96BtQ80LiY9P-xmUDNwhJWD5Isc", 
 					"AQAB", 
 					KeyUse.sig, 
@@ -387,9 +379,6 @@ public class TokenGenerationTest {
 			Assert.assertTrue(responseMap.containsKey("expires_in"));
 
 			String refreshToken = responsePath.getString("refresh_token");
-			String accessToekn = responsePath.getString("access_token");
-			String tokenType = responsePath.getString("token_type");
-			String expiresIn = responsePath.getString("expires_in");
 		resp.then().statusCode(200);
 			System.out.println(refreshToken);
 
@@ -408,13 +397,7 @@ public class TokenGenerationTest {
 	 @Test
 		public void testCreateTokenWithNoRefresh() {
 
-		 String e ="AQAB";
-		 KeyUse use = KeyUse.sig;
 		 String kid = "82f6353e-39b6-4a60-9fe5-cdce55a290bd";
-		 String n = "i5x1lYLgZXwOdGZb0m8Bx1IqsedN4P9qLSsokxmqFxu6My5bFGhhVWA4OHdtTPACfYVNoRY85aH7RJOKe06PIuSct4nkAS0VBCOWamaJ0_Z9H083fiLrfPEwViNVW8GGnlzxmNkPZ4TAP8K7ceI660NSe-0OsK87seRLEpfgGAb2yFxR5y1MMsO9lHxVfW7BlfAYpF8zvOAafq-OwwZ8Av4Tz2NwPZDcl6vQ_XE5l6yXD8zRJxn7oeycEj7zavx5WLFzSl9Ox6oxHb_nfi3i2mWMmkBU8sUItDm729vyeUJ1njjpkDkY4KtLJvf_txJ3XKbTwQJ-fUCmawlcCaPS0D71t6YdnUI3GdhApq9-xL8J5S8sgDZdbFDhKOnpWpOd1hd_igb8KZG2eRguFY2R0hjGmWUIiyJ-Vc8XmD1QZwOvutKsaL8pwgpeEJ-C1x4ltJ5QyDeUSE5hsZWrg_c-KqC7u-FxvPE05X-O4aepksTuk0D0eo9TOlA7zw61x3V-A_zAYBPpevsANf2oPIrTdgWbODGVC3cIJuRJMN4QELGqYN7gcLho_1uiR6XcOmfynYfSFRXVou78tEyV_27U7cvUXmY6-Xl5FmqMy3thqMd1-Ak_UW7GXhkakradcP8PvT9fwozIG53seH14X4WDzjvXIKaS0NMOUi0dHKIOpWk";
-		 KeyType kty = KeyType.RSA;
-		 long exp = 1680695652675l;
-		 long iat = 1680609252675l;
 		 KeyPair k = new KeyPair("OCCNJzAIHdSrjQFPvgCR0vvGHWKz7RZSLdmRhN4HAyZLC-OBi2lRZDz8LTtaLlm5bpQmevIRRnKCLXYxcNRK-Ei3dpRRnWVt8w2JnboehCAu-mTjFutcCA2BFMg8u1hI0ibknEH7ju8QSTH1INpGPKoCob7SrpasZZ61zcJQPeii0zdGWC3eWfRWpbj8t6JM4oY1qfN6Pd9M14yl1OMo_Rz_gttj1uSDwtg4-4NHF6Kz0o7RsSohf147-pvjSao58L3ab1Z0uhHCkEbD_vbcole8GJFvdXBgSPCDBWdeCoD8_0C7KZfC2CQVYRPH8uZSJWYOcKSbjKhun06SeW-qwyTiQZpL91txpkh7XNbx3RrKBMbX7NfJF6eTdcv2zCljzwUjrzhlvKZQXypXKjE9by4n6bRH49ZlO2dlq5B8f5jiwSTEl3C4t1NgT8gL9_Hy2BkmlrudXEZtNfONOkCKK47DBiwh0SFxNVsCMWF_qHvwUvQIBjjPpZABzSJSBch7rFVxepk1ch706Y9MuzKJ4Lc9po2KCnW4Bm2XHbUQjFONZUA4aL34RB8TIRlFFrISf9cOkWEx74BUUm3gPuniNwASQeJG9LbQEHfv4it979htxN8kGuMDqUlV4-X_rNSjYjaAoyJjsEnxZb7h96BtQ80LiY9P-xmUDNwhJWD5Isc", 
 					"AQAB", 
 					KeyUse.sig, 
@@ -467,9 +450,6 @@ public class TokenGenerationTest {
 			Assert.assertTrue(responseMap.containsKey("expires_in"));
 
 			String refreshToken = "";
-			String accessToekn = responsePath.getString("access_token");
-			String tokenType = responsePath.getString("token_type");
-			String expiresIn = responsePath.getString("expires_in");
 		resp.then().statusCode(200);
 			System.out.println(refreshToken);
 

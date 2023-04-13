@@ -1,14 +1,7 @@
-package it.gov.pagopa.swclient.mil.idp.resource;
+package it.gov.pagopa.swclient.mil.idp.service;
 
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPrivateKeySpec;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -17,13 +10,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
-import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.bean.CommonHeader;
 import it.gov.pagopa.swclient.mil.idp.bean.GetAccessToken;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
