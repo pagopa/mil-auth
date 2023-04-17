@@ -22,7 +22,7 @@ import io.smallrye.mutiny.Uni;
  * 
  * @author Antonio Tarricone
  */
-@RegisterRestClient(configKey="poynt-api")
+@RegisterRestClient(configKey = "poynt-api")
 public interface PoyntClient {
 	/**
 	 * 
@@ -32,11 +32,8 @@ public interface PoyntClient {
 	 */
 	@Path("/businesses/{businessId}")
 	@GET
-	@ClientHeaderParam(name = "Api-Version", value = "${poynt-api.version}") 
-/* Need to fix this, passing a function causes a bug. 
- * 	@ClientHeaderParam(name = "POYNT-REQUEST-ID", value = "{with-param}") 
- */
-	@ClientHeaderParam(name = "POYNT-REQUEST-ID", value = "11") 
+	@ClientHeaderParam(name = "Api-Version", value = "${poynt-api.version}")
+	@ClientHeaderParam(name = "POYNT-REQUEST-ID", value = "{withParam}")
 	Uni<Response> getBusinessObject(
 		@HeaderParam("Authorization") String poyntToken,
 		@PathParam("businessId") String businessId);
@@ -47,9 +44,9 @@ public interface PoyntClient {
 	 * @return
 	 */
 	default String withParam(String name) {
-        if ("POYNT-REQUEST-ID".equals(name)) {
-            return UUID.randomUUID().toString();
-        }
-        throw new IllegalArgumentException();
-    }
+		if ("POYNT-REQUEST-ID".equals(name)) {
+			return UUID.randomUUID().toString();
+		}
+		throw new IllegalArgumentException();
+	}
 }

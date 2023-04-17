@@ -131,7 +131,6 @@ public class TokenResource {
 	 */
 	@Inject
 	KeyRetriever keyRetriever;
-
 	
 	@RestClient
 	PoyntClient poyntClient;
@@ -296,13 +295,6 @@ public class TokenResource {
 			}
 		});
 	}
-
-	/**
-	 * 
-	 * @param strings
-	 * @return
-	 */
-
 
 	/**
 	 * 

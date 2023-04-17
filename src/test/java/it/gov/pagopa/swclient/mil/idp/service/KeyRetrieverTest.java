@@ -382,9 +382,6 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		/*
-		 * Test
-		 */
 		keyRetriever.getPublicKeys()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
@@ -418,9 +415,6 @@ public class KeyRetrieverTest {
 			.when(redisClient.get(keyPair2.getKid()))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
-		/*
-		 * Test
-		 */
 		/*
 		 * Test
 		 */
