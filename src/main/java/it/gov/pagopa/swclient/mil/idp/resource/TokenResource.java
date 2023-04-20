@@ -5,23 +5,9 @@
  */
 package it.gov.pagopa.swclient.mil.idp.resource;
 
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
-import java.text.ParseException;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -36,7 +22,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import it.gov.pagopa.swclient.mil.idp.service.*;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
