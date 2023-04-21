@@ -15,8 +15,12 @@ import it.gov.pagopa.swclient.mil.idp.bean.AccessToken;
 import it.gov.pagopa.swclient.mil.idp.bean.GetAccessToken;
 import it.gov.pagopa.swclient.mil.idp.bean.KeyPair;
 import it.gov.pagopa.swclient.mil.idp.bean.PublicKey;
+import it.gov.pagopa.swclient.mil.idp.client.PoyntClient;
+import it.gov.pagopa.swclient.mil.idp.dao.ClientRepository;
 import it.gov.pagopa.swclient.mil.idp.dao.GrantEntity;
+import it.gov.pagopa.swclient.mil.idp.dao.ResourceOwnerCredentialsRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -64,14 +68,20 @@ public class TokenManager {
     @ConfigProperty(name = "refresh.duration")
     long refreshDuration;
 
+    @Inject
+    ResourceOwnerCredentialsRepository resourceOwnerCredentialsRepository;
+
+    @Inject
+    GrantsManager grantsManager;
+
+    @RestClient
+    PoyntClient poyntClient;
+
+    @Inject
+    ClientRepository clientRepository;
+
     @ConfigProperty(name = "issuer")
     String issuer;
-
-    /*
-     *
-     */
-    @ConfigProperty(name = "access.audience")
-    List<String> accessAudience;
 
     /*
      *
@@ -197,7 +207,7 @@ public class TokenManager {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    public PrivateKey getPrivateKey(KeyPair keyPair) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private PrivateKey getPrivateKey(KeyPair keyPair) throws NoSuchAlgorithmException, InvalidKeySpecException {
         BigInteger modulus = Base64URL.from(keyPair.getN()).decodeToBigInteger();
         BigInteger privateExponent = Base64URL.from(keyPair.getD()).decodeToBigInteger();
         RSAPrivateKeySpec spec = new RSAPrivateKeySpec(modulus, privateExponent);
@@ -237,7 +247,7 @@ public class TokenManager {
                 });
     }
 
-    public Uni<AccessToken> generateAccessToken(CommonHeader commonHeader, GetAccessToken getAccessToken,
+    private Uni<AccessToken> generateAccessToken(CommonHeader commonHeader, GetAccessToken getAccessToken,
                                                  GrantEntity grantEntity) {
         Log.debug("Retrieve key pair.");
         return keyRetriever.getKeyPair().chain(key -> {
@@ -283,7 +293,7 @@ public class TokenManager {
      * @param refreshTokenStr
      * @return
      */
-    public Uni<Void> verifyRefreshToken(String refreshTokenStr) {
+    private Uni<Void> verifyRefreshToken(String refreshTokenStr) {
         try {
             SignedJWT refreshToken = SignedJWT.parse(refreshTokenStr);
             JWTClaimsSet refreshTokenClaimsSet = refreshToken.getJWTClaimsSet();
@@ -302,6 +312,197 @@ public class TokenManager {
         } catch (NotAuthorizedException e) {
             return Uni.createFrom().failure(e);
         }
+    }
+
+
+    /**
+     * Create access and refresh tokens by means of username/password.
+     *
+     * @param commonHeader
+     * @param getAccessToken
+     * @return
+     */
+    public Uni<AccessToken> createToken(CommonHeader commonHeader, GetAccessToken getAccessToken) {
+        Log.debugf("createToken - Input parameters: %s, %s", commonHeader, getAccessToken);
+
+        String channel = commonHeader.getChannel();
+        String username = getAccessToken.getUsername();
+        String password = getAccessToken.getPassword();
+        String merchantId = commonHeader.getMerchantId();
+        String acquirerId = commonHeader.getAcquirerId();
+
+        /*
+         * Retrieve credentials.
+         */
+        Log.debug("Find credentials.");
+        return resourceOwnerCredentialsRepository.findByIdOptional(username).onFailure(
+                        /*
+                         * It the failure is not for previous errors, then it must be for an error
+                         * during credentials retrieving.
+                         */
+                        t -> !(t instanceof NotAuthorizedException) && !(t instanceof InternalServerErrorException))
+                .transform(t -> {
+                    Log.errorf(t, "[%s] Error while finding credentials.", ErrorCode.ERROR_WHILE_FINDING_CREDENTIALS);
+                    return new InternalServerErrorException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity(new Errors(List.of(ErrorCode.ERROR_WHILE_FINDING_CREDENTIALS))).build());
+                }).onItem().transform(credentials -> credentials.orElseThrow(() -> {
+                    /*
+                     * If the 'optional' item is present return it, otherwise (this is done by this
+                     * block) throw NotAuthorizedException.
+                     */
+                    Log.warnf("[%s] Credentials not found.", ErrorCode.WRONG_CREDENTIALS);
+                    return new NotAuthorizedException(Response.status(Response.Status.UNAUTHORIZED)
+                            .entity(new Errors(List.of(ErrorCode.WRONG_CREDENTIALS))).build());
+                })).onItem().invoke(credentials -> {
+                    /*
+                     * Verify credentials.
+                     */
+                    grantsManager.verifyCredentials(credentials, acquirerId, channel, merchantId, password);
+                }).chain(() -> {
+                    return commonProcessing(commonHeader, getAccessToken);
+                });
+    }
+
+    /**
+     * Create access and refresh tokens by means of username/password.
+     *
+     * @param commonHeader
+     * @param getAccessToken
+     * @return
+     */
+    public Uni<AccessToken> createTokenByPoyntToken(CommonHeader commonHeader, GetAccessToken getAccessToken) {
+        Log.debugf("createTokenByPoyntToken - Input parameters: %s, %s", commonHeader, getAccessToken);
+
+        String channel = commonHeader.getChannel();
+        String extToken = getAccessToken.getExtToken();
+        String addData = getAccessToken.getAddData();
+        String merchantId = commonHeader.getMerchantId();
+        String acquirerId = commonHeader.getAcquirerId();
+
+        /*
+         * Verify Poynt token.
+         */
+        Log.debug("Verify Poynt token.");
+        return poyntClient.getBusinessObject("Bearer " + extToken, addData)
+                .onFailure(
+                        t -> !(t instanceof NotAuthorizedException) && !(t instanceof InternalServerErrorException))
+                .transform(t -> {
+                    Log.errorf(t, "[%s] Error while vaidating Poynt Token.", ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN);
+                    return new InternalServerErrorException(
+                            Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                                    .entity(new Errors(List.of(
+                                            ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN)))
+                                    .build());
+                })
+                .onItem()
+                .invoke(businessObject ->
+                        {
+                            if (businessObject.getStatus() != 200) {
+                                throw new NotAuthorizedException(Response.status(Response.Status.UNAUTHORIZED)
+                                        .entity(new Errors(List.of(
+                                                ErrorCode.EXT_TOKEN_NOT_VALID)))
+                                        .build());
+                            }
+
+                        }
+                )
+                .onFailure(
+                        t -> !(t instanceof NotAuthorizedException) && !(t instanceof InternalServerErrorException))
+                .transform(t -> {
+                            Log.errorf(t, "[%s] Error while vaidating Poynt Token.", ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN);
+                            return new InternalServerErrorException(
+                                    Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                                            .entity(new Errors(List.of(
+                                                    ErrorCode.ERROR_WHILE_VALIDATING_EXT_TOKEN)))
+                                            .build());
+                        }
+                )
+                .chain(() -> {
+                    return commonProcessing(commonHeader, getAccessToken);
+                });
+    }
+
+
+    /**
+     * @param commonHeader
+     * @param refreshAccessToken
+     * @return
+     */
+    public Uni<AccessToken> refreshToken(CommonHeader commonHeader, GetAccessToken refreshAccessToken) {
+        Log.debugf("refreshToken - Input parameters: %s, %s", commonHeader, refreshAccessToken);
+
+        String refreshTokenStr = refreshAccessToken.getRefreshToken();
+        /*
+         * Retrieve credentials.
+         */
+        Log.debug("Find credentials.");
+        return verifyRefreshToken(refreshTokenStr).chain(() -> {
+            return commonProcessing(commonHeader, refreshAccessToken);
+        });
+    }
+
+    public Uni<AccessToken> commonProcessing(CommonHeader commonHeader, GetAccessToken getAccessToken) {
+        String clientId = getAccessToken.getClientId();
+        String acquirerId = commonHeader.getAcquirerId();
+        String channel = commonHeader.getChannel();
+        String merchantId = commonHeader.getMerchantId();
+        String terminalId = commonHeader.getTerminalId();
+
+        Log.debug("Find client id.");
+        return clientRepository.findByIdOptional(clientId).onFailure() // Error while finding client id.
+                .transform(t -> {
+                    Log.errorf(t, "[%s] Error while finding client id.", ErrorCode.ERROR_WHILE_FINDING_CLIENT_ID);
+                    return new InternalServerErrorException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity(new Errors(List.of(ErrorCode.ERROR_WHILE_FINDING_CLIENT_ID))).build());
+                }).onItem().transform(o -> o.orElseThrow(() -> {
+                    /*
+                     * If the 'optional' item is present return it, otherwise (this is done by this
+                     * block) throw NotAuthorizedException.
+                     */
+                    Log.warnf("[%s] Client id not found: %s", ErrorCode.CLIENT_ID_NOT_FOUND, clientId);
+                    return new NotAuthorizedException(Response.status(Response.Status.UNAUTHORIZED)
+                            .entity(new Errors(List.of(ErrorCode.CLIENT_ID_NOT_FOUND))).build());
+                })).onItem().invoke(c -> {
+                    /*
+                     * Verify channel consistency.
+                     */
+                    grantsManager.verifyChannel(c, channel);
+                }).chain(() -> {
+                    /*
+                     * Find grants.
+                     */
+                    return grantsManager.processGrants(acquirerId, channel, merchantId, clientId, terminalId);
+                }).onItem().transform(o -> o.orElseThrow(() -> {
+                    Log.warnf("[%s] Grants not found.", ErrorCode.GRANTS_NOT_FOUND);
+                    return new NotAuthorizedException(Response.status(Response.Status.UNAUTHORIZED)
+                            .entity(new Errors(List.of(ErrorCode.GRANTS_NOT_FOUND))).build());
+                })).onFailure(
+                        /*
+                         * If an error occurs during retriving grants.
+                         */
+                        t -> !(t instanceof NotAuthorizedException) && !(t instanceof InternalServerErrorException))
+                .transform(t -> {
+                    Log.errorf(t, "[%s] Error while finding grants.", ErrorCode.ERROR_WHILE_FINDING_GRANTS);
+                    return new InternalServerErrorException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity(new Errors(List.of(ErrorCode.ERROR_WHILE_FINDING_GRANTS))).build());
+                }).chain((grantEntity) -> {
+                    /*
+                     * Generate tokens.
+                     */
+                    return generateAccessToken(commonHeader, getAccessToken, grantEntity);
+                }).onFailure(
+                        /*
+                         * Error during token signing.
+                         */
+                        t -> !(t instanceof NotAuthorizedException) && !(t instanceof InternalServerErrorException))
+                .transform(t -> {
+                    /*
+                     * Err
+                     */
+                    return new InternalServerErrorException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity(new Errors(List.of(ErrorCode.ERROR_WHILE_SIGNING_TOKENS))).build());
+
+                });
     }
 
 }
