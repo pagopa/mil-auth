@@ -24,8 +24,8 @@ import static it.pagopa.swclient.mil.auth.ErrorCode.PASSWORD_MUST_MATCH_REGEXP;
 import static it.pagopa.swclient.mil.auth.ErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP;
 import static it.pagopa.swclient.mil.auth.ErrorCode.SCOPE_MUST_MATCH_REGEXP;
 import static it.pagopa.swclient.mil.auth.ErrorCode.USERNAME_MUST_MATCH_REGEXP;
-import static it.pagopa.swclient.mil.auth.bean.Channel.ATM;
-import static it.pagopa.swclient.mil.auth.bean.Channel.POS;
+import static it.pagopa.swclient.mil.bean.Channel.ATM;
+import static it.pagopa.swclient.mil.bean.Channel.POS;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.auth.validation.constraints.ValidationTarget;
