@@ -5,14 +5,20 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
+// import java.io.IOException;
+// import java.io.StringWriter;
 import java.util.Date;
 import java.util.UUID;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+// import com.fasterxml.jackson.core.exc.StreamWriteException;
+// import com.fasterxml.jackson.databind.DatabindException;
+// import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+// import com.nimbusds.jose.util.Base64URL;
 
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
@@ -116,4 +122,31 @@ public class KeyPairGenerator {
 
 		return new KeyPair(d, e, use, kid, dp, dq, n, p, kty, q, qi, exp, iat);
 	}
+
+	/**
+	 * 
+	 * @param agrs
+	 * @throws JOSEException
+	 * @throws StreamWriteException
+	 * @throws DatabindException
+	 * @throws IOException
+	 */
+	// public static void main(String[] agrs) throws JOSEException, StreamWriteException,
+	// DatabindException, IOException {
+	// KeyPairGenerator generator = new KeyPairGenerator();
+	// generator.cryptoperiod = 10 * 365 * 24 * 60 * 60 * 1000;
+	// generator.keysize = 4096;
+	// KeyPair keyPair = generator.generateRsaKey();
+	// System.out.println(keyPair);
+	// StringWriter writer = new StringWriter();
+	// new ObjectMapper().writeValue(writer, keyPair);
+	// String json = writer.toString();
+	// System.out.println(json);
+	// String base64url = Base64URL.encode(json).toString();
+	// System.out.println(base64url);
+	//
+	// String keyPairJson = Base64URL.from(base64url).decodeToString();
+	// KeyPair recovered = new ObjectMapper().readValue(keyPairJson, KeyPair.class);
+	// System.out.println(recovered);
+	// }
 }
