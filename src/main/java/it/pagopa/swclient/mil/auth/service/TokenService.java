@@ -40,7 +40,7 @@ public abstract class TokenService {
 	 * Access token duration.
 	 */
 	@ConfigProperty(name = "access.duration")
-	private long accessDuration;
+	long accessDuration;
 
 	/*
 	 * Duration of refresh tokens in seconds.
