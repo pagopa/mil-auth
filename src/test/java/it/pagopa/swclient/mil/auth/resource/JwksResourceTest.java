@@ -3,7 +3,7 @@
  *
  * 23 mar 2023
  */
-package it.pagopa.swclient.mil.idp.resource;
+package it.pagopa.swclient.mil.auth.resource;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.empty;
@@ -25,7 +25,6 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.ErrorCode;
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
-import it.pagopa.swclient.mil.auth.resource.JwksResource;
 import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
 import it.pagopa.swclient.mil.auth.service.RedisClient;
 import jakarta.inject.Inject;

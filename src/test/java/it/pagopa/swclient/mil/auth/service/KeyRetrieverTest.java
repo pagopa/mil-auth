@@ -3,7 +3,7 @@
  *
  * 23 mar 2023
  */
-package it.pagopa.swclient.mil.idp.service;
+package it.pagopa.swclient.mil.auth.service;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -14,8 +14,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,6 +29,7 @@ import it.pagopa.swclient.mil.auth.bean.PublicKeys;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
 import it.pagopa.swclient.mil.auth.service.RedisClient;
+import jakarta.inject.Inject;
 
 /**
  * 
