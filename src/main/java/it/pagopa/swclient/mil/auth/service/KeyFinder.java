@@ -70,11 +70,8 @@ public class KeyFinder {
 
 						// Key pair storage in Redis.
 						Log.debug("Key pair storage.");
-						return redisClient.set(keyPair.getKid(), keyPair)
+						return redisClient.setex(keyPair.getKid(), keyPair.getExp(), keyPair)
 							.chain(() -> {
-								// Set when Redis has to remove it.
-								Log.debug("Setting when key pair has to be removed.");
-								redisClient.expireat(keyPair.getKid(), keyPair.getExp());
 								return item(keyPair);
 							});
 					} catch (JOSEException e) {
@@ -111,7 +108,7 @@ public class KeyFinder {
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transforming the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid, getting the key pair.
 			.filter(k -> k.getExp() > Instant.now().getEpochSecond()) // Filtering expired key pairs.
-			.map(k -> k.getPublicKey()) // Getting the public key from the key pair.
+			.map(k -> k.publicKey()) // Getting the public key from the key pair.
 			.collect() // Collecting all public keys.
 			.asList() // Converting the public key events in an event that is the list of public keys.
 			.invoke(l -> Log.debugf("Found %d valid key/s.", l.size()))
@@ -131,7 +128,7 @@ public class KeyFinder {
 					return Optional.empty();
 				} else {
 					Log.debugf("Key %s found.", kid);
-					return Optional.of(k.getPublicKey());
+					return Optional.of(k.publicKey());
 				}
 			});
 	}
