@@ -23,7 +23,12 @@ public class ClientEntity {
 	/*
 	 * 
 	 */
-	private String secret;
+	private String salt;
+
+	/*
+	 * 
+	 */
+	private String secretHash;
 
 	/*
 	 * 
@@ -31,36 +36,17 @@ public class ClientEntity {
 	private String description;
 
 	/**
-	 * 
-	 */
-	public ClientEntity() {
-	}
-
-	/**
 	 * @param id
 	 * @param channel
 	 * @param secret
 	 * @param description
 	 */
-	public ClientEntity(String id, String channel, String secret, String description) {
+	public ClientEntity(String id, String channel, String salt, String secretHash, String description) {
 		this.id = id;
 		this.channel = channel;
-		this.secret = secret;
+		this.salt = salt;
+		this.secretHash = secretHash;
 		this.description = description;
-	}
-
-	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	/**
@@ -71,54 +57,16 @@ public class ClientEntity {
 	}
 
 	/**
-	 * @param channel the channel to set
+	 * @return the salt
 	 */
-	public void setChannel(String channel) {
-		this.channel = channel;
+	public String getSalt() {
+		return salt;
 	}
 
 	/**
-	 * @return the secret
+	 * @return the secretHash
 	 */
-	public String getSecret() {
-		return secret;
-	}
-
-	/**
-	 * @param secret the secret to set
-	 */
-	public void setSecret(String secret) {
-		this.secret = secret;
-	}
-
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("ClientEntity [id=")
-			.append(id)
-			.append(", channel=")
-			.append(channel)
-			.append(", secret=")
-			.append("***")
-			.append(", description=")
-			.append(description)
-			.append("]")
-			.toString();
+	public String getSecretHash() {
+		return secretHash;
 	}
 }

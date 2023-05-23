@@ -56,34 +56,10 @@ public class AccessToken {
 
 	/**
 	 * 
-	 * @param accessToken
-	 * @param expiresIn
-	 */
-	public AccessToken(String accessToken, long expiresIn) {
-		this.accessToken = accessToken;
-		this.expiresIn = expiresIn;
-	}
-
-	/**
-	 * 
-	 */
-	public AccessToken() {
-	}
-
-	/**
-	 * 
 	 * @return the accessToken
 	 */
 	public String getAccessToken() {
 		return accessToken;
-	}
-
-	/**
-	 * 
-	 * @param accessToken the accessToken to set
-	 */
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
 	}
 
 	/**
@@ -96,14 +72,6 @@ public class AccessToken {
 
 	/**
 	 * 
-	 * @param refreshToken the refreshToken to set
-	 */
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
-	}
-
-	/**
-	 * 
 	 * @return the tokenType
 	 */
 	public String getTokenType() {
@@ -112,43 +80,9 @@ public class AccessToken {
 
 	/**
 	 * 
-	 * @param tokenType the tokenType to set
-	 */
-	public void setTokenType(String tokenType) {
-		this.tokenType = tokenType;
-	}
-
-	/**
-	 * 
 	 * @return the expiresIn
 	 */
 	public long getExpiresIn() {
 		return expiresIn;
-	}
-
-	/**
-	 * 
-	 * @param expiresIn the expiresIn to set
-	 */
-	public void setExpiresIn(long expiresIn) {
-		this.expiresIn = expiresIn;
-	}
-
-	/**
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("AccessToken [accessToken=")
-			.append(accessToken)
-			.append(", refreshToken=")
-			.append(refreshToken)
-			.append(", tokenType=")
-			.append(tokenType)
-			.append(", expiresIn=")
-			.append(expiresIn)
-			.append("]")
-			.toString();
 	}
 }

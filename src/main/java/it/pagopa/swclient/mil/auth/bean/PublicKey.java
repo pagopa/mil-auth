@@ -52,12 +52,6 @@ public class PublicKey {
 
 	/**
 	 * 
-	 */
-	public PublicKey() {
-	}
-
-	/**
-	 * 
 	 * @param e
 	 * @param use
 	 * @param kid
@@ -86,26 +80,10 @@ public class PublicKey {
 
 	/**
 	 * 
-	 * @param e the e to set
-	 */
-	public void setE(String e) {
-		this.e = e;
-	}
-
-	/**
-	 * 
 	 * @return the use
 	 */
 	public KeyUse getUse() {
 		return use;
-	}
-
-	/**
-	 * 
-	 * @param use the use to set
-	 */
-	public void setUse(KeyUse use) {
-		this.use = use;
 	}
 
 	/**
@@ -118,26 +96,10 @@ public class PublicKey {
 
 	/**
 	 * 
-	 * @param kid the kid to set
-	 */
-	public void setKid(String kid) {
-		this.kid = kid;
-	}
-
-	/**
-	 * 
 	 * @return the n
 	 */
 	public String getN() {
 		return n;
-	}
-
-	/**
-	 * 
-	 * @param n the n to set
-	 */
-	public void setN(String n) {
-		this.n = n;
 	}
 
 	/**
@@ -150,14 +112,6 @@ public class PublicKey {
 
 	/**
 	 * 
-	 * @param kty the kty to set
-	 */
-	public void setKty(KeyType kty) {
-		this.kty = kty;
-	}
-
-	/**
-	 * 
 	 * @return the exp
 	 */
 	public long getExp() {
@@ -166,26 +120,10 @@ public class PublicKey {
 
 	/**
 	 * 
-	 * @param exp the exp to set
-	 */
-	public void setExp(long exp) {
-		this.exp = exp;
-	}
-
-	/**
-	 * 
 	 * @return the iat
 	 */
 	public long getIat() {
 		return iat;
-	}
-
-	/**
-	 * 
-	 * @param iat the iat to set
-	 */
-	public void setIat(long iat) {
-		this.iat = iat;
 	}
 
 	/**

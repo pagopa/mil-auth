@@ -6,8 +6,8 @@
 package it.pagopa.swclient.mil.auth.service;
 
 import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_GENERATING_TOKEN;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_GRANTS;
-import static it.pagopa.swclient.mil.auth.ErrorCode.GRANTS_NOT_FOUND;
+import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_ROLES;
+import static it.pagopa.swclient.mil.auth.ErrorCode.ROLES_NOT_FOUND;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.error;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.item;
 
@@ -25,7 +25,7 @@ import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.AccessToken;
 import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.dao.GrantEntity;
+import it.pagopa.swclient.mil.auth.dao.RoleEntity;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.TokenGenerator;
@@ -64,26 +64,26 @@ public abstract class TokenService {
 	 * 
 	 */
 	@Inject
-	GrantsFinder grantsFinder;
+	RolesFinder roleFinder;
 
 	/**
 	 * This method generates access token string and refresh token string if any, finding the key pair
 	 * to sign them.
 	 * 
 	 * @param getAccessToken
-	 * @param grants
+	 * @param roles
 	 * @return
 	 */
-	private Uni<AccessToken> generateToken(GetAccessToken getAccessToken, List<String> grants) {
+	private Uni<AccessToken> generateToken(GetAccessToken getAccessToken, List<String> roles) {
 		return keyFinder.findKeyPair()
 			.chain(k -> {
 				Log.debug("Access token generation.");
 				try {
-					String accessToken = TokenGenerator.generate(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId(), accessDuration, grants, k);
+					String accessToken = TokenGenerator.generate(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId(), accessDuration, roles, null, k);
 					String refreshToken = null;
 					if (Objects.equals(getAccessToken.getScope(), "offline_access") || getAccessToken.getGrantType().equals(GrantType.REFRESH_TOKEN)) {
 						Log.debug("Refresh token generation.");
-						refreshToken = TokenGenerator.generate(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId(), refreshDuration, List.of("offline_access"), k);
+						refreshToken = TokenGenerator.generate(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId(), refreshDuration, null, List.of("offline_access"), k);
 					}
 					Log.debug("Token/s has/ve been successfully generated.");
 					return item(new AccessToken(accessToken, refreshToken, accessDuration));
@@ -96,22 +96,22 @@ public abstract class TokenService {
 	}
 
 	/**
-	 * This method finds grants for the client, handling errors.
+	 * This method finds roles for the client, handling errors.
 	 * 
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<GrantEntity> findGrants(GetAccessToken getAccessToken) {
-		return grantsFinder.findGrants(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId())
+	private Uni<RoleEntity> findRoles(GetAccessToken getAccessToken) {
+		return roleFinder.findRoles(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId())
 			.onFailure().transform(t -> {
-				String message = String.format("[%s] Error searching for the grants.", ERROR_SEARCHING_FOR_GRANTS);
+				String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
 				Log.errorf(t, message);
-				return new AuthError(ERROR_SEARCHING_FOR_GRANTS, message);
+				return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
 			})
 			.map(o -> o.orElseThrow(() -> {
-				String message = String.format("[%s] Grants not found.", GRANTS_NOT_FOUND);
+				String message = String.format("[%s] Roles not found.", ROLES_NOT_FOUND);
 				Log.warn(message);
-				return new AuthException(GRANTS_NOT_FOUND, message);
+				return new AuthException(ROLES_NOT_FOUND, message);
 			}));
 	}
 
@@ -124,10 +124,10 @@ public abstract class TokenService {
 	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
 		return clientVerifier.verify(getAccessToken.getClientId(), getAccessToken.getChannel(), getAccessToken.getClientSecret())
 			.chain(() -> {
-				return findGrants(getAccessToken);
+				return findRoles(getAccessToken);
 			})
-			.chain(grantEntity -> {
-				return generateToken(getAccessToken, grantEntity.getGrants());
+			.chain(roleEntity -> {
+				return generateToken(getAccessToken, roleEntity.getRoles());
 			});
 	}
 }

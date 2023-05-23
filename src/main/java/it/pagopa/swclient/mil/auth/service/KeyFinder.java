@@ -52,7 +52,7 @@ public class KeyFinder {
 		return redisClient.keys("*") // Loading kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transforming the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid, getting the key pair.
-			.filter(k -> k.getExp() > Instant.now().getEpochSecond()) // Filtering expired key pairs.
+			.filter(k -> k.getExp() > Instant.now().toEpochMilli()) // Filtering expired key pairs.
 			.collect() // Collecting all key pairs.
 			.asList() // Converting the key pair events in an event that is the list of key pair.
 			.chain(l -> {
@@ -107,7 +107,7 @@ public class KeyFinder {
 		return redisClient.keys("*") // Loading kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transforming the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid, getting the key pair.
-			.filter(k -> k.getExp() > Instant.now().getEpochSecond()) // Filtering expired key pairs.
+			.filter(k -> k.getExp() > Instant.now().toEpochMilli()) // Filtering expired key pairs.
 			.map(k -> k.publicKey()) // Getting the public key from the key pair.
 			.collect() // Collecting all public keys.
 			.asList() // Converting the public key events in an event that is the list of public keys.
@@ -123,12 +123,18 @@ public class KeyFinder {
 		Log.debugf("Search for the public key %s.", kid);
 		return redisClient.get(kid)
 			.map(k -> {
-				if (k == null || k.getExp() < Instant.now().getEpochSecond()) {
-					Log.warnf("Key %s not found or expired.", kid);
-					return Optional.empty();
+				if (k != null) {
+					long threshold = Instant.now().toEpochMilli();
+					if (k.getExp() > threshold) {
+						Log.debugf("Key %s found. Found expiration %d, threshold %d.", kid, k.getExp(), threshold);
+						return Optional.of(k.publicKey());
+					} else {
+						Log.warnf("Key %s expired.", kid);
+						return Optional.empty();
+					}
 				} else {
-					Log.debugf("Key %s found.", kid);
-					return Optional.of(k.publicKey());
+					Log.warnf("Key %s not found.", kid);
+					return Optional.empty();
 				}
 			});
 	}

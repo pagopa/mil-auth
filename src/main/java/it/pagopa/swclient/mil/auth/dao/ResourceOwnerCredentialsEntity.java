@@ -7,6 +7,8 @@ package it.pagopa.swclient.mil.auth.dao;
 
 /**
  * 
+ * FOR DEMO ONLY. THIS WILL BE REPLACED BY DB.
+ * 
  * @author Antonio Tarricone
  */
 public class ResourceOwnerCredentialsEntity {
@@ -42,12 +44,6 @@ public class ResourceOwnerCredentialsEntity {
 
 	/**
 	 * 
-	 */
-	public ResourceOwnerCredentialsEntity() {
-	}
-
-	/**
-	 * 
 	 * @param username
 	 * @param salt
 	 * @param passwordHash
@@ -66,34 +62,10 @@ public class ResourceOwnerCredentialsEntity {
 
 	/**
 	 * 
-	 * @return the username
-	 */
-	public String getUsername() {
-		return username;
-	}
-
-	/**
-	 * 
-	 * @param username the username to set
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	/**
-	 * 
 	 * @return the salt
 	 */
 	public String getSalt() {
 		return salt;
-	}
-
-	/**
-	 * 
-	 * @param salt the salt to set
-	 */
-	public void setSalt(String salt) {
-		this.salt = salt;
 	}
 
 	/**
@@ -106,26 +78,10 @@ public class ResourceOwnerCredentialsEntity {
 
 	/**
 	 * 
-	 * @param passwordHash the passwordHash to set
-	 */
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
-	}
-
-	/**
-	 * 
 	 * @return the acquirerId
 	 */
 	public String getAcquirerId() {
 		return acquirerId;
-	}
-
-	/**
-	 * 
-	 * @param acquirerId the acquirerId to set
-	 */
-	public void setAcquirerId(String acquirerId) {
-		this.acquirerId = acquirerId;
 	}
 
 	/**
@@ -138,45 +94,9 @@ public class ResourceOwnerCredentialsEntity {
 
 	/**
 	 * 
-	 * @param channel the channel to set
-	 */
-	public void setChannel(String channel) {
-		this.channel = channel;
-	}
-
-	/**
-	 * 
 	 * @return the merchantId
 	 */
 	public String getMerchantId() {
 		return merchantId;
-	}
-
-	/**
-	 * @param merchantId the merchantId to set
-	 */
-	public void setMerchantId(String merchantId) {
-		this.merchantId = merchantId;
-	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("ResourceOwnerCredentialsEntity [username=")
-			.append("***")
-			.append(", salt=")
-			.append("***")
-			.append(", passwordHash=")
-			.append("***")
-			.append(", acquirerId=")
-			.append(acquirerId)
-			.append(", channel=")
-			.append(channel)
-			.append(", merchantId=")
-			.append(merchantId)
-			.append("]")
-			.toString();
 	}
 }

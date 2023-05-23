@@ -28,11 +28,11 @@ public final class ErrorCode {
 	public static final String ERROR_VERIFING_CREDENTIALS = MODULE_ID + "00000D";
 	public static final String INCONSISTENT_CREDENTIALS = MODULE_ID + "00000E";
 	public static final String ERROR_SEARCHING_FOR_KEYS = MODULE_ID + "0000F";
-	public static final String ERROR_SEARCHING_FOR_GRANTS = MODULE_ID + "000010";
+	public static final String ERROR_SEARCHING_FOR_ROLES = MODULE_ID + "000010";
 	public static final String ERROR_GENERATING_TOKEN = MODULE_ID + "000011";
 	public static final String ERROR_PARSING_TOKEN = MODULE_ID + "000012";
 	public static final String INCONSISTENT_REQUEST = MODULE_ID + "000013";
-	public static final String GRANTS_NOT_FOUND = MODULE_ID + "000014";
+	public static final String ROLES_NOT_FOUND = MODULE_ID + "000014";
 	public static final String WRONG_ALGORITHM = MODULE_ID + "000015";
 	public static final String ISSUE_TIME_MUST_NOT_BE_NULL = MODULE_ID + "000016";
 	public static final String WRONG_ISSUE_TIME = MODULE_ID + "000017";
@@ -51,6 +51,7 @@ public final class ErrorCode {
 	public static final String WRONG_CHANNEL = MODULE_ID + "000024";
 	public static final String ERROR_GENERATING_KEY_PAIR = MODULE_ID + "000025";
 	public static final String UNEXPECTED_ERROR = MODULE_ID + "000026";
+	public static final String ERROR_VERIFING_SECRET = MODULE_ID + "000027";
 
 	/**
 	 * 

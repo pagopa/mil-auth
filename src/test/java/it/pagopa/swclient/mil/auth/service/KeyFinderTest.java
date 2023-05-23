@@ -1,5 +1,5 @@
 /*
- * KeyRetrieverTest.java
+ * KeyFinderTest.java
  *
  * 23 mar 2023
  */
@@ -26,9 +26,6 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.PublicKeys;
-import it.pagopa.swclient.mil.auth.service.KeyFinder;
-import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
-import it.pagopa.swclient.mil.auth.service.RedisClient;
 import jakarta.inject.Inject;
 
 /**
@@ -36,7 +33,7 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-public class KeyRetrieverTest {
+public class KeyFinderTest {
 	/*
 	 * 
 	 */
@@ -47,7 +44,7 @@ public class KeyRetrieverTest {
 	 * 
 	 */
 	@Inject
-	KeyFinder keyRetriever;
+	KeyFinder keyFinder;
 
 	/*
 	 * 
@@ -76,7 +73,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findKeyPair()
+		keyFinder.findKeyPair()
 			.subscribe()
 			.with(
 				item -> assertNotNull(item),
@@ -102,7 +99,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findKeyPair()
+		keyFinder.findKeyPair()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailed();
@@ -130,7 +127,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findKeyPair()
+		keyFinder.findKeyPair()
 			.subscribe()
 			.with(
 				item -> assertNotNull(item),
@@ -169,11 +166,89 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findKeyPair()
+		keyFinder.findKeyPair()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
 			.assertItem(keyPairThatExpiresLater);
+	}
+
+	/**
+	 * 
+	 * @throws JOSEException
+	 */
+	@Test
+	void getKeyPairWithoutKeyGenerationAndTwoValidKeysInvertedOrder() throws JOSEException {
+		/*
+		 * Setup
+		 */
+		KeyPair keyPairThatExpiresLater = keyPairGenerator.generate();
+		keyPairThatExpiresLater.setExp(keyPairThatExpiresLater.getExp() + 60000);
+
+		KeyPair keyPair = keyPairGenerator.generate();
+
+		Mockito
+			.when(redisClient.keys("*"))
+			.thenReturn(Uni.createFrom().item(
+				List.of(
+					keyPair.getKid(),
+					keyPairThatExpiresLater.getKid())));
+
+		Mockito
+			.when(redisClient.get(keyPairThatExpiresLater.getKid()))
+			.thenReturn(Uni.createFrom().item(keyPairThatExpiresLater));
+
+		Mockito
+			.when(redisClient.get(keyPair.getKid()))
+			.thenReturn(Uni.createFrom().item(keyPair));
+
+		/*
+		 * Test
+		 */
+		keyFinder.findKeyPair()
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertCompleted()
+			.assertItem(keyPairThatExpiresLater);
+	}
+
+	/**
+	 * 
+	 * @throws JOSEException
+	 */
+	@Test
+	void getKeyPairWithoutKeyGenerationAndTwoValidKeysSameExp() throws JOSEException {
+		/*
+		 * Setup
+		 */
+		KeyPair keyPair1 = keyPairGenerator.generate();
+
+		KeyPair keyPair2 = keyPairGenerator.generate();
+		keyPair2.setExp(keyPair1.getExp());
+
+		Mockito
+			.when(redisClient.keys("*"))
+			.thenReturn(Uni.createFrom().item(
+				List.of(
+					keyPair1.getKid(),
+					keyPair2.getKid())));
+
+		Mockito
+			.when(redisClient.get(keyPair1.getKid()))
+			.thenReturn(Uni.createFrom().item(keyPair1));
+
+		Mockito
+			.when(redisClient.get(keyPair2.getKid()))
+			.thenReturn(Uni.createFrom().item(keyPair2));
+
+		/*
+		 * Test
+		 */
+		keyFinder.findKeyPair()
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertCompleted()
+			.assertItem(keyPair1);
 	}
 
 	/**
@@ -191,7 +266,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findKeyPair()
+		keyFinder.findKeyPair()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailed();
@@ -220,7 +295,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findKeyPair()
+		keyFinder.findKeyPair()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailed();
@@ -255,7 +330,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findKeyPair()
+		keyFinder.findKeyPair()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailed();
@@ -278,7 +353,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findPublicKeys()
+		keyFinder.findPublicKeys()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
@@ -296,7 +371,7 @@ public class KeyRetrieverTest {
 		 * Setup
 		 */
 		KeyPair expiredKey = keyPairGenerator.generate();
-		expiredKey.setExp(Instant.now().getEpochSecond() - 1000);
+		expiredKey.setExp(Instant.now().toEpochMilli() - 1000);
 
 		KeyPair validKey0 = keyPairGenerator.generate();
 		KeyPair validKey1 = keyPairGenerator.generate();
@@ -323,7 +398,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findPublicKeys()
+		keyFinder.findPublicKeys()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
@@ -346,7 +421,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findPublicKeys()
+		keyFinder.findPublicKeys()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailed();
@@ -376,7 +451,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findPublicKeys()
+		keyFinder.findPublicKeys()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailed();
@@ -412,7 +487,7 @@ public class KeyRetrieverTest {
 		/*
 		 * Test
 		 */
-		keyRetriever.findPublicKeys()
+		keyFinder.findPublicKeys()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailed();
