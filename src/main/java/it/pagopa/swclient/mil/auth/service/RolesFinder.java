@@ -1,5 +1,5 @@
 /*
- * GrantsRetriever.java
+ * RolesFinder.java
  *
  * 30 apr 2023
  */
@@ -12,8 +12,8 @@ import org.bson.Document;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.dao.GrantEntity;
-import it.pagopa.swclient.mil.auth.dao.GrantRepository;
+import it.pagopa.swclient.mil.auth.dao.RoleEntity;
+import it.pagopa.swclient.mil.auth.dao.RoleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -22,12 +22,12 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @ApplicationScoped
-public class GrantsFinder {
+public class RolesFinder {
 	/*
-	 * Grant repository.
+	 * Role repository.
 	 */
 	@Inject
-	GrantRepository grantRepository;
+	RoleRepository roleRepository;
 
 	/**
 	 * 
@@ -47,7 +47,7 @@ public class GrantsFinder {
 	 * @param terminalId
 	 * @return
 	 */
-	private Uni<Optional<GrantEntity>> _findGrants(String acquirerId, String channel, String merchantId, String clientId, String terminalId) {
+	private Uni<Optional<RoleEntity>> find(String acquirerId, String channel, String merchantId, String clientId, String terminalId) {
 		Document criterion = new Document(Map.of(
 			"acquirerId", replaceNullWithNa(acquirerId),
 			"channel", replaceNullWithNa(channel),
@@ -55,13 +55,13 @@ public class GrantsFinder {
 			"clientId", clientId,
 			"terminalId", replaceNullWithNa(terminalId)));
 
-		Log.debugf("Search for the grants with %s.", criterion.toString());
+		Log.debugf("Search for the roles with %s.", criterion.toString());
 
-		return grantRepository.findSingleResultOptional(criterion);
+		return roleRepository.findSingleResultOptional(criterion);
 	}
 
 	/**
-	 * Finds grants.
+	 * Finds roles.
 	 * 
 	 * @param acquirerId
 	 * @param channel
@@ -70,16 +70,16 @@ public class GrantsFinder {
 	 * @param terminalId
 	 * @return
 	 */
-	public Uni<Optional<GrantEntity>> findGrants(String acquirerId, String channel, String merchantId, String clientId, String terminalId) {
-		return _findGrants(acquirerId, channel, merchantId, clientId, terminalId).chain(o -> {
+	public Uni<Optional<RoleEntity>> findRoles(String acquirerId, String channel, String merchantId, String clientId, String terminalId) {
+		return find(acquirerId, channel, merchantId, clientId, terminalId).chain(o -> {
 			if (o.isPresent() || terminalId.equals("NA")) {
 				return Uni.createFrom().item(o);
 			} else {
 				/*
-				 * If there are no grants for acquirer/channel/merchant/client/terminal, search with
+				 * If there are no roles for acquirer/channel/merchant/client/terminal, search with
 				 * acquirer/channel/merchant/client.
 				 */
-				return _findGrants(acquirerId, channel, merchantId, clientId, "NA");
+				return find(acquirerId, channel, merchantId, clientId, "NA");
 			}
 		});
 	}

@@ -34,6 +34,9 @@ public class TokenGenerator {
 	 * @return
 	 */
 	private static String concat(List<String> strings) {
+		if (strings == null) {
+			return null;
+		}
 		StringBuffer buffer = new StringBuffer();
 		strings.forEach(x -> {
 			buffer.append(x);
@@ -50,24 +53,27 @@ public class TokenGenerator {
 	 * @param clientId
 	 * @param terminalId
 	 * @param duration
-	 * @param grants
+	 * @param roles
+	 * @param scopes
 	 * @param key
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 * @throws InvalidKeySpecException
 	 * @throws JOSEException
 	 */
-	public static String generate(String acquirerId, String channel, String merchantId, String clientId, String terminalId, long duration, List<String> grants, KeyPair key) throws NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
+	public static String generate(String acquirerId, String channel, String merchantId, String clientId, String terminalId, long duration, List<String> roles, List<String> scopes, KeyPair key) throws NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
+			.subject(clientId)
 			.issueTime(now)
 			.expirationTime(new Date(now.getTime() + duration * 1000))
-			.claim("scope", concat(grants))
 			.claim("acquirerId", acquirerId)
 			.claim("channel", channel)
 			.claim("merchantId", merchantId)
 			.claim("clientId", clientId)
 			.claim("terminalId", terminalId)
+			.claim("scope", concat(scopes))
+			.claim("groups", roles)
 			.build();
 		Log.debug("Token signing.");
 		SignedJWT token = TokenSigner.sign(key, payload);

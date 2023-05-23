@@ -7,9 +7,11 @@ package it.pagopa.swclient.mil.auth.service;
 
 import static it.pagopa.swclient.mil.auth.ErrorCode.CLIENT_NOT_FOUND;
 import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_CLIENT;
+import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_VERIFING_SECRET;
 import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_CHANNEL;
 import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_SECRET;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 import io.quarkus.logging.Log;
@@ -18,6 +20,7 @@ import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.auth.dao.ClientRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
+import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -79,14 +82,23 @@ public class ClientVerifier {
 	 */
 	private ClientEntity verifySecret(ClientEntity clientEntity, String expectedSecret) {
 		Log.debug("Secret verification.");
-		String foundSecret = clientEntity.getSecret();
-		if (Objects.equals(foundSecret, expectedSecret)) {
-			Log.debug("Secret is ok.");
-			return clientEntity;
-		} else {
-			String message = String.format("[%s] Wrong secret.", WRONG_SECRET);
-			Log.warn(message);
-			throw new AuthException(WRONG_SECRET, message);
+		String foundSecret = clientEntity.getSecretHash();
+		try {
+			if (foundSecret == null && expectedSecret == null) {
+				Log.debug("Secret is not used.");
+				return clientEntity;
+			} else if (PasswordVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
+				Log.debug("Secret is ok.");
+				return clientEntity;
+			} else {
+				String message = String.format("[%s] Wrong secret.", WRONG_SECRET);
+				Log.warn(message);
+				throw new AuthException(WRONG_SECRET, message);
+			}
+		} catch (NoSuchAlgorithmException e) {
+			String message = String.format("[%s] Error verifing secret.", ERROR_VERIFING_SECRET);
+			Log.error(message);
+			throw new AuthError(ERROR_VERIFING_SECRET, message);
 		}
 	}
 

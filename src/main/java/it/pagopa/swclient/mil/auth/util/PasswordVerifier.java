@@ -35,7 +35,7 @@ public class PasswordVerifier {
 		byte[] calcHashBytes = hashBytes(password, salt);
 		return Arrays.equals(calcHashBytes, hashBytes);
 	}
-	
+
 	/**
 	 * 
 	 * @param password
@@ -46,16 +46,16 @@ public class PasswordVerifier {
 	private static byte[] hashBytes(String password, String salt) throws NoSuchAlgorithmException {
 		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
 		byte[] saltBytes = Base64.getDecoder().decode(salt);
-		
+
 		byte[] data = new byte[passwordBytes.length + saltBytes.length];
 		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
 		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-		
+
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		byte[] hashBytes = digest.digest(data);
 		return hashBytes;
 	}
-	
+
 	/**
 	 * 
 	 * @param password
@@ -68,4 +68,29 @@ public class PasswordVerifier {
 		String hash = Base64.getEncoder().encodeToString(hashBytes);
 		return hash;
 	}
+
+	// /**
+	// *
+	// * @throws NoSuchAlgorithmException
+	// */
+	// public static void generateSecrets() throws NoSuchAlgorithmException {
+	// byte[] buf = new byte[64];
+	// SecureRandom secure = SecureRandom.getInstanceStrong();
+	// for (int i = 0; i < 4; i++) {
+	// secure.nextBytes(buf);
+	// String salt = Base64.getEncoder().encodeToString(buf);
+	// String secret = UUID.randomUUID().toString();
+	// String hash = hash(secret, salt);
+	// System.out.printf("%d\t%s\t%s\t%s%n", i, salt, secret, hash);
+	// }
+	// }
+	//
+	// /**
+	// *
+	// * @param args
+	// * @throws NoSuchAlgorithmException
+	// */
+	// public static void main(String[] args) throws NoSuchAlgorithmException {
+	// generateSecrets();
+	// }
 }

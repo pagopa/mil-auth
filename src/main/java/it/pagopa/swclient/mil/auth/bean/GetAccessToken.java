@@ -158,45 +158,10 @@ public class GetAccessToken {
 	}
 
 	/**
-	 * @return the requestId
-	 */
-	public String getRequestId() {
-		return requestId;
-	}
-
-	/**
-	 * @param requestId the requestId to set
-	 */
-	public void setRequestId(String requestId) {
-		this.requestId = requestId;
-	}
-
-	/**
-	 * @return the version
-	 */
-	public String getVersion() {
-		return version;
-	}
-
-	/**
-	 * @param version the version to set
-	 */
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	/**
 	 * @return the acquirerId
 	 */
 	public String getAcquirerId() {
 		return acquirerId;
-	}
-
-	/**
-	 * @param acquirerId the acquirerId to set
-	 */
-	public void setAcquirerId(String acquirerId) {
-		this.acquirerId = acquirerId;
 	}
 
 	/**
@@ -207,24 +172,10 @@ public class GetAccessToken {
 	}
 
 	/**
-	 * @param channel the channel to set
-	 */
-	public void setChannel(String channel) {
-		this.channel = channel;
-	}
-
-	/**
 	 * @return the merchantId
 	 */
 	public String getMerchantId() {
 		return merchantId;
-	}
-
-	/**
-	 * @param merchantId the merchantId to set
-	 */
-	public void setMerchantId(String merchantId) {
-		this.merchantId = merchantId;
 	}
 
 	/**
@@ -235,24 +186,10 @@ public class GetAccessToken {
 	}
 
 	/**
-	 * @param terminalId the terminalId to set
-	 */
-	public void setTerminalId(String terminalId) {
-		this.terminalId = terminalId;
-	}
-
-	/**
 	 * @return the grantType
 	 */
 	public String getGrantType() {
 		return grantType;
-	}
-
-	/**
-	 * @param grantType the grantType to set
-	 */
-	public void setGrantType(String grantType) {
-		this.grantType = grantType;
 	}
 
 	/**
@@ -263,24 +200,10 @@ public class GetAccessToken {
 	}
 
 	/**
-	 * @param username the username to set
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	/**
 	 * @return the password
 	 */
 	public String getPassword() {
 		return password;
-	}
-
-	/**
-	 * @param password the password to set
-	 */
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	/**
@@ -291,24 +214,10 @@ public class GetAccessToken {
 	}
 
 	/**
-	 * @param refreshToken the refreshToken to set
-	 */
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
-	}
-
-	/**
 	 * @return the extToken
 	 */
 	public String getExtToken() {
 		return extToken;
-	}
-
-	/**
-	 * @param extToken the extToken to set
-	 */
-	public void setExtToken(String extToken) {
-		this.extToken = extToken;
 	}
 
 	/**
@@ -319,24 +228,10 @@ public class GetAccessToken {
 	}
 
 	/**
-	 * @param addData the addData to set
-	 */
-	public void setAddData(String addData) {
-		this.addData = addData;
-	}
-
-	/**
 	 * @return the clientId
 	 */
 	public String getClientId() {
 		return clientId;
-	}
-
-	/**
-	 * @param clientId the clientId to set
-	 */
-	public void setClientId(String clientId) {
-		this.clientId = clientId;
 	}
 
 	/**
@@ -347,47 +242,9 @@ public class GetAccessToken {
 	}
 
 	/**
-	 * @param scope the scope to set
-	 */
-	public void setScope(String scope) {
-		this.scope = scope;
-	}
-
-	/**
 	 * @return the clientSecret
 	 */
 	public String getClientSecret() {
 		return clientSecret;
-	}
-
-	/**
-	 * @param clientSecret the clientSecret to set
-	 */
-	public void setClientSecret(String clientSecret) {
-		this.clientSecret = clientSecret;
-	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("GetAccessToken [requestId=").append(requestId)
-			.append(", version=").append(version)
-			.append(", acquirerId=").append(acquirerId)
-			.append(", channel=").append(channel)
-			.append(", merchantId=").append(merchantId)
-			.append(", terminalId=").append(terminalId)
-			.append(", clientId=").append(clientId)
-			.append(", grantType=").append(grantType)
-			.append(", client_secret=").append("***")
-			.append(", username=").append("***")
-			.append(", password=").append("***")
-			.append(", extToken=").append(extToken)
-			.append(", addData=").append(addData)
-			.append(", refreshToken=").append(refreshToken)
-			.append(", scope=").append(scope)
-			.append("]")
-			.toString();
 	}
 }

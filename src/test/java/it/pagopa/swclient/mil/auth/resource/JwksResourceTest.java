@@ -85,7 +85,7 @@ public class JwksResourceTest {
 		 * Setup
 		 */
 		KeyPair expiredKey = keyPairGenerator.generate();
-		expiredKey.setExp(Instant.now().getEpochSecond() - 1000);
+		expiredKey.setExp(Instant.now().toEpochMilli() - 1000);
 
 		KeyPair validKey0 = keyPairGenerator.generate();
 		KeyPair validKey1 = keyPairGenerator.generate();

@@ -23,12 +23,6 @@ public class PublicKeys {
 
 	/**
 	 * 
-	 */
-	public PublicKeys() {
-	}
-
-	/**
-	 * 
 	 * @param keys
 	 */
 	public PublicKeys(List<PublicKey> keys) {
@@ -41,14 +35,6 @@ public class PublicKeys {
 	 */
 	public List<PublicKey> getKeys() {
 		return keys;
-	}
-
-	/**
-	 * 
-	 * @param keys the keys to set
-	 */
-	public void setKeys(List<PublicKey> keys) {
-		this.keys = keys;
 	}
 
 	/**

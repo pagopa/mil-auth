@@ -248,7 +248,7 @@ public abstract class Verifier implements Predicate<GetAccessToken> {
 		}
 		return check;
 	}
-	
+
 	/**
 	 * 
 	 * @param getAccessToken
