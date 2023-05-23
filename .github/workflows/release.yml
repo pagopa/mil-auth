@@ -99,7 +99,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn clean validate -Pbootstrap --no-transfer-progress
-          mvn verify --no-transfer-progress
+          mvn verify -Pvalidate --no-transfer-progress
           mvn clean package -Pnative -Dmaven.test.skip=true --no-transfer-progress
           docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} .
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

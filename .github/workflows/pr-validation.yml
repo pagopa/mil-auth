@@ -55,5 +55,5 @@ jobs:
       - name: Execute unit-test + Calculate test coverage + SCA with Sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        #run: mvn verify -Pvalidate --no-transfer-progress
-        run: mvn verify --no-transfer-progress
+        run: mvn verify -Pvalidate --no-transfer-progress
+        #run: mvn verify --no-transfer-progress
