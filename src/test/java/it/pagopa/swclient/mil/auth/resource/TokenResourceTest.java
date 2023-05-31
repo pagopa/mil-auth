@@ -18,10 +18,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import org.bson.Document;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -40,16 +38,15 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.Role;
+import it.pagopa.swclient.mil.auth.bean.RoleEnum;
+import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
-import it.pagopa.swclient.mil.auth.dao.ClientEntity;
-import it.pagopa.swclient.mil.auth.dao.ClientRepository;
 import it.pagopa.swclient.mil.auth.dao.ResourceOwnerCredentialsEntity;
 import it.pagopa.swclient.mil.auth.dao.ResourceOwnerCredentialsRepository;
-import it.pagopa.swclient.mil.auth.dao.RoleEntity;
-import it.pagopa.swclient.mil.auth.dao.RoleRepository;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
 import it.pagopa.swclient.mil.auth.service.RedisClient;
@@ -75,13 +72,8 @@ class TokenResourceTest {
 	 * 
 	 */
 	@InjectMock
-	ClientRepository clientRepository;
-
-	/*
-	 * 
-	 */
-	@InjectMock
-	RoleRepository grantRepository;
+	@RestClient
+	AuthDataRepository authDataRepository;
 
 	/*
 	 * 
@@ -140,17 +132,26 @@ class TokenResourceTest {
 			.thenReturn(item(Response.ok().build()));
 
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 	}
 
 	/**
@@ -202,17 +203,17 @@ class TokenResourceTest {
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
 
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 
 		/*
 		 * Test
@@ -250,17 +251,17 @@ class TokenResourceTest {
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException()));
 
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 
 		/*
 		 * Test
@@ -298,17 +299,17 @@ class TokenResourceTest {
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 
 		/*
 		 * Test
@@ -346,17 +347,17 @@ class TokenResourceTest {
 			.thenReturn(Uni.createFrom().item(Response.serverError().build()));
 
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 
 		/*
 		 * Test
@@ -421,21 +422,30 @@ class TokenResourceTest {
 	 */
 	private void setupForCreateTokenByPassword() throws NoSuchAlgorithmException {
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
 			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
 			.thenReturn(item(Optional.ofNullable(new ResourceOwnerCredentialsEntity(username, salt, PasswordVerifier.hash(password, salt), acquirerId, Channel.POS, merchantId))));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 	}
 
 	/**
@@ -582,21 +592,21 @@ class TokenResourceTest {
 		 * Setup
 		 */
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
 			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 
 		/*
 		 * Test
@@ -661,17 +671,30 @@ class TokenResourceTest {
 	 */
 	private void setupForCreateTokenByClientSecret() throws NoSuchAlgorithmException {
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getClient(clientId2))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
 	}
 
 	/**
@@ -778,17 +801,17 @@ class TokenResourceTest {
 		 * Setup
 		 */
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
+			.when(authDataRepository.getClient(clientId))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 
 		/*
 		 * Test
@@ -846,17 +869,17 @@ class TokenResourceTest {
 	 */
 	private void setupForCreateTokenByClientSecretForNodo() throws NoSuchAlgorithmException {
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, null, salt, PasswordVerifier.hash(clientSecret, salt), "Nodo"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, null, salt, PasswordVerifier.hash(clientSecret, salt), "Nodo")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", "NA",
-				"channel", "NA",
-				"clientId", clientId,
-				"merchantId", "NA",
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity("NA", "NA", clientId, "NA", "NA", List.of(Role.Nodo.name())))));
+			.when(authDataRepository.getRoles(
+				"NA",
+				"NA",
+				clientId,
+				"NA",
+				"NA"))
+			.thenReturn(item(new Role("NA", "NA", clientId, "NA", "NA", List.of(RoleEnum.Nodo.name()))));
 	}
 
 	/**
@@ -912,17 +935,26 @@ class TokenResourceTest {
 			.thenReturn(Uni.createFrom().item(keyPair));
 
 		Mockito
-			.when(clientRepository.findByIdOptional(clientId))
-			.thenReturn(item(Optional.ofNullable(new ClientEntity(clientId, Channel.POS, null, null, "SmartPOS"))));
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(grantRepository.findSingleResultOptional(new Document(Map.of(
-				"acquirerId", acquirerId,
-				"channel", Channel.POS,
-				"clientId", clientId,
-				"merchantId", merchantId,
-				"terminalId", "NA"))))
-			.thenReturn(item(Optional.ofNullable(new RoleEntity(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(Role.NoticePayer.name(), Role.SlavePos.name())))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 
 		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
