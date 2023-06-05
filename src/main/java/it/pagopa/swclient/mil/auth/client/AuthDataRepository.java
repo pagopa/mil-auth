@@ -25,7 +25,7 @@ public interface AuthDataRepository {
 	 * @param clientId
 	 * @return
 	 */
-	@Path("client-conf/{clientId}.json")
+	@Path("clients/{clientId}.json")
 	@GET
 	Uni<Client> getClient(@PathParam("clientId") String clientId);
 
@@ -38,7 +38,7 @@ public interface AuthDataRepository {
 	 * @param terminalId
 	 * @return
 	 */
-	@Path("role-conf/{acquirerId}/{channel}/{clientId}/{merchantId}/{terminalId}/roles.json")
+	@Path("roles/{acquirerId}/{channel}/{clientId}/{merchantId}/{terminalId}/roles.json")
 	@GET
 	Uni<Role> getRoles(
 		@PathParam("acquirerId") String acquirerId,
