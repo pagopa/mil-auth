@@ -6,8 +6,6 @@
 package it.pagopa.swclient.mil.auth.service;
 
 import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_GENERATING_TOKEN;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_ROLES;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ROLES_NOT_FOUND;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.error;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.item;
 
@@ -25,9 +23,6 @@ import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.AccessToken;
 import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.dao.RoleEntity;
-import it.pagopa.swclient.mil.auth.util.AuthError;
-import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.TokenGenerator;
 import jakarta.inject.Inject;
 
@@ -96,26 +91,6 @@ public abstract class TokenService {
 	}
 
 	/**
-	 * This method finds roles for the client, handling errors.
-	 * 
-	 * @param getAccessToken
-	 * @return
-	 */
-	private Uni<RoleEntity> findRoles(GetAccessToken getAccessToken) {
-		return roleFinder.findRoles(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId())
-			.onFailure().transform(t -> {
-				String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
-				Log.errorf(t, message);
-				return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
-			})
-			.map(o -> o.orElseThrow(() -> {
-				String message = String.format("[%s] Roles not found.", ROLES_NOT_FOUND);
-				Log.warn(message);
-				return new AuthException(ROLES_NOT_FOUND, message);
-			}));
-	}
-
-	/**
 	 * This method contains all common logic behind the access token generation.
 	 * 
 	 * @param getAccessToken
@@ -124,7 +99,7 @@ public abstract class TokenService {
 	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
 		return clientVerifier.verify(getAccessToken.getClientId(), getAccessToken.getChannel(), getAccessToken.getClientSecret())
 			.chain(() -> {
-				return findRoles(getAccessToken);
+				return roleFinder.findRoles(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getClientId(), getAccessToken.getMerchantId(), getAccessToken.getTerminalId());
 			})
 			.chain(roleEntity -> {
 				return generateToken(getAccessToken, roleEntity.getRoles());

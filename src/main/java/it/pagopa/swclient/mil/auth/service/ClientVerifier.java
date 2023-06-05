@@ -14,15 +14,18 @@ import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_SECRET;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.dao.ClientEntity;
-import it.pagopa.swclient.mil.auth.dao.ClientRepository;
+import it.pagopa.swclient.mil.auth.bean.Client;
+import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 /**
  * 
@@ -33,28 +36,44 @@ public class ClientVerifier {
 	/*
 	 * 
 	 */
-	@Inject
-	ClientRepository clientRepository;
+	@RestClient
+	AuthDataRepository repository;
 
 	/**
 	 * 
-	 * @param clientRepository
-	 * @param clientId
+	 * @param cliendId
 	 * @return
 	 */
-	private Uni<ClientEntity> findClient(String clientId) {
+	public Uni<Client> findClient(String clientId) {
 		Log.debugf("Search for the client %s.", clientId);
-		return clientRepository.findByIdOptional(clientId)
+		return repository.getClient(clientId)
 			.onFailure().transform(t -> {
-				String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
-				Log.errorf(t, message);
-				return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
-			})
-			.map(o -> o.orElseThrow(() -> {
-				String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
-				Log.warn(message);
-				return new AuthException(CLIENT_NOT_FOUND, message);
-			}));
+				if (t instanceof WebApplicationException) {
+					WebApplicationException e = (WebApplicationException) t;
+					Response r = e.getResponse();
+					// r cannot be null
+					// if (r != null) {
+					if (r.getStatus() == 404) {
+						String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
+						Log.warnf(t, message);
+						return new AuthException(CLIENT_NOT_FOUND, message);
+					} else {
+						String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
+						Log.errorf(t, message);
+						return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
+					}
+					// } else {
+					// String message = String.format("[%s] Error searching for the client %s.",
+					// ERROR_SEARCHING_FOR_CLIENT, clientId);
+					// Log.errorf(t, message);
+					// return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
+					// }
+				} else {
+					String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
+					Log.errorf(t, message);
+					return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
+				}
+			});
 	}
 
 	/**
@@ -62,7 +81,7 @@ public class ClientVerifier {
 	 * @param clientEntity
 	 * @param expectedChannel
 	 */
-	private ClientEntity verifyChannel(ClientEntity clientEntity, String expectedChannel) {
+	private Client verifyChannel(Client clientEntity, String expectedChannel) {
 		Log.debug("Channel verification.");
 		String foundChannel = clientEntity.getChannel();
 		if (Objects.equals(foundChannel, expectedChannel)) {
@@ -80,7 +99,7 @@ public class ClientVerifier {
 	 * @param clientEntity
 	 * @param expectedSecret
 	 */
-	private ClientEntity verifySecret(ClientEntity clientEntity, String expectedSecret) {
+	private Client verifySecret(Client clientEntity, String expectedSecret) {
 		Log.debug("Secret verification.");
 		String foundSecret = clientEntity.getSecretHash();
 		try {
@@ -109,7 +128,7 @@ public class ClientVerifier {
 	 * @param secret
 	 * @return
 	 */
-	public Uni<ClientEntity> verify(String clientId, String channel, String secret) {
+	public Uni<Client> verify(String clientId, String channel, String secret) {
 		return findClient(clientId)
 			.map(e -> verifyChannel(e, channel))
 			.map(e -> verifySecret(e, secret));

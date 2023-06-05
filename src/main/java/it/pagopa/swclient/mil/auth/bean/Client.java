@@ -1,15 +1,16 @@
 /*
- * ClientEntity.java
+ * Client.java
  *
  * 16 mar 2023
  */
-package it.pagopa.swclient.mil.auth.dao;
+package it.pagopa.swclient.mil.auth.bean;
 
 /**
  * 
  * @author Antonio Tarricone
  */
-public class ClientEntity {
+@SuppressWarnings("unused")
+public class Client {
 	/*
 	 * 
 	 */
@@ -41,7 +42,7 @@ public class ClientEntity {
 	 * @param secret
 	 * @param description
 	 */
-	public ClientEntity(String id, String channel, String salt, String secretHash, String description) {
+	public Client(String id, String channel, String salt, String secretHash, String description) {
 		this.id = id;
 		this.channel = channel;
 		this.salt = salt;

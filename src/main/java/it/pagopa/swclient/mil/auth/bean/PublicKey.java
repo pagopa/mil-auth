@@ -14,7 +14,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * @author Antonio Tarricone
  */
 @RegisterForReflection
-public class PublicKey {
+public class PublicKey implements Cloneable {
 	/*
 	 * Public exponent
 	 */
@@ -125,6 +125,55 @@ public class PublicKey {
 	public long getIat() {
 		return iat;
 	}
+	
+	/**
+	 * @param e the e to set
+	 */
+	public void setE(String e) {
+		this.e = e;
+	}
+
+	/**
+	 * @param use the use to set
+	 */
+	public void setUse(KeyUse use) {
+		this.use = use;
+	}
+
+	/**
+	 * @param kid the kid to set
+	 */
+	public void setKid(String kid) {
+		this.kid = kid;
+	}
+
+	/**
+	 * @param n the n to set
+	 */
+	public void setN(String n) {
+		this.n = n;
+	}
+
+	/**
+	 * @param kty the kty to set
+	 */
+	public void setKty(KeyType kty) {
+		this.kty = kty;
+	}
+
+	/**
+	 * @param exp the exp to set
+	 */
+	public void setExp(long exp) {
+		this.exp = exp;
+	}
+
+	/**
+	 * @param iat the iat to set
+	 */
+	public void setIat(long iat) {
+		this.iat = iat;
+	}
 
 	/**
 	 * @see java.lang.Object#toString()
@@ -168,5 +217,13 @@ public class PublicKey {
 			&& kty == other.kty
 			&& Objects.equals(n, other.n)
 			&& use == other.use;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new PublicKey(e, use, kid, n, kty, exp, iat);
 	}
 }
