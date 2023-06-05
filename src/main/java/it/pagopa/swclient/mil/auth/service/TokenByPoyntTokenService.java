@@ -50,12 +50,13 @@ public class TokenByPoyntTokenService extends TokenService {
 				if (t instanceof WebApplicationException) {
 					WebApplicationException e = (WebApplicationException) t;
 					Response r = e.getResponse();
+					// r cannot be null
 					String message = null;
-					if (r != null) {
-						message = String.format("[%s] Poynt Token not valid. Status: %s", EXT_TOKEN_NOT_VALID, r.getStatus());
-					} else {
-						message = String.format("[%s] Poynt Token not valid.", EXT_TOKEN_NOT_VALID);
-					}
+					// if (r != null) {
+					message = String.format("[%s] Poynt Token not valid. Status: %s", EXT_TOKEN_NOT_VALID, r.getStatus());
+					// } else {
+					// message = String.format("[%s] Poynt Token not valid.", EXT_TOKEN_NOT_VALID);
+					// }
 					Log.warnf(e, message);
 					return new AuthException(EXT_TOKEN_NOT_VALID, message);
 				} else {

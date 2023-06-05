@@ -11,6 +11,7 @@ package it.pagopa.swclient.mil.auth.dao;
  * 
  * @author Antonio Tarricone
  */
+@SuppressWarnings("unused")
 public class ResourceOwnerCredentialsEntity {
 	/*
 	 * 

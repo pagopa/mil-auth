@@ -33,7 +33,6 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import io.quarkus.logging.Log;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -124,16 +123,224 @@ class TokenResourceTest {
 	final String clientSecret2 = "fe3490ca-e1dc-4f67-8348-d30f2d7d7169";
 
 	/**
-	 * 
+	 * @throws NoSuchAlgorithmException
 	 */
-	private void setupForCreateTokenByPoyntToken() {
-		Mockito
-			.when(poyntClient.getBusinessObject(anyString(), anyString()))
-			.thenReturn(item(Response.ok().build()));
+	@Test
+	void createTokenByClientSecret() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByClientSecret();
 
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000005")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("access_token", notNullValue())
+			.body("token_type", equalTo("Bearer"))
+			.body("expires_in", notNullValue(Long.class))
+			.body("refresh_token", nullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByClientSecretForNodo() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
 		Mockito
 			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
+			.thenReturn(item(new Client(clientId, null, salt, PasswordVerifier.hash(clientSecret, salt), "Nodo")));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				"NA",
+				"NA",
+				clientId,
+				"NA",
+				"NA"))
+			.thenReturn(item(new Role("NA", "NA", clientId, "NA", "NA", List.of(RoleEnum.Nodo.name()))));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000006")
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("access_token", notNullValue())
+			.body("token_type", equalTo("Bearer"))
+			.body("expires_in", notNullValue(Long.class))
+			.body("refresh_token", nullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByClientSecretForNodoWithRolesNotFound() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, null, salt, PasswordVerifier.hash(clientSecret, salt), "Nodo")));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				"NA",
+				"NA",
+				clientId,
+				"NA",
+				"NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000022")
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByClientSecretWithClientIdNotFound() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByClientSecret();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-00000000001f")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId2)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void createTokenByClientSecretWithErrorSearchingClient1() {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-00000000001c")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.ATM)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void createTokenByClientSecretWithErrorSearchingClient2() {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(500)));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000023")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.ATM)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByClientSecretWithErrorSearchingRoles1() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
 
 		Mockito
 			.when(authDataRepository.getRoles(
@@ -142,7 +349,147 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				terminalId))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(500)));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000020")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByClientSecretWithErrorSearchingRoles2() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000021")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+	
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByClientSecretWithWrongChannel() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByClientSecret();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-00000000001b")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.ATM)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret)
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByClientSecretWithWrongSecret() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByClientSecret();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-00000000001a")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
+			.formParam("client_secret", clientSecret2)
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithErrorSearchingCredentials() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
+
+		Mockito
+			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
 
 		Mockito
 			.when(authDataRepository.getRoles(
@@ -152,32 +499,122 @@ class TokenResourceTest {
 				merchantId,
 				"NA"))
 			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
-	}
-
-	/**
-	 * 
-	 */
-	@Test
-	void createTokenByPoyntTokenWithRefresh() {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPoyntToken();
 
 		/*
 		 * Test
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000001")
+			.header("RequestId", "00000000-0000-0000-0000-000000000019")
 			.header("AcquirerId", acquirerId)
 			.header("Channel", Channel.POS)
 			.header("MerchantId", merchantId)
 			.header("TerminalId", terminalId)
 			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", username)
+			.formParam("password", password)
+			.formParam("scope", "offline_access")
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithoutConsistency() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPassword();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000017")
+			.header("AcquirerId", acquirerId2)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", username)
+			.formParam("password", password)
+			.formParam("scope", "offline_access")
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithoutRefresh() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPassword();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000004")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", username)
+			.formParam("password", password)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("access_token", notNullValue())
+			.body("token_type", equalTo("Bearer"))
+			.body("expires_in", notNullValue(Long.class))
+			.body("refresh_token", nullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithRefresh() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPassword();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000003")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", username)
+			.formParam("password", password)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -188,6 +625,72 @@ class TokenResourceTest {
 			.body("token_type", equalTo("Bearer"))
 			.body("expires_in", notNullValue(Long.class))
 			.body("refresh_token", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithWrongPassword() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPassword();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000016")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", username)
+			.formParam("password", password + password)
+			.formParam("scope", "offline_access")
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithWrongUsername() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPassword();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000018")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", username + username)
+			.formParam("password", password)
+			.formParam("scope", "offline_access")
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
 	}
 
 	/**
@@ -418,60 +921,29 @@ class TokenResourceTest {
 	}
 
 	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	private void setupForCreateTokenByPassword() throws NoSuchAlgorithmException {
-		Mockito
-			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
-
-		Mockito
-			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
-			.thenReturn(item(Optional.ofNullable(new ResourceOwnerCredentialsEntity(username, salt, PasswordVerifier.hash(password, salt), acquirerId, Channel.POS, merchantId))));
-
-		Mockito
-			.when(authDataRepository.getRoles(
-				acquirerId,
-				Channel.POS,
-				clientId,
-				merchantId,
-				terminalId))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
-
-		Mockito
-			.when(authDataRepository.getRoles(
-				acquirerId,
-				Channel.POS,
-				clientId,
-				merchantId,
-				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
+	 * 
 	 */
 	@Test
-	void createTokenByPasswordWithRefresh() throws NoSuchAlgorithmException {
+	void createTokenByPoyntTokenWithRefresh() {
 		/*
 		 * Setup
 		 */
-		setupForCreateTokenByPassword();
+		setupForCreateTokenByPoyntToken();
 
 		/*
 		 * Test
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000003")
+			.header("RequestId", "00000000-0000-0000-0000-000000000001")
 			.header("AcquirerId", acquirerId)
 			.header("Channel", Channel.POS)
 			.header("MerchantId", merchantId)
 			.header("TerminalId", terminalId)
 			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
+			.formParam("grant_type", GrantType.POYNT_TOKEN)
+			.formParam("ext_token", extToken)
+			.formParam("add_data", addData)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -482,434 +954,6 @@ class TokenResourceTest {
 			.body("token_type", equalTo("Bearer"))
 			.body("expires_in", notNullValue(Long.class))
 			.body("refresh_token", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByPasswordWithoutConsistency() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPassword();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000017")
-			.header("AcquirerId", acquirerId2)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByPasswordWithWrongPassword() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPassword();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000016")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password + password)
-			.formParam("scope", "offline_access")
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByPasswordWithWrongUsername() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPassword();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000018")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username + username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByPasswordWithErrorSearchingCredentials() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		Mockito
-			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
-
-		Mockito
-			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
-			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
-
-		Mockito
-			.when(authDataRepository.getRoles(
-				acquirerId,
-				Channel.POS,
-				clientId,
-				merchantId,
-				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000019")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
-			.when()
-			.post()
-			.then()
-			.statusCode(500)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByPasswordWithoutRefresh() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPassword();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000004")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
-			.when()
-			.post()
-			.then()
-			.statusCode(200)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", nullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	private void setupForCreateTokenByClientSecret() throws NoSuchAlgorithmException {
-		Mockito
-			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
-
-		Mockito
-			.when(authDataRepository.getClient(clientId2))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
-
-		Mockito
-			.when(authDataRepository.getRoles(
-				acquirerId,
-				Channel.POS,
-				clientId,
-				merchantId,
-				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
-
-		Mockito
-			.when(authDataRepository.getRoles(
-				acquirerId,
-				Channel.POS,
-				clientId,
-				merchantId,
-				terminalId))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByClientSecret() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByClientSecret();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000005")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
-			.when()
-			.post()
-			.then()
-			.statusCode(200)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", nullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByClientSecretWithWrongSecret() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByClientSecret();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001a")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret2)
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByClientSecretWithWrongChannel() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByClientSecret();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001b")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.ATM)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByClientSecretWithErrorSearchingClient() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		Mockito
-			.when(authDataRepository.getClient(clientId))
-			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
-
-		Mockito
-			.when(authDataRepository.getRoles(
-				acquirerId,
-				Channel.POS,
-				clientId,
-				merchantId,
-				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001c")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.ATM)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
-			.when()
-			.post()
-			.then()
-			.statusCode(500)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByClientSecretWithClientIdNotFound() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByClientSecret();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001f")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId2)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	private void setupForCreateTokenByClientSecretForNodo() throws NoSuchAlgorithmException {
-		Mockito
-			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, null, salt, PasswordVerifier.hash(clientSecret, salt), "Nodo")));
-
-		Mockito
-			.when(authDataRepository.getRoles(
-				"NA",
-				"NA",
-				clientId,
-				"NA",
-				"NA"))
-			.thenReturn(item(new Role("NA", "NA", clientId, "NA", "NA", List.of(RoleEnum.Nodo.name()))));
-	}
-
-	/**
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void createTokenByClientSecretForNodo() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByClientSecretForNodo();
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000006")
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
-			.when()
-			.post()
-			.then()
-			.statusCode(200)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", nullValue());
 	}
 
 	/**
@@ -983,11 +1027,10 @@ class TokenResourceTest {
 	}
 
 	/**
-	 * @throws JOSEException
 	 * 
 	 */
 	@Test
-	void refreshTokenWithBadToken() throws JOSEException {
+	void refreshTokenWithBadToken() {
 		/*
 		 * Test
 		 */
@@ -1011,11 +1054,12 @@ class TokenResourceTest {
 
 	/**
 	 * @throws JOSEException
+	 * @throws ParseException
 	 * @throws InvalidKeySpecException
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void refreshTokenWithMissingKey() throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
+	void refreshTokenWithErrorSearchingPublicKey() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
 		/*
 		 * Setup
 		 */
@@ -1025,13 +1069,26 @@ class TokenResourceTest {
 
 		Mockito
 			.when(redisClient.keys("*"))
-			.thenReturn(Uni.createFrom().item(List.of()));
+			.thenReturn(Uni.createFrom().item(
+				List.of(
+					keyPair.getKid())));
+
+		Mockito
+			.when(redisClient.get(keyPair.getKid()))
+			.thenReturn(Uni.createFrom().item(keyPair));
 
 		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
+		Mockito
+			.when(keyFinder.findPublicKey(keyPair.getKid()))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
+
+		/*
+		 * Test
+		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000009")
+			.header("RequestId", "00000000-0000-0000-0000-000000000011")
 			.header("AcquirerId", acquirerId)
 			.header("Channel", Channel.POS)
 			.header("MerchantId", merchantId)
@@ -1042,7 +1099,7 @@ class TokenResourceTest {
 			.when()
 			.post()
 			.then()
-			.statusCode(401)
+			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
@@ -1143,15 +1200,58 @@ class TokenResourceTest {
 
 	/**
 	 * @throws JOSEException
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void refreshTokenWithMissingKey() throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPoyntToken();
+
+		KeyPair keyPair = keyPairGenerator.generate();
+
+		Mockito
+			.when(redisClient.keys("*"))
+			.thenReturn(Uni.createFrom().item(List.of()));
+
+		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000009")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.REFRESH_TOKEN)
+			.formParam("refresh_token", token)
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws JOSEException
 	 * @throws ParseException
 	 * @throws InvalidKeySpecException
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void refreshTokenWithWrongSignature() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
+	void refreshTokenWithoutExpiration() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
 		/*
 		 * Setup
 		 */
+		setupForCreateTokenByPoyntToken();
+
 		KeyPair keyPair = keyPairGenerator.generate();
 
 		Mockito
@@ -1164,17 +1264,132 @@ class TokenResourceTest {
 			.when(redisClient.get(keyPair.getKid()))
 			.thenReturn(Uni.createFrom().item(keyPair));
 
-		KeyPair anotherKey = keyPairGenerator.generate();
-		anotherKey.setKid(keyPair.getKid());
-
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), anotherKey);
+		Date now = new Date();
+		JWTClaimsSet payload = new JWTClaimsSet.Builder()
+			.subject(clientId)
+			.issueTime(now)
+			.claim("acquirerId", acquirerId)
+			.claim("channel", Channel.POS)
+			.claim("merchantId", merchantId)
+			.claim("clientId", clientId)
+			.claim("terminalId", terminalId)
+			.claim("scope", "offline_access")
+			.build();
+		SignedJWT token = TokenSigner.sign(keyPair, payload);
 
 		/*
 		 * Test
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000c")
+			.header("RequestId", "00000000-0000-0000-0000-000000000010")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.REFRESH_TOKEN)
+			.formParam("refresh_token", token.serialize())
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws JOSEException
+	 * @throws ParseException
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void refreshTokenWithoutIssueTime() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPoyntToken();
+
+		KeyPair keyPair = keyPairGenerator.generate();
+
+		Mockito
+			.when(redisClient.keys("*"))
+			.thenReturn(Uni.createFrom().item(
+				List.of(
+					keyPair.getKid())));
+
+		Mockito
+			.when(redisClient.get(keyPair.getKid()))
+			.thenReturn(Uni.createFrom().item(keyPair));
+
+		Date now = new Date();
+		JWTClaimsSet payload = new JWTClaimsSet.Builder()
+			.subject(clientId)
+			.expirationTime(new Date(now.getTime() + 10 * 60 * 1000))
+			.claim("acquirerId", acquirerId)
+			.claim("channel", Channel.POS)
+			.claim("merchantId", merchantId)
+			.claim("clientId", clientId)
+			.claim("terminalId", terminalId)
+			.claim("scope", "offline_access")
+			.build();
+		SignedJWT token = TokenSigner.sign(keyPair, payload);
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-00000000000f")
+			.header("AcquirerId", acquirerId)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", merchantId)
+			.header("TerminalId", terminalId)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.REFRESH_TOKEN)
+			.formParam("refresh_token", token.serialize())
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws JOSEException
+	 * @throws ParseException
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void refreshTokenWithoutScope() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
+		/*
+		 * Setup
+		 */
+		setupForCreateTokenByPoyntToken();
+
+		KeyPair keyPair = keyPairGenerator.generate();
+
+		Mockito
+			.when(redisClient.keys("*"))
+			.thenReturn(Uni.createFrom().item(
+				List.of(
+					keyPair.getKid())));
+
+		Mockito
+			.when(redisClient.get(keyPair.getKid()))
+			.thenReturn(Uni.createFrom().item(keyPair));
+
+		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, null, keyPair);
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-00000000000d")
 			.header("AcquirerId", acquirerId)
 			.header("Channel", Channel.POS)
 			.header("MerchantId", merchantId)
@@ -1259,54 +1474,6 @@ class TokenResourceTest {
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void refreshTokenWithoutScope() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPoyntToken();
-
-		KeyPair keyPair = keyPairGenerator.generate();
-
-		Mockito
-			.when(redisClient.keys("*"))
-			.thenReturn(Uni.createFrom().item(
-				List.of(
-					keyPair.getKid())));
-
-		Mockito
-			.when(redisClient.get(keyPair.getKid()))
-			.thenReturn(Uni.createFrom().item(keyPair));
-
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, null, keyPair);
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000d")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws JOSEException
-	 * @throws ParseException
-	 * @throws InvalidKeySpecException
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
 	void refreshTokenWithWrongIssueTime() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
 		/*
 		 * Setup
@@ -1337,7 +1504,6 @@ class TokenResourceTest {
 			.claim("terminalId", terminalId)
 			.claim("scope", "offline_access")
 			.build();
-		Log.debug("Token signing.");
 		SignedJWT token = TokenSigner.sign(keyPair, payload);
 
 		/*
@@ -1368,12 +1534,10 @@ class TokenResourceTest {
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void refreshTokenWithoutIssueTime() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
+	void refreshTokenWithWrongSignature() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
 		/*
 		 * Setup
 		 */
-		setupForCreateTokenByPoyntToken();
-
 		KeyPair keyPair = keyPairGenerator.generate();
 
 		Mockito
@@ -1386,138 +1550,17 @@ class TokenResourceTest {
 			.when(redisClient.get(keyPair.getKid()))
 			.thenReturn(Uni.createFrom().item(keyPair));
 
-		Date now = new Date();
-		JWTClaimsSet payload = new JWTClaimsSet.Builder()
-			.subject(clientId)
-			.expirationTime(new Date(now.getTime() + 10 * 60 * 1000))
-			.claim("acquirerId", acquirerId)
-			.claim("channel", Channel.POS)
-			.claim("merchantId", merchantId)
-			.claim("clientId", clientId)
-			.claim("terminalId", terminalId)
-			.claim("scope", "offline_access")
-			.build();
-		Log.debug("Token signing.");
-		SignedJWT token = TokenSigner.sign(keyPair, payload);
+		KeyPair anotherKey = keyPairGenerator.generate();
+		anotherKey.setKid(keyPair.getKid());
+
+		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), anotherKey);
 
 		/*
 		 * Test
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000f")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token.serialize())
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws JOSEException
-	 * @throws ParseException
-	 * @throws InvalidKeySpecException
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void refreshTokenWithoutExpiration() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPoyntToken();
-
-		KeyPair keyPair = keyPairGenerator.generate();
-
-		Mockito
-			.when(redisClient.keys("*"))
-			.thenReturn(Uni.createFrom().item(
-				List.of(
-					keyPair.getKid())));
-
-		Mockito
-			.when(redisClient.get(keyPair.getKid()))
-			.thenReturn(Uni.createFrom().item(keyPair));
-
-		Date now = new Date();
-		JWTClaimsSet payload = new JWTClaimsSet.Builder()
-			.subject(clientId)
-			.issueTime(now)
-			.claim("acquirerId", acquirerId)
-			.claim("channel", Channel.POS)
-			.claim("merchantId", merchantId)
-			.claim("clientId", clientId)
-			.claim("terminalId", terminalId)
-			.claim("scope", "offline_access")
-			.build();
-		Log.debug("Token signing.");
-		SignedJWT token = TokenSigner.sign(keyPair, payload);
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000010")
-			.header("AcquirerId", acquirerId)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token.serialize())
-			.when()
-			.post()
-			.then()
-			.statusCode(401)
-			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
-	}
-
-	/**
-	 * @throws JOSEException
-	 * @throws ParseException
-	 * @throws InvalidKeySpecException
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void refreshTokenWithErrorSearchingPublicKey() throws JOSEException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException {
-		/*
-		 * Setup
-		 */
-		setupForCreateTokenByPoyntToken();
-
-		KeyPair keyPair = keyPairGenerator.generate();
-
-		Mockito
-			.when(redisClient.keys("*"))
-			.thenReturn(Uni.createFrom().item(
-				List.of(
-					keyPair.getKid())));
-
-		Mockito
-			.when(redisClient.get(keyPair.getKid()))
-			.thenReturn(Uni.createFrom().item(keyPair));
-
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
-
-		Mockito
-			.when(keyFinder.findPublicKey(keyPair.getKid()))
-			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
-
-		/*
-		 * Test
-		 */
-		given()
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000011")
+			.header("RequestId", "00000000-0000-0000-0000-00000000000c")
 			.header("AcquirerId", acquirerId)
 			.header("Channel", Channel.POS)
 			.header("MerchantId", merchantId)
@@ -1528,8 +1571,101 @@ class TokenResourceTest {
 			.when()
 			.post()
 			.then()
-			.statusCode(500)
+			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	private void setupForCreateTokenByClientSecret() throws NoSuchAlgorithmException {
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
+
+		Mockito
+			.when(authDataRepository.getClient(clientId2))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+	}
+
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	private void setupForCreateTokenByPassword() throws NoSuchAlgorithmException {
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
+
+		Mockito
+			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
+			.thenReturn(item(Optional.ofNullable(new ResourceOwnerCredentialsEntity(username, salt, PasswordVerifier.hash(password, salt), acquirerId, Channel.POS, merchantId))));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+	}
+
+	/**
+	 * 
+	 */
+	private void setupForCreateTokenByPoyntToken() {
+		Mockito
+			.when(poyntClient.getBusinessObject(anyString(), anyString()))
+			.thenReturn(item(Response.ok().build()));
+
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				terminalId))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				merchantId,
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
 	}
 }

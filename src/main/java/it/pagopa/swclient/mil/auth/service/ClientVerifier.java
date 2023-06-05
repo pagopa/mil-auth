@@ -51,21 +51,23 @@ public class ClientVerifier {
 				if (t instanceof WebApplicationException) {
 					WebApplicationException e = (WebApplicationException) t;
 					Response r = e.getResponse();
-					if (r != null) {
-						if (r.getStatus() == 404) {
-							String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
-							Log.warnf(t, message);
-							return new AuthException(CLIENT_NOT_FOUND, message);
-						} else {
-							String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
-							Log.errorf(t, message);
-							return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
-						}
+					// r cannot be null
+					// if (r != null) {
+					if (r.getStatus() == 404) {
+						String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
+						Log.warnf(t, message);
+						return new AuthException(CLIENT_NOT_FOUND, message);
 					} else {
 						String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
 						Log.errorf(t, message);
 						return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
 					}
+					// } else {
+					// String message = String.format("[%s] Error searching for the client %s.",
+					// ERROR_SEARCHING_FOR_CLIENT, clientId);
+					// Log.errorf(t, message);
+					// return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
+					// }
 				} else {
 					String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
 					Log.errorf(t, message);

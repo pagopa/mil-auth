@@ -12,6 +12,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * @author Antonio Tarricone
  */
 @RegisterForReflection
+@SuppressWarnings("unused")
 public class KeyPair {
 	/*
 	 * Private exponent
@@ -152,22 +153,6 @@ public class KeyPair {
 
 	/**
 	 * 
-	 * @return the dp
-	 */
-	public String getDp() {
-		return dp;
-	}
-
-	/**
-	 * 
-	 * @return the dq
-	 */
-	public String getDq() {
-		return dq;
-	}
-
-	/**
-	 * 
 	 * @return the n
 	 */
 	public String getN() {
@@ -176,34 +161,10 @@ public class KeyPair {
 
 	/**
 	 * 
-	 * @return the p
-	 */
-	public String getP() {
-		return p;
-	}
-
-	/**
-	 * 
 	 * @return the kty
 	 */
 	public KeyType getKty() {
 		return kty;
-	}
-
-	/**
-	 * 
-	 * @return the q
-	 */
-	public String getQ() {
-		return q;
-	}
-
-	/**
-	 * 
-	 * @return the qi
-	 */
-	public String getQi() {
-		return qi;
 	}
 
 	/**

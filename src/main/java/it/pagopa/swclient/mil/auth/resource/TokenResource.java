@@ -71,7 +71,6 @@ public class TokenResource {
 	/**
 	 * Dispatches the request to the right method.
 	 *
-	 * @param commonHeader
 	 * @param getAccessToken
 	 * @return
 	 */

@@ -63,21 +63,22 @@ public class RolesFinder {
 				if (t instanceof WebApplicationException) {
 					WebApplicationException e = (WebApplicationException) t;
 					Response r = e.getResponse();
-					if (r != null) {
-						if (r.getStatus() == 404) {
-							String message = String.format("[%s] Roles not found.", ROLES_NOT_FOUND);
-							Log.warn(message);
-							return new AuthException(ROLES_NOT_FOUND, message);
-						} else {
-							String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
-							Log.errorf(t, message);
-							return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
-						}
+					// r is always not null
+					// if (r != null) {
+					if (r.getStatus() == 404) {
+						String message = String.format("[%s] Roles not found.", ROLES_NOT_FOUND);
+						Log.warn(message);
+						return new AuthException(ROLES_NOT_FOUND, message);
 					} else {
 						String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
 						Log.errorf(t, message);
 						return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
 					}
+					// } else {
+					// String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
+					// Log.errorf(t, message);
+					// return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
+					// }
 				} else {
 					String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
 					Log.errorf(t, message);
