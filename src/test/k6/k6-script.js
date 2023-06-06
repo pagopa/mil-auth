@@ -4,6 +4,7 @@
 import "./libs/shim/core.js";
 import "./libs/shim/jsonSchema.js";
 import "./libs/shim/urijs.js";
+import { check } from 'k6';
 
 export let options = {
   maxRedirects: 4,
