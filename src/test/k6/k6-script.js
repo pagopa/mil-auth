@@ -220,8 +220,8 @@ export default function() {
       });
 
       // Save refresh token, for following test.
-      const response = pm.response.json();
-      pm.collectionVariables.set("refreshToken", response.refresh_token);
+      const respJson = pm.response.json();
+      pm.collectionVariables.set("refreshToken", respJson.refresh_token);
     }
   });
 
@@ -348,8 +348,8 @@ export default function() {
       });
 
       // Save refresh token, for following test.
-      const response = pm.response.json();
-      pm.collectionVariables.set("refreshToken", response.refresh_token);
+      const respJson = pm.response.json();
+      pm.collectionVariables.set("refreshToken", respJson.refresh_token);
     }
   });
 
