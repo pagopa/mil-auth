@@ -88,6 +88,107 @@
 			"response": []
 		},
 		{
+			"name": "client_credentials - VAS Layer - ok",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-00000000000b",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{correctClientSecretForVasLayer}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForVasLayer}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "client_credentials - wrong client id",
 			"event": [
 				{
@@ -346,8 +447,8 @@
 							"});",
 							"",
 							"// Save refresh token, for following test.",
-							"const response = pm.response.json();",
-							"pm.collectionVariables.set(\"refreshToken\", response.refresh_token);"
+							"const respJson = pm.response.json();",
+							"pm.collectionVariables.set(\"refreshToken\", respJson.refresh_token);"
 						],
 						"type": "text/javascript"
 					}
@@ -713,8 +814,8 @@
 							"});",
 							"",
 							"// Save refresh token, for following test.",
-							"const response = pm.response.json();",
-							"pm.collectionVariables.set(\"refreshToken\", response.refresh_token);"
+							"const respJson = pm.response.json();",
+							"pm.collectionVariables.set(\"refreshToken\", respJson.refresh_token);"
 						],
 						"type": "text/javascript"
 					}
@@ -840,7 +941,7 @@
 						},
 						{
 							"key": "refresh_token",
-							"value": "{{wrongRefreshToken}}",
+							"value": "{{refreshToken}}",
 							"type": "text"
 						}
 					]
@@ -964,16 +1065,6 @@
 	],
 	"variable": [
 		{
-			"key": "host",
-			"value": "mil-d-apim.azure-api.net",
-			"type": "string"
-		},
-		{
-			"key": "context",
-			"value": "mil-auth",
-			"type": "string"
-		},
-		{
 			"key": "acquirerId",
 			"value": "4585625",
 			"type": "string"
@@ -1060,6 +1151,16 @@
 		{
 			"key": "wrongRefreshToken",
 			"value": "eyJraWQiOiI5M2IxZjYxYy0yYTQ4LTQwNzYtOGRhNi1mNjEwZWNkNTc4M2UiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsInRlcm1pbmFsSWQiOiIwMTIzNDU2NyIsImV4cCI6MTY4NjA0MzQ1MiwiYWNxdWlyZXJJZCI6IjQ1ODU2MjUiLCJpYXQiOjE2ODYwMzk4NTJ9.RRrtFUL2fGmdjNCVlvBOCze9z3Wo2XSfM-c4dd4RV3fFvsqum2WgTXOACaX0RKJBiMj2SNSpdcQK2OgyXZx_z7j6c8PrziC2mJZaT0vmQ7pWEF_0sNYz_Pwulha3Ykx7wFhcRngMelCOb-PrtHuLoV4XwtBrEk3pzpeJJdmFauGsoQ_079NTBaDfDrpcc7armHiPQ4-7ZKRsOPu-FVtqiB4sdOisg-u1p0XvvoDGnxP0A-7c6N7pvrnTVCnIjrYPV0_-MgFzH1WhQ8baoNSr3lsPG3H9Fs1dVXVsfTA3hYnn7ezbIlETW6TXIiWRoZ1yvjP7NoGKgH_6_NHFgYDbMjPUQPdByu11WJ640fLILk3DF2Se7yHEQb7-N_QhOpx2SqeZzI56Y659d8BUk-IkgG20A2N2GWDWgGCcboPmfE9Np67yj2znAIMo8WhoGUD9cLuTEGBBFOjiZ8pDxfSsdGsO4rfjOAayJ_kbLtbc_Tj6ZPymv3vSMISXYAASteynrU3bv-Td-H9Wzs1ABJFHyLFLibSCqztNOkBn9iiWCKrR30iQUxcqmiypZoQT5fjkNlHCxKHF4S8QpQs9m0nq2j76_7ipzDaKgE2i8HtccLBi3XvOl88brmjnKilk49MpoNAPsgRVNz-DZ2pq9olQh7o_y--0_T4ht7zhto7a69I",
+			"type": "string"
+		},
+		{
+			"key": "clientIdForVasLayer",
+			"value": "3965df56-ca9a-49e5-97e8-061433d4a25b",
+			"type": "string"
+		},
+		{
+			"key": "correctClientSecretForVasLayer",
+			"value": "5ceef788-4115-43a7-a704-b1bcc9a47c86",
 			"type": "string"
 		}
 	]

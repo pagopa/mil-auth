@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
@@ -44,6 +45,7 @@ public class ClientVerifier {
 	 * @param cliendId
 	 * @return
 	 */
+	@CacheResult(cacheName = "client")
 	public Uni<Client> findClient(String clientId) {
 		Log.debugf("Search for the client %s.", clientId);
 		return repository.getClient(clientId)

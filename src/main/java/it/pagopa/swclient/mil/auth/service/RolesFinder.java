@@ -10,6 +10,7 @@ import static it.pagopa.swclient.mil.auth.ErrorCode.ROLES_NOT_FOUND;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Role;
@@ -100,6 +101,7 @@ public class RolesFinder {
 	 * @param terminalId
 	 * @return
 	 */
+	@CacheResult(cacheName = "role")
 	public Uni<Role> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		return find(acquirerId, channel, clientId, merchantId, terminalId)
 			.onFailure(AuthException.class)
