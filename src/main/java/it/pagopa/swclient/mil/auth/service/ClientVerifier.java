@@ -63,7 +63,6 @@ public class ClientVerifier {
 					WebApplicationException e = (WebApplicationException) t;
 					Response r = e.getResponse();
 					// r cannot be null
-					// if (r != null) {
 					if (r.getStatus() == 404) {
 						String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
 						Log.warnf(t, message);
@@ -73,12 +72,6 @@ public class ClientVerifier {
 						Log.errorf(t, message);
 						return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
 					}
-					// } else {
-					// String message = String.format("[%s] Error searching for the client %s.",
-					// ERROR_SEARCHING_FOR_CLIENT, clientId);
-					// Log.errorf(t, message);
-					// return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
-					// }
 				} else {
 					String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
 					Log.errorf(t, message);
