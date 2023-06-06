@@ -840,7 +840,7 @@
 						},
 						{
 							"key": "refresh_token",
-							"value": "{{refreshToken}}",
+							"value": "{{wrongRefreshToken}}",
 							"type": "text"
 						}
 					]

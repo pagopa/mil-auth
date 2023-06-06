@@ -361,7 +361,7 @@ export default function() {
     data: {
       client_id: "{{clientIdForPassword}}",
       grant_type: "refresh_token",
-      refresh_token: "{{refreshToken}}"
+      refresh_token: "{{wrongRefreshToken}}"
     },
     headers: {
       RequestId: "00000000-0000-0000-0000-00000000000a",
