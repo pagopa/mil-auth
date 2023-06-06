@@ -185,7 +185,10 @@ jobs:
 
   test:
     needs: release
+    
     runs-on: ubuntu-latest
+    
+    steps:
       #
       # Checkout the source code.
       #
