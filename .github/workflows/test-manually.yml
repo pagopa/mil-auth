@@ -35,4 +35,4 @@ jobs:
       # Run Postman collection
       #
       - name: Run Postman collection
-        run: newman run src/main/test/postman/mil-auth.postman_collection.json -e src/main/test/postman/dev.postman_environment.json
+        run: newman run src/test/postman/mil-auth.postman_collection.json -e src/test/postman/dev.postman_environment.json
