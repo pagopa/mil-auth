@@ -9,6 +9,12 @@ export let options = {
   maxRedirects: 4,
   duration: '5m',
   vus: 100,
+  thresholds: {
+    // 90% of requests must finish within 4s, 95% within 5s.
+    'http_req_duration': ['p(90) < 4000', 'p(95) < 5000'],
+    // During the whole test execution, the error rate (HTTP status 500) must be lower than 1%.
+    'checks{myTag:serverError}': ['rate<0.01']
+  }
 };
 
 const Request = Symbol.for("request");
@@ -58,6 +64,8 @@ export default function() {
       RequestId: "00000000-0000-0000-0000-000000000006"
     },
     post(response) {
+      check(response, { 'status is 500': (r) => r.status == 500 }, { myTag: 'serverError' });
+      
       pm.test("Status code is 200", function() {
         pm.response.to.have.status(200);
       });
