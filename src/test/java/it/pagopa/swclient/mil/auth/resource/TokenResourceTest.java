@@ -19,8 +19,10 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
@@ -108,7 +110,7 @@ class TokenResourceTest {
 	/*
 	 * 
 	 */
-	final String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
+	String clientId; // "5254f087-1214-45cd-94ae-fda53c835197";
 	final String clientId2 = "1e7921f7-677f-4ae0-bd51-2f580fd111e3";
 	final String acquirerId = "4585625";
 	final String acquirerId2 = "4585626";
@@ -121,6 +123,14 @@ class TokenResourceTest {
 	final String salt = "BhPEAxmNsm6JIidDZXl/jwIfuFUFwn/hjfoLnDuYyQEfUMQOrtlOCFljm8IYmN5OmMIh3RddWfNSJEVlRxZjig==";
 	final String clientSecret = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
 	final String clientSecret2 = "fe3490ca-e1dc-4f67-8348-d30f2d7d7169";
+	
+	/**
+	 * 
+	 */
+	@BeforeEach
+	void generateClientId() {
+		clientId = UUID.randomUUID().toString();
+	}
 
 	/**
 	 * @throws NoSuchAlgorithmException

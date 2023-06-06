@@ -11,8 +11,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.MockedStatic;
@@ -46,13 +48,22 @@ class TokenResourceWithExcOnClientSecrVerTest {
 	/*
 	 * 
 	 */
-	private static final String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
+	//private static final String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
+	String clientId;
 	private static final String acquirerId = "4585625";
 	private static final String merchantId = "28405fHfk73x88D";
 	private static final String terminalId = "01234567";
 	private static final String salt = "BhPEAxmNsm6JIidDZXl/jwIfuFUFwn/hjfoLnDuYyQEfUMQOrtlOCFljm8IYmN5OmMIh3RddWfNSJEVlRxZjig==";
 	private static final String clientSecret = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
 
+	/**
+	 * 
+	 */
+	@BeforeEach
+	void generateClientId() {
+		clientId = UUID.randomUUID().toString();
+	}
+	
 	/**
 	 * @throws NoSuchAlgorithmException
 	 */
