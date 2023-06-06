@@ -1,0 +1,1066 @@
+{
+	"info": {
+		"_postman_id": "538cca45-14a8-4ae3-a660-19dbac765116",
+		"name": "mil-auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23394429"
+	},
+	"item": [
+		{
+			"name": "client_credentials - ok",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000006",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{correctClientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForClientCredentials}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "client_credentials - wrong client id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000007",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{wrongClientId}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForClientCredentials}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "client_credentials - wrong client secret",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000008",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{wrongClientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForClientCredentials}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "password - ok w/o refresh token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000001",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{correctUsername}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{correctPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "password - ok w/ refresh token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"refresh_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"refresh_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"// Save refresh token, for following test.",
+							"const response = pm.response.json();",
+							"pm.collectionVariables.set(\"refreshToken\", response.refresh_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000002",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{correctUsername}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{correctPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "offline_access",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "password - wrong username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000003",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{wrongUsername}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{correctPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "password - wrong password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000004",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{correctUsername}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{wrongPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "poynt_token - wrong token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000005",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "ext_token",
+							"value": "{{wrongExtToken}}",
+							"type": "text"
+						},
+						{
+							"key": "add_data",
+							"value": "{{addDataForExtToken}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForExtToken}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "poynt_token",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "offline_access",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh_token - ok",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"refresh_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"refresh_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"// Save refresh token, for following test.",
+							"const response = pm.response.json();",
+							"pm.collectionVariables.set(\"refreshToken\", response.refresh_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000009",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{clientIdForPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"key": "refresh_token",
+							"value": "{{refreshToken}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh_token - wrong token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-00000000000a",
+						"type": "text"
+					},
+					{
+						"key": "AcquirerId",
+						"value": "{{acquirerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Channel",
+						"value": "{{channel}}",
+						"type": "text"
+					},
+					{
+						"key": "MerchantId",
+						"value": "{{merchantId}}",
+						"type": "text"
+					},
+					{
+						"key": "TerminalId",
+						"value": "{{terminalId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{clientIdForPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"key": "refresh_token",
+							"value": "{{refreshToken}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "JWKS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"keys\":{",
+							"         \"type\":\"array\",",
+							"         \"items\":{",
+							"            \"type\":\"object\",",
+							"            \"properties\":{",
+							"               \"e\":{",
+							"                  \"type\":\"string\"",
+							"               },",
+							"               \"use\":{",
+							"                  \"type\":\"string\"",
+							"               },",
+							"               \"kid\":{",
+							"                  \"type\":\"string\"",
+							"               },",
+							"               \"n\":{",
+							"                  \"type\":\"string\"",
+							"               },",
+							"               \"kty\":{",
+							"                  \"type\":\"string\"",
+							"               },",
+							"               \"exp\":{",
+							"                  \"type\":\"integer\"",
+							"               },",
+							"               \"iat\":{",
+							"                  \"type\":\"integer\"",
+							"               }",
+							"            },",
+							"            \"required\":[",
+							"               \"e\",",
+							"               \"use\",",
+							"               \"kid\",",
+							"               \"n\",",
+							"               \"kty\",",
+							"               \"exp\",",
+							"               \"iat\"",
+							"            ],",
+							"            \"additionalProperties\":false",
+							"         }",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"keys\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/.well-known/jwks.json",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						".well-known",
+						"jwks.json"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "mil-d-apim.azure-api.net",
+			"type": "string"
+		},
+		{
+			"key": "context",
+			"value": "mil-auth",
+			"type": "string"
+		},
+		{
+			"key": "acquirerId",
+			"value": "4585625",
+			"type": "string"
+		},
+		{
+			"key": "channel",
+			"value": "POS",
+			"type": "string"
+		},
+		{
+			"key": "merchantId",
+			"value": "28405fHfk73x88D",
+			"type": "string"
+		},
+		{
+			"key": "terminalId",
+			"value": "01234567",
+			"type": "string"
+		},
+		{
+			"key": "correctUsername",
+			"value": "antonio.tarricone",
+			"type": "string"
+		},
+		{
+			"key": "correctPassword",
+			"value": "antonio",
+			"type": "string"
+		},
+		{
+			"key": "clientIdForPassword",
+			"value": "5254f087-1214-45cd-94ae-fda53c835197",
+			"type": "string"
+		},
+		{
+			"key": "wrongUsername",
+			"value": "fabrizio.tarricone",
+			"type": "string"
+		},
+		{
+			"key": "wrongPassword",
+			"value": "fabrizio",
+			"type": "string"
+		},
+		{
+			"key": "wrongClientId",
+			"value": "26367881-7bfb-4b45-8b78-0a0937211e67",
+			"type": "string"
+		},
+		{
+			"key": "clientIdForExtToken",
+			"value": "5254f087-1214-45cd-94ae-fda53c835197",
+			"type": "string"
+		},
+		{
+			"key": "wrongExtToken",
+			"value": "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4NDU3NTMzNiwiaWF0IjoxNjg0NDg4OTM2LCJqdGkiOiJmNzc5MjQ1OS00ODU1LTQ5YjMtYTZiYS05N2QzNzQ5NDQ2ZGIifQ.niR8AS3OHlmWg1-n3FD4DKoAWlY0nJyEJGBZSBFWHYCl01vjIIFYCmTCyBshZVEtDBKpTG1bWTmVctOCX2ybF5gQ0vBH1H3LFD13Tf73Ps439Ht5_u3Q-jHPf_arXDf2enOs_vKwp8TsdJNPRcxMhYZ91yyiAhbHERVypP2YPszwv5h6mMq_HWNzK9qjrLh8zQCGBEMkFfnSG1xOjzTZLJ4ROPazaDHJ9DSZReC4dY_jRqAlivbXVeLOnN3D4y_GatcHQO1_p_jYE-eXHjLP-wINeAqW57P57HmSe2n67q6UkQf5v5zKVHrJpTFAtHWpDVLxmhPKGurTX45yOvaDZw",
+			"type": "string"
+		},
+		{
+			"key": "addDataForExtToken",
+			"value": "4b7eb94b-10c9-4f11-a10e-7292b29ab115",
+			"type": "string"
+		},
+		{
+			"key": "clientIdForClientCredentials",
+			"value": "92faf319-4219-455f-841b-bb692684672a",
+			"type": "string"
+		},
+		{
+			"key": "correctClientSecret",
+			"value": "be81144b-e8ec-487d-a440-ea8d144343f7",
+			"type": "string"
+		},
+		{
+			"key": "wrongClientSecret",
+			"value": "d163b367-6035-4c73-9cec-136ccc578371",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": ""
+		},
+		{
+			"key": "wrongRefreshToken",
+			"value": "eyJraWQiOiI5M2IxZjYxYy0yYTQ4LTQwNzYtOGRhNi1mNjEwZWNkNTc4M2UiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsInRlcm1pbmFsSWQiOiIwMTIzNDU2NyIsImV4cCI6MTY4NjA0MzQ1MiwiYWNxdWlyZXJJZCI6IjQ1ODU2MjUiLCJpYXQiOjE2ODYwMzk4NTJ9.RRrtFUL2fGmdjNCVlvBOCze9z3Wo2XSfM-c4dd4RV3fFvsqum2WgTXOACaX0RKJBiMj2SNSpdcQK2OgyXZx_z7j6c8PrziC2mJZaT0vmQ7pWEF_0sNYz_Pwulha3Ykx7wFhcRngMelCOb-PrtHuLoV4XwtBrEk3pzpeJJdmFauGsoQ_079NTBaDfDrpcc7armHiPQ4-7ZKRsOPu-FVtqiB4sdOisg-u1p0XvvoDGnxP0A-7c6N7pvrnTVCnIjrYPV0_-MgFzH1WhQ8baoNSr3lsPG3H9Fs1dVXVsfTA3hYnn7ezbIlETW6TXIiWRoZ1yvjP7NoGKgH_6_NHFgYDbMjPUQPdByu11WJ640fLILk3DF2Se7yHEQb7-N_QhOpx2SqeZzI56Y659d8BUk-IkgG20A2N2GWDWgGCcboPmfE9Np67yj2znAIMo8WhoGUD9cLuTEGBBFOjiZ8pDxfSsdGsO4rfjOAayJ_kbLtbc_Tj6ZPymv3vSMISXYAASteynrU3bv-Td-H9Wzs1ABJFHyLFLibSCqztNOkBn9iiWCKrR30iQUxcqmiypZoQT5fjkNlHCxKHF4S8QpQs9m0nq2j76_7ipzDaKgE2i8HtccLBi3XvOl88brmjnKilk49MpoNAPsgRVNz-DZ2pq9olQh7o_y--0_T4ht7zhto7a69I",
+			"type": "string"
+		}
+	]
+}
