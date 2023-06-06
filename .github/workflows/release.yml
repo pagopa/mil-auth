@@ -184,7 +184,7 @@ jobs:
             az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_release_version }}
 
   test:
-    needs: release
+    needs: deploy
     
     runs-on: ubuntu-latest
     
