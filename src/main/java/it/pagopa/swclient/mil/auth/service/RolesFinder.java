@@ -42,6 +42,20 @@ public class RolesFinder {
 	private String replaceNullWithNa(String s) {
 		return s != null ? s : "NA";
 	}
+	
+	/**
+	 * 
+	 * @param acquirerId
+	 * @param channel
+	 * @param clientId
+	 * @param merchantId
+	 * @param terminalId
+	 * @return
+	 */
+	@CacheResult(cacheName = "role-cache")
+	public Uni<Role> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+		return repository.getRoles(acquirerId, channel, clientId, merchantId, terminalId);
+	}
 
 	/**
 	 *
@@ -54,7 +68,7 @@ public class RolesFinder {
 	 */
 	private Uni<Role> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.debugf("Search for the roles with acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s.", acquirerId, channel, clientId, merchantId, terminalId);
-		return repository.getRoles(
+		return getRoles(
 			replaceNullWithNa(acquirerId),
 			replaceNullWithNa(channel),
 			clientId,
@@ -90,7 +104,7 @@ public class RolesFinder {
 				return UniGenerator.item(r);
 			});
 	}
-
+	
 	/**
 	 * Finds roles.
 	 * 
@@ -101,7 +115,6 @@ public class RolesFinder {
 	 * @param terminalId
 	 * @return
 	 */
-	@CacheResult(cacheName = "role")
 	public Uni<Role> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		return find(acquirerId, channel, clientId, merchantId, terminalId)
 			.onFailure(AuthException.class)

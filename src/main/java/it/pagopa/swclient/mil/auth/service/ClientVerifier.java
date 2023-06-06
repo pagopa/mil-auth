@@ -39,16 +39,25 @@ public class ClientVerifier {
 	 */
 	@RestClient
 	AuthDataRepository repository;
+	
+	/**
+	 * 
+	 * @param clientId
+	 * @return
+	 */
+	@CacheResult(cacheName = "client-role")
+	public Uni<Client> getClient(String clientId) {
+		return repository.getClient(clientId);
+	}
 
 	/**
 	 * 
 	 * @param cliendId
 	 * @return
 	 */
-	@CacheResult(cacheName = "client")
 	public Uni<Client> findClient(String clientId) {
 		Log.debugf("Search for the client %s.", clientId);
-		return repository.getClient(clientId)
+		return getClient(clientId)
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException) {
 					WebApplicationException e = (WebApplicationException) t;

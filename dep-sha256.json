@@ -1700,6 +1700,41 @@
       "groupId": "io.quarkus",
       "version": "3.1.0.Final",
       "sha256": "yQAoXnMsbCUYbE0TugDvnwEENKKXR0j_hIUtwdHJKhg="
+    },
+    {
+      "id": "io.quarkus:quarkus-cache:jar:3.1.0.Final",
+      "artifactId": "quarkus-cache",
+      "groupId": "io.quarkus",
+      "version": "3.1.0.Final",
+      "sha256": "TgbXtA45ZNkAXpDvnuaw5rOKQ-4Jlw8TyDzNCZhaIFA="
+    },
+    {
+      "id": "io.quarkus:quarkus-caffeine:jar:3.1.0.Final",
+      "artifactId": "quarkus-caffeine",
+      "groupId": "io.quarkus",
+      "version": "3.1.0.Final",
+      "sha256": "G-2b66CHrBghibti14oDF1GzkDLklnmGgUyR-xwhDew="
+    },
+    {
+      "id": "com.github.ben-manes.caffeine:caffeine:jar:3.1.5",
+      "artifactId": "caffeine",
+      "groupId": "com.github.ben-manes.caffeine",
+      "version": "3.1.5",
+      "sha256": "AsNP0rp4sZVu9uXemskVrum_pJhYmWb6hyVfuttlNJk="
+    },
+    {
+      "id": "com.google.errorprone:error_prone_annotations:jar:2.19.1",
+      "artifactId": "error_prone_annotations",
+      "groupId": "com.google.errorprone",
+      "version": "2.19.1",
+      "sha256": "rdOZAphQH9y27Fj_8mYIwdKY-13-L4DXSGe_D1xTlmg="
+    },
+    {
+      "id": "io.quarkus:quarkus-cache-runtime-spi:jar:3.1.0.Final",
+      "artifactId": "quarkus-cache-runtime-spi",
+      "groupId": "io.quarkus",
+      "version": "3.1.0.Final",
+      "sha256": "CQrxChOQ6CJAt79ApWF_xW7EmsTzzxsHycigjRBD7eQ="
     }
   ]
 }
