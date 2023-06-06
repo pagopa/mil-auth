@@ -7,7 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
-        steps:
+    steps:
       #
       # Checkout the source code.
       #
