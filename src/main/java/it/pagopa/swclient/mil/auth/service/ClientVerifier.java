@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
@@ -38,6 +39,16 @@ public class ClientVerifier {
 	 */
 	@RestClient
 	AuthDataRepository repository;
+	
+	/**
+	 * 
+	 * @param clientId
+	 * @return
+	 */
+	@CacheResult(cacheName = "client-role")
+	public Uni<Client> getClient(String clientId) {
+		return repository.getClient(clientId);
+	}
 
 	/**
 	 * 
@@ -46,13 +57,12 @@ public class ClientVerifier {
 	 */
 	public Uni<Client> findClient(String clientId) {
 		Log.debugf("Search for the client %s.", clientId);
-		return repository.getClient(clientId)
+		return getClient(clientId)
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException) {
 					WebApplicationException e = (WebApplicationException) t;
 					Response r = e.getResponse();
 					// r cannot be null
-					// if (r != null) {
 					if (r.getStatus() == 404) {
 						String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
 						Log.warnf(t, message);
@@ -62,12 +72,6 @@ public class ClientVerifier {
 						Log.errorf(t, message);
 						return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
 					}
-					// } else {
-					// String message = String.format("[%s] Error searching for the client %s.",
-					// ERROR_SEARCHING_FOR_CLIENT, clientId);
-					// Log.errorf(t, message);
-					// return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
-					// }
 				} else {
 					String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
 					Log.errorf(t, message);

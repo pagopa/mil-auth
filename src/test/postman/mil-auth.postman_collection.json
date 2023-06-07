@@ -941,7 +941,7 @@
 						},
 						{
 							"key": "refresh_token",
-							"value": "{{wrongRefreshToken}}",
+							"value": "{{refreshToken}}",
 							"type": "text"
 						}
 					]

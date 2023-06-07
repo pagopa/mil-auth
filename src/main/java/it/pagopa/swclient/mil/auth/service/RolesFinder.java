@@ -10,6 +10,7 @@ import static it.pagopa.swclient.mil.auth.ErrorCode.ROLES_NOT_FOUND;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Role;
@@ -41,6 +42,20 @@ public class RolesFinder {
 	private String replaceNullWithNa(String s) {
 		return s != null ? s : "NA";
 	}
+	
+	/**
+	 * 
+	 * @param acquirerId
+	 * @param channel
+	 * @param clientId
+	 * @param merchantId
+	 * @param terminalId
+	 * @return
+	 */
+	@CacheResult(cacheName = "role-cache")
+	public Uni<Role> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+		return repository.getRoles(acquirerId, channel, clientId, merchantId, terminalId);
+	}
 
 	/**
 	 *
@@ -53,7 +68,7 @@ public class RolesFinder {
 	 */
 	private Uni<Role> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.debugf("Search for the roles with acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s.", acquirerId, channel, clientId, merchantId, terminalId);
-		return repository.getRoles(
+		return getRoles(
 			replaceNullWithNa(acquirerId),
 			replaceNullWithNa(channel),
 			clientId,
@@ -63,8 +78,7 @@ public class RolesFinder {
 				if (t instanceof WebApplicationException) {
 					WebApplicationException e = (WebApplicationException) t;
 					Response r = e.getResponse();
-					// r is always not null
-					// if (r != null) {
+					// r cannot be null
 					if (r.getStatus() == 404) {
 						String message = String.format("[%s] Roles not found.", ROLES_NOT_FOUND);
 						Log.warn(message);
@@ -74,11 +88,6 @@ public class RolesFinder {
 						Log.errorf(t, message);
 						return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
 					}
-					// } else {
-					// String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
-					// Log.errorf(t, message);
-					// return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
-					// }
 				} else {
 					String message = String.format("[%s] Error searching for the roles.", ERROR_SEARCHING_FOR_ROLES);
 					Log.errorf(t, message);
@@ -89,7 +98,7 @@ public class RolesFinder {
 				return UniGenerator.item(r);
 			});
 	}
-
+	
 	/**
 	 * Finds roles.
 	 * 
