@@ -7,7 +7,7 @@ export const options = {
 	vus: 100,
 	thresholds: {
 		// 90% of requests must finish within 4s, 95% within 5s.
-		'http_req_duration': ['p(90) < 4000', 'p(95) < 6000'],
+		'http_req_duration': ['p(90) < 1500', 'p(95) < 2500'],
 		// During the whole test execution, the error rate (HTTP status 500) must be lower than 1%.
 		'checks{myTag:serverError}': ['rate < 0.01'],
 	}
