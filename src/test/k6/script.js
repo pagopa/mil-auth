@@ -58,4 +58,6 @@ export default function() {
 			}
 		);
 	}
+	
+	sleep(5);
 }
