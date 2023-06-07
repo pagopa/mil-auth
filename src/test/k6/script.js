@@ -4,7 +4,7 @@ import { sleep, check } from 'k6';
 export const options = {
 	maxRedirects: 4,
 	duration: '10s',
-	vus: 100,
+	vus: 125,
 	thresholds: {
 		// 90% of requests must finish within 4s, 95% within 5s.
 		'http_req_duration': ['p(90) < 2500', 'p(95) < 3000'],
