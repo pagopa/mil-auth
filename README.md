@@ -1,9 +1,6 @@
 # Multi-channel Integration Layer - Auth
 Authorization Microservice for Multi-channel Integration Layer of SW Client Project.
 
-## Dependencies
-This project depends on <code>mil-common</code>. If you don't want to clone and install it locally, run ```mvn validate -Dmaven.home=<path to Maven home>``` before.
-
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=pagopa_mil-idp&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=pagopa_mil-idp)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=pagopa_mil-idp&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=pagopa_mil-idp)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_mil-idp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pagopa_mil-idp)
