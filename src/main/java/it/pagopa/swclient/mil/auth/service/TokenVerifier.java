@@ -210,8 +210,6 @@ public abstract class TokenVerifier {
 	protected Uni<Void> verifySignature(SignedJWT token) {
 		String kid = token.getHeader().getKeyID();
 		return findPublicKey(kid)
-			.chain(k -> {
-				return verifySignature(token, k);
-			});
+			.chain(k -> verifySignature(token, k));
 	}
 }

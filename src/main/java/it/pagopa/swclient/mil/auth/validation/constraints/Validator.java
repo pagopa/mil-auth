@@ -28,9 +28,9 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 	/*
 	 * 
 	 */
-	private static final Map<String, Verifier> VALIDATOR = new HashMap<>();
+	private static final Map<String, Verifier> VALIDATORS = new HashMap<>();
 	static {
-		VALIDATOR.put(PASSWORD + "/" + POS, new Verifier() {
+		VALIDATORS.put(PASSWORD + "/" + POS, new Verifier() {
 			@Override
 			public boolean test(GetAccessToken getAccessToken) {
 				return acquirerIdMustNotBeNull(getAccessToken)
@@ -45,7 +45,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 			}
 		});
 
-		VALIDATOR.put(REFRESH_TOKEN + "/" + POS, new Verifier() {
+		VALIDATORS.put(REFRESH_TOKEN + "/" + POS, new Verifier() {
 			@Override
 			public boolean test(GetAccessToken getAccessToken) {
 				return acquirerIdMustNotBeNull(getAccessToken)
@@ -62,7 +62,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 
 		});
 
-		VALIDATOR.put(POYNT_TOKEN + "/" + POS, new Verifier() {
+		VALIDATORS.put(POYNT_TOKEN + "/" + POS, new Verifier() {
 			@Override
 			public boolean test(GetAccessToken getAccessToken) {
 				return acquirerIdMustNotBeNull(getAccessToken)
@@ -77,7 +77,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 			}
 		});
 
-		VALIDATOR.put(CLIENT_CREDENTIALS + "/" + ATM, new Verifier() {
+		VALIDATORS.put(CLIENT_CREDENTIALS + "/" + ATM, new Verifier() {
 			@Override
 			public boolean test(GetAccessToken getAccessToken) {
 				return acquirerIdMustNotBeNull(getAccessToken)
@@ -93,7 +93,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 			}
 		});
 
-		VALIDATOR.put(CLIENT_CREDENTIALS + "/" + POS, new Verifier() {
+		VALIDATORS.put(CLIENT_CREDENTIALS + "/" + POS, new Verifier() {
 			@Override
 			public boolean test(GetAccessToken getAccessToken) {
 				return acquirerIdMustNotBeNull(getAccessToken)
@@ -109,7 +109,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 			}
 		});
 
-		VALIDATOR.put(CLIENT_CREDENTIALS + "/null", new Verifier() {
+		VALIDATORS.put(CLIENT_CREDENTIALS + "/null", new Verifier() {
 			@Override
 			public boolean test(GetAccessToken getAccessToken) {
 				return acquirerIdMustBeNull(getAccessToken)
@@ -131,7 +131,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 	 */
 	@Override
 	public boolean isValid(GetAccessToken getAccessToken, ConstraintValidatorContext context) {
-		return VALIDATOR.getOrDefault(getAccessToken.getGrantType() + "/" + getAccessToken.getChannel(), new Verifier() {
+		return VALIDATORS.getOrDefault(getAccessToken.getGrantType() + "/" + getAccessToken.getChannel(), new Verifier() {
 			@Override
 			public boolean test(GetAccessToken t) {
 				Log.warn("Default validator in use.");

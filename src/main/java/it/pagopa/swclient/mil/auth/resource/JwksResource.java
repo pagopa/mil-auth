@@ -34,7 +34,7 @@ public class JwksResource {
 	/*
 	 * 
 	 */
-	private static final long SKEW = 5 * 60 * 1000;
+	private static final long SKEW = 5 * 60 * 1000L;
 	
 	/*
 	 * 

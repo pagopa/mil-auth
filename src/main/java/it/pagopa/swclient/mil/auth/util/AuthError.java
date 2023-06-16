@@ -20,7 +20,7 @@ public class AuthError extends Error {
 	/*
 	 * 
 	 */
-	private String code;
+	private final String code;
 
 	/**
 	 * 

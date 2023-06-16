@@ -75,8 +75,7 @@ public class RolesFinder {
 			replaceNullWithNa(merchantId),
 			replaceNullWithNa(terminalId))
 			.onFailure().transform(t -> {
-				if (t instanceof WebApplicationException) {
-					WebApplicationException e = (WebApplicationException) t;
+				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
 					if (r.getStatus() == 404) {
@@ -94,9 +93,7 @@ public class RolesFinder {
 					return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
 				}
 			})
-			.chain(r -> {
-				return UniGenerator.item(r);
-			});
+			.chain(UniGenerator::item);
 	}
 
 	/**

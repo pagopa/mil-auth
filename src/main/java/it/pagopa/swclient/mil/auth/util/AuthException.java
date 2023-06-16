@@ -19,7 +19,7 @@ public class AuthException extends RuntimeException {
 	/*
 	 * 
 	 */
-	private String code;
+	private final String code;
 
 	/**
 	 * 

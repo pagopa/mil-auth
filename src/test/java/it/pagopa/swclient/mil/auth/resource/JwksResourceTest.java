@@ -37,7 +37,7 @@ import jakarta.ws.rs.core.MediaType;
 @QuarkusTest
 @TestHTTPEndpoint(JwksResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class JwksResourceTest {
+class JwksResourceTest {
 	/*
 	 * 
 	 */

@@ -24,7 +24,7 @@ public class AccessToken {
 	 * access_token
 	 */
 	@JsonProperty("access_token")
-	private String accessToken;
+	private String accessTokenProper;
 
 	/*
 	 * refresh_token
@@ -46,12 +46,12 @@ public class AccessToken {
 
 	/**
 	 * 
-	 * @param accessToken
+	 * @param accessTokenProper
 	 * @param refreshToken
 	 * @param expiresIn
 	 */
-	public AccessToken(String accessToken, String refreshToken, long expiresIn) {
-		this.accessToken = accessToken;
+	public AccessToken(String accessTokenProper, String refreshToken, long expiresIn) {
+		this.accessTokenProper = accessTokenProper;
 		this.refreshToken = refreshToken;
 		this.expiresIn = expiresIn;
 	}

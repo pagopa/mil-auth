@@ -1676,6 +1676,15 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+		
+		Mockito
+		.when(authDataRepository.getRoles(
+			acquirerId,
+			Channel.POS,
+			clientId,
+			"NA",
+			"NA"))
+		.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, "NA", "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 	}
 }

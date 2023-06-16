@@ -5,20 +5,14 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-// import java.io.IOException;
-// import java.io.StringWriter;
 import java.util.Date;
 import java.util.UUID;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-// import com.fasterxml.jackson.core.exc.StreamWriteException;
-// import com.fasterxml.jackson.databind.DatabindException;
-// import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-// import com.nimbusds.jose.util.Base64URL;
 
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
@@ -63,12 +57,12 @@ public class KeyPairGenerator {
 		/*
 		 * Private exponent
 		 */
-		String d = rsaJwk.getPrivateExponent().toJSONString().replaceAll("\"", "");
+		String d = rsaJwk.getPrivateExponent().toJSONString().replace("\"", "");
 
 		/*
 		 * Public exponent
 		 */
-		String e = rsaJwk.getPublicExponent().toJSONString().replaceAll("\"", "");
+		String e = rsaJwk.getPublicExponent().toJSONString().replace("\"", "");
 
 		/*
 		 * Public key use
@@ -78,7 +72,7 @@ public class KeyPairGenerator {
 		/*
 		 * Modulus
 		 */
-		String n = rsaJwk.getModulus().toJSONString().replaceAll("\"", "");
+		String n = rsaJwk.getModulus().toJSONString().replace("\"", "");
 
 		/*
 		 * Key type
@@ -97,30 +91,4 @@ public class KeyPairGenerator {
 
 		return new KeyPair(d, e, use, kid, n, kty, exp, iat);
 	}
-
-	/**
-	 * 
-	 * @param agrs
-	 * @throws JOSEException
-	 * @throws StreamWriteException
-	 * @throws DatabindException
-	 * @throws IOException
-	 */
-	 public static void main(String[] agrs) throws Throwable {
-	 KeyPairGenerator generator = new KeyPairGenerator();
-	 generator.cryptoperiod = 10 * 365 * 24 * 60 * 60 * 1000;
-	 generator.keysize = 4096;
-	 KeyPair keyPair = generator.generate();
-	 System.out.println(keyPair);
-	 java.io.StringWriter writer = new java.io.StringWriter();
-	 new com.fasterxml.jackson.databind.ObjectMapper().writeValue(writer, keyPair);
-	 String json = writer.toString();
-	 System.out.println(json);
-	 //String base64url = com.nimbusds.jose.util.Base64URL.encode(json).toString();
-	 //System.out.println(base64url);
-	
-	 //String keyPairJson = com.nimbusds.jose.util.Base64URL.from(base64url).decodeToString();
-	 //KeyPair recovered = new com.fasterxml.jackson.databind.ObjectMapper().readValue(keyPairJson, KeyPair.class);
-	 //System.out.println(recovered);
-	 }
 }

@@ -24,6 +24,7 @@ public class TokenByClientSecretService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
+	@Override
 	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
 		Log.debugf("Generation of the token by client secret.");
 		return super.process(getAccessToken);
