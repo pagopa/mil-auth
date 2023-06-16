@@ -12,6 +12,8 @@ import static it.pagopa.swclient.mil.auth.util.UniGenerator.item;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import com.nimbusds.jose.JOSEException;
 
 import io.quarkus.logging.Log;
@@ -29,6 +31,12 @@ import jakarta.inject.Inject;
  */
 @ApplicationScoped
 public class KeyFinder {
+	/*
+	 * Access token duration.
+	 */
+	@ConfigProperty(name = "access.duration")
+	long accessDuration;
+	
 	/*
 	 * 
 	 */
@@ -52,7 +60,7 @@ public class KeyFinder {
 		return redisClient.keys("*") // Loading kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transforming the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid, getting the key pair.
-			.filter(k -> k.getExp() > Instant.now().toEpochMilli()) // Filtering expired key pairs.
+			.filter(k -> k.getExp() > Instant.now().toEpochMilli() - accessDuration * 1000) // Filtering expired key pairs or that will expire before the expiration of the access token.
 			.collect() // Collecting all key pairs.
 			.asList() // Converting the key pair events in an event that is the list of key pair.
 			.chain(l -> {
