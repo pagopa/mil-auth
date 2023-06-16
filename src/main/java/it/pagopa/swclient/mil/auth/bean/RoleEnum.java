@@ -5,6 +5,7 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -38,5 +39,27 @@ public enum RoleEnum {
 	@Override
 	public String toString() {
 		return string;
+	}
+	
+	/**
+	 * 
+	 * @param string
+	 * @return
+	 */
+	@JsonCreator
+	public static RoleEnum fromString(String string) {
+		if (string == null) {
+			throw new IllegalArgumentException("value is null");
+		}
+
+		int i = 0;
+		while (i < values().length && !values()[i].toString().equals(string)) {
+			i++;
+		}
+		if (values()[i].toString().equals(string)) {
+			return values()[i];
+		}
+
+		throw new IllegalArgumentException(String.format("%s doesn't exist", string));
 	}
 }
