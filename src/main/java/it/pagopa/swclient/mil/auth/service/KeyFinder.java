@@ -56,7 +56,7 @@ public class KeyFinder {
 	 * @return
 	 */
 	public Uni<KeyPair> findKeyPair() {
-		Log.debug("Search for the key pair with greatest expiration not exipred yet.");
+		Log.debug("Search for the key pair with greatest expiration not expired yet.");
 		return redisClient.keys("*") // Loading kids.
 			.onItem().transformToMulti(kids -> Multi.createFrom().items(kids.stream())) // Transforming the list of kids in a stream of events (one event for a kid).
 			.onItem().transformToUniAndMerge(redisClient::get) // For each kid, getting the key pair.

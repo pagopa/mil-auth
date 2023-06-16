@@ -5,6 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * 
  * @author Antonio Tarricone
@@ -15,7 +17,7 @@ public enum KeyUse {
 	/*
 	 * String value.
 	 */
-	private String string;
+	private final String string;
 	
 	/**
 	 * 
@@ -28,6 +30,7 @@ public enum KeyUse {
 	/**
 	 * 
 	 */
+	@JsonValue
 	@Override
 	public String toString() {
 		return string;

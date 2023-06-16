@@ -8,6 +8,7 @@ package it.pagopa.swclient.mil.auth.bean;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -17,6 +18,7 @@ import lombok.Setter;
 @RegisterForReflection
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class KeyPair {
 	/*
