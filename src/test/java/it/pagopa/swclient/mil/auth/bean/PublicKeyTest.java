@@ -22,7 +22,7 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals1() {
-		PublicKey publicKey = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
 		assertTrue(publicKey.equals(publicKey));
 	}
 
@@ -31,7 +31,7 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals2() {
-		PublicKey publicKey = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
 		assertFalse(publicKey.equals(null));
 	}
 
@@ -40,7 +40,7 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals3() {
-		PublicKey publicKey = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
 		assertFalse(publicKey.equals(new Object()));
 	}
 
@@ -49,8 +49,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals4() {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
 		assertTrue(publicKey1.equals(publicKey2));
 	}
 
@@ -59,8 +59,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals5() throws CloneNotSupportedException {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = (PublicKey) publicKey1.clone();
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey(publicKey1);
 		publicKey2.setE("");
 		assertFalse(publicKey1.equals(publicKey2));
 	}
@@ -70,8 +70,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals6() throws CloneNotSupportedException {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = (PublicKey) publicKey1.clone();
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey(publicKey1);
 		publicKey2.setExp(1);
 		assertFalse(publicKey1.equals(publicKey2));
 	}
@@ -81,8 +81,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals7() throws CloneNotSupportedException {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = (PublicKey) publicKey1.clone();
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey(publicKey1);
 		publicKey2.setIat(1);
 		assertFalse(publicKey1.equals(publicKey2));
 	}
@@ -92,8 +92,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals8() throws CloneNotSupportedException {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = (PublicKey) publicKey1.clone();
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey(publicKey1);
 		publicKey2.setKid("");
 		assertFalse(publicKey1.equals(publicKey2));
 	}
@@ -103,8 +103,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals9() throws CloneNotSupportedException {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = (PublicKey) publicKey1.clone();
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey(publicKey1);
 		publicKey2.setKty(null);
 		assertFalse(publicKey1.equals(publicKey2));
 	}
@@ -114,8 +114,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals10() throws CloneNotSupportedException {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = (PublicKey) publicKey1.clone();
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey(publicKey1);
 		publicKey2.setN("");
 		assertFalse(publicKey1.equals(publicKey2));
 	}
@@ -125,8 +125,8 @@ class PublicKeyTest {
 	 */
 	@Test
 	void equals11() throws CloneNotSupportedException {
-		PublicKey publicKey1 = new PublicKey("1", KeyUse.sig, "2", "3", KeyType.RSA, 0, 0);
-		PublicKey publicKey2 = (PublicKey) publicKey1.clone();
+		PublicKey publicKey1 = new PublicKey("1", KeyUse.SIG, "2", "3", KeyType.RSA, 0, 0);
+		PublicKey publicKey2 = new PublicKey(publicKey1);
 		publicKey2.setUse(null);
 		assertFalse(publicKey1.equals(publicKey2));
 	}
