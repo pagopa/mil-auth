@@ -34,6 +34,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.HeaderParam;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * 
@@ -41,6 +43,8 @@ import jakarta.ws.rs.HeaderParam;
  */
 @RegisterForReflection
 @ValidationTarget(message = "[" + INCONSISTENT_REQUEST + "] Inconsistent request.")
+@NoArgsConstructor
+@Getter
 public class GetAccessToken {
 	/*
 	 * Request ID
@@ -150,101 +154,4 @@ public class GetAccessToken {
 	@FormParam("client_secret")
 	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + CLIENT_SECRET_MUST_MATCH_REGEXP + "] client_secret must match \"{regexp}\"")
 	private String clientSecret;
-
-	/**
-	 * 
-	 */
-	public GetAccessToken() {
-	}
-
-	/**
-	 * @return the acquirerId
-	 */
-	public String getAcquirerId() {
-		return acquirerId;
-	}
-
-	/**
-	 * @return the channel
-	 */
-	public String getChannel() {
-		return channel;
-	}
-
-	/**
-	 * @return the merchantId
-	 */
-	public String getMerchantId() {
-		return merchantId;
-	}
-
-	/**
-	 * @return the terminalId
-	 */
-	public String getTerminalId() {
-		return terminalId;
-	}
-
-	/**
-	 * @return the grantType
-	 */
-	public String getGrantType() {
-		return grantType;
-	}
-
-	/**
-	 * @return the username
-	 */
-	public String getUsername() {
-		return username;
-	}
-
-	/**
-	 * @return the password
-	 */
-	public String getPassword() {
-		return password;
-	}
-
-	/**
-	 * @return the refreshToken
-	 */
-	public String getRefreshToken() {
-		return refreshToken;
-	}
-
-	/**
-	 * @return the extToken
-	 */
-	public String getExtToken() {
-		return extToken;
-	}
-
-	/**
-	 * @return the addData
-	 */
-	public String getAddData() {
-		return addData;
-	}
-
-	/**
-	 * @return the clientId
-	 */
-	public String getClientId() {
-		return clientId;
-	}
-
-	/**
-	 * @return the scope
-	 */
-	public String getScope() {
-		return scope;
-	}
-
-	/**
-	 * @return the clientSecret
-	 */
-	public String getClientSecret() {
-		return clientSecret;
-	}
 }

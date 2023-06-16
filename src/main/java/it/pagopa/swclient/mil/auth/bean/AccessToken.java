@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import lombok.Getter;
 
 /**
  * 
@@ -17,6 +18,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  */
 @RegisterForReflection
 @JsonInclude(Include.NON_NULL)
+@Getter
 public class AccessToken {
 	/*
 	 * access_token
@@ -52,37 +54,5 @@ public class AccessToken {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.expiresIn = expiresIn;
-	}
-
-	/**
-	 * 
-	 * @return the accessToken
-	 */
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	/**
-	 * 
-	 * @return the refreshToken
-	 */
-	public String getRefreshToken() {
-		return refreshToken;
-	}
-
-	/**
-	 * 
-	 * @return the tokenType
-	 */
-	public String getTokenType() {
-		return tokenType;
-	}
-
-	/**
-	 * 
-	 * @return the expiresIn
-	 */
-	public long getExpiresIn() {
-		return expiresIn;
 	}
 }

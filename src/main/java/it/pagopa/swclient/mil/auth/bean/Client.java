@@ -5,11 +5,15 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * 
  * @author Antonio Tarricone
  */
-@SuppressWarnings("unused")
+@AllArgsConstructor
+@Getter
 public class Client {
 	/*
 	 * 
@@ -35,39 +39,4 @@ public class Client {
 	 * 
 	 */
 	private String description;
-
-	/**
-	 * @param id
-	 * @param channel
-	 * @param secret
-	 * @param description
-	 */
-	public Client(String id, String channel, String salt, String secretHash, String description) {
-		this.id = id;
-		this.channel = channel;
-		this.salt = salt;
-		this.secretHash = secretHash;
-		this.description = description;
-	}
-
-	/**
-	 * @return the channel
-	 */
-	public String getChannel() {
-		return channel;
-	}
-
-	/**
-	 * @return the salt
-	 */
-	public String getSalt() {
-		return salt;
-	}
-
-	/**
-	 * @return the secretHash
-	 */
-	public String getSecretHash() {
-		return secretHash;
-	}
 }
