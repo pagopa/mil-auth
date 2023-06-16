@@ -42,7 +42,7 @@ public class RolesFinder {
 	private String replaceNullWithNa(String s) {
 		return s != null ? s : "NA";
 	}
-	
+
 	/**
 	 * 
 	 * @param acquirerId
@@ -98,7 +98,7 @@ public class RolesFinder {
 				return UniGenerator.item(r);
 			});
 	}
-	
+
 	/**
 	 * Finds roles.
 	 * 
@@ -118,7 +118,18 @@ public class RolesFinder {
 					 * If there are no roles for acquirer/channel/client/merchant/terminal, search for
 					 * acquirer/channel/client/merchant (without terminal).
 					 */
-					return find(acquirerId, channel, clientId, merchantId, "NA");
+					return find(acquirerId, channel, clientId, merchantId, "NA").onFailure(AuthException.class)
+						.recoverWithUni(tt -> {
+							if (merchantId != null) {
+								/*
+								 * If there are no roles for acquirer/channel/client/merchant (without terminal), search for
+								 * acquirer/channel/client (without terminal and merchant).
+								 */
+								return find(acquirerId, channel, clientId, "NA", "NA");
+							} else {
+								return Uni.createFrom().failure(tt);
+							}
+						});
 				} else {
 					return Uni.createFrom().failure(t);
 				}
