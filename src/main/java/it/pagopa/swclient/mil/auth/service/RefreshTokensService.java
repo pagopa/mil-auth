@@ -31,11 +31,10 @@ public class RefreshTokensService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
+	@Override
 	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
 		Log.debug("Tokens refreshing.");
 		return refreshTokenVerifier.verify(getAccessToken.getRefreshToken())
-			.chain(() -> {
-				return super.process(getAccessToken);
-			});
+			.chain(() -> super.process(getAccessToken));
 	}
 }

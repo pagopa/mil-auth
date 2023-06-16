@@ -42,7 +42,7 @@ public class RolesFinder {
 	private String replaceNullWithNa(String s) {
 		return s != null ? s : "NA";
 	}
-	
+
 	/**
 	 * 
 	 * @param acquirerId
@@ -75,8 +75,7 @@ public class RolesFinder {
 			replaceNullWithNa(merchantId),
 			replaceNullWithNa(terminalId))
 			.onFailure().transform(t -> {
-				if (t instanceof WebApplicationException) {
-					WebApplicationException e = (WebApplicationException) t;
+				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
 					if (r.getStatus() == 404) {
@@ -94,11 +93,9 @@ public class RolesFinder {
 					return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
 				}
 			})
-			.chain(r -> {
-				return UniGenerator.item(r);
-			});
+			.chain(UniGenerator::item);
 	}
-	
+
 	/**
 	 * Finds roles.
 	 * 
@@ -118,7 +115,18 @@ public class RolesFinder {
 					 * If there are no roles for acquirer/channel/client/merchant/terminal, search for
 					 * acquirer/channel/client/merchant (without terminal).
 					 */
-					return find(acquirerId, channel, clientId, merchantId, "NA");
+					return find(acquirerId, channel, clientId, merchantId, "NA").onFailure(AuthException.class)
+						.recoverWithUni(tt -> {
+							if (merchantId != null) {
+								/*
+								 * If there are no roles for acquirer/channel/client/merchant (without terminal), search for
+								 * acquirer/channel/client (without terminal and merchant).
+								 */
+								return find(acquirerId, channel, clientId, "NA", "NA");
+							} else {
+								return Uni.createFrom().failure(tt);
+							}
+						});
 				} else {
 					return Uni.createFrom().failure(t);
 				}

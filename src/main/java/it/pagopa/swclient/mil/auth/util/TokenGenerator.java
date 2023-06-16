@@ -37,7 +37,7 @@ public class TokenGenerator {
 		if (strings == null) {
 			return null;
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		strings.forEach(x -> {
 			buffer.append(x);
 			buffer.append(" ");

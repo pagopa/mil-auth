@@ -59,8 +59,7 @@ public class ClientVerifier {
 		Log.debugf("Search for the client %s.", clientId);
 		return getClient(clientId)
 			.onFailure().transform(t -> {
-				if (t instanceof WebApplicationException) {
-					WebApplicationException e = (WebApplicationException) t;
+				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
 					if (r.getStatus() == 404) {

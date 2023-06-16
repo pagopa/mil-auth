@@ -7,11 +7,15 @@ package it.pagopa.swclient.mil.auth.bean;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * 
  * @author Antonio Tarricone
  */
-@SuppressWarnings("unused")
+@AllArgsConstructor
+@Getter
 public class Role {
 	/*
 	 * 
@@ -42,30 +46,4 @@ public class Role {
 	 * 
 	 */
 	private List<String> roles;
-
-	/**
-	 * 
-	 * @param acquirerId
-	 * @param channel
-	 * @param clientId
-	 * @param merchantId
-	 * @param terminalId
-	 * @param roles
-	 */
-	public Role(String acquirerId, String channel, String clientId, String merchantId, String terminalId, List<String> roles) {
-		this.acquirerId = acquirerId;
-		this.channel = channel;
-		this.clientId = clientId;
-		this.merchantId = merchantId;
-		this.terminalId = terminalId;
-		this.roles = roles;
-	}
-
-	/**
-	 * 
-	 * @return the roles
-	 */
-	public List<String> getRoles() {
-		return roles;
-	}
 }

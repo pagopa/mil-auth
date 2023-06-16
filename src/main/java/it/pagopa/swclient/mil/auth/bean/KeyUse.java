@@ -10,5 +10,26 @@ package it.pagopa.swclient.mil.auth.bean;
  * @author Antonio Tarricone
  */
 public enum KeyUse {
-	sig
+	SIG("sig");
+	
+	/*
+	 * String value.
+	 */
+	private String string;
+	
+	/**
+	 * 
+	 * @param string
+	 */
+	private KeyUse(String string) {
+		this.string = string;
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public String toString() {
+		return string;
+	}
 }

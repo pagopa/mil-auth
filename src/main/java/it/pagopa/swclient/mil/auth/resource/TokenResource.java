@@ -56,15 +56,15 @@ public class TokenResource {
 	/*
 	 * 
 	 */
-	private static Map<String, AnnotationLiteral<?>> QUALIFIERS = new HashMap<>();
+	private static Map<String, AnnotationLiteral<?>> qualifiers = new HashMap<>();
 	static {
-		QUALIFIERS.put(GrantType.CLIENT_CREDENTIALS, new AnnotationLiteral<ClientCredentials>() {
+		qualifiers.put(GrantType.CLIENT_CREDENTIALS, new AnnotationLiteral<ClientCredentials>() {
 		});
-		QUALIFIERS.put(GrantType.PASSWORD, new AnnotationLiteral<Password>() {
+		qualifiers.put(GrantType.PASSWORD, new AnnotationLiteral<Password>() {
 		});
-		QUALIFIERS.put(GrantType.POYNT_TOKEN, new AnnotationLiteral<PoyntToken>() {
+		qualifiers.put(GrantType.POYNT_TOKEN, new AnnotationLiteral<PoyntToken>() {
 		});
-		QUALIFIERS.put(GrantType.REFRESH_TOKEN, new AnnotationLiteral<RefreshToken>() {
+		qualifiers.put(GrantType.REFRESH_TOKEN, new AnnotationLiteral<RefreshToken>() {
 		});
 	}
 
@@ -81,7 +81,7 @@ public class TokenResource {
 		/*
 		 * If the flow reaches this point, the input is validated!
 		 */
-		return tokenService.select(QUALIFIERS.get(getAccessToken.getGrantType()))
+		return tokenService.select(qualifiers.get(getAccessToken.getGrantType()))
 			.get()
 			.process(getAccessToken)
 			.onFailure(t -> !(t instanceof AuthError || t instanceof AuthException))

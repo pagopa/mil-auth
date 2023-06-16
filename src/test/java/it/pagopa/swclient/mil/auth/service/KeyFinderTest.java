@@ -33,7 +33,7 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-public class KeyFinderTest {
+class KeyFinderTest {
 	/*
 	 * 
 	 */

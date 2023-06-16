@@ -5,20 +5,14 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-// import java.io.IOException;
-// import java.io.StringWriter;
 import java.util.Date;
 import java.util.UUID;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-// import com.fasterxml.jackson.core.exc.StreamWriteException;
-// import com.fasterxml.jackson.databind.DatabindException;
-// import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-// import com.nimbusds.jose.util.Base64URL;
 
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
@@ -63,52 +57,27 @@ public class KeyPairGenerator {
 		/*
 		 * Private exponent
 		 */
-		String d = rsaJwk.getPrivateExponent().toJSONString().replaceAll("\"", "");
+		String d = rsaJwk.getPrivateExponent().toJSONString().replace("\"", "");
 
 		/*
 		 * Public exponent
 		 */
-		String e = rsaJwk.getPublicExponent().toJSONString().replaceAll("\"", "");
+		String e = rsaJwk.getPublicExponent().toJSONString().replace("\"", "");
 
 		/*
 		 * Public key use
 		 */
-		KeyUse use = KeyUse.sig;
-
-		/*
-		 * Chinese remainder theorem exponent of the first factor
-		 */
-		String dp = rsaJwk.getFirstFactorCRTExponent().toJSONString().replaceAll("\"", "");
-
-		/*
-		 * Chinese remainder theorem exponent of the second factor
-		 */
-		String dq = rsaJwk.getSecondFactorCRTExponent().toJSONString().replaceAll("\"", "");
+		KeyUse use = KeyUse.SIG;
 
 		/*
 		 * Modulus
 		 */
-		String n = rsaJwk.getModulus().toJSONString().replaceAll("\"", "");
-
-		/*
-		 * First prime factor
-		 */
-		String p = rsaJwk.getFirstPrimeFactor().toJSONString().replaceAll("\"", "");
+		String n = rsaJwk.getModulus().toJSONString().replace("\"", "");
 
 		/*
 		 * Key type
 		 */
 		KeyType kty = KeyType.RSA;
-
-		/*
-		 * Second prime factor
-		 */
-		String q = rsaJwk.getSecondPrimeFactor().toJSONString().replaceAll("\"", "");
-
-		/*
-		 * First Chinese remainder theorem coefficient
-		 */
-		String qi = rsaJwk.getFirstCRTCoefficient().toJSONString().replaceAll("\"", "");
 
 		/*
 		 * Expiration time
@@ -120,33 +89,6 @@ public class KeyPairGenerator {
 		 */
 		long iat = issueTime.getTime();
 
-		return new KeyPair(d, e, use, kid, dp, dq, n, p, kty, q, qi, exp, iat);
+		return new KeyPair(d, e, use, kid, n, kty, exp, iat);
 	}
-
-	/**
-	 * 
-	 * @param agrs
-	 * @throws JOSEException
-	 * @throws StreamWriteException
-	 * @throws DatabindException
-	 * @throws IOException
-	 */
-	// public static void main(String[] agrs) throws JOSEException, StreamWriteException,
-	// DatabindException, IOException {
-	// KeyPairGenerator generator = new KeyPairGenerator();
-	// generator.cryptoperiod = 10 * 365 * 24 * 60 * 60 * 1000;
-	// generator.keysize = 4096;
-	// KeyPair keyPair = generator.generateRsaKey();
-	// System.out.println(keyPair);
-	// StringWriter writer = new StringWriter();
-	// new ObjectMapper().writeValue(writer, keyPair);
-	// String json = writer.toString();
-	// System.out.println(json);
-	// String base64url = Base64URL.encode(json).toString();
-	// System.out.println(base64url);
-	//
-	// String keyPairJson = Base64URL.from(base64url).decodeToString();
-	// KeyPair recovered = new ObjectMapper().readValue(keyPairJson, KeyPair.class);
-	// System.out.println(recovered);
-	// }
 }

@@ -47,8 +47,7 @@ public class TokenByPoyntTokenService extends TokenService {
 		Log.debug("Poynt token verification.");
 		return poyntClient.getBusinessObject("Bearer " + getAccessToken.getExtToken(), getAccessToken.getAddData())
 			.onFailure().transform(t -> {
-				if (t instanceof WebApplicationException) {
-					WebApplicationException e = (WebApplicationException) t;
+				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
 					String message = String.format("[%s] Poynt Token not valid. Status: %s", EXT_TOKEN_NOT_VALID, r.getStatus());
@@ -77,11 +76,10 @@ public class TokenByPoyntTokenService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
+	@Override
 	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
 		Log.debugf("Generation of the token/s by Poynt token.");
 		return verifyPoyntToken(getAccessToken)
-			.chain(() -> {
-				return super.process(getAccessToken);
-			});
+			.chain(() -> super.process(getAccessToken));
 	}
 }

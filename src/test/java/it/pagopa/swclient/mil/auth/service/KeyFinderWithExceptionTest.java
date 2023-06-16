@@ -28,7 +28,7 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-public class KeyFinderWithExceptionTest {
+class KeyFinderWithExceptionTest {
 	/*
 	 * 
 	 */

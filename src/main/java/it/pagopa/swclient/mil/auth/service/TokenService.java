@@ -98,11 +98,7 @@ public abstract class TokenService {
 	 */
 	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
 		return clientVerifier.verify(getAccessToken.getClientId(), getAccessToken.getChannel(), getAccessToken.getClientSecret())
-			.chain(() -> {
-				return roleFinder.findRoles(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getClientId(), getAccessToken.getMerchantId(), getAccessToken.getTerminalId());
-			})
-			.chain(roleEntity -> {
-				return generateToken(getAccessToken, roleEntity.getRoles());
-			});
+			.chain(() -> roleFinder.findRoles(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getClientId(), getAccessToken.getMerchantId(), getAccessToken.getTerminalId()))
+			.chain(roleEntity -> generateToken(getAccessToken, roleEntity.getRoles()));
 	}
 }

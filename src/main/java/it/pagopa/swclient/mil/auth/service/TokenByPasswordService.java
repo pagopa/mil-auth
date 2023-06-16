@@ -134,12 +134,8 @@ public class TokenByPasswordService extends TokenService {
 	 */
 	private Uni<Void> verifyCredentials(GetAccessToken getAccessToken) {
 		return findCredentials(getAccessToken)
-			.chain(c -> {
-				return verifyConsistency(c, getAccessToken);
-			})
-			.chain(c -> {
-				return verifyPassword(c, getAccessToken);
-			});
+			.chain(c -> verifyConsistency(c, getAccessToken))
+			.chain(c -> verifyPassword(c, getAccessToken));
 	}
 
 	/**
@@ -147,11 +143,10 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
+	@Override
 	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
 		Log.debugf("Generation of the token/s by password.");
 		return verifyCredentials(getAccessToken)
-			.chain(() -> {
-				return super.process(getAccessToken);
-			});
+			.chain(() -> super.process(getAccessToken));
 	}
 }

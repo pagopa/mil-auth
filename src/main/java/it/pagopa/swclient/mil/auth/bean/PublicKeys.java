@@ -6,60 +6,25 @@
 package it.pagopa.swclient.mil.auth.bean;
 
 import java.util.List;
-import java.util.Objects;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
+@AllArgsConstructor
+@Getter
+@ToString
+@EqualsAndHashCode
 public class PublicKeys {
 	/*
 	 * 
 	 */
 	private List<PublicKey> keys;
-
-	/**
-	 * 
-	 * @param keys
-	 */
-	public PublicKeys(List<PublicKey> keys) {
-		this.keys = keys;
-	}
-
-	/**
-	 * 
-	 * @return the keys
-	 */
-	public List<PublicKey> getKeys() {
-		return keys;
-	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("PublicKeys [keys=")
-			.append(keys)
-			.append("]")
-			.toString();
-	}
-
-	/**
-	 * @see java.lang.Object#equals(Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PublicKeys other = (PublicKeys) obj;
-		return Objects.equals(keys, other.keys);
-	}
 }
