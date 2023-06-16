@@ -185,7 +185,7 @@ class TokenResourceTest {
 				clientId,
 				"NA",
 				"NA"))
-			.thenReturn(item(new Role("NA", "NA", clientId, "NA", "NA", List.of(RoleEnum.Nodo.name()))));
+			.thenReturn(item(new Role("NA", "NA", clientId, "NA", "NA", List.of(RoleEnum.NODO.toString()))));
 
 		/*
 		 * Test
@@ -508,7 +508,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -726,7 +726,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -774,7 +774,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -822,7 +822,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -870,7 +870,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -1008,7 +1008,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
@@ -1605,7 +1605,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		Mockito
 			.when(authDataRepository.getRoles(
@@ -1645,7 +1645,7 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 	}
 
 	/**
@@ -1676,6 +1676,6 @@ class TokenResourceTest {
 				clientId,
 				merchantId,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NoticePayer.name(), RoleEnum.SlavePos.name()))));
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 	}
 }
