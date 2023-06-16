@@ -122,16 +122,16 @@ class JwksResourceTest {
 			.body("keys[0].exp", equalTo(validKey0.getExp()))
 			.body("keys[0].iat", equalTo(validKey0.getIat()))
 			.body("keys[0].kid", equalTo(validKey0.getKid()))
-			.body("keys[0].kty", equalTo(validKey0.getKty().name()))
+			.body("keys[0].kty", equalTo(validKey0.getKty().toString()))
 			.body("keys[0].n", equalTo(validKey0.getN()))
-			.body("keys[0].use", equalTo(validKey0.getUse().name()))
+			.body("keys[0].use", equalTo(validKey0.getUse().toString()))
 			.body("keys[1].e", equalTo(validKey1.getE()))
 			.body("keys[1].exp", equalTo(validKey1.getExp()))
 			.body("keys[1].iat", equalTo(validKey1.getIat()))
 			.body("keys[1].kid", equalTo(validKey1.getKid()))
-			.body("keys[1].kty", equalTo(validKey1.getKty().name()))
+			.body("keys[1].kty", equalTo(validKey1.getKty().toString()))
 			.body("keys[1].n", equalTo(validKey1.getN()))
-			.body("keys[1].use", equalTo(validKey1.getUse().name()));
+			.body("keys[1].use", equalTo(validKey1.getUse().toString()));
 	}
 
 	/**

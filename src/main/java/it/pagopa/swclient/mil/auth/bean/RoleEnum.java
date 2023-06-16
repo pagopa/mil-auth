@@ -5,6 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * 
  * @author Antonio Tarricone
@@ -19,7 +21,7 @@ public enum RoleEnum {
 	/*
 	 * String value.
 	 */
-	private String string;
+	private final String string;
 	
 	/**
 	 * 
@@ -32,6 +34,7 @@ public enum RoleEnum {
 	/**
 	 * 
 	 */
+	@JsonValue
 	@Override
 	public String toString() {
 		return string;
