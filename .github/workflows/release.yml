@@ -113,7 +113,7 @@ jobs:
       - name: Update of pom.xml with the new version + Git add + commit + push of the updated pom.xml
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
-          ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }} -s ${{ runner.temp }}/settings.xml --no-transfer-progress
+          ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }}-RC -s ${{ runner.temp }}/settings.xml --no-transfer-progress
           git config user.name "GitHub Workflow"
           git config user.email "<>"
           git add pom.xml
@@ -146,7 +146,7 @@ jobs:
         run: |
           ${{ runner.temp }}/maven/bin/mvn verify -Pvalidate -s ${{ runner.temp }}/settings.xml --no-transfer-progress
           ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:05baf3fd2173f6f25ad35216b6b066c35fbfb97f06daba75efb5b22bc0a85b9c -s ${{ runner.temp }}/settings.xml --no-transfer-progress
-          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} .
+          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC .
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
 

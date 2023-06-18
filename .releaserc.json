@@ -3,7 +3,7 @@
 		"main"
 	],
 	"ci": false,
-	"tagFormat": "${version}",
+	"tagFormat": "${version}-RC",
 	"plugins": [
 		[
 			"@semantic-release/commit-analyzer",
