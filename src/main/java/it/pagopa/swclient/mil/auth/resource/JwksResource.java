@@ -8,7 +8,9 @@ package it.pagopa.swclient.mil.auth.resource;
 import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_KEYS;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.util.OptionalLong;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -35,7 +37,7 @@ public class JwksResource {
 	 * 
 	 */
 	private static final long SKEW = 5 * 60 * 1000L;
-	
+
 	/*
 	 * 
 	 */
@@ -67,24 +69,29 @@ public class JwksResource {
 		return keyRetriever.findPublicKeys() // Retrieve keys.
 			.invoke(l -> Log.debugf("get - Output parameters: %s", l.toString()))
 			.map(l -> {
-				// Search the key that exiperes first to set Cache-Control/max-age
-				long minExp = 0; // millis
-				for (PublicKey k : l.getKeys()) {
-					long exp = k.getExp() - SKEW; // To be sure that will not be cached keys that will expire in a while, subtract SKEW.
-					if (exp < minExp) {
-						minExp = exp;
-					}
-				}
+				/*
+				 * Search the key that expires first to set Cache-Control/max-age
+				 */
+				OptionalLong minExp = l.getKeys().stream()
+					.map(k -> k.getExp())
+					.mapToLong(e->e)
+					.min();
 				
-				int maxAge = (int)(minExp - Instant.now().toEpochMilli()) / 1000; // s
+				long maxAge = 0;
+				if (minExp.isPresent()) {
+					/*
+					 * To be sure that will not be cached keys that will expire in a while, subtract SKEW.
+					 */
+					maxAge = (minExp.getAsLong() - SKEW - Instant.now().toEpochMilli()) / 1000; // seconds
+				}
 				
 				CacheControl cacheControl = new CacheControl();
 				if (maxAge > 0) {
-					cacheControl.setMaxAge(maxAge);
+					cacheControl.setMaxAge((int) maxAge);
 				} else {
 					cacheControl.setNoCache(true);
 				}
-				
+
 				return Response
 					.status(Status.OK)
 					.cacheControl(cacheControl)
