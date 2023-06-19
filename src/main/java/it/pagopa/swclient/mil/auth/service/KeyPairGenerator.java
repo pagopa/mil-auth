@@ -67,7 +67,7 @@ public class KeyPairGenerator {
 		/*
 		 * Public key use
 		 */
-		KeyUse use = KeyUse.SIG;
+		KeyUse use = KeyUse.sig;
 
 		/*
 		 * Modulus
