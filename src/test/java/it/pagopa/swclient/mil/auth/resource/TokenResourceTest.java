@@ -46,7 +46,6 @@ import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.Role;
-import it.pagopa.swclient.mil.auth.bean.RoleEnum;
 import it.pagopa.swclient.mil.auth.bean.User;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
@@ -197,7 +196,7 @@ class TokenResourceTest {
 				clientId,
 				"NA",
 				"NA"))
-			.thenReturn(item(new Role("NA", "NA", clientId, "NA", "NA", List.of(RoleEnum.NODO.toString()))));
+			.thenReturn(item(new Role("NA", "NA", clientId, "NA", "NA", List.of("Nodo"))));
 
 		/*
 		 * Test
@@ -520,7 +519,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		/*
 		 * Test
@@ -568,7 +567,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		/*
 		 * Test
@@ -786,7 +785,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		/*
 		 * Test
@@ -834,7 +833,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		/*
 		 * Test
@@ -882,7 +881,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		/*
 		 * Test
@@ -930,7 +929,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		/*
 		 * Test
@@ -1068,7 +1067,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
@@ -1665,7 +1664,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 
 		Mockito
 			.when(authDataRepository.getRoles(
@@ -1709,7 +1708,7 @@ class TokenResourceTest {
 				clientId,
 				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of("NoticePayer", "SlavePos"))));
 	}
 
 	/**
@@ -1749,6 +1748,6 @@ class TokenResourceTest {
 				clientId,
 				"NA",
 				"NA"))
-			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, "NA", "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, "NA", "NA", List.of("NoticePayer", "SlavePos"))));
 	}
 }
