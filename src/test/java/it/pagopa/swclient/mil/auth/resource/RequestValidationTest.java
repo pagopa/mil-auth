@@ -70,8 +70,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * scopedMustBeNull(getAccessToken)
-     */
+	 * scopedMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials10() {
 		/*
@@ -93,8 +93,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * merchantIdMustBeNull(getAccessToken)
-     */
+	 * merchantIdMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials2() {
 		/*
@@ -122,8 +122,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * terminalIdMustBeNull(getAccessToken)
-     */
+	 * terminalIdMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials3() {
 		/*
@@ -150,8 +150,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * clientSecretMustNotBeNull(getAccessToken)
-     */
+	 * clientSecretMustNotBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials4() {
 		/*
@@ -177,8 +177,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * extTokenMustBeNull(getAccessToken)
-     */
+	 * extTokenMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials5() {
 		/*
@@ -205,8 +205,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * addDataMustBeNull(getAccessToken)
-     */
+	 * addDataMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials6() {
 		/*
@@ -232,8 +232,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * refreshTokenMustBeNull(getAccessToken)
-     */
+	 * refreshTokenMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials7() {
 		/*
@@ -258,8 +258,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * usernameMustBeNull(getAccessToken)
-     */
+	 * usernameMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials8() {
 		/*
@@ -283,8 +283,8 @@ class RequestValidationTest {
 	}
 
 	/**
-     * passwordMustBeNull(getAccessToken)
-     */
+	 * passwordMustBeNull(getAccessToken)
+	 */
 	@Test
 	void clientCredentials9() {
 		/*
@@ -1350,7 +1350,7 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -1379,8 +1379,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1407,8 +1407,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1436,8 +1436,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1466,8 +1466,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1497,8 +1497,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1527,8 +1527,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1556,8 +1556,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1584,8 +1584,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test
@@ -1613,8 +1613,8 @@ class RequestValidationTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
-    /**
+
+	/**
 	 * 
 	 */
 	@Test

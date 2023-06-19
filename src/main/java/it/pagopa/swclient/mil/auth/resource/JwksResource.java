@@ -8,13 +8,11 @@ package it.pagopa.swclient.mil.auth.resource;
 import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_KEYS;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.OptionalLong;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.bean.Errors;
 import jakarta.inject.Inject;
@@ -74,9 +72,9 @@ public class JwksResource {
 				 */
 				OptionalLong minExp = l.getKeys().stream()
 					.map(k -> k.getExp())
-					.mapToLong(e->e)
+					.mapToLong(e -> e)
 					.min();
-				
+
 				long maxAge = 0;
 				if (minExp.isPresent()) {
 					/*
@@ -84,7 +82,7 @@ public class JwksResource {
 					 */
 					maxAge = (minExp.getAsLong() - SKEW - Instant.now().toEpochMilli()) / 1000; // seconds
 				}
-				
+
 				CacheControl cacheControl = new CacheControl();
 				if (maxAge > 0) {
 					cacheControl.setMaxAge((int) maxAge);
