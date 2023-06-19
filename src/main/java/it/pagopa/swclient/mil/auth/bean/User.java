@@ -1,22 +1,22 @@
 /*
- * ResourceOwnerCredentialsEntity.java
+ * User.java
  *
  * 20 mar 2023
  */
-package it.pagopa.swclient.mil.auth.dao;
+package it.pagopa.swclient.mil.auth.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
- * 
- * FOR DEMO ONLY. THIS WILL BE REPLACED BY DB.
  * 
  * @author Antonio Tarricone
  */
 @AllArgsConstructor
 @Getter
-public class ResourceOwnerCredentialsEntity {
+@ToString
+public class User {
 	/*
 	 * 
 	 */

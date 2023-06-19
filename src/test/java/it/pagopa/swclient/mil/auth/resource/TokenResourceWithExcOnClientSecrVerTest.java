@@ -48,13 +48,16 @@ class TokenResourceWithExcOnClientSecrVerTest {
 	/*
 	 * 
 	 */
-	// private static final String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
-	String clientId;
-	private static final String acquirerId = "4585625";
-	private static final String merchantId = "28405fHfk73x88D";
-	private static final String terminalId = "01234567";
-	private static final String salt = "BhPEAxmNsm6JIidDZXl/jwIfuFUFwn/hjfoLnDuYyQEfUMQOrtlOCFljm8IYmN5OmMIh3RddWfNSJEVlRxZjig==";
-	private static final String clientSecret = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
+	private String clientId;
+	
+	/*
+	 * 
+	 */
+	private static final String ACQUIRER_ID = "4585625";
+	private static final String MERCHANT_ID = "28405fHfk73x88D";
+	private static final String TERMINAL_ID = "01234567";
+	private static final String SALT = "BhPEAxmNsm6JIidDZXl/jwIfuFUFwn/hjfoLnDuYyQEfUMQOrtlOCFljm8IYmN5OmMIh3RddWfNSJEVlRxZjig==";
+	private static final String CLIENT_SECRET = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
 
 	/**
 	 * 
@@ -74,7 +77,7 @@ class TokenResourceWithExcOnClientSecrVerTest {
 		 */
 		Mockito
 			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
+			.thenReturn(item(new Client(clientId, Channel.POS, SALT, PasswordVerifier.hash(CLIENT_SECRET, SALT), "VAS Layer")));
 
 		MockedStatic<PasswordVerifier> passwordVerifier = Mockito.mockStatic(PasswordVerifier.class);
 
@@ -87,13 +90,13 @@ class TokenResourceWithExcOnClientSecrVerTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-200000000001")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()

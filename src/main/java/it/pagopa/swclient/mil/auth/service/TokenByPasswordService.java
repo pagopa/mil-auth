@@ -14,21 +14,30 @@ import static it.pagopa.swclient.mil.auth.util.UniGenerator.exception;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.item;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.voidItem;
 
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Objects;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
+import com.nimbusds.jose.util.StandardCharset;
+
+import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.AccessToken;
 import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
-import it.pagopa.swclient.mil.auth.dao.ResourceOwnerCredentialsEntity;
-import it.pagopa.swclient.mil.auth.dao.ResourceOwnerCredentialsRepository;
+import it.pagopa.swclient.mil.auth.bean.User;
+import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
+import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 /**
  * 
@@ -40,8 +49,18 @@ public class TokenByPasswordService extends TokenService {
 	/*
 	 * 
 	 */
-	@Inject
-	ResourceOwnerCredentialsRepository resourceOwnerCredentialsRepository;
+	@RestClient
+	AuthDataRepository repository;
+
+	/**
+	 * 
+	 * @param userHash
+	 * @return
+	 */
+	@CacheResult(cacheName = "client-role")
+	public Uni<User> getUser(String userHash) {
+		return repository.getUser(userHash);
+	}
 
 	/**
 	 * This method finds for resource owner credentials.
@@ -49,18 +68,39 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<ResourceOwnerCredentialsEntity> findCredentials(GetAccessToken getAccessToken) {
+	private Uni<User> findCredentials(GetAccessToken getAccessToken) {
 		Log.debug("Search for the credentials.");
-		return resourceOwnerCredentialsRepository.findByIdOptional(getAccessToken.getUsername())
+
+		String userHash;
+		try {
+			userHash = Base64.getEncoder().encodeToString(
+				MessageDigest.getInstance("SHA256").digest(
+					getAccessToken.getUsername().getBytes(StandardCharset.UTF_8)));
+		} catch (NoSuchAlgorithmException e) {
+			String message = String.format("[%s] Error searching for the credentials.", ERROR_SEARCHING_FOR_CREDENTIALS);
+			Log.errorf(e, message);
+			return UniGenerator.error(ERROR_SEARCHING_FOR_CREDENTIALS, message);
+		}
+
+		return getUser(userHash)
 			.onFailure().transform(t -> {
-				String message = String.format("[%s] Error searching for the credentials.", ERROR_SEARCHING_FOR_CREDENTIALS);
-				Log.errorf(t, message);
-				return new AuthError(ERROR_SEARCHING_FOR_CREDENTIALS, message);
-			})
-			.onItem().transform(c -> c.orElseThrow(() -> {
-				Log.warnf("[%s] Credentials not found.", WRONG_CREDENTIALS);
-				return new AuthException(WRONG_CREDENTIALS, String.format("[%s] Wrong credentials.", WRONG_CREDENTIALS)); // It's better not to give details...
-			}));
+				if (t instanceof WebApplicationException e) {
+					Response r = e.getResponse();
+					// r cannot be null
+					if (r.getStatus() == 404) {
+						Log.warnf("[%s] Credentials not found.", WRONG_CREDENTIALS);
+						return new AuthException(WRONG_CREDENTIALS, String.format("[%s] Wrong credentials.", WRONG_CREDENTIALS)); // It's better not to give details...
+					} else {
+						String message = String.format("[%s] Error searching for the credentials.", ERROR_SEARCHING_FOR_CREDENTIALS);
+						Log.errorf(t, message);
+						return new AuthError(ERROR_SEARCHING_FOR_CREDENTIALS, message);
+					}
+				} else {
+					String message = String.format("[%s] Error searching for the credentials.", ERROR_SEARCHING_FOR_CREDENTIALS);
+					Log.errorf(t, message);
+					return new AuthError(ERROR_SEARCHING_FOR_CREDENTIALS, message);
+				}
+			});
 	}
 
 	/**
@@ -73,7 +113,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<ResourceOwnerCredentialsEntity> verifyConsistency(ResourceOwnerCredentialsEntity credentialsEntity, GetAccessToken getAccessToken) {
+	private Uni<User> verifyConsistency(User credentialsEntity, GetAccessToken getAccessToken) {
 		Log.debug("Acquirer/channel/merchant consistency verification.");
 
 		String foundAcquirerId = credentialsEntity.getAcquirerId();
@@ -107,7 +147,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<Void> verifyPassword(ResourceOwnerCredentialsEntity credentialsEntity, GetAccessToken getAccessToken) {
+	private Uni<Void> verifyPassword(User credentialsEntity, GetAccessToken getAccessToken) {
 		Log.debug("Password verification.");
 		try {
 			if (PasswordVerifier.verify(getAccessToken.getPassword(), credentialsEntity.getSalt(), credentialsEntity.getPasswordHash())) {

@@ -13,15 +13,17 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -32,6 +34,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.util.StandardCharset;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -44,10 +47,9 @@ import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.RoleEnum;
+import it.pagopa.swclient.mil.auth.bean.User;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
-import it.pagopa.swclient.mil.auth.dao.ResourceOwnerCredentialsEntity;
-import it.pagopa.swclient.mil.auth.dao.ResourceOwnerCredentialsRepository;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
 import it.pagopa.swclient.mil.auth.service.RedisClient;
@@ -77,12 +79,6 @@ class TokenResourceTest {
 	AuthDataRepository authDataRepository;
 
 	/*
-	 * 
-	 */
-	@InjectMock
-	ResourceOwnerCredentialsRepository resourceOwnerCredentialsRespository;
-
-	/*
 	 *
 	 */
 	@InjectMock
@@ -110,19 +106,35 @@ class TokenResourceTest {
 	/*
 	 * 
 	 */
-	String clientId; // "5254f087-1214-45cd-94ae-fda53c835197";
-	final String clientId2 = "1e7921f7-677f-4ae0-bd51-2f580fd111e3";
-	final String acquirerId = "4585625";
-	final String acquirerId2 = "4585626";
-	final String merchantId = "28405fHfk73x88D";
-	final String terminalId = "01234567";
-	final String extToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4NDU3NTMzNiwiaWF0IjoxNjg0NDg4OTM2LCJqdGkiOiJmNzc5MjQ1OS00ODU1LTQ5YjMtYTZiYS05N2QzNzQ5NDQ2ZGIifQ.niR8AS3OHlmWg1-n3FD4DKoAWlY0nJyEJGBZSBFWHYCl01vjIIFYCmTCyBshZVEtDBKpTG1bWTmVctOCX2ybF5gQ0vBH1H3LFD13Tf73Ps439Ht5_u3Q-jHPf_arXDf2enOs_vKwp8TsdJNPRcxMhYZ91yyiAhbHERVypP2YPszwv5h6mMq_HWNzK9qjrLh8zQCGBEMkFfnSG1xOjzTZLJ4ROPazaDHJ9DSZReC4dY_jRqAlivbXVeLOnN3D4y_GatcHQO1_p_jYE-eXHjLP-wINeAqW57P57HmSe2n67q6UkQf5v5zKVHrJpTFAtHWpDVLxmhPKGurTX45yOvaDZw";
-	final String addData = "4b7eb94b-10c9-4f11-a10e-7292b29ab115";
-	final String username = "mariorossi";
-	final String password = "dF@dkj$S73j#fjd7X!";
-	final String salt = "BhPEAxmNsm6JIidDZXl/jwIfuFUFwn/hjfoLnDuYyQEfUMQOrtlOCFljm8IYmN5OmMIh3RddWfNSJEVlRxZjig==";
-	final String clientSecret = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
-	final String clientSecret2 = "fe3490ca-e1dc-4f67-8348-d30f2d7d7169";
+	String clientId;
+	String userHash;
+
+	/*
+	 * 
+	 */
+	private static final String CLIENT_ID_2 = "1e7921f7-677f-4ae0-bd51-2f580fd111e3";
+	private static final String ACQUIRER_ID = "4585625";
+	private static final String ACQUIRER_ID_2 = "4585626";
+	private static final String MERCHANT_ID = "28405fHfk73x88D";
+	private static final String TERMINAL_ID = "01234567";
+	private static final String EXT_TOKEN = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4NDU3NTMzNiwiaWF0IjoxNjg0NDg4OTM2LCJqdGkiOiJmNzc5MjQ1OS00ODU1LTQ5YjMtYTZiYS05N2QzNzQ5NDQ2ZGIifQ.niR8AS3OHlmWg1-n3FD4DKoAWlY0nJyEJGBZSBFWHYCl01vjIIFYCmTCyBshZVEtDBKpTG1bWTmVctOCX2ybF5gQ0vBH1H3LFD13Tf73Ps439Ht5_u3Q-jHPf_arXDf2enOs_vKwp8TsdJNPRcxMhYZ91yyiAhbHERVypP2YPszwv5h6mMq_HWNzK9qjrLh8zQCGBEMkFfnSG1xOjzTZLJ4ROPazaDHJ9DSZReC4dY_jRqAlivbXVeLOnN3D4y_GatcHQO1_p_jYE-eXHjLP-wINeAqW57P57HmSe2n67q6UkQf5v5zKVHrJpTFAtHWpDVLxmhPKGurTX45yOvaDZw";
+	private static final String ADD_DATA = "4b7eb94b-10c9-4f11-a10e-7292b29ab115";
+	private static final String USER_NAME = "mariorossi";
+	private static final String PASSWORD = "dF@dkj$S73j#fjd7X!";
+	private static final String SALT = "BhPEAxmNsm6JIidDZXl/jwIfuFUFwn/hjfoLnDuYyQEfUMQOrtlOCFljm8IYmN5OmMIh3RddWfNSJEVlRxZjig==";
+	private static final String CLIENT_SECRET = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
+	private static final String CLIENT_SECRET_2 = "fe3490ca-e1dc-4f67-8348-d30f2d7d7169";
+
+	/**
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 */
+	@BeforeAll
+	void generateUserHash() throws NoSuchAlgorithmException {
+		userHash = Base64.getEncoder().encodeToString(
+			MessageDigest.getInstance("SHA256").digest(
+				USER_NAME.getBytes(StandardCharset.UTF_8)));
+	}
 
 	/**
 	 * 
@@ -148,13 +160,13 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000005")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -176,7 +188,7 @@ class TokenResourceTest {
 		 */
 		Mockito
 			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, null, salt, PasswordVerifier.hash(clientSecret, salt), "Nodo")));
+			.thenReturn(item(new Client(clientId, null, SALT, PasswordVerifier.hash(CLIENT_SECRET, SALT), "Nodo")));
 
 		Mockito
 			.when(authDataRepository.getRoles(
@@ -195,7 +207,7 @@ class TokenResourceTest {
 			.header("RequestId", "00000000-0000-0000-0000-000000000006")
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -217,7 +229,7 @@ class TokenResourceTest {
 		 */
 		Mockito
 			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, null, salt, PasswordVerifier.hash(clientSecret, salt), "Nodo")));
+			.thenReturn(item(new Client(clientId, null, SALT, PasswordVerifier.hash(CLIENT_SECRET, SALT), "Nodo")));
 
 		Mockito
 			.when(authDataRepository.getRoles(
@@ -236,7 +248,7 @@ class TokenResourceTest {
 			.header("RequestId", "00000000-0000-0000-0000-000000000022")
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -261,13 +273,13 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000001f")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("client_id", clientId2)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
+			.formParam("client_id", CLIENT_ID_2)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -294,12 +306,12 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000001c")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.ATM)
-			.header("TerminalId", terminalId)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -326,12 +338,12 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000023")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.ATM)
-			.header("TerminalId", terminalId)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -350,15 +362,15 @@ class TokenResourceTest {
 		 */
 		Mockito
 			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
+			.thenReturn(item(new Client(clientId, Channel.POS, SALT, PasswordVerifier.hash(CLIENT_SECRET, SALT), "VAS Layer")));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
-				terminalId))
+				MERCHANT_ID,
+				TERMINAL_ID))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(500)));
 
 		/*
@@ -367,13 +379,13 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000020")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -392,15 +404,15 @@ class TokenResourceTest {
 		 */
 		Mockito
 			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
+			.thenReturn(item(new Client(clientId, Channel.POS, SALT, PasswordVerifier.hash(CLIENT_SECRET, SALT), "VAS Layer")));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
-				terminalId))
+				MERCHANT_ID,
+				TERMINAL_ID))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
 
 		/*
@@ -409,13 +421,13 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000021")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -440,12 +452,12 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000001b")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.ATM)
-			.header("TerminalId", terminalId)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret)
+			.formParam("client_secret", CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -470,13 +482,13 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000001a")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", clientSecret2)
+			.formParam("client_secret", CLIENT_SECRET_2)
 			.when()
 			.post()
 			.then()
@@ -489,7 +501,7 @@ class TokenResourceTest {
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void createTokenByPasswordWithErrorSearchingCredentials() throws NoSuchAlgorithmException {
+	void createTokenByPasswordWithErrorSearchingCredentials1() throws NoSuchAlgorithmException {
 		/*
 		 * Setup
 		 */
@@ -498,17 +510,17 @@ class TokenResourceTest {
 			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
+			.when(authDataRepository.getUser(userHash))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic")));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -516,14 +528,62 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000019")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
+			.formParam("username", USER_NAME)
+			.formParam("password", PASSWORD)
+			.formParam("scope", "offline_access")
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+	
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithErrorSearchingCredentials2() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
+
+		Mockito
+			.when(authDataRepository.getUser(userHash))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(500)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				ACQUIRER_ID,
+				Channel.POS,
+				clientId,
+				MERCHANT_ID,
+				"NA"))
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000024")
+			.header("AcquirerId", ACQUIRER_ID)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", USER_NAME)
+			.formParam("password", PASSWORD)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -549,14 +609,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000017")
-			.header("AcquirerId", acquirerId2)
+			.header("AcquirerId", ACQUIRER_ID_2)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
+			.formParam("username", USER_NAME)
+			.formParam("password", PASSWORD)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -582,14 +642,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000004")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
+			.formParam("username", USER_NAME)
+			.formParam("password", PASSWORD)
 			.when()
 			.post()
 			.then()
@@ -617,14 +677,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000003")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password)
+			.formParam("username", USER_NAME)
+			.formParam("password", PASSWORD)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -653,14 +713,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000016")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username)
-			.formParam("password", password + password)
+			.formParam("username", USER_NAME)
+			.formParam("password", PASSWORD + PASSWORD)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -686,14 +746,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000018")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", username + username)
-			.formParam("password", password)
+			.formParam("username", USER_NAME + USER_NAME)
+			.formParam("password", PASSWORD)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -721,12 +781,12 @@ class TokenResourceTest {
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -734,14 +794,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000012")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
+			.formParam("ext_token", EXT_TOKEN)
+			.formParam("add_data", ADD_DATA)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -769,12 +829,12 @@ class TokenResourceTest {
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -782,14 +842,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000013")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
+			.formParam("ext_token", EXT_TOKEN)
+			.formParam("add_data", ADD_DATA)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -817,12 +877,12 @@ class TokenResourceTest {
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -830,14 +890,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000014")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
+			.formParam("ext_token", EXT_TOKEN)
+			.formParam("add_data", ADD_DATA)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -865,12 +925,12 @@ class TokenResourceTest {
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		/*
 		 * Test
@@ -878,14 +938,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000015")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
+			.formParam("ext_token", EXT_TOKEN)
+			.formParam("add_data", ADD_DATA)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -911,14 +971,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000002")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
+			.formParam("ext_token", EXT_TOKEN)
+			.formParam("add_data", ADD_DATA)
 			.when()
 			.post()
 			.then()
@@ -946,14 +1006,14 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000001")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
+			.formParam("ext_token", EXT_TOKEN)
+			.formParam("add_data", ADD_DATA)
 			.formParam("scope", "offline_access")
 			.when()
 			.post()
@@ -994,23 +1054,23 @@ class TokenResourceTest {
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
-				terminalId))
+				MERCHANT_ID,
+				TERMINAL_ID))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
+		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
 		/*
 		 * Test
@@ -1018,10 +1078,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000007")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token)
@@ -1047,10 +1107,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000008")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", "a.a.a")
@@ -1087,7 +1147,7 @@ class TokenResourceTest {
 			.when(redisClient.get(keyPair.getKid()))
 			.thenReturn(Uni.createFrom().item(keyPair));
 
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
+		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
 		Mockito
 			.when(keyFinder.findPublicKey(keyPair.getKid()))
@@ -1099,10 +1159,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000011")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token)
@@ -1139,7 +1199,7 @@ class TokenResourceTest {
 			.when(redisClient.get(keyPair.getKid()))
 			.thenReturn(Uni.createFrom().item(keyPair));
 
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
+		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
 		/*
 		 * Test
@@ -1147,10 +1207,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000000a")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token)
@@ -1185,7 +1245,7 @@ class TokenResourceTest {
 			.when(redisClient.get(keyPair.getKid()))
 			.thenReturn(Uni.createFrom().item(keyPair));
 
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, -24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
+		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, -24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
 		/*
 		 * Test
@@ -1193,10 +1253,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000000b")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token)
@@ -1226,7 +1286,7 @@ class TokenResourceTest {
 			.when(redisClient.keys("*"))
 			.thenReturn(Uni.createFrom().item(List.of()));
 
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
+		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, 24 * 60 * 60 * 1000, null, List.of("offline_access"), keyPair);
 
 		/*
 		 * Test
@@ -1234,10 +1294,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000009")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token)
@@ -1278,11 +1338,11 @@ class TokenResourceTest {
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
 			.subject(clientId)
 			.issueTime(now)
-			.claim("acquirerId", acquirerId)
+			.claim("acquirerId", ACQUIRER_ID)
 			.claim("channel", Channel.POS)
-			.claim("merchantId", merchantId)
+			.claim("merchantId", MERCHANT_ID)
 			.claim("clientId", clientId)
-			.claim("terminalId", terminalId)
+			.claim("terminalId", TERMINAL_ID)
 			.claim("scope", "offline_access")
 			.build();
 		SignedJWT token = TokenSigner.sign(keyPair, payload);
@@ -1293,10 +1353,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000010")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token.serialize())
@@ -1337,11 +1397,11 @@ class TokenResourceTest {
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
 			.subject(clientId)
 			.expirationTime(new Date(now.getTime() + 10 * 60 * 1000))
-			.claim("acquirerId", acquirerId)
+			.claim("acquirerId", ACQUIRER_ID)
 			.claim("channel", Channel.POS)
-			.claim("merchantId", merchantId)
+			.claim("merchantId", MERCHANT_ID)
 			.claim("clientId", clientId)
-			.claim("terminalId", terminalId)
+			.claim("terminalId", TERMINAL_ID)
 			.claim("scope", "offline_access")
 			.build();
 		SignedJWT token = TokenSigner.sign(keyPair, payload);
@@ -1352,10 +1412,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000000f")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token.serialize())
@@ -1392,7 +1452,7 @@ class TokenResourceTest {
 			.when(redisClient.get(keyPair.getKid()))
 			.thenReturn(Uni.createFrom().item(keyPair));
 
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, null, keyPair);
+		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, 24 * 60 * 60 * 1000, null, null, keyPair);
 
 		/*
 		 * Test
@@ -1400,10 +1460,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000000d")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token)
@@ -1443,11 +1503,11 @@ class TokenResourceTest {
 			.subject(clientId)
 			.issueTime(now)
 			.expirationTime(new Date(now.getTime() + 24 * 60 * 60 * 1000))
-			.claim("acquirerId", acquirerId)
+			.claim("acquirerId", ACQUIRER_ID)
 			.claim("channel", Channel.POS)
-			.claim("merchantId", merchantId)
+			.claim("merchantId", MERCHANT_ID)
 			.claim("clientId", clientId)
-			.claim("terminalId", terminalId)
+			.claim("terminalId", TERMINAL_ID)
 			.claim("scope", "offline_access")
 			.build();
 
@@ -1462,10 +1522,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000001d")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token.serialize())
@@ -1507,11 +1567,11 @@ class TokenResourceTest {
 			.subject(clientId)
 			.issueTime(new Date(now.getTime() + 5 * 60 * 1000))
 			.expirationTime(new Date(now.getTime() + 10 * 60 * 1000))
-			.claim("acquirerId", acquirerId)
+			.claim("acquirerId", ACQUIRER_ID)
 			.claim("channel", Channel.POS)
-			.claim("merchantId", merchantId)
+			.claim("merchantId", MERCHANT_ID)
 			.claim("clientId", clientId)
-			.claim("terminalId", terminalId)
+			.claim("terminalId", TERMINAL_ID)
 			.claim("scope", "offline_access")
 			.build();
 		SignedJWT token = TokenSigner.sign(keyPair, payload);
@@ -1522,10 +1582,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000000e")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token.serialize())
@@ -1563,7 +1623,7 @@ class TokenResourceTest {
 		KeyPair anotherKey = keyPairGenerator.generate();
 		anotherKey.setKid(keyPair.getKid());
 
-		String token = TokenGenerator.generate(acquirerId, Channel.POS, merchantId, clientId, terminalId, 24 * 60 * 60 * 1000, null, List.of("offline_access"), anotherKey);
+		String token = TokenGenerator.generate(ACQUIRER_ID, Channel.POS, MERCHANT_ID, clientId, TERMINAL_ID, 24 * 60 * 60 * 1000, null, List.of("offline_access"), anotherKey);
 
 		/*
 		 * Test
@@ -1571,10 +1631,10 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-00000000000c")
-			.header("AcquirerId", acquirerId)
+			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
 			.formParam("client_id", clientId)
 			.formParam("grant_type", GrantType.REFRESH_TOKEN)
 			.formParam("refresh_token", token)
@@ -1592,28 +1652,28 @@ class TokenResourceTest {
 	private void setupForCreateTokenByClientSecret() throws NoSuchAlgorithmException {
 		Mockito
 			.when(authDataRepository.getClient(clientId))
-			.thenReturn(item(new Client(clientId, Channel.POS, salt, PasswordVerifier.hash(clientSecret, salt), "VAS Layer")));
+			.thenReturn(item(new Client(clientId, Channel.POS, SALT, PasswordVerifier.hash(CLIENT_SECRET, SALT), "VAS Layer")));
 
 		Mockito
-			.when(authDataRepository.getClient(clientId2))
+			.when(authDataRepository.getClient(CLIENT_ID_2))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
-				terminalId))
+				MERCHANT_ID,
+				TERMINAL_ID))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
 	}
 
@@ -1626,26 +1686,30 @@ class TokenResourceTest {
 			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
 
 		Mockito
-			.when(resourceOwnerCredentialsRespository.findByIdOptional(username))
-			.thenReturn(item(Optional.ofNullable(new ResourceOwnerCredentialsEntity(username, salt, PasswordVerifier.hash(password, salt), acquirerId, Channel.POS, merchantId))));
+			.when(authDataRepository.getUser(anyString()))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
+
+		Mockito
+			.when(authDataRepository.getUser(userHash))
+			.thenReturn(item(new User(USER_NAME, SALT, PasswordVerifier.hash(PASSWORD, SALT), ACQUIRER_ID, Channel.POS, MERCHANT_ID)));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
-				terminalId))
+				MERCHANT_ID,
+				TERMINAL_ID))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, merchantId, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 	}
 
 	/**
@@ -1662,29 +1726,29 @@ class TokenResourceTest {
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
-				terminalId))
+				MERCHANT_ID,
+				TERMINAL_ID))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
-				merchantId,
+				MERCHANT_ID,
 				"NA"))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
 
 		Mockito
 			.when(authDataRepository.getRoles(
-				acquirerId,
+				ACQUIRER_ID,
 				Channel.POS,
 				clientId,
 				"NA",
 				"NA"))
-			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, "NA", "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, "NA", "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 	}
 }
