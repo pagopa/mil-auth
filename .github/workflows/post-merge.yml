@@ -120,7 +120,7 @@ jobs:
       #
       # Update of pom.xml with the new version + "-RC".
       #
-      - name: Update of pom.xml with the new version + "-RC"
+      - name: Update of pom.xml with the new release candidate version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }}-RC -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
@@ -136,21 +136,21 @@ jobs:
       #
       # Build native executable.
       #
-      - name: Build native executable
+      - name: Build native executable for release candidate version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:05baf3fd2173f6f25ad35216b6b066c35fbfb97f06daba75efb5b22bc0a85b9c -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
       # Build Docker image.
       #
-      - name: Build Docker image
+      - name: Build Docker image for release candidate version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC .
 
       #
       # Push Docker image.
       #
-      - name: Push Docker image
+      - name: Push Docker release candidate image
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -170,7 +170,7 @@ jobs:
       #
       # Update Container App.
       #
-      - name: Update Container App
+      - name: Update Container App with release candidate image
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105
         with:
@@ -208,7 +208,7 @@ jobs:
       #
       # Update of pom.xml with the new version.
       #
-      - name: Update of pom.xml with the new version
+      - name: Update of pom.xml with the new stable version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }} -s ${{ runner.temp }}/settings.xml --no-transfer-progress
@@ -221,7 +221,7 @@ jobs:
       #
       # Calculation of the new version (again) with tagging + releasing + etc.
       #
-      - name: Calculation of the new version (w/o dry_run)
+      - name: Calculation of the new version (w/o dry_run) and put tag
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: cycjimmy/semantic-release-action@8e58d20d0f6c8773181f43eb74d6a05e3099571d
         env:
@@ -237,41 +237,30 @@ jobs:
       #
       # Build native executable.
       #
-      - name: Build native executable
+      - name: Build native executable for stable version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:05baf3fd2173f6f25ad35216b6b066c35fbfb97f06daba75efb5b22bc0a85b9c -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
       # Build Docker image.
       #
-      - name: Build Docker image
+      - name: Build Docker image for stable version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} .
 
       #
       # Push Docker image.
       #
-      - name: Push Docker image
+      - name: Push Docker stable image
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
 
       #
-      # Login to Azure.
-      #
-      - name: Login to Azure
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
- 
-      #
       # Update Container App.
       #
-      - name: Update Container App
+      - name: Update Container App with the stable version
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105
         with:
