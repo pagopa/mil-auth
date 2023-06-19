@@ -100,7 +100,7 @@ public class TokenByPasswordService extends TokenService {
 					Log.errorf(t, message);
 					return new AuthError(ERROR_SEARCHING_FOR_CREDENTIALS, message);
 				}
-			}).log();
+			});
 	}
 
 	/**

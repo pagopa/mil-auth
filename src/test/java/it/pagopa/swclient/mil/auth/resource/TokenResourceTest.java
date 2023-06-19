@@ -501,7 +501,7 @@ class TokenResourceTest {
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void createTokenByPasswordWithErrorSearchingCredentials() throws NoSuchAlgorithmException {
+	void createTokenByPasswordWithErrorSearchingCredentials1() throws NoSuchAlgorithmException {
 		/*
 		 * Setup
 		 */
@@ -528,6 +528,54 @@ class TokenResourceTest {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header("RequestId", "00000000-0000-0000-0000-000000000019")
+			.header("AcquirerId", ACQUIRER_ID)
+			.header("Channel", Channel.POS)
+			.header("MerchantId", MERCHANT_ID)
+			.header("TerminalId", TERMINAL_ID)
+			.formParam("client_id", clientId)
+			.formParam("grant_type", GrantType.PASSWORD)
+			.formParam("username", USER_NAME)
+			.formParam("password", PASSWORD)
+			.formParam("scope", "offline_access")
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body("errors", notNullValue());
+	}
+	
+	/**
+	 * @throws NoSuchAlgorithmException
+	 */
+	@Test
+	void createTokenByPasswordWithErrorSearchingCredentials2() throws NoSuchAlgorithmException {
+		/*
+		 * Setup
+		 */
+		Mockito
+			.when(authDataRepository.getClient(clientId))
+			.thenReturn(item(new Client(clientId, Channel.POS, null, null, "SmartPOS")));
+
+		Mockito
+			.when(authDataRepository.getUser(userHash))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(500)));
+
+		Mockito
+			.when(authDataRepository.getRoles(
+				ACQUIRER_ID,
+				Channel.POS,
+				clientId,
+				MERCHANT_ID,
+				"NA"))
+			.thenReturn(item(new Role(ACQUIRER_ID, Channel.POS, clientId, MERCHANT_ID, "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("RequestId", "00000000-0000-0000-0000-000000000024")
 			.header("AcquirerId", ACQUIRER_ID)
 			.header("Channel", Channel.POS)
 			.header("MerchantId", MERCHANT_ID)
