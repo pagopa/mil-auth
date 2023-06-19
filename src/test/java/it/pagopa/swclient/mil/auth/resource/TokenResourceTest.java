@@ -123,7 +123,7 @@ class TokenResourceTest {
 	final String salt = "BhPEAxmNsm6JIidDZXl/jwIfuFUFwn/hjfoLnDuYyQEfUMQOrtlOCFljm8IYmN5OmMIh3RddWfNSJEVlRxZjig==";
 	final String clientSecret = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
 	final String clientSecret2 = "fe3490ca-e1dc-4f67-8348-d30f2d7d7169";
-	
+
 	/**
 	 * 
 	 */
@@ -307,7 +307,7 @@ class TokenResourceTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -423,7 +423,7 @@ class TokenResourceTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body("errors", notNullValue());
 	}
-	
+
 	/**
 	 * @throws NoSuchAlgorithmException
 	 */
@@ -1677,14 +1677,14 @@ class TokenResourceTest {
 				merchantId,
 				"NA"))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(404)));
-		
+
 		Mockito
-		.when(authDataRepository.getRoles(
-			acquirerId,
-			Channel.POS,
-			clientId,
-			"NA",
-			"NA"))
-		.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, "NA", "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
+			.when(authDataRepository.getRoles(
+				acquirerId,
+				Channel.POS,
+				clientId,
+				"NA",
+				"NA"))
+			.thenReturn(item(new Role(acquirerId, Channel.POS, clientId, "NA", "NA", List.of(RoleEnum.NOTICE_PAYER.toString(), RoleEnum.SLAVE_POS.toString()))));
 	}
 }

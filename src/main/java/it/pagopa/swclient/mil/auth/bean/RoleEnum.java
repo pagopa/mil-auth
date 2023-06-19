@@ -18,12 +18,12 @@ public enum RoleEnum {
 	INSTITUTION_PORTAL("InstitutionPortal"),
 	SERVICE_LIST_REQUESTER("ServiceListRequester"),
 	SLAVE_POS("SlavePos");
-	
+
 	/*
 	 * String value.
 	 */
 	private final String string;
-	
+
 	/**
 	 * 
 	 * @param string
@@ -31,7 +31,7 @@ public enum RoleEnum {
 	private RoleEnum(String string) {
 		this.string = string;
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -40,7 +40,7 @@ public enum RoleEnum {
 	public String toString() {
 		return string;
 	}
-	
+
 	/**
 	 * 
 	 * @param string

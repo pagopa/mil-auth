@@ -48,7 +48,7 @@ class TokenResourceWithExcOnClientSecrVerTest {
 	/*
 	 * 
 	 */
-	//private static final String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
+	// private static final String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
 	String clientId;
 	private static final String acquirerId = "4585625";
 	private static final String merchantId = "28405fHfk73x88D";
@@ -63,7 +63,7 @@ class TokenResourceWithExcOnClientSecrVerTest {
 	void generateClientId() {
 		clientId = UUID.randomUUID().toString();
 	}
-	
+
 	/**
 	 * @throws NoSuchAlgorithmException
 	 */

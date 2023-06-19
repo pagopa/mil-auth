@@ -48,8 +48,10 @@ class KeyFinderWithExceptionTest {
 	KeyPairGenerator keyPairGenerator;
 
 	/**
-	 * Get key pair but there is no one, so it must be generated but during generation an exception occurs.
-	 * @throws JOSEException 
+	 * Get key pair but there is no one, so it must be generated but during generation an exception
+	 * occurs.
+	 * 
+	 * @throws JOSEException
 	 */
 	@Test
 	void getKeyPairWithKeyGenerationAndException() throws JOSEException {
@@ -63,7 +65,7 @@ class KeyFinderWithExceptionTest {
 		Mockito
 			.when(redisClient.setex(anyString(), anyLong(), any(KeyPair.class)))
 			.thenReturn(Uni.createFrom().voidItem());
-		
+
 		Mockito
 			.when(keyPairGenerator.generate())
 			.thenThrow(new JOSEException("synthetic"));

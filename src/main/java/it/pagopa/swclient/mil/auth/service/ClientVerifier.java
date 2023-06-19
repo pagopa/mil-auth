@@ -39,7 +39,7 @@ public class ClientVerifier {
 	 */
 	@RestClient
 	AuthDataRepository repository;
-	
+
 	/**
 	 * 
 	 * @param clientId
