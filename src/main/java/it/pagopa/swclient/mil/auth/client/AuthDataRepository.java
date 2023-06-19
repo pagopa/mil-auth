@@ -10,6 +10,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.Role;
+import it.pagopa.swclient.mil.auth.bean.User;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -46,4 +47,13 @@ public interface AuthDataRepository {
 		@PathParam("clientId") String clientId,
 		@PathParam("merchantId") String merchantId,
 		@PathParam("terminalId") String terminalId);
+	
+	/**
+	 * 
+	 * @param userHash
+	 * @return
+	 */
+	@Path("users/{userHash}.json")
+	@GET
+	Uni<User> getUser(@PathParam("userHash") String userHash);
 }
