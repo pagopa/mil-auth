@@ -31,7 +31,7 @@ jobs:
       - name: Checkout the source code
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GIT_PAT }}
           fetch-depth: 0
 
       #
@@ -119,39 +119,39 @@ jobs:
           echo "<settings><servers><server><id>github</id><username>${{ secrets.GIT_USER }}</username><password>${{ secrets.GIT_PAT }}</password></server></servers></settings>" >> ${{ runner.temp }}/settings.xml
 
       #
-      # Update of pom.xml with the new version + "-RC".
+      # RELEASE CANDIDATE - Update of pom.xml with the new version.
       #
-      - name: Update of pom.xml with the new release candidate version
+      - name: RELEASE CANDIDATE - Update of pom.xml with the new version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }}-RC -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
-      # Execute unit-test + Calculate test coverage + SCA with Sonar.
+      # RELEASE CANDIDATE - Execute unit-test + Calculate test coverage + SCA with Sonar.
       #
-      - name: Execute unit-test + Calculate test coverage + SCA with Sonar
+      - name: RELEASE CANDIDATE - Execute unit-test + Calculate test coverage + SCA with Sonar
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ${{ runner.temp }}/maven/bin/mvn verify -Pvalidate -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
-      # Build native executable.
+      # RELEASE CANDIDATE - Build native executable.
       #
-      - name: Build native executable for release candidate version
+      - name: RELEASE CANDIDATE - Build native executable
         if: steps.semantic.outputs.new_release_published == 'true'
         run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:05baf3fd2173f6f25ad35216b6b066c35fbfb97f06daba75efb5b22bc0a85b9c -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
-      # Build Docker image.
+      # RELEASE CANDIDATE - Build Docker image.
       #
-      - name: Build Docker image for release candidate version
+      - name: RELEASE CANDIDATE - Build Docker image
         if: steps.semantic.outputs.new_release_published == 'true'
         run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC .
 
       #
-      # Push Docker image.
+      # RELEASE CANDIDATE - Push Docker image.
       #
-      - name: Push Docker release candidate image
+      - name: RELEASE CANDIDATE - Push Docker image
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -169,9 +169,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
  
       #
-      # Update Container App.
+      # RELEASE CANDIDATE - Update Container App.
       #
-      - name: Update Container App with release candidate image
+      - name: RELEASE CANDIDATE - Update Container App
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105
         with:
@@ -202,14 +202,10 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         run: newman run src/test/postman/mil-auth.postman_collection.json -e src/test/postman/dev.postman_environment.json
         
-      # -----------------------------------------------------------------------
-      # "-RC" removal.
-      # -----------------------------------------------------------------------
-
       #
-      # Update of pom.xml with the new version.
+      # STABLE - Update of pom.xml with the new version.
       #
-      - name: Update of pom.xml with the new stable version
+      - name: STABLE - Update of pom.xml with the new version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }} -s ${{ runner.temp }}/settings.xml --no-transfer-progress
@@ -236,32 +232,32 @@ jobs:
           dry_run: false
 
       #
-      # Build native executable.
+      # STABLE - Build native executable.
       #
-      - name: Build native executable for stable version
+      - name: STABLE - Build native executable
         if: steps.semantic.outputs.new_release_published == 'true'
         run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:05baf3fd2173f6f25ad35216b6b066c35fbfb97f06daba75efb5b22bc0a85b9c -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
-      # Build Docker image.
+      # STABLE - Build Docker image.
       #
-      - name: Build Docker image for stable version
+      - name: STABLE - Build Docker image
         if: steps.semantic.outputs.new_release_published == 'true'
         run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} .
 
       #
-      # Push Docker image.
+      # STABLE - Push Docker image.
       #
-      - name: Push Docker stable image
+      - name: STABLE - Push Docker image
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
 
       #
-      # Update Container App.
+      # STABLE - Update Container App.
       #
-      - name: Update Container App with the stable version
+      - name: STABLE - Update Container App
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105
         with:
