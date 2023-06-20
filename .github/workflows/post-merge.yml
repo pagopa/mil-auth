@@ -31,7 +31,7 @@ jobs:
       - name: Checkout the source code
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
         with:
-          token: ${{ secrets.GIT_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       #
@@ -226,7 +226,7 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: cycjimmy/semantic-release-action@8e58d20d0f6c8773181f43eb74d6a05e3099571d
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           semantic_version: 19
           branch: main
