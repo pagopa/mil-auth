@@ -18,6 +18,7 @@ jobs:
     permissions:
       id-token: write
       packages: write
+      contents: write
     
     #outputs:
     #  new_release_published: ${{ steps.semantic.outputs.new_release_published }}
@@ -225,7 +226,7 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: cycjimmy/semantic-release-action@8e58d20d0f6c8773181f43eb74d6a05e3099571d
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIT_PAT }}
         with:
           semantic_version: 19
           branch: main
