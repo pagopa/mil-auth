@@ -75,7 +75,8 @@ public class TokenByPasswordService extends TokenService {
 		try {
 			userHash = Base64.getEncoder().encodeToString(
 				MessageDigest.getInstance("SHA256").digest(
-					getAccessToken.getUsername().getBytes(StandardCharset.UTF_8)));
+					getAccessToken.getUsername().getBytes(StandardCharset.UTF_8)))
+				.replace("+", "-");
 		} catch (NoSuchAlgorithmException e) {
 			String message = String.format("[%s] Error searching for the credentials.", ERROR_SEARCHING_FOR_CREDENTIALS);
 			Log.errorf(e, message);
