@@ -610,6 +610,13 @@
       "sha256": "ZKfegpUjuDw8ZTUO92x3ZUtYMG4i6xbLLxVm_rC9qpc="
     },
     {
+      "id": "com.aayushatharva.brotli4j:native-linux-x86_64:jar:1.12.0",
+      "artifactId": "native-linux-x86_64",
+      "groupId": "com.aayushatharva.brotli4j",
+      "version": "1.12.0",
+      "sha256": "ASDyLPndtKpOKj2AacUMN4wEiHk0HIFTDOW04r5vYPg="
+    },
+    {
       "id": "io.netty:netty-codec-haproxy:jar:4.1.94.Final",
       "artifactId": "netty-codec-haproxy",
       "groupId": "io.netty",
