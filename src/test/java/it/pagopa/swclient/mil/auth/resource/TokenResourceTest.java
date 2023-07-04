@@ -132,7 +132,9 @@ class TokenResourceTest {
 	void generateUserHash() throws NoSuchAlgorithmException {
 		userHash = Base64.getEncoder().encodeToString(
 			MessageDigest.getInstance("SHA256").digest(
-				USER_NAME.getBytes(StandardCharset.UTF_8)));
+				USER_NAME.getBytes(StandardCharset.UTF_8)))
+			.replace("+", "-")
+			.replace("/", "_");
 	}
 
 	/**
