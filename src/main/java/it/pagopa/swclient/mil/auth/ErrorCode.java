@@ -52,6 +52,7 @@ public final class ErrorCode {
 	public static final String ERROR_GENERATING_KEY_PAIR = MODULE_ID + "000025";
 	public static final String UNEXPECTED_ERROR = MODULE_ID + "000026";
 	public static final String ERROR_VERIFING_SECRET = MODULE_ID + "000027";
+	public static final String ERROR_STORING_KEY_PAIR = MODULE_ID + "000028";
 
 	/**
 	 * 

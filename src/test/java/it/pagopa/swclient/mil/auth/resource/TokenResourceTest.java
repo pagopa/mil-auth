@@ -51,7 +51,7 @@ import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
-import it.pagopa.swclient.mil.auth.service.RedisClient;
+import it.pagopa.swclient.mil.auth.service.KeyVault;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.TokenGenerator;
 import it.pagopa.swclient.mil.auth.util.TokenSigner;
@@ -88,7 +88,7 @@ class TokenResourceTest {
 	 * 
 	 */
 	@InjectMock
-	RedisClient redisClient;
+	KeyVault redisClient;
 
 	/*
 	 * 

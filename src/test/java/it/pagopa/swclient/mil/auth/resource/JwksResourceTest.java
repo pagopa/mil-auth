@@ -26,7 +26,7 @@ import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.ErrorCode;
 import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
-import it.pagopa.swclient.mil.auth.service.RedisClient;
+import it.pagopa.swclient.mil.auth.service.KeyVault;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 
@@ -42,7 +42,7 @@ class JwksResourceTest {
 	 * 
 	 */
 	@InjectMock
-	RedisClient redisClient;
+	KeyVault redisClient;
 
 	/*
 	 * 

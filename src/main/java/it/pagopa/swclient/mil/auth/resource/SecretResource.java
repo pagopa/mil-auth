@@ -16,6 +16,8 @@ import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.service.AzureKeyVault;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -43,18 +45,9 @@ public class SecretResource {
 	@ConfigProperty(name = "keyvault.secret.name", defaultValue = "quarkus-azure-test")
 	String secretName;
 	
-	/**
-	 * 
-	 * @return
-	 */
-	private SecretClient createSecretClient() {
-		Log.debug("Creating of secret client.");
-		return new SecretClientBuilder()
-			.vaultUrl(keyVaultUri)
-			.credential(new DefaultAzureCredentialBuilder().build())
-			.buildClient();
-	}
-
+	@Inject
+	AzureKeyVault secretClientBuilderService;
+	
 	/**
 	 * 
 	 * @return
@@ -63,14 +56,14 @@ public class SecretResource {
 	public Uni<Response> generateSecret() {
 		Log.debug("Generate secret invoked.");
 
-		SecretClient secretClient = createSecretClient();
+		SecretClient secretClient = secretClientBuilderService.build();
 
 		Log.debug("Generating secret.");
 		String secretValue = UUID.randomUUID().toString();
 		Log.debugf("The secret is: [%s]", secretValue);
 
 		Log.debug("Storing secret.");
-		secretClient.setSecret(new KeyVaultSecret(secretName, secretValue));
+		secretClient.setSecret(secretName, secretValue);
 
 		Log.debug("Secret stored.");
 		return Uni.createFrom().item(Response.created(null).build());
@@ -85,7 +78,7 @@ public class SecretResource {
 	public Uni<Response> retrieveSecret() {
 		Log.debug("Retrieve secret invoked.");
 
-		SecretClient secretClient = createSecretClient();
+		SecretClient secretClient = secretClientBuilderService.build();
 		
 		Log.debug("Retrieving secret.");
 		KeyVaultSecret secret = secretClient.getSecret(secretName);
@@ -107,7 +100,7 @@ public class SecretResource {
 	public Uni<Response> deleteSecret() {
 		Log.debug("Delete secret invoked.");
 		
-		SecretClient secretClient = createSecretClient();
+		SecretClient secretClient = secretClientBuilderService.build();
 		
 		Log.debug("Begin deleting secret.");
 		secretClient.beginDeleteSecret(secretName);

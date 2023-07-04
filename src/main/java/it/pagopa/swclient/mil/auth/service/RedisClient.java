@@ -19,7 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
  * @author Antonio Tarricone
  */
 @ApplicationScoped
-public class RedisClient {
+public class RedisClient implements KeyVault {
 	/*
 	 * 
 	 */
@@ -44,6 +44,7 @@ public class RedisClient {
 	 * @param pattern
 	 * @return
 	 */
+	@Override
 	public Uni<List<String>> keys(String pattern) {
 		return keyCommands.keys(pattern);
 	}
@@ -53,6 +54,7 @@ public class RedisClient {
 	 * @param kid
 	 * @return
 	 */
+	@Override
 	public Uni<KeyPair> get(String kid) {
 		return valueCommands.get(kid);
 	}
@@ -64,6 +66,7 @@ public class RedisClient {
 	 * @param keyPair
 	 * @return
 	 */
+	@Override
 	public Uni<Void> setex(String kid, long seconds, KeyPair keyPair) {
 		return valueCommands.setex(kid, seconds, keyPair);
 	}

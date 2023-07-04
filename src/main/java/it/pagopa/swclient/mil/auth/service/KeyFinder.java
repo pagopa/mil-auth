@@ -41,7 +41,7 @@ public class KeyFinder {
 	 * 
 	 */
 	@Inject
-	RedisClient redisClient;
+	KeyVault redisClient;
 
 	/*
 	 * 
