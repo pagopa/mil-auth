@@ -5,68 +5,62 @@
  */
 package it.pagopa.swclient.mil.auth.resource;
 
-import java.util.UUID;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
+import com.nimbusds.jose.JOSEException;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.service.AzureKeyVault;
+import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 
 /**
  * 
  * @author Antonio Tarricone
  */
-@Path("/secrets")
+@Path("/keys")
 public class SecretResource {
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "keyvault.uri")
-	String keyVaultUri;
-
-	/*
-	 * 
-	 */
-	@ConfigProperty(name = "keyvault.secret.name", defaultValue = "quarkus-azure-test")
-	String secretName;
-	
 	@Inject
-	AzureKeyVault secretClientBuilderService;
-	
+	AzureKeyVault keyVault;
+
+	@Inject
+	KeyPairGenerator keyPairGenerator;
+
 	/**
 	 * 
 	 * @return
 	 */
 	@POST
-	public Uni<Response> generateSecret() {
-		Log.debug("Generate secret invoked.");
+	public Uni<Response> generateKeyPair() {
+		try {
+			Log.debug("Generating key pair.");
+			KeyPair keyPair = keyPairGenerator.generate();
 
-		SecretClient secretClient = secretClientBuilderService.build();
+			URI uri = new URI("/keys/" + keyPair.getKid());
 
-		Log.debug("Generating secret.");
-		String secretValue = UUID.randomUUID().toString();
-		Log.debugf("The secret is: [%s]", secretValue);
-
-		Log.debug("Storing secret.");
-		secretClient.setSecret(secretName, secretValue);
-
-		Log.debug("Secret stored.");
-		return Uni.createFrom().item(Response.created(null).build());
+			Log.debug("Storing key pair.");
+			return keyVault.setex(keyPair.getKid(), 0, keyPair)
+				.onItem()
+				.transform(v -> {
+					Log.debug("Key pair stored.");
+					return Response.created(uri).build();
+				});
+		} catch (JOSEException | URISyntaxException e) {
+			Log.errorf(e, "Error.");
+			return Uni.createFrom().failure(e);
+		}
 	}
 
 	/**
@@ -74,38 +68,10 @@ public class SecretResource {
 	 * @return
 	 */
 	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public Uni<Response> retrieveSecret() {
-		Log.debug("Retrieve secret invoked.");
-
-		SecretClient secretClient = secretClientBuilderService.build();
-		
+	@Path("/{kid}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Uni<KeyPair> retrieveKeyPair(String kid) {
 		Log.debug("Retrieving secret.");
-		KeyVaultSecret secret = secretClient.getSecret(secretName);
-		if (secret != null) {
-			String secretValue = secret.getValue();
-			Log.debugf("The secret is: [%s]", secretValue);
-			return Uni.createFrom().item(Response.ok(secretValue).build());
-		} else {
-			Log.warn("Secret not found.");
-			return Uni.createFrom().item(Response.status(Status.NOT_FOUND).build());
-		}
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	@DELETE
-	public Uni<Response> deleteSecret() {
-		Log.debug("Delete secret invoked.");
-		
-		SecretClient secretClient = secretClientBuilderService.build();
-		
-		Log.debug("Begin deleting secret.");
-		secretClient.beginDeleteSecret(secretName);
-		Log.debug("Secret deletion started.");
-		
-		return Uni.createFrom().item(Response.accepted().build());
+		return keyVault.get(kid);
 	}
 }

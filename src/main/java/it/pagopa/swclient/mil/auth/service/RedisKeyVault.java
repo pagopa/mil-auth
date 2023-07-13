@@ -1,5 +1,5 @@
 /*
- * RedisClient.java
+ * RedisKeyVault.java
  *
  * 22 mar 2023
  */
@@ -19,7 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
  * @author Antonio Tarricone
  */
 @ApplicationScoped
-public class RedisClient implements KeyVault {
+public class RedisKeyVault implements KeyVault {
 	/*
 	 * 
 	 */
@@ -34,7 +34,7 @@ public class RedisClient implements KeyVault {
 	 * 
 	 * @param reactive
 	 */
-	public RedisClient(ReactiveRedisDataSource reactive) {
+	public RedisKeyVault(ReactiveRedisDataSource reactive) {
 		valueCommands = reactive.value(String.class, KeyPair.class);
 		keyCommands = reactive.key(String.class);
 	}

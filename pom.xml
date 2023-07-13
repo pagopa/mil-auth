@@ -226,6 +226,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!--
 			<plugin>
 				<groupId>it.pagopa.maven</groupId>
 				<artifactId>depcheck</artifactId>
@@ -244,6 +245,7 @@
 					<includeParent>false</includeParent>
 				</configuration>
 			</plugin>
+			-->
 		</plugins>
 	</build>
 	<profiles>

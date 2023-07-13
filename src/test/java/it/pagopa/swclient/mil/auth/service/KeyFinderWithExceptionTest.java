@@ -33,7 +33,7 @@ class KeyFinderWithExceptionTest {
 	 * 
 	 */
 	@InjectMock
-	KeyVault redisClient;
+	RedisKeyVault redisClient;
 
 	/*
 	 * 

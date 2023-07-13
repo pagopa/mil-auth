@@ -49,7 +49,7 @@ class TokenResourceWithExcOnClientSecrVerTest {
 	 * 
 	 */
 	private String clientId;
-	
+
 	/*
 	 * 
 	 */

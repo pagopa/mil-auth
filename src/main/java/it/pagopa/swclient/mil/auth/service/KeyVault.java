@@ -36,5 +36,4 @@ public interface KeyVault {
 	 * @return
 	 */
 	Uni<Void> setex(String kid, long seconds, KeyPair keyPair);
-
 }

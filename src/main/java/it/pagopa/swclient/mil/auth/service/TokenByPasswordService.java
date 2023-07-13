@@ -73,11 +73,9 @@ public class TokenByPasswordService extends TokenService {
 
 		String userHash;
 		try {
-			userHash = Base64.getEncoder().encodeToString(
+			userHash = Base64.getUrlEncoder().encodeToString(
 				MessageDigest.getInstance("SHA256").digest(
-					getAccessToken.getUsername().getBytes(StandardCharset.UTF_8)))
-				.replace("+", "-")
-				.replace("/", "_");
+					getAccessToken.getUsername().getBytes(StandardCharset.UTF_8)));
 		} catch (NoSuchAlgorithmException e) {
 			String message = String.format("[%s] Error searching for the credentials.", ERROR_SEARCHING_FOR_CREDENTIALS);
 			Log.errorf(e, message);
@@ -191,7 +189,7 @@ public class TokenByPasswordService extends TokenService {
 		return verifyCredentials(getAccessToken)
 			.chain(() -> super.process(getAccessToken));
 	}
-	
+
 	public static void main(String[] args) throws NoSuchAlgorithmException {
 		System.out.println(Base64.getEncoder().encodeToString(
 			MessageDigest.getInstance("SHA256").digest(

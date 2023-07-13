@@ -47,7 +47,7 @@ public interface AuthDataRepository {
 		@PathParam("clientId") String clientId,
 		@PathParam("merchantId") String merchantId,
 		@PathParam("terminalId") String terminalId);
-	
+
 	/**
 	 * 
 	 * @param userHash

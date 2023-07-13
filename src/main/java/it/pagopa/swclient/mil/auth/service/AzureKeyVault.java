@@ -30,6 +30,8 @@ import it.pagopa.swclient.mil.auth.bean.KeyPair;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
 import it.pagopa.swclient.mil.auth.bean.KeyUse;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.InvocationContext;
 import mutiny.zero.flow.adapters.AdaptersToFlow;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -72,14 +74,19 @@ public class AzureKeyVault implements KeyVault {
 	private static final Map<KeyOperation, KeyUse> AZURE_KEYUSE_TO_MY_KEYUSE = Map.of(KeyOperation.SIGN, KeyUse.sig);
 
 	/**
+	 * Initialize the client.
 	 * 
+	 * @param ctx
 	 */
-	public AzureKeyVault() {
-		Log.debug("Creating of key async client.");
-		client = new KeyClientBuilder()
-			.vaultUrl(keyVaultUri)
-			.credential(new DefaultAzureCredentialBuilder().build())
-			.buildAsyncClient();
+	@AroundInvoke
+	private synchronized void init(InvocationContext ctx) {
+		if (client == null) {
+			Log.debug("Creating of key async client.");
+			client = new KeyClientBuilder()
+				.vaultUrl(keyVaultUri)
+				.credential(new DefaultAzureCredentialBuilder().build())
+				.buildAsyncClient();
+		}
 	}
 
 	/**

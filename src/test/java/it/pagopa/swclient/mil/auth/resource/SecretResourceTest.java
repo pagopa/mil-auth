@@ -6,32 +6,24 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.Mock;
-import org.mockito.MockedConstruction;
 
-import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.nimbusds.jose.JOSEException;
-import com.azure.security.keyvault.secrets.SecretClient;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
-import it.pagopa.swclient.mil.auth.service.RedisClient;
-import it.pagopa.swclient.mil.auth.service.SecretClientBuilderService;
+import it.pagopa.swclient.mil.auth.bean.KeyPair;
+import it.pagopa.swclient.mil.auth.service.AzureKeyVault;
+import it.pagopa.swclient.mil.auth.service.KeyPairGenerator;
+import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import jakarta.inject.Inject;
 
 /**
  * 
@@ -41,60 +33,50 @@ import it.pagopa.swclient.mil.auth.service.SecretClientBuilderService;
 @TestHTTPEndpoint(SecretResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecretResourceTest {
-	class SecretClientMock extends SecretClient
 	/*
 	 * 
 	 */
 	@InjectMock
-	SecretClientBuilderService secretClientBuilderService;
-	
-	@BeforeAll
-	void setup() {
-		new SecretClient
-	}
-	
+	AzureKeyVault azureKeyVault;
+
+	/*
+	 * 
+	 */
+	@Inject
+	KeyPairGenerator keyPairGenerator;
+
 	/**
 	 * 
 	 */
 	@Test()
-	void generateSecret() {
-		when(secretClient.setSecret(anyString(), anyString()))
-			.thenReturn(null);
-		
+	void generateKeyPair() {
+		when(azureKeyVault.setex(anyString(), anyLong(), any(KeyPair.class)))
+			.thenReturn(UniGenerator.voidItem());
+	
 		given()
 			.when()
 			.post()
 			.then()
-			.statusCode(greaterThanOrEqualTo(0));
+			.statusCode(201);
 	}
 
 	/**
+	 * @throws JOSEException 
 	 * 
 	 */
 	@Test()
-	void retrieveSecret() throws JOSEException {
-		when(secretClient.getSecret(anyString()))
-		.thenReturn(new KeyVaultSecret("quarkus-azure-test", "this is the secret"));
+	void retrieveKeyPair() throws JOSEException {
+		KeyPair keyPair = keyPairGenerator.generate();
+		
+		when(azureKeyVault.get(anyString()))
+			.thenReturn(UniGenerator.item(keyPair));
 		
 		given()
 			.when()
-			.get()
+			.pathParam("kid", keyPair.getKid())
+			.get("/{kid}")
 			.then()
-			.statusCode(greaterThanOrEqualTo(0));
-	}
-
-	/**
-	 * 
-	 */
-	@Test()
-	void deleteSecret() {
-		doNothing().
-			when(secretClient.beginDeleteSecret(any()));
-		
-		given()
-			.when()
-			.delete()
-			.then()
-			.statusCode(greaterThanOrEqualTo(0));
+			.statusCode(200)
+			.log();
 	}
 }
