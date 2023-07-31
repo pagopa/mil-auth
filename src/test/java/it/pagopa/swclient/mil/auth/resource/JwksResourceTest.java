@@ -19,9 +19,9 @@ import org.mockito.Mockito;
 
 import com.nimbusds.jose.JOSEException;
 
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.ErrorCode;
 import it.pagopa.swclient.mil.auth.bean.KeyPair;

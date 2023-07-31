@@ -51,18 +51,4 @@ public class PublicKey {
 	 * Issued at
 	 */
 	private long iat;
-
-	/**
-	 * 
-	 * @param publicKey
-	 */
-	public PublicKey(PublicKey publicKey) {
-		this.e = publicKey.e;
-		this.use = publicKey.use;
-		this.kid = publicKey.kid;
-		this.n = publicKey.n;
-		this.kty = publicKey.kty;
-		this.exp = publicKey.exp;
-		this.iat = publicKey.iat;
-	}
 }

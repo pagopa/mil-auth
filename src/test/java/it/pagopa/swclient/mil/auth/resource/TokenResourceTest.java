@@ -38,9 +38,9 @@ import com.nimbusds.jose.util.StandardCharset;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
@@ -130,7 +130,7 @@ class TokenResourceTest {
 	 */
 	@BeforeAll
 	void generateUserHash() throws NoSuchAlgorithmException {
-		userHash = Base64.getEncoder().encodeToString(
+		userHash = Base64.getUrlEncoder().encodeToString(
 			MessageDigest.getInstance("SHA256").digest(
 				USER_NAME.getBytes(StandardCharset.UTF_8)));
 	}
