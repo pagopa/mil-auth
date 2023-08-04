@@ -12,8 +12,8 @@ import java.util.Map;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.ErrorCode;
-import it.pagopa.swclient.mil.auth.bean.AccessToken;
-import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
@@ -77,7 +77,7 @@ public class TokenResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<AccessToken> createOrRefreshToken(@Valid @BeanParam GetAccessToken getAccessToken) {
+	public Uni<GetAccessTokenResponse> createOrRefreshToken(@Valid @BeanParam GetAccessTokenRequest getAccessToken) {
 		/*
 		 * If the flow reaches this point, the input is validated!
 		 */

@@ -31,5 +31,5 @@ public class GetKeyVersionsResponse {
 	 * 
 	 */
 	@JsonProperty("value")
-	private Key[] keys;
+	private KeyVersion[] keys;
 }

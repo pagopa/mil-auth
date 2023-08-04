@@ -26,8 +26,8 @@ import com.nimbusds.jose.util.StandardCharset;
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.AccessToken;
-import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.User;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
@@ -68,7 +68,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<User> findCredentials(GetAccessToken getAccessToken) {
+	private Uni<User> findCredentials(GetAccessTokenRequest getAccessToken) {
 		Log.debug("Search for the credentials.");
 
 		String userHash;
@@ -113,7 +113,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<User> verifyConsistency(User credentialsEntity, GetAccessToken getAccessToken) {
+	private Uni<User> verifyConsistency(User credentialsEntity, GetAccessTokenRequest getAccessToken) {
 		Log.debug("Acquirer/channel/merchant consistency verification.");
 
 		String foundAcquirerId = credentialsEntity.getAcquirerId();
@@ -147,7 +147,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<Void> verifyPassword(User credentialsEntity, GetAccessToken getAccessToken) {
+	private Uni<Void> verifyPassword(User credentialsEntity, GetAccessTokenRequest getAccessToken) {
 		Log.debug("Password verification.");
 		try {
 			if (PasswordVerifier.verify(getAccessToken.getPassword(), credentialsEntity.getSalt(), credentialsEntity.getPasswordHash())) {
@@ -172,7 +172,7 @@ public class TokenByPasswordService extends TokenService {
 	 * 
 	 * @param getAccessToken
 	 */
-	private Uni<Void> verifyCredentials(GetAccessToken getAccessToken) {
+	private Uni<Void> verifyCredentials(GetAccessTokenRequest getAccessToken) {
 		return findCredentials(getAccessToken)
 			.chain(c -> verifyConsistency(c, getAccessToken))
 			.chain(c -> verifyPassword(c, getAccessToken));
@@ -184,7 +184,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @return
 	 */
 	@Override
-	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
+	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
 		Log.debugf("Generation of the token/s by password.");
 		return verifyCredentials(getAccessToken)
 			.chain(() -> super.process(getAccessToken));

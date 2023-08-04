@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Context;
@@ -32,7 +31,7 @@ import it.pagopa.swclient.mil.auth.azurekeyvault.bean.Key;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyAttributes;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyDetails;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyNameAndVersion;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
+import it.pagopa.swclient.mil.auth.azurekeyvault.util.KidUtil;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
 import it.pagopa.swclient.mil.auth.bean.KeyUse;
 import it.pagopa.swclient.mil.auth.bean.PublicKey;
@@ -50,8 +49,8 @@ public class AzureKeyFinder {
 	/*
 	 * 
 	 */
-	@RestClient
-	AzureAuthClient authClient;
+	@Inject
+	AzureAuthService authService;
 
 	/*
 	 * 
@@ -62,20 +61,8 @@ public class AzureKeyFinder {
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "azure-auth-api.tenant-id")
-	String tenantId;
-
-	/*
-	 * 
-	 */
-	@ConfigProperty(name = "azure-auth-api.client-id")
-	String clientId;
-
-	/*
-	 * 
-	 */
-	@ConfigProperty(name = "azure-auth-api.client-secret")
-	String clientSecret;
+	@Inject
+	KidUtil kidUtil;
 
 	/*
 	 * Cryptoperiod of RSA keys in seconds.
@@ -88,16 +75,6 @@ public class AzureKeyFinder {
 	 */
 	@ConfigProperty(name = "keysize", defaultValue = "4096")
 	int keysize;
-
-	/*
-	 * Grant types.
-	 */
-	private static final String CLIENT_CREDENTIALS = "client_credentials";
-
-	/*
-	 * Scope for authentication.
-	 */
-	private static final String VAULT = "https://vault.azure.net/.default";
 
 	/*
 	 * Key types.
@@ -121,8 +98,7 @@ public class AzureKeyFinder {
 	/*
 	 * Context keys.
 	 */
-	private static final String TOKEN = "token";
-	private static final String KID = "kid";
+	static final String TOKEN = "token";
 	private static final String CURRENT_KEY_NAME_AND_VERSION = "name_and_version";
 
 	/**
@@ -131,10 +107,13 @@ public class AzureKeyFinder {
 	 * @return
 	 */
 	private boolean isKeyEnabled(Key key) {
-		boolean isKeyEnabled = key.getAttributes().getEnabled() != null && key.getAttributes().getEnabled();
-		if (!isKeyEnabled)
+		if (key.getAttributes().getEnabled() != null && key.getAttributes().getEnabled()) {
+			Log.debugf("The key %s is enabled.", key.getKid());
+			return true;
+		} else {
 			Log.warnf("The key %s is not enabled.", key.getKid());
-		return isKeyEnabled;
+			return false;
+		}
 	}
 
 	/**
@@ -144,10 +123,13 @@ public class AzureKeyFinder {
 	 */
 	private boolean isKeyCreationTimestampCoherent(Key key) {
 		long now = Instant.now().getEpochSecond();
-		boolean isKeyCreationTimestampCoherent = key.getAttributes().getCreated() != null && key.getAttributes().getCreated() <= now;
-		if (!isKeyCreationTimestampCoherent)
+		if (key.getAttributes().getCreated() != null && key.getAttributes().getCreated() <= now) {
+			Log.debugf("The creation timestamp of %s is valid.", key.getKid());
+			return true;
+		} else {
 			Log.warnf("The creation timestamp of %s is not valid. Found %s, expected a value less than %d.", key.getKid(), key.getAttributes().getCreated(), now);
-		return isKeyCreationTimestampCoherent;
+			return false;
+		}
 	}
 
 	/**
@@ -157,10 +139,13 @@ public class AzureKeyFinder {
 	 */
 	private boolean isKeyNotYetExpired(Key key) {
 		long now = Instant.now().getEpochSecond();
-		boolean isKeyNotYetExpired = key.getAttributes().getExp() != null && key.getAttributes().getExp() > now;
-		if (!isKeyNotYetExpired)
+		if (key.getAttributes().getExp() != null && key.getAttributes().getExp() > now) {
+			Log.debugf("The key %s is not expired.", key.getKid());
+			return true;
+		} else {
 			Log.warnf("The key %s is expired. Found %s, expected a value greater than %d.", key.getKid(), key.getAttributes().getExp(), now);
-		return isKeyNotYetExpired;
+			return false;
+		}
 	}
 
 	/**
@@ -170,26 +155,13 @@ public class AzureKeyFinder {
 	 */
 	private boolean isKeyNotBeforeMet(Key key) {
 		long now = Instant.now().getEpochSecond();
-		boolean isKeyNotBeforeMet = key.getAttributes().getNbf() != null && key.getAttributes().getNbf() <= now;
-		if (!isKeyNotBeforeMet)
+		if (key.getAttributes().getNbf() != null && key.getAttributes().getNbf() <= now) {
+			Log.debugf("The 'not before' timestamp of %s is valid.", key.getKid());
+			return true;
+		} else {
 			Log.warnf("The 'not before' timestamp of %s is not valid. Found %s, expected a value less than %d.", key.getKid(), key.getAttributes().getNbf(), now);
-		return isKeyNotBeforeMet;
-	}
-
-	/**
-	 * 
-	 * @param key
-	 * @return
-	 */
-	private boolean areKeyAttributeValidKey(Key key) {
-		if (key.getAttributes() == null) {
-			Log.errorf("The key %s has null attributes.", key.getKid());
 			return false;
 		}
-		return isKeyEnabled(key)
-			&& isKeyCreationTimestampCoherent(key)
-			&& isKeyNotYetExpired(key)
-			&& isKeyNotBeforeMet(key);
 	}
 
 	/**
@@ -198,11 +170,15 @@ public class AzureKeyFinder {
 	 * @return
 	 */
 	private boolean isKeyValid(Key key) {
-		if (key == null) {
-			Log.error("The key is null.");
+		if (key.getAttributes() == null) {
+			Log.errorf("The key %s has null attributes.", key.getKid());
 			return false;
+		} else {
+			return isKeyEnabled(key)
+				&& isKeyCreationTimestampCoherent(key)
+				&& isKeyNotYetExpired(key)
+				&& isKeyNotBeforeMet(key);
 		}
-		return areKeyAttributeValidKey(key);
 	}
 
 	/**
@@ -211,10 +187,13 @@ public class AzureKeyFinder {
 	 * @return
 	 */
 	private boolean isKeyTypeRsa(KeyDetails key) {
-		boolean isKeyTypeRsa = Objects.equals(key.getKty(), RSA);
-		if (!isKeyTypeRsa)
-			Log.warnf("The key type of %s is not a RSA. Found %s.", key.getKid(), key.getKty());
-		return isKeyTypeRsa;
+		if (Objects.equals(key.getKty(), RSA)) {
+			Log.debugf("The key type of %s is RSA.", key.getKid());
+			return true;
+		} else {
+			Log.warnf("The key type of %s is not RSA. Found %s.", key.getKid(), key.getKty());
+			return false;
+		}
 	}
 
 	/**
@@ -224,18 +203,19 @@ public class AzureKeyFinder {
 	 */
 	private boolean isKeySuitableForSignature(KeyDetails key) {
 		String[] keyOps = key.getKeyOps();
-		if (keyOps == null) {
+		if (keyOps != null) {
+			List<String> keyOpList = Arrays.asList(keyOps);
+			if (keyOpList.contains(SIGN) && keyOpList.contains(VERIFY)) {
+				Log.debugf("The key %s is suitable for signature.", key.getKid());
+				return true;
+			} else {
+				Log.warnf("The key %s is not suitable for signature. Found %s.", key.getKid(), keyOpList);
+				return false;
+			}
+		} else {
 			Log.errorf("The key %s has null ops.", key.getKid());
 			return false;
 		}
-
-		List<String> keyOpList = Arrays.asList(keyOps);
-		if (!keyOpList.contains(SIGN) || !keyOpList.contains(VERIFY)) {
-			Log.warnf("The key %s is not suitable for signature. Found %s.", key.getKid(), keyOpList);
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -244,104 +224,35 @@ public class AzureKeyFinder {
 	 * @return
 	 */
 	private boolean isKeyValid(KeyDetails key) {
-		boolean isKeyValid = isKeyValid((Key) key);
-		if (!isKeyValid)
-			return false;
-
-		boolean isKeyTypeRsa = isKeyTypeRsa(key);
-		if (!isKeyTypeRsa)
-			return false;
-
-		return isKeySuitableForSignature(key);
+		return isKeyValid((Key) key) && isKeyTypeRsa(key) && isKeySuitableForSignature(key);
 	}
 
 	/**
 	 * 
-	 * @param key
+	 * @param getKeyResponse
 	 * @return
 	 */
 	private boolean isKeyValid(GetKeyResponse getKeyResponse) {
-		boolean isKeyValid = isKeyValid((Key) getKeyResponse.getKey());
-		if (!isKeyValid)
-			return false;
-
-		boolean isKeyTypeRsa = isKeyTypeRsa(getKeyResponse.getKey());
-		if (!isKeyTypeRsa)
-			return false;
-
-		return isKeySuitableForSignature(getKeyResponse.getKey());
-	}
-
-	/**
-	 * 
-	 * @param key
-	 * @return
-	 */
-	private boolean checkThatKidContainsKeyName(Key key) {
-		if (key.getKid() == null) {
-			Log.error("Kid cannot be null.");
+		if (getKeyResponse.getKey() != null) {
+			return isKeyValid(getKeyResponse.getKey());
+		} else {
+			Log.warn("Received null key.");
 			return false;
 		}
-
-		if (key.getKid().split("/").length < 2) {
-			Log.warnf("%s doesn't contain name.", key.getKid());
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * 
-	 * @param key
-	 * @return
-	 */
-	private boolean checkThatKidContainsKeyNameAndVersion(Key key) {
-		if (key.getKid() == null) {
-			Log.error("Kid cannot be null.");
-			return false;
-		}
-
-		if (key.getKid().split("/").length < 3) {
-			Log.warnf("%s doesn't contain name and version.", key.getKid());
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * 
-	 * @param kid
-	 * @return
-	 */
-	private String getKeyName(String kid) {
-		String[] components = kid.split("/");
-		return components[components.length - 1];
-	}
-
-	/**
-	 * 
-	 * @param kid
-	 * @return
-	 */
-	private KeyNameAndVersion getKeyNameAndVersion(String kid) {
-		String[] components = kid.split("/");
-		return new KeyNameAndVersion(components[components.length - 2], components[components.length - 1]);
 	}
 
 	/**
 	 * 
 	 * @return
 	 */
-	private Uni<ItemWithContext<PublicKeys>> findPublicKeysWithContext() {
+	public Uni<ItemWithContext<PublicKeys>> findPublicKeysWithContext() {
 		Log.debug("Search for the keys.");
 		Context context = Context.of();
-		return authClient.getAccessToken(tenantId, CLIENT_CREDENTIALS, clientId, clientSecret, VAULT)
-			.invoke(x -> Log.debug(x))
+		return authService.getAccessToken()
 			.map(x -> {
 				String t = x.getToken();
 				if (t != null) {
+					Log.debug("Successfully authenticated.");
 					return x.getToken();
 				} else {
 					String message = String.format("[%s] Azure access token not valid.", AZURE_ACCESS_TOKEN_IS_NULL);
@@ -351,50 +262,64 @@ public class AzureKeyFinder {
 			}) // Getting the access token.
 			.invoke(token -> context.put(TOKEN, token)) // Storing the access token in the context.
 			.chain(token -> keyVaultService.getKeys(token)) // Retrieving the list of keys.
-			.invoke(x -> Log.debug(x))
+			.invoke(x -> Log.debugf("Keys retrieved: %s", x))
 			.map(GetKeysResponse::getKeys) // Getting the list of keys from the response.
 			.onItem().transformToMulti(keys -> Multi.createFrom().items(Arrays.stream(keys).filter(Objects::nonNull))) // Transforming the list of keys in a stream of events (one event for each key).
-			.invoke(x -> Log.debug(x))
-			.filter(this::checkThatKidContainsKeyName) // Filtering the key with invalid kid.
-			.map(Key::getKid) // Getting the kid of the key.
-			.invoke(kid -> context.put(KID, kid)) // Storing the kid in the context.
-			.map(this::getKeyName) // Getting the name of the key from its kid.
-			.invoke(x -> Log.debugf("Key name: %s", x))
+			.invoke(x -> Log.debugf("Processing of the key: %s", x))
+			.map(key -> kidUtil.getNameFromAzureKid(key.getKid()))
+			.filter(keyNameAndVersion -> {
+				if (keyNameAndVersion.getName() != null) {
+					Log.debugf("Key name: %s", keyNameAndVersion.getName());
+					return true;
+				} else {
+					Log.warn("Key name is null.");
+					return false;
+				}
+			}) // Filtering the key with invalid kid.
+			.map(KeyNameAndVersion::getName)
 			.onItem().transformToUniAndConcatenate(keyName -> keyVaultService
 				.getKeyVersions(
 					context.get(TOKEN),
 					keyName)) // Retrieving the versions of the key.
-			.invoke(x -> Log.debug(x))
+			.invoke(x -> Log.debugf("Versions retrieved: %s", x))
 			.map(GetKeyVersionsResponse::getKeys) // Getting the list of versions from the response.
 			.onItem().transformToMultiAndConcatenate(keys -> Multi.createFrom().items(Arrays.stream(keys).filter(Objects::nonNull))) // Transforming the list of versions in a stream of events (one event for each version).
-			.invoke(x -> Log.debug(x))
-			.filter(this::isKeyValid) // Filtering not valid versions.
-			.filter(this::checkThatKidContainsKeyNameAndVersion) // Filtering the version with invalid kid.
-			.map(Key::getKid) // Getting kid of the version.
-			.map(this::getKeyNameAndVersion) // Getting the name and the version from the kid.
-			.invoke(x -> Log.debugf("Key name and version: %s", x))
-			.invoke(keyNameAndVersion -> context.put(CURRENT_KEY_NAME_AND_VERSION, keyNameAndVersion)) // Storing the name and the version in the context.
-			.onItem().transformToUniAndConcatenate(keyNameAndVersion -> keyVaultService
-				.getKey(
-					context.get(TOKEN),
-					keyNameAndVersion.getName(),
-					keyNameAndVersion.getVersion())) // Retrieving version details.
-			.invoke(x -> Log.debug(x))
+			.invoke(x -> Log.debugf("Processing of the version: %s", x))
+			.filter(version -> {
+				KeyNameAndVersion keyNameAndVersion = kidUtil.getNameAndVersionFromAzureKid(version.getKid());
+				if (keyNameAndVersion.isValid()) {
+					Log.debugf("Key name and version: %s", keyNameAndVersion);
+					if (isKeyValid(version)) {
+						context.put(CURRENT_KEY_NAME_AND_VERSION, keyNameAndVersion);
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					Log.warnf("Invalid key name and version: %s", version.getKid());
+					return false;
+				}
+			}) // Filtering not valid versions.
+			.onItem().transformToUniAndConcatenate(version -> {
+				KeyNameAndVersion keyNameAndVersion = (KeyNameAndVersion) context.get(CURRENT_KEY_NAME_AND_VERSION);
+				return keyVaultService
+					.getKey(
+						context.get(TOKEN),
+						keyNameAndVersion.getName(),
+						keyNameAndVersion.getVersion());
+			}) // Retrieving version details.
+			.invoke(x -> Log.debugf("Details retrieved: %s", x))
 			.filter(this::isKeyValid) // Filtering not valid details.
 			.map(GetKeyResponse::getKey) // Getting the details from the response.
-			.invoke(x -> Log.debug(x))
-			.map(key -> {
-				KeyNameAndVersion keyNameAndVersion = context.get(CURRENT_KEY_NAME_AND_VERSION);
-				return new PublicKey(
-					key.getExponent(),
-					KeyUse.sig,
-					keyNameAndVersion.getName() + "/" + keyNameAndVersion.getVersion(),
-					key.getModulus(),
-					KeyType.RSA,
-					key.getAttributes().getExp(),
-					key.getAttributes().getCreated());
-			}) // Generating internal public key object.
-			.invoke(x -> Log.debug(x))
+			.map(key -> new PublicKey(
+				key.getExponent(),
+				KeyUse.sig,
+				kidUtil.getMyKidFromNameAndVersion(context.get(CURRENT_KEY_NAME_AND_VERSION)),
+				key.getModulus(),
+				KeyType.RSA,
+				key.getAttributes().getExp(),
+				key.getAttributes().getCreated())) // Generating internal public key object.
+			.invoke(x -> Log.debugf("Internal public key object: %s", x))
 			.collect() // Collecting all internal public key objects.
 			.asList() // Converting the events in an event that is the list of the collected internal public key objects.
 			.invoke(x -> Log.debugf("Found %d valid key/s.", x.size()))
@@ -410,6 +335,7 @@ public class AzureKeyFinder {
 	}
 
 	/**
+	 * Finds all valid public keys.
 	 * 
 	 * @return
 	 */
@@ -431,12 +357,12 @@ public class AzureKeyFinder {
 			.map(resp -> {
 				if (isKeyValid(resp.getKey())) {
 					KeyDetails key = resp.getKey();
-					if (checkThatKidContainsKeyNameAndVersion(key)) {
-						KeyNameAndVersion keyNameAndVersion = getKeyNameAndVersion(key.getKid());
+					KeyNameAndVersion keyNameAndVersion = kidUtil.getNameAndVersionFromAzureKid(key.getKid());
+					if (keyNameAndVersion.isValid()) {
 						return new PublicKey(
 							key.getExponent(),
 							KeyUse.sig,
-							keyNameAndVersion.getName() + "/" + keyNameAndVersion.getVersion(),
+							kidUtil.getMyKidFromNameAndVersion(keyNameAndVersion),
 							key.getModulus(),
 							KeyType.RSA,
 							key.getAttributes().getExp(),
@@ -461,12 +387,12 @@ public class AzureKeyFinder {
 	}
 
 	/**
-	 * Returns the valid key name and version with the greatest expiration. If there are no valid key a
-	 * new one is generated.
+	 * Finds the valid public key with the greatest expiration. If there are no valid key a new one is
+	 * generated.
 	 * 
 	 * @return
 	 */
-	public Uni<PublicKey> findValidPublicKeyWithGreatestExpiration() {
+	Uni<ItemWithContext<PublicKey>> findValidPublicKeyWithGreatestExpiration() {
 		Log.debug("Search for a valid key with greatest expiration.");
 		return findPublicKeysWithContext()
 			.chain(item -> {
@@ -476,7 +402,8 @@ public class AzureKeyFinder {
 					 * There are no valid key: generating one.
 					 */
 					Log.debug("There are no valid key: generating one.");
-					return createKey(item.context().get(TOKEN));
+					return createKey(item.context().get(TOKEN))
+						.map(p -> new ItemWithContext<>(item.context(), p));
 				} else {
 					/*
 					 * If there are valid keys, search for the key with the greatest expiration.
@@ -492,43 +419,45 @@ public class AzureKeyFinder {
 						}
 					});
 
-					return item(keys.get(0));
+					return item(new ItemWithContext<>(item.context(), keys.get(0)));
 				}
 			});
 	}
 
 	/**
+	 * Finds the public key having the given kid.
 	 * 
+	 * @param kid
 	 * @return
 	 */
 	public Uni<Optional<PublicKey>> findPublicKey(String kid) {
 		Log.debugf("Search for the public key %s.", kid);
 
-		String[] components = kid.split("/");
-		if (components.length < 2) {
+		KeyNameAndVersion keyNameAndVersion = kidUtil.getNameAndVersionFromMyKid(kid);
+		if (keyNameAndVersion.isValid()) {
+			return authService.getAccessToken()
+				.map(GetAccessTokenResponse::getToken) // Getting the access token.
+				.chain(token -> keyVaultService.getKey(token, keyNameAndVersion.getName(), keyNameAndVersion.getVersion()))
+				.map(GetKeyResponse::getKey)
+				.map(k -> {
+					Log.debugf("Key %s found.", kid);
+					if (isKeyValid(k)) {
+						return Optional.of(new PublicKey(
+							k.getExponent(),
+							KeyUse.sig,
+							kid,
+							k.getModulus(),
+							KeyType.RSA,
+							k.getAttributes().getExp(),
+							k.getAttributes().getCreated()));
+					} else {
+						Log.warnf("Key %s is not valid.", kid);
+						return Optional.empty();
+					}
+				});
+		} else {
 			Log.warnf("%s doesn't contain name and version.", kid);
 			return item(Optional.empty());
 		}
-
-		return authClient.getAccessToken(tenantId, CLIENT_CREDENTIALS, clientId, clientSecret, VAULT)
-			.map(GetAccessTokenResponse::getToken) // Getting the access token.
-			.chain(token -> keyVaultService.getKey(token, components[0], components[1]))
-			.map(GetKeyResponse::getKey)
-			.map(k -> {
-				Log.debugf("Key %s found.", kid);
-				if (isKeyValid(k)) {
-					return Optional.of(new PublicKey(
-						k.getExponent(),
-						KeyUse.sig,
-						kid,
-						k.getModulus(),
-						KeyType.RSA,
-						k.getAttributes().getExp(),
-						k.getAttributes().getCreated()));
-				} else {
-					Log.warnf("Key %s is not valid.", kid);
-					return Optional.empty();
-				}
-			});
 	}
 }

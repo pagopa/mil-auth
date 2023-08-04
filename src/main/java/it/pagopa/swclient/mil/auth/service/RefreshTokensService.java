@@ -7,8 +7,8 @@ package it.pagopa.swclient.mil.auth.service;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.AccessToken;
-import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,7 +32,7 @@ public class RefreshTokensService extends TokenService {
 	 * @return
 	 */
 	@Override
-	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
+	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
 		Log.debug("Tokens refreshing.");
 		return refreshTokenVerifier.verify(getAccessToken.getRefreshToken())
 			.chain(() -> super.process(getAccessToken));

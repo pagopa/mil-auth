@@ -20,8 +20,8 @@ import com.nimbusds.jose.JOSEException;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.AccessToken;
-import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.util.TokenGenerator;
 import jakarta.inject.Inject;
@@ -69,7 +69,7 @@ public abstract class TokenService {
 	 * @param roles
 	 * @return
 	 */
-	private Uni<AccessToken> generateToken(GetAccessToken getAccessToken, List<String> roles) {
+	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest getAccessToken, List<String> roles) {
 		return keyFinder.findKeyPair()
 			.chain(k -> {
 				Log.debug("Access token generation.");
@@ -81,7 +81,7 @@ public abstract class TokenService {
 						refreshToken = TokenGenerator.generate(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getMerchantId(), getAccessToken.getClientId(), getAccessToken.getTerminalId(), refreshDuration, null, List.of("offline_access"), k);
 					}
 					Log.debug("Token/s has/ve been successfully generated.");
-					return item(new AccessToken(accessToken, refreshToken, accessDuration));
+					return item(new GetAccessTokenResponse(accessToken, refreshToken, accessDuration));
 				} catch (NoSuchAlgorithmException | InvalidKeySpecException | JOSEException e) {
 					String message = String.format("[%s] Error generating token/s.", ERROR_GENERATING_TOKEN);
 					Log.errorf(e, message);
@@ -96,7 +96,7 @@ public abstract class TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
+	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
 		return clientVerifier.verify(getAccessToken.getClientId(), getAccessToken.getChannel(), getAccessToken.getClientSecret())
 			.chain(() -> roleFinder.findRoles(getAccessToken.getAcquirerId(), getAccessToken.getChannel(), getAccessToken.getClientId(), getAccessToken.getMerchantId(), getAccessToken.getTerminalId()))
 			.chain(roleEntity -> generateToken(getAccessToken, roleEntity.getRoles()));

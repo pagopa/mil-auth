@@ -1,5 +1,5 @@
 /*
- * AccessToken.java
+ * GetAccessTokenResponse.java
  *
  * 16 mar 2023
  */
@@ -19,12 +19,12 @@ import lombok.Getter;
 @RegisterForReflection
 @JsonInclude(Include.NON_NULL)
 @Getter
-public class AccessToken {
+public class GetAccessTokenResponse {
 	/*
 	 * access_token
 	 */
 	@JsonProperty("access_token")
-	private String accessTokenProper;
+	private String accessToken;
 
 	/*
 	 * refresh_token
@@ -50,8 +50,8 @@ public class AccessToken {
 	 * @param refreshToken
 	 * @param expiresIn
 	 */
-	public AccessToken(String accessTokenProper, String refreshToken, long expiresIn) {
-		this.accessTokenProper = accessTokenProper;
+	public GetAccessTokenResponse(String accessToken, String refreshToken, long expiresIn) {
+		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.expiresIn = expiresIn;
 	}

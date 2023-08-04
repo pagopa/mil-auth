@@ -14,8 +14,8 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.AccessToken;
-import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
 import it.pagopa.swclient.mil.auth.qualifier.PoyntToken;
 import it.pagopa.swclient.mil.auth.util.AuthError;
@@ -43,7 +43,7 @@ public class TokenByPoyntTokenService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	public Uni<Void> verifyPoyntToken(GetAccessToken getAccessToken) {
+	public Uni<Void> verifyPoyntToken(GetAccessTokenRequest getAccessToken) {
 		Log.debug("Poynt token verification.");
 		return poyntClient.getBusinessObject("Bearer " + getAccessToken.getExtToken(), getAccessToken.getAddData())
 			.onFailure().transform(t -> {
@@ -77,7 +77,7 @@ public class TokenByPoyntTokenService extends TokenService {
 	 * @return
 	 */
 	@Override
-	public Uni<AccessToken> process(GetAccessToken getAccessToken) {
+	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
 		Log.debugf("Generation of the token/s by Poynt token.");
 		return verifyPoyntToken(getAccessToken)
 			.chain(() -> super.process(getAccessToken));

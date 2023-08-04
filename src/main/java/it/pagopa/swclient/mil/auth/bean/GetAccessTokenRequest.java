@@ -1,5 +1,5 @@
 /*
- * GetAccessToken.java
+ * GetAccessTokenRequest.java
  *
  * 16 mar 2023
  */
@@ -45,7 +45,7 @@ import lombok.NoArgsConstructor;
 @ValidationTarget(message = "[" + INCONSISTENT_REQUEST + "] Inconsistent request.")
 @NoArgsConstructor
 @Getter
-public class GetAccessToken {
+public class GetAccessTokenRequest {
 	/*
 	 * Request ID
 	 */

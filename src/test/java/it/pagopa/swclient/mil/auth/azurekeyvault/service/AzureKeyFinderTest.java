@@ -32,6 +32,7 @@ import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.Key;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyAttributes;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyDetails;
+import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyVersion;
 import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
 import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
@@ -123,29 +124,29 @@ class AzureKeyFinderTest {
 	/*
 	 * 
 	 */
-	private Key nullVersionK1V1;
-	private Key versionWithNullEnabledAttributeK1V2;
-	private Key versionWithNullCreationTimestampAttributeK1V3;
-	private Key versionWithNullExpiredTimestampAttributeK1V4;
-	private Key versionWithNullNotBeforeAttributeK1V5;
-	private Key versionWithNullKidK1V6;
-	private Key versionWithNullDetailsK1V7;
-	private Key versionWithDetailsWithNoRsaKeyTypeK1V8;
-	private Key versionWithDetailsWithoutSignOpK1V9;
-	private Key versionWithDetailsWithoutSignAndVerifyOpK1V10;
-	private Key versionWithValidDetailsWithGreatestExpirationK1V11;
-	private Key versionWith500OnGetKeyK1V12;
+	private KeyVersion nullVersionK1V1;
+	private KeyVersion versionWithNullEnabledAttributeK1V2;
+	private KeyVersion versionWithNullCreationTimestampAttributeK1V3;
+	private KeyVersion versionWithNullExpiredTimestampAttributeK1V4;
+	private KeyVersion versionWithNullNotBeforeAttributeK1V5;
+	private KeyVersion versionWithNullKidK1V6;
+	private KeyVersion versionWithNullDetailsK1V7;
+	private KeyVersion versionWithDetailsWithNoRsaKeyTypeK1V8;
+	private KeyVersion versionWithDetailsWithoutSignOpK1V9;
+	private KeyVersion versionWithDetailsWithoutSignAndVerifyOpK1V10;
+	private KeyVersion versionWithValidDetailsWithGreatestExpirationK1V11;
+	private KeyVersion versionWith500OnGetKeyK1V12;
 
-	private Key versionWithNullAttributesK2V1;
-	private Key versionWithFalseEnabledAttributeK2V2;
-	private Key versionWithNotCoherentCreationTimestampAttributeK2V3;
-	private Key expiredVersionK2V4;
-	private Key versionWithUnmetNotBeforeAttributeK2V5;
-	private Key versionWithInvalidKidK2V6;
-	private Key versionWithExpiredDetailsK2V7;
-	private Key versionWithDetailsWithNullOpsK2V8;
-	private Key versionWithDetailsWithoutVerifyOpK2V9;
-	private Key versionWithValidDetailsK2V10;
+	private KeyVersion versionWithNullAttributesK2V1;
+	private KeyVersion versionWithFalseEnabledAttributeK2V2;
+	private KeyVersion versionWithNotCoherentCreationTimestampAttributeK2V3;
+	private KeyVersion expiredVersionK2V4;
+	private KeyVersion versionWithUnmetNotBeforeAttributeK2V5;
+	private KeyVersion versionWithInvalidKidK2V6;
+	private KeyVersion versionWithExpiredDetailsK2V7;
+	private KeyVersion versionWithDetailsWithNullOpsK2V8;
+	private KeyVersion versionWithDetailsWithoutVerifyOpK2V9;
+	private KeyVersion versionWithValidDetailsK2V10;
 
 	/*
 	 * 
@@ -236,11 +237,11 @@ class AzureKeyFinderTest {
 		 */
 		nullVersionK1V1 = null;
 
-		versionWithNullAttributesK2V1 = new Key(
+		versionWithNullAttributesK2V1 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V1,
 			null);
 
-		versionWithNullEnabledAttributeK1V2 = new Key(
+		versionWithNullEnabledAttributeK1V2 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V2,
 			new KeyAttributes(
 				now - 300,
@@ -252,7 +253,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithFalseEnabledAttributeK2V2 = new Key(
+		versionWithFalseEnabledAttributeK2V2 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V2,
 			new KeyAttributes(
 				now - 300,
@@ -264,7 +265,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithNullCreationTimestampAttributeK1V3 = new Key(
+		versionWithNullCreationTimestampAttributeK1V3 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V3,
 			new KeyAttributes(
 				null,
@@ -276,7 +277,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithNotCoherentCreationTimestampAttributeK2V3 = new Key(
+		versionWithNotCoherentCreationTimestampAttributeK2V3 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V3,
 			new KeyAttributes(
 				now + 300,
@@ -288,7 +289,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithNullExpiredTimestampAttributeK1V4 = new Key(
+		versionWithNullExpiredTimestampAttributeK1V4 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V4,
 			new KeyAttributes(
 				now - 300,
@@ -300,7 +301,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		expiredVersionK2V4 = new Key(
+		expiredVersionK2V4 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V4,
 			new KeyAttributes(
 				now - 300,
@@ -312,7 +313,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithNullNotBeforeAttributeK1V5 = new Key(
+		versionWithNullNotBeforeAttributeK1V5 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V5,
 			new KeyAttributes(
 				now - 300,
@@ -324,7 +325,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithUnmetNotBeforeAttributeK2V5 = new Key(
+		versionWithUnmetNotBeforeAttributeK2V5 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V5,
 			new KeyAttributes(
 				now - 300,
@@ -336,7 +337,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithNullKidK1V6 = new Key(
+		versionWithNullKidK1V6 = new KeyVersion(
 			null,
 			new KeyAttributes(
 				now - 300,
@@ -348,7 +349,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithInvalidKidK2V6 = new Key(
+		versionWithInvalidKidK2V6 = new KeyVersion(
 			"",
 			new KeyAttributes(
 				now - 300,
@@ -360,7 +361,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithNullDetailsK1V7 = new Key(
+		versionWithNullDetailsK1V7 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V7,
 			new KeyAttributes(
 				now - 300,
@@ -372,7 +373,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithExpiredDetailsK2V7 = new Key(
+		versionWithExpiredDetailsK2V7 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V7,
 			new KeyAttributes(
 				now - 300,
@@ -384,7 +385,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithDetailsWithNoRsaKeyTypeK1V8 = new Key(
+		versionWithDetailsWithNoRsaKeyTypeK1V8 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V8,
 			new KeyAttributes(
 				now - 300,
@@ -396,7 +397,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithDetailsWithNullOpsK2V8 = new Key(
+		versionWithDetailsWithNullOpsK2V8 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V8,
 			new KeyAttributes(
 				now - 300,
@@ -408,7 +409,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithDetailsWithoutSignOpK1V9 = new Key(
+		versionWithDetailsWithoutSignOpK1V9 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V9,
 			new KeyAttributes(
 				now - 300,
@@ -420,7 +421,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithDetailsWithoutVerifyOpK2V9 = new Key(
+		versionWithDetailsWithoutVerifyOpK2V9 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V9,
 			new KeyAttributes(
 				now - 300,
@@ -432,7 +433,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithDetailsWithoutSignAndVerifyOpK1V10 = new Key(
+		versionWithDetailsWithoutSignAndVerifyOpK1V10 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V10,
 			new KeyAttributes(
 				now - 300,
@@ -444,7 +445,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithValidDetailsK2V10 = new Key(
+		versionWithValidDetailsK2V10 = new KeyVersion(
 			KEY_URL + K2 + "/" + K2_V10,
 			new KeyAttributes(
 				now - 300,
@@ -456,7 +457,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWithValidDetailsWithGreatestExpirationK1V11 = new Key(
+		versionWithValidDetailsWithGreatestExpirationK1V11 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V11,
 			new KeyAttributes(
 				now - 300,
@@ -468,7 +469,7 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		versionWith500OnGetKeyK1V12 = new Key(
+		versionWith500OnGetKeyK1V12 = new KeyVersion(
 			KEY_URL + K1 + "/" + K1_V12,
 			new KeyAttributes(
 				now - 300,
@@ -479,7 +480,19 @@ class AzureKeyFinderTest {
 				"Purgeable",
 				0,
 				Boolean.FALSE));
-
+		
+		versionWith500OnGetKeyK1V12 = new KeyVersion(
+			KEY_URL + K1 + "/" + K1_V12,
+			new KeyAttributes(
+				now - 300,
+				now + 300,
+				now - 300,
+				now - 300,
+				Boolean.TRUE,
+				"Purgeable",
+				0,
+				Boolean.FALSE));
+		
 		/*
 		 * Details returned by getKey.
 		 */
@@ -659,7 +672,7 @@ class AzureKeyFinderTest {
 			})));
 
 		when(keyVaultClient.getKeyVersions(anyString(), eq(K1)))
-			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new Key[] {
+			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {
 				nullVersionK1V1,
 				versionWithNullEnabledAttributeK1V2,
 				versionWithNullCreationTimestampAttributeK1V3,
@@ -670,11 +683,11 @@ class AzureKeyFinderTest {
 				versionWithDetailsWithNoRsaKeyTypeK1V8,
 				versionWithDetailsWithoutSignOpK1V9,
 				versionWithDetailsWithoutSignAndVerifyOpK1V10,
-				versionWithValidDetailsWithGreatestExpirationK1V11,
+				versionWithValidDetailsWithGreatestExpirationK1V11
 			})));
 	
 		when(keyVaultClient.getKeyVersions(anyString(), eq(K2)))
-			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new Key[] {
+			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {
 				versionWithNullAttributesK2V1,
 				versionWithFalseEnabledAttributeK2V2,
 				versionWithNotCoherentCreationTimestampAttributeK2V3,
@@ -684,11 +697,11 @@ class AzureKeyFinderTest {
 				versionWithExpiredDetailsK2V7,
 				versionWithDetailsWithNullOpsK2V8,
 				versionWithDetailsWithoutVerifyOpK2V9,
-				versionWithValidDetailsK2V10,
+				versionWithValidDetailsK2V10
 			})));
 	
 		when(keyVaultClient.getKeyVersions(anyString(), eq(K3)))
-			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new Key[] {})));
+			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {})));
 	
 		when(keyVaultClient.getKeyVersions(anyString(), eq(K4)))
 			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(null)));
@@ -707,7 +720,7 @@ class AzureKeyFinderTest {
 
 		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V11)))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(validDetailsWithGreatestExpirationK1V11)));
-	
+		
 		when(keyVaultClient.getKey(anyString(), eq(K2), eq(K2_V7)))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(expiredDetailsK2V7)));
 
@@ -812,7 +825,7 @@ class AzureKeyFinderTest {
 		mostCommonSetup();
 
 		when(keyVaultClient.getKeyVersions(anyString(), eq(K1)))
-			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new Key[] {
+			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {
 				nullVersionK1V1,
 				versionWithNullEnabledAttributeK1V2,
 				versionWithNullCreationTimestampAttributeK1V3,
@@ -884,11 +897,14 @@ class AzureKeyFinderTest {
 			validDetailsWithGreatestExpirationK1V11.getAttributes().getExp(),
 			validDetailsWithGreatestExpirationK1V11.getAttributes().getCreated());
 
-		azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
+		PublicKey actual = azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
-			.assertItem(expected);
+			.getItem()
+			.get();
+
+		assertEquals(expected, actual);
 	}
 
 	/**
@@ -955,11 +971,14 @@ class AzureKeyFinderTest {
 			validDetails1.getAttributes().getExp(),
 			validDetails1.getAttributes().getCreated());
 
-		azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
+		PublicKey actual = azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
-			.assertItem(expected);
+			.getItem()
+			.get();
+
+		assertEquals(expected, actual);
 	}
 
 	/**
@@ -1026,11 +1045,14 @@ class AzureKeyFinderTest {
 			validDetails2.getAttributes().getExp(),
 			validDetails2.getAttributes().getCreated());
 
-		azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
+		PublicKey actual = azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
-			.assertItem(expected);
+			.getItem()
+			.get();
+
+		assertEquals(expected, actual);
 	}
 
 	/**
@@ -1189,7 +1211,7 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		mostCommonSetup();
-		
+
 		/*
 		 * Test.
 		 */
@@ -1208,7 +1230,7 @@ class AzureKeyFinderTest {
 			.assertCompleted()
 			.assertItem(Optional.of(expected));
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -1218,7 +1240,7 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		mostCommonSetup();
-		
+
 		/*
 		 * Test.
 		 */
