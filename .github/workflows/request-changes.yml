@@ -6,6 +6,7 @@ on:
 
 jobs:
   update-jira:
+    if: github.event.review.state == 'changes_requested' || github.event.review.state == 'dismissed'
     runs-on: ubuntu-latest
 
     steps:
