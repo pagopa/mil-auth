@@ -6,7 +6,7 @@ on:
 
 jobs:
   update-jira:
-    if: github.event.review.state == 'changes_requested' || github.event.review.state == 'dismissed' || github.event.review.state == 'approved'
+    if: github.event.review.state == 'changes_requested' || github.event.review.state == 'dismissed'
     runs-on: ubuntu-latest
 
     steps:
@@ -15,10 +15,5 @@ jobs:
           temp=$(echo "${{ github.event.pull_request.title }}" | grep -o '\[[^]]*\]' | sed 's/\[//;s/\]//' | tr -d ' ')
           IFS=$',' read -ra keys <<< "$temp"
           for key in "${keys[@]}"; do
-            if [[ "${{ github.event.review.state }}" == "approved" ]]
-            then
-              echo "Move $key to DONE."
-            else
-              echo "Move $key to IN PROGRESS."
-            fi
+            echo "Move $key to IN PROGRESS."
           done
