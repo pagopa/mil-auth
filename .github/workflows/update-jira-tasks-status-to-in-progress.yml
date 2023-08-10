@@ -1,4 +1,4 @@
-name: Move related JIRA tasks stutus from "code review" to "in progress"
+name: Move related JIRA tasks status from "code review" to "in progress"
 
 on:
   pull_request_review:
