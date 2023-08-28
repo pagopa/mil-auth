@@ -25,6 +25,7 @@ import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.VerifySignatureRequest;
 import it.pagopa.swclient.mil.auth.azurekeyvault.util.SignedJWTFactory;
+import it.pagopa.swclient.mil.auth.service.TokenSigner;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,7 +35,7 @@ import jakarta.inject.Inject;
  * 
  */
 @ApplicationScoped
-public class AzureTokenSigner {
+public class AzureTokenSigner implements TokenSigner {
 	/*
 	 * 
 	 */
@@ -91,6 +92,7 @@ public class AzureTokenSigner {
 	 * @param payload
 	 * @return
 	 */
+	@Override
 	public Uni<SignedJWT> sign(JWTClaimsSet payload) {
 		Log.debug("Token signing.");
 		return keyFinder.findValidPublicKeyWithGreatestExpiration()
@@ -106,7 +108,7 @@ public class AzureTokenSigner {
 					String derDigestInfoBase64 = getDerDigestInfo(header, payload);
 
 					SignRequest req = new SignRequest(JWSAlgorithm.RS256.getName(), derDigestInfoBase64);
-
+					
 					return keyVaultService.sign(item.context().get(AzureKeyFinder.TOKEN), keyName, keyVersion, req)
 						.map(resp -> {
 							try {
@@ -134,6 +136,7 @@ public class AzureTokenSigner {
 	 * @param token
 	 * @return
 	 */
+	@Override
 	public Uni<Void> verify(SignedJWT token) {
 		Log.debug("Signature verification.");
 

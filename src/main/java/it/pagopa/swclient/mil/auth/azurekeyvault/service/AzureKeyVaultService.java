@@ -46,7 +46,7 @@ public class AzureKeyVaultService {
 	 * @return
 	 */
 	public Uni<CreateKeyResponse> createKey(String accessToken, String keyName, CreateKeyRequest createKeyRequest) {
-		Log.debugf("Creating a new key %s: %s", keyName, createKeyRequest);
+		Log.debugf("Creating a new key [%s]: [%s]", keyName, createKeyRequest);
 		return client.createKey(BEARER + accessToken, keyName, createKeyRequest);
 	}
 
@@ -68,7 +68,7 @@ public class AzureKeyVaultService {
 	 * @return
 	 */
 	public Uni<GetKeyResponse> getKey(String accessToken, String keyName, String keyVersion) {
-		Log.debugf("Retrieving details of version %s of the key %s.", keyVersion, keyName);
+		Log.debugf("Retrieving details of version [%s] of the key [%s].", keyVersion, keyName);
 		return client.getKey(BEARER + accessToken, keyName, keyVersion);
 	}
 	
@@ -79,7 +79,7 @@ public class AzureKeyVaultService {
 	 * @return
 	 */
 	public Uni<GetKeyVersionsResponse> getKeyVersions(String accessToken, String keyName) {
-		Log.debugf("Retrieving versions of the key %s.", keyName);
+		Log.debugf("Retrieving versions of the key [%s].", keyName);
 		return client.getKeyVersions(BEARER + accessToken, keyName);
 	}
 
@@ -92,7 +92,7 @@ public class AzureKeyVaultService {
 	 * @return
 	 */
 	public Uni<SignResponse> sign(String accessToken, String keyName, String keyVersion, SignRequest signRequest) {
-		Log.debugf("Signing data with key %s/%s: %s", keyName, keyVersion, signRequest);
+		Log.debugf("Signing data with key [%s/%s]: [%s]", keyName, keyVersion, signRequest);
 		return client.sign(BEARER + accessToken, keyName, keyVersion, signRequest);
 	}
 
@@ -105,7 +105,7 @@ public class AzureKeyVaultService {
 	 * @return
 	 */
 	public Uni<VerifySignatureResponse> verifySignature(String accessToken, String keyName, String keyVersion, VerifySignatureRequest verifySignatureRequest) {
-		Log.debugf("Verifing signature with key %s/%s: %s", keyName, keyVersion, verifySignatureRequest);
+		Log.debugf("Verifing signature with key [%s/%s]: [%s]", keyName, keyVersion, verifySignatureRequest);
 		return client.verifySignature(BEARER + accessToken, keyName, keyVersion, verifySignatureRequest);
 	}
 }

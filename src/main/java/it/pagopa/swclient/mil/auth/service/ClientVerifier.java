@@ -41,6 +41,7 @@ public class ClientVerifier {
 	AuthDataRepository repository;
 
 	/**
+	 * Due to caching this method must be public.
 	 * 
 	 * @param clientId
 	 * @return
@@ -56,23 +57,23 @@ public class ClientVerifier {
 	 * @return
 	 */
 	public Uni<Client> findClient(String clientId) {
-		Log.debugf("Search for the client %s.", clientId);
+		Log.debugf("Search for the client [%s].", clientId);
 		return getClient(clientId)
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
 					if (r.getStatus() == 404) {
-						String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
+						String message = String.format("[%s] Client [%s] not found.", CLIENT_NOT_FOUND, clientId);
 						Log.warnf(t, message);
 						return new AuthException(CLIENT_NOT_FOUND, message);
 					} else {
-						String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
+						String message = String.format("[%s] Error searching for the client [%s].", ERROR_SEARCHING_FOR_CLIENT, clientId);
 						Log.errorf(t, message);
 						return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
 					}
 				} else {
-					String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
+					String message = String.format("[%s] Error searching for the client [%s].", ERROR_SEARCHING_FOR_CLIENT, clientId);
 					Log.errorf(t, message);
 					return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
 				}
@@ -91,7 +92,7 @@ public class ClientVerifier {
 			Log.debug("Channel has been successfully verified.");
 			return clientEntity;
 		} else {
-			String message = String.format("[%s] Wrong channel. Expected %s, found %s.", WRONG_CHANNEL, expectedChannel, expectedChannel);
+			String message = String.format("[%s] Wrong channel. Expected [%s], found [%s].", WRONG_CHANNEL, expectedChannel, foundChannel);
 			Log.warn(message);
 			throw new AuthException(WRONG_CHANNEL, message);
 		}
@@ -109,7 +110,7 @@ public class ClientVerifier {
 			if (foundSecret == null && expectedSecret == null) {
 				Log.debug("Secret is not used.");
 				return clientEntity;
-			} else if (PasswordVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
+			} else if (foundSecret != null && expectedSecret != null && PasswordVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
 				Log.debug("Secret is ok.");
 				return clientEntity;
 			} else {

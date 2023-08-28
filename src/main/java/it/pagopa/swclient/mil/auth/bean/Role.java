@@ -9,6 +9,7 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * 
@@ -16,6 +17,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
+@ToString
 public class Role {
 	/*
 	 * 

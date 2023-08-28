@@ -17,7 +17,6 @@ import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
-import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -67,13 +66,9 @@ public class RolesFinder {
 	 * @return
 	 */
 	private Uni<Role> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
-		Log.debugf("Search for the roles with acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s.", acquirerId, channel, clientId, merchantId, terminalId);
-		return getRoles(
-			replaceNullWithNa(acquirerId),
-			replaceNullWithNa(channel),
-			clientId,
-			replaceNullWithNa(merchantId),
-			replaceNullWithNa(terminalId))
+		Log.debugf("Search for the roles with acquirerId=[%s], channel=[%s], clientId=[%s], merchantId=[%s], terminalId=[%s].", acquirerId, channel, clientId, merchantId, terminalId);
+		return getRoles(replaceNullWithNa(acquirerId), replaceNullWithNa(channel), clientId, replaceNullWithNa(merchantId), replaceNullWithNa(terminalId))
+			.invoke(role -> Log.debugf("Roles found: [%s]", role))
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
@@ -92,8 +87,7 @@ public class RolesFinder {
 					Log.errorf(t, message);
 					return new AuthError(ERROR_SEARCHING_FOR_ROLES, message);
 				}
-			})
-			.chain(UniGenerator::item);
+			});
 	}
 
 	/**
@@ -107,6 +101,7 @@ public class RolesFinder {
 	 * @return
 	 */
 	public Uni<Role> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+		Log.debugf("Search for the roles for acquirerId=[%s], channel=[%s], clientId=[%s], merchantId=[%s], terminalId=[%s].", acquirerId, channel, clientId, merchantId, terminalId);
 		return find(acquirerId, channel, clientId, merchantId, terminalId)
 			.onFailure(AuthException.class)
 			.recoverWithUni(t -> {
@@ -128,7 +123,15 @@ public class RolesFinder {
 							}
 						});
 				} else {
-					return Uni.createFrom().failure(t);
+					if (merchantId != null) {
+						/*
+						 * If there are no roles for acquirer/channel/client/merchant (without terminal), search for
+						 * acquirer/channel/client (without terminal and merchant).
+						 */
+						return find(acquirerId, channel, clientId, "NA", "NA");
+					} else {
+						return Uni.createFrom().failure(t);
+					}
 				}
 			});
 	}

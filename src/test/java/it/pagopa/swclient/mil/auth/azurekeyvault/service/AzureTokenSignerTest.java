@@ -9,22 +9,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.security.SignatureException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -33,15 +27,12 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -70,6 +61,7 @@ import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.azurekeyvault.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
 import it.pagopa.swclient.mil.auth.bean.KeyUse;
+import it.pagopa.swclient.mil.auth.service.TokenSigner;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import jakarta.inject.Inject;
@@ -84,7 +76,7 @@ class AzureTokenSignerTest {
 	 * 
 	 */
 	@Inject
-	AzureTokenSigner tokenSigner;
+	TokenSigner tokenSigner;
 
 	/*
 	 * 

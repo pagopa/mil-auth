@@ -34,6 +34,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.HeaderParam;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,6 +45,7 @@ import lombok.NoArgsConstructor;
 @RegisterForReflection
 @ValidationTarget(message = "[" + INCONSISTENT_REQUEST + "] Inconsistent request.")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 public class GetAccessTokenRequest {
 	/*

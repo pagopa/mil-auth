@@ -40,7 +40,7 @@ public class JwksResource {
 	 * 
 	 */
 	@Inject
-	KeyFinder keyRetriever;
+	KeyFinder keyFinder;
 
 	/**
 	 * 
@@ -64,8 +64,8 @@ public class JwksResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> get() {
 		Log.debug("get - Input parameters: n/a");
-		return keyRetriever.findPublicKeys() // Retrieve keys.
-			.invoke(l -> Log.debugf("get - Output parameters: %s", l.toString()))
+		return keyFinder.findPublicKeys() // Retrieve keys.
+			.invoke(l -> Log.debugf("get - Output parameters: [%s]", l.toString()))
 			.map(l -> {
 				/*
 				 * Search the key that expires first to set Cache-Control/max-age

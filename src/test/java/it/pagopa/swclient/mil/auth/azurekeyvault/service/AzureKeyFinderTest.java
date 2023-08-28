@@ -111,6 +111,12 @@ class AzureKeyFinderTest {
 	 * 
 	 */
 	private static final String KEY_URL = "https://quarkus-azure-test-kv.vault.azure.net/keys/";
+	
+	/*
+	 * 
+	 */
+	private static final String AZURE_ACCESS_TOKEN = "this_is_the_token";
+	private static final String AUTHORIZATION_HDR_VALUE = "Bearer " + AZURE_ACCESS_TOKEN;
 
 	/*
 	 * 
@@ -660,9 +666,9 @@ class AzureKeyFinderTest {
 	 */
 	private void mostCommonSetup() {
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
 	
-		when(keyVaultClient.getKeys(anyString()))
+		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[] {
 				keyWithKidWithoutName1,
 				keyWithKidWithoutName2,
@@ -671,7 +677,7 @@ class AzureKeyFinderTest {
 				keyWithValidKidWithoutVersions
 			})));
 
-		when(keyVaultClient.getKeyVersions(anyString(), eq(K1)))
+		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K1))
 			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {
 				nullVersionK1V1,
 				versionWithNullEnabledAttributeK1V2,
@@ -686,7 +692,7 @@ class AzureKeyFinderTest {
 				versionWithValidDetailsWithGreatestExpirationK1V11
 			})));
 	
-		when(keyVaultClient.getKeyVersions(anyString(), eq(K2)))
+		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K2))
 			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {
 				versionWithNullAttributesK2V1,
 				versionWithFalseEnabledAttributeK2V2,
@@ -700,37 +706,37 @@ class AzureKeyFinderTest {
 				versionWithValidDetailsK2V10
 			})));
 	
-		when(keyVaultClient.getKeyVersions(anyString(), eq(K3)))
+		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K3))
 			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {})));
 	
-		when(keyVaultClient.getKeyVersions(anyString(), eq(K4)))
+		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K4))
 			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(null)));
 	
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V7)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V7))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(null)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V8)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V8))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(detailsWithNoRsaKeyTypeK1V8)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V9)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V9))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(detailsWithoutSignOpK1V9)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V10)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V10))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(detailsWithoutSignAndVerifyOpK1V10)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V11)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V11))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(validDetailsWithGreatestExpirationK1V11)));
 		
-		when(keyVaultClient.getKey(anyString(), eq(K2), eq(K2_V7)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V7))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(expiredDetailsK2V7)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K2), eq(K2_V8)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V8))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(detailsWithNullOpsK2V8)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K2), eq(K2_V9)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V9))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(detailsWithoutVerifyOpK2V9)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K2), eq(K2_V10)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V10))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(validDetailsK2V10)));
 	}
 
@@ -824,7 +830,7 @@ class AzureKeyFinderTest {
 		 */
 		mostCommonSetup();
 
-		when(keyVaultClient.getKeyVersions(anyString(), eq(K1)))
+		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K1))
 			.thenReturn(Uni.createFrom().item(new GetKeyVersionsResponse(new KeyVersion[] {
 				nullVersionK1V1,
 				versionWithNullEnabledAttributeK1V2,
@@ -840,7 +846,7 @@ class AzureKeyFinderTest {
 				versionWith500OnGetKeyK1V12
 			})));
 
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V12)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V12))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
 
 		/*
@@ -861,9 +867,9 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
 		
-		when(keyVaultClient.getKeys(anyString()))
+		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
 
 		/*
@@ -953,10 +959,10 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V11)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V11))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(validDetails1)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K2), eq(K2_V10)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V10))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(validDetails2)));
 
 		/*
@@ -1027,10 +1033,10 @@ class AzureKeyFinderTest {
 				0,
 				Boolean.FALSE));
 
-		when(keyVaultClient.getKey(anyString(), eq(K1), eq(K1_V11)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V11))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(validDetails1)));
 
-		when(keyVaultClient.getKey(anyString(), eq(K2), eq(K2_V10)))
+		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V10))
 			.thenReturn(Uni.createFrom().item(new GetKeyResponse(validDetails2)));
 
 		/*
@@ -1064,12 +1070,12 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
 	
-		when(keyVaultClient.getKeys(anyString()))
+		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[] {})));
 		
-		when(keyVaultClient.createKey(anyString(), anyString(), any(CreateKeyRequest.class)))
+		when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
 			.thenReturn(Uni.createFrom().item(new CreateKeyResponse(validDetailsWithGreatestExpirationK1V11)));
 
 		/*
@@ -1090,12 +1096,12 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
 	
-		when(keyVaultClient.getKeys(anyString()))
+		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[] {})));
 		
-		when(keyVaultClient.createKey(anyString(), anyString(), any(CreateKeyRequest.class)))
+		when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
 			.thenReturn(Uni.createFrom().item(new CreateKeyResponse(expiredDetailsK2V7)));
 
 		/*
@@ -1116,12 +1122,12 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
 	
-		when(keyVaultClient.getKeys(anyString()))
+		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[] {})));
 		
-		when(keyVaultClient.createKey(anyString(), anyString(), any(CreateKeyRequest.class)))
+		when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
 			.thenReturn(Uni.createFrom().item(new CreateKeyResponse(detailsWithNoRsaKeyTypeK1V8)));
 
 		/*
@@ -1142,12 +1148,12 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
 	
-		when(keyVaultClient.getKeys(anyString()))
+		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[] {})));
 		
-		when(keyVaultClient.createKey(anyString(), anyString(), any(CreateKeyRequest.class)))
+		when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
 			.thenReturn(Uni.createFrom().item(new CreateKeyResponse(detailsWithBadKidK2V11)));
 
 		/*
@@ -1168,14 +1174,14 @@ class AzureKeyFinderTest {
 		 * Setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
 	
-		when(keyVaultClient.getKeys(anyString()))
+		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[] {})));
 		
 		
 		
-		when(keyVaultClient.createKey(anyString(), anyString(), any(CreateKeyRequest.class)))
+		when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
 
 		/*

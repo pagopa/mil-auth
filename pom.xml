@@ -3,11 +3,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>it.pagopa.swclient.mil</groupId>
 	<artifactId>auth</artifactId>
 	<version>1.7.3</version>
+
 	<description>Authorization Microservice for Multi-channel Integration Layer of SW Client Project.</description>
+
 	<developers>
 		<developer>
 			<name>Antonio Tarricone</name>
@@ -20,6 +24,7 @@
 			<organization>PagoPA S.p.A.</organization>
 		</developer>
 	</developers>
+	
 	<properties>
 		<java.version>17</java.version>
 		<maven.compiler.release>${java.version}</maven.compiler.release>
@@ -36,6 +41,7 @@
 		<skipITs>true</skipITs>
 		<lombok.version>1.18.28</lombok.version>
 		<depcheck-plugin.version>1.1.1</depcheck-plugin.version>
+		<jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
 		<common.version>2.0.2</common.version>
 		<sonar.host.url>https://sonarcloud.io:443/</sonar.host.url>
 		<sonar.organization>pagopa</sonar.organization>
@@ -44,6 +50,7 @@
 		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
 		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -55,6 +62,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
 	<dependencies>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -71,10 +79,6 @@
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-arc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-redis-client</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -116,11 +120,13 @@
 			</exclusions>
 		</dependency>
 		<!-- To avoid Quarkus bug with Mockito -->
+		<!--
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		-->
 		<!--
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -139,23 +145,22 @@
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.smallrye.reactive</groupId>
-			<artifactId>mutiny-reactor</artifactId>
-		</dependency>
 	</dependencies>
+	
 	<repositories>
 		<repository>
 			<id>github</id>
 			<url>https://maven.pkg.github.com/pagopa/mil-common</url>
 		</repository>
 	</repositories>
+	
 	<pluginRepositories>
 		<pluginRepository>
 			<id>github</id>
 			<url>https://maven.pkg.github.com/pagopa/depcheck</url>
 		</pluginRepository>
 	</pluginRepositories>
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -231,6 +236,50 @@
 				</configuration>
 			</plugin>
 			-->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>jacoco-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<phase>test</phase>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco-quarkus.exec</dataFile>
+							<rules>
+								<rule>
+									<element>CLASS</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.90</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.90</minimum>
+										</limit>
+									</limits>
+								</rule>
+								<rule>
+									<element>METHOD</element>
+									<limits>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>TOTALCOUNT</value>
+											<maximum>5</maximum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
@@ -248,7 +297,7 @@
 		</profile>
 		<!-- To execute SCA with SonarCloud:                                      -->
 		<!--   1. export SONAR_TOKEN=<sonar token provided by PagoPA DevOps team> -->
-		<!--   2. mvn verify -Pvalidate                                       -->
+		<!--   2. mvn verify -Pvalidate                                           -->
 		<profile>
 			<id>validate</id>
 			<activation>

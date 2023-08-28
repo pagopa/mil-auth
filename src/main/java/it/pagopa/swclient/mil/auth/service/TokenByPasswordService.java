@@ -132,7 +132,7 @@ public class TokenByPasswordService extends TokenService {
 			Log.debug("Acquirer/channel/merchant consistency has been successufully verified.");
 			return item(credentialsEntity);
 		} else {
-			Log.warnf("[%s] Acquirer/channel/merchant isn't consistent. Expected %s/%s/%s, found %s/%s/%s.", INCONSISTENT_CREDENTIALS, expectedAcquirerId, expectedChannel, expectedMerchantId, foundAcquirerId, foundChannel, foundMerchantId);
+			Log.warnf("[%s] Acquirer/channel/merchant isn't consistent. Expected [%s/%s/%s], found [%s/%s/%s].", INCONSISTENT_CREDENTIALS, expectedAcquirerId, expectedChannel, expectedMerchantId, foundAcquirerId, foundChannel, foundMerchantId);
 			return exception(INCONSISTENT_CREDENTIALS, String.format("[%s] Inconsistent credentials.", INCONSISTENT_CREDENTIALS)); // It's better not to give details...
 		}
 	}
