@@ -5,13 +5,16 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_PARSING_TOKEN;
-import static it.pagopa.swclient.mil.auth.ErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL;
-import static it.pagopa.swclient.mil.auth.ErrorCode.TOKEN_EXPIRED;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_ALGORITHM;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_ISSUE_TIME;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_SCOPE;
+import static com.nimbusds.jose.JWSAlgorithm.RS256;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_PARSING_TOKEN;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.TOKEN_EXPIRED;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.WRONG_ALGORITHM;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.WRONG_ISSUE_TIME;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.WRONG_SCOPE;
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.SCOPE;
+import static it.pagopa.swclient.mil.auth.bean.Scope.OFFLINE_ACCESS;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.error;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.exception;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.voidItem;
@@ -26,8 +29,8 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -50,11 +53,11 @@ public class RefreshTokensService extends TokenService {
 	private Uni<Void> verifyAlgorithm(SignedJWT token) {
 		Log.debug("Algorithm verification.");
 		JWSAlgorithm algorithm = token.getHeader().getAlgorithm();
-		if (Objects.equals(algorithm, JWSAlgorithm.RS256)) {
+		if (Objects.equals(algorithm, RS256)) {
 			Log.debug("Algorithm has been successfully verified.");
 			return voidItem();
 		} else {
-			String message = String.format("[%s] Wrong algorithm. Expected [%s], found [%s].", WRONG_ALGORITHM, JWSAlgorithm.RS256, algorithm);
+			String message = String.format("[%s] Wrong algorithm. Expected [%s], found [%s].", WRONG_ALGORITHM, RS256, algorithm);
 			Log.warn(message);
 			return exception(WRONG_ALGORITHM, message);
 		}
@@ -125,7 +128,7 @@ public class RefreshTokensService extends TokenService {
 	 */
 	private Uni<Void> verifyScope(JWTClaimsSet claimsSet, String expectedScope) {
 		Log.debug("Scope verification.");
-		Object foundScope = claimsSet.getClaim("scope");
+		Object foundScope = claimsSet.getClaim(SCOPE);
 		if (Objects.equals(foundScope, expectedScope)) {
 			Log.debug("Scope has been successfully verified.");
 			return voidItem();
@@ -148,7 +151,7 @@ public class RefreshTokensService extends TokenService {
 			return verifyAlgorithm(token)
 				.chain(() -> verifyIssueTime(claimsSet))
 				.chain(() -> verifyExpirationTime(claimsSet))
-				.chain(() -> verifyScope(claimsSet, "offline_access"))
+				.chain(() -> verifyScope(claimsSet, OFFLINE_ACCESS))
 				.chain(() -> tokenSigner.verify(token));
 		} catch (ParseException e) {
 			String message = String.format("[%s] Error parsing token.", ERROR_PARSING_TOKEN);

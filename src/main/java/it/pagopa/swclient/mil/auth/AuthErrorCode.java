@@ -10,7 +10,7 @@ package it.pagopa.swclient.mil.auth;
  * 
  * @author Antonio Tarricone
  */
-public final class ErrorCode {
+public final class AuthErrorCode {
 	public static final String MODULE_ID = "009";
 
 	public static final String CLIENT_ID_MUST_NOT_BE_NULL = MODULE_ID + "000001";
@@ -59,6 +59,6 @@ public final class ErrorCode {
 	/**
 	 * 
 	 */
-	private ErrorCode() {
+	private AuthErrorCode() {
 	}
 }

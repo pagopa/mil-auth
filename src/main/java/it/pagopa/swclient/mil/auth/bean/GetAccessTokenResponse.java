@@ -23,25 +23,25 @@ public class GetAccessTokenResponse {
 	/*
 	 * access_token
 	 */
-	@JsonProperty("access_token")
+	@JsonProperty(JsonPropertyName.ACCESS_TOKEN)
 	private String accessToken;
 
 	/*
 	 * refresh_token
 	 */
-	@JsonProperty("refresh_token")
+	@JsonProperty(JsonPropertyName.REFRESH_TOKEN)
 	private String refreshToken;
 
 	/*
 	 * token_type
 	 */
-	@JsonProperty("token_type")
-	private String tokenType = "Bearer";
+	@JsonProperty(JsonPropertyName.TOKEN_TYPE)
+	private String tokenType = TokenType.BEARER;
 
 	/*
 	 * expires_in
 	 */
-	@JsonProperty("expires_in")
+	@JsonProperty(JsonPropertyName.EXPIRES_IN)
 	private long expiresIn;
 
 	/**

@@ -6,30 +6,46 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import static io.restassured.RestAssured.given;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.CLIENT_NOT_FOUND;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_FROM_AZURE;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_GENERATING_KEY_PAIR;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_SEARCHING_FOR_ROLES;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ROLES_NOT_FOUND;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.WRONG_CHANNEL;
+import it.pagopa.swclient.mil.auth.bean.FormParamName;
+import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
+import static it.pagopa.swclient.mil.auth.bean.JsonPropertyName.ACCESS_TOKEN;
+import static it.pagopa.swclient.mil.auth.bean.JsonPropertyName.ERRORS;
+import static it.pagopa.swclient.mil.auth.bean.JsonPropertyName.EXPIRES_IN;
+import static it.pagopa.swclient.mil.auth.bean.JsonPropertyName.TOKEN_TYPE;
+import static it.pagopa.swclient.mil.auth.bean.TokenType.BEARER;
+import static it.pagopa.swclient.mil.bean.Channel.ATM;
+import static it.pagopa.swclient.mil.bean.Channel.POS;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
-import static org.hamcrest.Matchers.*;
-
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.List;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.MockedStatic;
-import static org.mockito.Mockito.*;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.ErrorCode;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyRequest;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyResponse;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
@@ -48,36 +64,20 @@ import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
-import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
-import it.pagopa.swclient.mil.auth.service.TokenByClientSecretService;
-import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
-import it.pagopa.swclient.mil.bean.Channel;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 
 /**
- * clientVerifier.verify roleFinder.findRoles generateToken tokenSigner.sign
+ * Steps to test: clientVerifier.verify roleFinder.findRoles generateToken tokenSigner.sign
+ * 
+ * @author Antonio Tarricone
  */
 @QuarkusTest
 @TestHTTPEndpoint(TokenResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TokenByClientSecretResourceTest {
-	/*
-	 * 
-	 */
-	private static final String REQUEST_ID_HDR = "RequestId";
-	private static final String ACQUIRER_ID_HDR = "AcquirerId";
-	private static final String CHANNEL_HDR = "Channel";
-	private static final String MERCHANT_ID_HDR = "MerchantId";
-	private static final String TERMINAL_ID_HDR = "TerminalId";
-	private static final String CLIENT_ID_PRM = "client_id";
-	private static final String GRANT_TYPE_PRM = "grant_type";
-	private static final String CLIENT_SECRET_PRM = "client_secret";
-
 	/*
 	 * 
 	 */
@@ -95,10 +95,9 @@ class TokenByClientSecretResourceTest {
 	/*
 	 * 
 	 */
-	private static final String AZURE_TOKEN_TYPE = "Bearer";
 	private static final long AZURE_TOKEN_DURATION = 3599;
 	private static final String AZURE_TOKEN = "this_is_the_token";
-	private static final String AUTHORIZATION_HDR_VALUE = "Bearer " + AZURE_TOKEN;
+	private static final String AUTHORIZATION_HDR_VALUE = BEARER + " " + AZURE_TOKEN;
 
 	/*
 	 * 
@@ -113,7 +112,7 @@ class TokenByClientSecretResourceTest {
 		"verify", "sign"
 	};
 	private static final String MODULUS = "AKnFsF5Y16TB9qkmoOyDXG3ulenUWYoW78U7mcGBoYKRpMlswxhc_ZiKcC65vIrCP6hbS5Cx88IbQG2DWH-nE329OLzUbzcdraDLR-7V2BX0nNwmwXxhkd4ofzzjKyhWjV8AkxFpqJPtFG09YCyCpaC8YluVPbHUpWJ1wrOsavdc_YM1W1XuaGvJv4SkilM8vBa81zOLEVhbEE5msHxPNLwVyC_0PIE6OFL9RY4YP1U1q7gjTMmKDc9qgEYkdziMnlxWp_EkKTZOERbEatP0fditFt-zWKlXw0qO4FKFlmj9n5tbB55vaopB71Kv6LcsAY1Q-fgOuoM41HldLppzfDOPwLGyCQF9ODJt1xaKkup6i_BxZum7-QckibwPaj3ODZbYsPuNZ_npQiR6NJZ_q_31YMlyuGdqltawluYLJidw3EzkpTN__bHdio892WbY29PRwbrG486IJ_88qP3lWs1TfzohVa1czUOZwQHqp0ixVBi_SK3jICk-V65DbwzgS5zwBFaqfWO3XVOf6tmWFMZ6ly7wtOnYWoMR15rudsD5xXWwqE-s7IP1lVZuIOdMfLH7-1Pgn-YJuPsBLbZri9_M4KtflYbqnuDckSyFNBynTwoSvSSuBhpkmNgiSQ-WBXHHss5Wy-pr-YjNK7JYppPOHvfHSY96XnJl9SPWcnwx";
-	private static final String PRIVATE_EXPONENT = "IlITaUNTFtzaUVA8lIuqxhOHLW3vCv4_ixMVLnwXC0cHteudliGIZ8vGyX9laPTDezS3lkEPSuSI9gqpO6cqRs9Xtr7IW-9NQDYQLO2AoVGh21SfZVZxL2Tm8gdnnGBA9J1wXcMLIBp7uGjBtkXUF2Y2CRcm0XowU_MEASAgQLEFE_8Xn4vSgsXWiIld6F1dFcinxaT9xOul5H-Yeozll4dcwKsCh0pehBJs-wCWXxK6S_-g4JZe29lHJMbu7hjpU7f1_AcIKNEH3d8nzID-5ux49RCz4goasgonua8FXOS23Sh-Jg6WjmwtZj0nEc6c4rVlzzqlBG2a8I0ApJsnlo2RK1E-XftVNip52Bsb9jRKGNjNZP3VOgAdLg-py8HVU3sxn95yJRN6AF7S8a0Jnb6uAzxagmfZqLe1ykswBPJWPP2dyQivb59CMcmHQoOK-up_Tt1P6oIltTCHEg0z79GVatWvikmfrN0tLrMJl8iR_67IDvehkp0r4DoFQNkhKNm5moFGFJWqkWZSpi3OUhPYZNmWPJTf1CxM3li6hNqRuGLCe-M9-gyZ01U9j9sUbV3xaK6kXhDPje2JB-0FkZuU7ewmpmQ5ETuRYrXyQa6b6VyxNwYokvgAGxdQ8leT2jxq_UVoMw-C0JU8tOC1fkXxClfOsSfCKx5WQXIKFrU=";
+	//private static final String PRIVATE_EXPONENT = "IlITaUNTFtzaUVA8lIuqxhOHLW3vCv4_ixMVLnwXC0cHteudliGIZ8vGyX9laPTDezS3lkEPSuSI9gqpO6cqRs9Xtr7IW-9NQDYQLO2AoVGh21SfZVZxL2Tm8gdnnGBA9J1wXcMLIBp7uGjBtkXUF2Y2CRcm0XowU_MEASAgQLEFE_8Xn4vSgsXWiIld6F1dFcinxaT9xOul5H-Yeozll4dcwKsCh0pehBJs-wCWXxK6S_-g4JZe29lHJMbu7hjpU7f1_AcIKNEH3d8nzID-5ux49RCz4goasgonua8FXOS23Sh-Jg6WjmwtZj0nEc6c4rVlzzqlBG2a8I0ApJsnlo2RK1E-XftVNip52Bsb9jRKGNjNZP3VOgAdLg-py8HVU3sxn95yJRN6AF7S8a0Jnb6uAzxagmfZqLe1ykswBPJWPP2dyQivb59CMcmHQoOK-up_Tt1P6oIltTCHEg0z79GVatWvikmfrN0tLrMJl8iR_67IDvehkp0r4DoFQNkhKNm5moFGFJWqkWZSpi3OUhPYZNmWPJTf1CxM3li6hNqRuGLCe-M9-gyZ01U9j9sUbV3xaK6kXhDPje2JB-0FkZuU7ewmpmQ5ETuRYrXyQa6b6VyxNwYokvgAGxdQ8leT2jxq_UVoMw-C0JU8tOC1fkXxClfOsSfCKx5WQXIKFrU=";
 	private static final String PUBLIC_EXPONENT = "AQAB";
 	private static final String EXPECTED_SIGNATURE = "expected_signature";
 
@@ -144,19 +143,19 @@ class TokenByClientSecretResourceTest {
 		 * Client repository setup.
 		 */
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
 		
 		/*
 		 * Roles repository setup.
 		 */
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 		
 		/*
 		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(AZURE_TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
 		
 		/*
 		 * Azure key vault setup.
@@ -185,14 +184,14 @@ class TokenByClientSecretResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000000")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000000")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -200,26 +199,26 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class));
+			.body(ACCESS_TOKEN, notNullValue())
+			.body(TOKEN_TYPE, equalTo(BEARER))
+			.body(EXPIRES_IN, notNullValue(Long.class));
 	}
 
 	@Test
 	void testClientNotFound() {
 		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 		
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000001")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000001")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -227,24 +226,24 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.CLIENT_NOT_FOUND));
+			.body(ERRORS, hasItem(CLIENT_NOT_FOUND));
 	}
 
 	@Test
 	void testWebApplicationExceptionSerchingClient() {
 		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(INTERNAL_SERVER_ERROR).build())));
 		
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000002")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000002")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -252,7 +251,7 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_SEARCHING_FOR_CLIENT));
+			.body(ERRORS, hasItem(ERROR_SEARCHING_FOR_CLIENT));
 	}
 
 	@Test
@@ -262,14 +261,14 @@ class TokenByClientSecretResourceTest {
 		
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000003")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000003")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -277,24 +276,24 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_SEARCHING_FOR_CLIENT));
+			.body(ERRORS, hasItem(ERROR_SEARCHING_FOR_CLIENT));
 	}
 
 	@Test
 	void testClientHasWrongChannel() {
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, ATM, SALT, HASH, DESCRIPTION)));
 		
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000004")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000004")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -302,24 +301,24 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.WRONG_CHANNEL));
+			.body(ERRORS, hasItem(WRONG_CHANNEL));
 	}
 
 	@Test
 	void testWrongSecret() {
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
 		
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000005")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, WRONG_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000005")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, WRONG_SECRET)
 			.when()
 			.post()
 			.then()
@@ -327,24 +326,24 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.WRONG_SECRET));
+			.body(ERRORS, hasItem(AuthErrorCode.WRONG_SECRET));
 	}
 
 	@Test
 	void testWrongSecretWithNullExpected() {
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, null, null, DESCRIPTION)));
 		
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000006")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000006")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -352,33 +351,33 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.WRONG_SECRET));
+			.body(ERRORS, hasItem(AuthErrorCode.WRONG_SECRET));
 	}
 
 	@Test
 	void testRolesNotFound() {
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
 		
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 	
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 	
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, "NA", "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 		
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000007")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000007")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -386,27 +385,27 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ROLES_NOT_FOUND));
+			.body(ERRORS, hasItem(ROLES_NOT_FOUND));
 	}
 
 	@Test
 	void testWebApplicationExceptionSearchingRoles() {
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
 		
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build())));
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(INTERNAL_SERVER_ERROR).build())));
 	
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000008")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000008")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -414,27 +413,27 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_SEARCHING_FOR_ROLES));
+			.body(ERRORS, hasItem(ERROR_SEARCHING_FOR_ROLES));
 	}
 
 	@Test
 	void testExceptionSearchingRoles() {
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
 		
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
 			.thenReturn(Uni.createFrom().failure(new Exception()));
 	
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-000000000009")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000009")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -442,30 +441,42 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_SEARCHING_FOR_ROLES));
+			.body(ERRORS, hasItem(ERROR_SEARCHING_FOR_ROLES));
 	}
 
 	@Test
 	void test401OnGetAccessToken() {
 		/*
-		 * Setup.
+		 * Client repository setup.
+		 */
+		when(repository.getClient(CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
+		
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		
+		/*
+		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(UNAUTHORIZED).build())));
 		
 		/*
 		 * Test.
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-00000000000A")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -473,33 +484,48 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_FROM_AZURE));
+			.body(ERRORS, hasItem(ERROR_FROM_AZURE));
 	}
 
 	@Test
 	void test401OnGetKeys() {
 		/*
-		 * Setup.
+		 * Client repository setup.
+		 */
+		when(repository.getClient(CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
+		
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		
+		/*
+		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(AZURE_TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
 		
+		/*
+		 * Azure key vault setup.
+		 */
 		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(UNAUTHORIZED).build())));
 		
 		/*
 		 * Test.
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-00000000000A")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -507,30 +533,42 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_FROM_AZURE));
+			.body(ERRORS, hasItem(ERROR_FROM_AZURE));
 	}
 
 	@Test
 	void test401WithNullAccessToken() {
 		/*
-		 * Setup.
+		 * Client repository setup.
+		 */
+		when(repository.getClient(CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
+		
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		
+		/*
+		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(AZURE_TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, null)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, null)));
 		
 		/*
 		 * Test.
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-00000000000A")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -538,7 +576,7 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.AZURE_ACCESS_TOKEN_IS_NULL));
+			.body(ERRORS, hasItem(AZURE_ACCESS_TOKEN_IS_NULL));
 	}
 
 	@Test
@@ -547,19 +585,19 @@ class TokenByClientSecretResourceTest {
 		 * Client repository setup.
 		 */
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
 		
 		/*
 		 * Roles repository setup.
 		 */
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 		
 		/*
 		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(AZURE_TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
 		
 		/*
 		 * Azure key vault setup.
@@ -576,14 +614,14 @@ class TokenByClientSecretResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-00000000000A")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -591,7 +629,7 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_GENERATING_KEY_PAIR));
+			.body(ERRORS, hasItem(ERROR_GENERATING_KEY_PAIR));
 	}
 
 	@Test
@@ -600,19 +638,19 @@ class TokenByClientSecretResourceTest {
 		 * Client repository setup.
 		 */
 		when(repository.getClient(CLIENT_ID))
-			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, POS, SALT, HASH, DESCRIPTION)));
 		
 		/*
 		 * Roles repository setup.
 		 */
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		when(repository.getRoles(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 		
 		/*
 		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(AZURE_TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
 		
 		/*
 		 * Azure key vault setup.
@@ -621,21 +659,21 @@ class TokenByClientSecretResourceTest {
 			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[] {})));
 		
 		when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(UNAUTHORIZED).build())));
 		
 		/*
 		 * Test.
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(REQUEST_ID_HDR, "00000000-0000-0000-0000-00000000000B")
-			.header(ACQUIRER_ID_HDR, ACQUIRER_ID)
-			.header(CHANNEL_HDR, Channel.POS)
-			.header(MERCHANT_ID_HDR, MERCHANT_ID)
-			.header(TERMINAL_ID_HDR, TERMINAL_ID)
-			.formParam(CLIENT_ID_PRM, CLIENT_ID)
-			.formParam(GRANT_TYPE_PRM, GrantType.CLIENT_CREDENTIALS)
-			.formParam(CLIENT_SECRET_PRM, SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000B")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
 			.when()
 			.post()
 			.then()
@@ -643,7 +681,7 @@ class TokenByClientSecretResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", hasItem(ErrorCode.ERROR_GENERATING_KEY_PAIR));
+			.body(ERRORS, hasItem(ERROR_GENERATING_KEY_PAIR));
 	}
 
 	/*

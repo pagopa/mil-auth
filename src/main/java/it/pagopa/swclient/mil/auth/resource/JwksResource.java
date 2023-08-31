@@ -5,14 +5,13 @@
  */
 package it.pagopa.swclient.mil.auth.resource;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_KEYS;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.OptionalLong;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.bean.Errors;
 import jakarta.inject.Inject;
@@ -48,11 +47,11 @@ public class JwksResource {
 	 * @return
 	 */
 	private InternalServerErrorException errorOnRetrievingKeys(Throwable t) {
-		String message = String.format("[%s] Error searching for keys.", ERROR_SEARCHING_FOR_KEYS);
+		String message = String.format("[%s] Error searching for keys.", AuthErrorCode.ERROR_SEARCHING_FOR_KEYS);
 		Log.errorf(t, message);
 		return new InternalServerErrorException(Response
 			.status(Status.INTERNAL_SERVER_ERROR)
-			.entity(new Errors(List.of(ERROR_SEARCHING_FOR_KEYS), List.of(message)))
+			.entity(new Errors(List.of(AuthErrorCode.ERROR_SEARCHING_FOR_KEYS), List.of(message)))
 			.build());
 	}
 

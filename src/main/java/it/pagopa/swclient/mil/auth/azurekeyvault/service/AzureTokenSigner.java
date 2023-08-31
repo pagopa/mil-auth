@@ -5,7 +5,7 @@
  */
 package it.pagopa.swclient.mil.auth.azurekeyvault.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.*;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -114,15 +114,15 @@ public class AzureTokenSigner implements TokenSigner {
 							try {
 								return SignedJWTFactory.createInstance(header.toBase64URL(), payload.toPayload().toBase64URL(), Base64URL.from(resp.getSignature()));
 							} catch (ParseException e) {
-								String message = String.format("[%s] Error generating token.", ERROR_GENERATING_TOKEN);
+								String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
 								Log.errorf(e, message);
-								throw new AuthError(ERROR_GENERATING_TOKEN, message);
+								throw new AuthError(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
 							}
 						});
 				} catch (NoSuchAlgorithmException e) {
-					String message = String.format("[%s] Error generating token.", ERROR_GENERATING_TOKEN);
+					String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
 					Log.errorf(e, message);
-					throw new AuthError(ERROR_GENERATING_TOKEN, message);
+					throw new AuthError(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
 				}
 			});
 	}
@@ -152,9 +152,9 @@ public class AzureTokenSigner implements TokenSigner {
 				if (t != null) {
 					return t;
 				} else {
-					String message = String.format("[%s] Azure access token not valid.", AZURE_ACCESS_TOKEN_IS_NULL);
+					String message = String.format("[%s] Azure access token not valid.", AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL);
 					Log.error(message);
-					throw new AuthError(AZURE_ACCESS_TOKEN_IS_NULL, message);
+					throw new AuthError(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL, message);
 				}
 			}) // Getting the access token.
 			.chain(azureToken -> {
@@ -168,15 +168,15 @@ public class AzureTokenSigner implements TokenSigner {
 								Log.debug("Signature has been successfully verified.");
 								return null;
 							} else {
-								String message = String.format("[%s] Wrong signature.", WRONG_SIGNATURE);
+								String message = String.format("[%s] Wrong signature.", AuthErrorCode.WRONG_SIGNATURE);
 								Log.warn(message);
-								throw new AuthException(WRONG_SIGNATURE, message);
+								throw new AuthException(AuthErrorCode.WRONG_SIGNATURE, message);
 							}
 						});
 				} catch (NoSuchAlgorithmException | ParseException e) {
-					String message = String.format("[%s] Error verifing signature.", ERROR_VERIFING_SIGNATURE);
+					String message = String.format("[%s] Error verifing signature.", AuthErrorCode.ERROR_VERIFING_SIGNATURE);
 					Log.errorf(e, message);
-					throw new AuthError(ERROR_VERIFING_SIGNATURE, message);
+					throw new AuthError(AuthErrorCode.ERROR_VERIFING_SIGNATURE, message);
 				}
 			});
 	}

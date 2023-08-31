@@ -5,8 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_ROLES;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ROLES_NOT_FOUND;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_SEARCHING_FOR_ROLES;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ROLES_NOT_FOUND;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -32,6 +32,11 @@ public class RolesFinder {
 	 */
 	@RestClient
 	AuthDataRepository repository;
+	
+	/*
+	 * 
+	 */
+	private static final String NA = "NA";
 
 	/**
 	 * 
@@ -39,7 +44,7 @@ public class RolesFinder {
 	 * @return
 	 */
 	private String replaceNullWithNa(String s) {
-		return s != null ? s : "NA";
+		return s != null ? s : NA;
 	}
 
 	/**
@@ -110,14 +115,14 @@ public class RolesFinder {
 					 * If there are no roles for acquirer/channel/client/merchant/terminal, search for
 					 * acquirer/channel/client/merchant (without terminal).
 					 */
-					return find(acquirerId, channel, clientId, merchantId, "NA").onFailure(AuthException.class)
+					return find(acquirerId, channel, clientId, merchantId, NA).onFailure(AuthException.class)
 						.recoverWithUni(tt -> {
 							if (merchantId != null) {
 								/*
 								 * If there are no roles for acquirer/channel/client/merchant (without terminal), search for
 								 * acquirer/channel/client (without terminal and merchant).
 								 */
-								return find(acquirerId, channel, clientId, "NA", "NA");
+								return find(acquirerId, channel, clientId, NA, NA);
 							} else {
 								return Uni.createFrom().failure(tt);
 							}
@@ -128,7 +133,7 @@ public class RolesFinder {
 						 * If there are no roles for acquirer/channel/client/merchant (without terminal), search for
 						 * acquirer/channel/client (without terminal and merchant).
 						 */
-						return find(acquirerId, channel, clientId, "NA", "NA");
+						return find(acquirerId, channel, clientId, NA, NA);
 					} else {
 						return Uni.createFrom().failure(t);
 					}

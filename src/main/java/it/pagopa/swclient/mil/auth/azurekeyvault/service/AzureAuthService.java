@@ -15,6 +15,7 @@ import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
 import jakarta.enterprise.context.ApplicationScoped;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @ApplicationScoped

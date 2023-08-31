@@ -5,6 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -24,10 +26,10 @@ import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 
 /**
  * 
+ * @author Antonio Tarricone
  */
 @QuarkusTest
 class RolesFinderTest {
@@ -79,13 +81,13 @@ class RolesFinderTest {
 	@Test
 	void testFindRolesNotFound() {
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 		
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 		
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
 			.subscribe()
@@ -100,10 +102,10 @@ class RolesFinderTest {
 	@Test
 	void testFindRolesNotFoundWithUnknownTerminal() {
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 		
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null)
 			.subscribe()
@@ -118,7 +120,7 @@ class RolesFinderTest {
 	@Test
 	void testFindRolesNotFoundWithUnknownMerchant() {
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null)
 			.subscribe()
@@ -133,10 +135,10 @@ class RolesFinderTest {
 	@Test
 	void testFindRolesNotFoundWithUnknownMerchantAndKnownTerminal() {
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", TERMINAL_ID))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 		
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-		.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+		.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, TERMINAL_ID)
 			.subscribe()
@@ -153,7 +155,7 @@ class RolesFinderTest {
 		Role role = new Role(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null, ROLES);
 
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
 			.thenReturn(UniGenerator.item(role));
@@ -174,7 +176,7 @@ class RolesFinderTest {
 		Role role = new Role(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null, ROLES);
 
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
 			.thenReturn(UniGenerator.item(role));
@@ -195,10 +197,10 @@ class RolesFinderTest {
 		Role role = new Role(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null, ROLES);
 
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
 			.thenReturn(UniGenerator.item(role));
@@ -217,7 +219,7 @@ class RolesFinderTest {
 	@Test
 	void testFindRolesWithError1() {
 		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(INTERNAL_SERVER_ERROR).build())));
 		
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
 			.subscribe()

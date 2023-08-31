@@ -68,6 +68,7 @@ import jakarta.inject.Inject;
 
 /**
  * 
+ * @author Antonio Tarricone
  */
 @QuarkusTest
 @TestInstance(Lifecycle.PER_CLASS)

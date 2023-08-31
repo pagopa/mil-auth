@@ -5,14 +5,15 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_VERIFING_CREDENTIALS;
-import static it.pagopa.swclient.mil.auth.ErrorCode.INCONSISTENT_CREDENTIALS;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_CREDENTIALS;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_VERIFING_CREDENTIALS;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.INCONSISTENT_CREDENTIALS;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.WRONG_CREDENTIALS;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.error;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.exception;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.item;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.voidItem;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,13 +22,11 @@ import java.util.Objects;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import com.nimbusds.jose.util.StandardCharset;
-
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.User;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
@@ -75,7 +74,7 @@ public class TokenByPasswordService extends TokenService {
 		try {
 			userHash = Base64.getUrlEncoder().encodeToString(
 				MessageDigest.getInstance("SHA256").digest(
-					getAccessToken.getUsername().getBytes(StandardCharset.UTF_8)));
+					getAccessToken.getUsername().getBytes(UTF_8)));
 		} catch (NoSuchAlgorithmException e) {
 			String message = String.format("[%s] Error searching for the credentials.", ERROR_SEARCHING_FOR_CREDENTIALS);
 			Log.errorf(e, message);
@@ -190,10 +189,10 @@ public class TokenByPasswordService extends TokenService {
 			.chain(() -> super.process(getAccessToken));
 	}
 
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		System.out.println(Base64.getEncoder().encodeToString(
-			MessageDigest.getInstance("SHA256").digest(
-				"carlodeche2".getBytes(StandardCharset.UTF_8)))
-			.replace("+", "-"));
-	}
+//	public static void main(String[] args) throws NoSuchAlgorithmException {
+//		System.out.println(Base64.getEncoder().encodeToString(
+//			MessageDigest.getInstance("SHA256").digest(
+//				"carlodeche2".getBytes(UTF_8)))
+//			.replace("+", "-"));
+//	}
 }

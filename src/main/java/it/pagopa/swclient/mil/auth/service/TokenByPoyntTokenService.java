@@ -5,8 +5,9 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_VALIDATING_EXT_TOKEN;
-import static it.pagopa.swclient.mil.auth.ErrorCode.EXT_TOKEN_NOT_VALID;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.EXT_TOKEN_NOT_VALID;
+import static it.pagopa.swclient.mil.auth.bean.TokenType.BEARER;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.exception;
 import static it.pagopa.swclient.mil.auth.util.UniGenerator.voidItem;
 
@@ -14,8 +15,8 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
 import it.pagopa.swclient.mil.auth.qualifier.PoyntToken;
 import it.pagopa.swclient.mil.auth.util.AuthError;
@@ -45,7 +46,7 @@ public class TokenByPoyntTokenService extends TokenService {
 	 */
 	public Uni<Void> verifyPoyntToken(GetAccessTokenRequest getAccessToken) {
 		Log.debug("Poynt token verification.");
-		return poyntClient.getBusinessObject("Bearer " + getAccessToken.getExtToken(), getAccessToken.getAddData())
+		return poyntClient.getBusinessObject(BEARER + " " + getAccessToken.getExtToken(), getAccessToken.getAddData())
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();

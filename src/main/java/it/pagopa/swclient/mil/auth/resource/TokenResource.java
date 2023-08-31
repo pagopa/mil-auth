@@ -11,9 +11,9 @@ import java.util.Map;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.ErrorCode;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
@@ -58,14 +58,10 @@ public class TokenResource {
 	 */
 	private static Map<String, AnnotationLiteral<?>> qualifiers = new HashMap<>();
 	static {
-		qualifiers.put(GrantType.CLIENT_CREDENTIALS, new AnnotationLiteral<ClientCredentials>() {
-		});
-		qualifiers.put(GrantType.PASSWORD, new AnnotationLiteral<Password>() {
-		});
-		qualifiers.put(GrantType.POYNT_TOKEN, new AnnotationLiteral<PoyntToken>() {
-		});
-		qualifiers.put(GrantType.REFRESH_TOKEN, new AnnotationLiteral<RefreshToken>() {
-		});
+		qualifiers.put(GrantType.CLIENT_CREDENTIALS, new AnnotationLiteral<ClientCredentials>() { });
+		qualifiers.put(GrantType.PASSWORD, new AnnotationLiteral<Password>() { });
+		qualifiers.put(GrantType.POYNT_TOKEN, new AnnotationLiteral<PoyntToken>() { });
+		qualifiers.put(GrantType.REFRESH_TOKEN, new AnnotationLiteral<RefreshToken>() { });
 	}
 
 	/**
@@ -88,7 +84,7 @@ public class TokenResource {
 			.transform(t -> {
 				Log.errorf(t, "Unexpected error.");
 				return new InternalServerErrorException(Response.status(Status.INTERNAL_SERVER_ERROR)
-					.entity(new Errors(List.of(ErrorCode.UNEXPECTED_ERROR)))
+					.entity(new Errors(List.of(AuthErrorCode.UNEXPECTED_ERROR)))
 					.build());
 			})
 			.onFailure(AuthError.class)

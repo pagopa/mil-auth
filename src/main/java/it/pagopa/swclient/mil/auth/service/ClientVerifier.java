@@ -5,11 +5,11 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.CLIENT_NOT_FOUND;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_CLIENT;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_VERIFING_SECRET;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_CHANNEL;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_SECRET;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.CLIENT_NOT_FOUND;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_VERIFING_SECRET;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.WRONG_CHANNEL;
+import static it.pagopa.swclient.mil.auth.AuthErrorCode.WRONG_SECRET;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;

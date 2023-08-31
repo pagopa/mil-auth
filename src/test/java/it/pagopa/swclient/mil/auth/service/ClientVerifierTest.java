@@ -5,6 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -28,10 +30,10 @@ import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 
 /**
  * 
+ * @author Antonio Tarricone
  */
 @QuarkusTest
 class ClientVerifierTest {
@@ -66,7 +68,7 @@ class ClientVerifierTest {
 	@Test
 	void testFindClientWithNotFound() {
 		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(NOT_FOUND).build())));
 			
 		verifier.findClient(ID)
 			.subscribe()
@@ -81,7 +83,7 @@ class ClientVerifierTest {
 	@Test
 	void testFindClientWithError1() {
 		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build())));
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(INTERNAL_SERVER_ERROR).build())));
 		
 		verifier.findClient(ID)
 			.subscribe()

@@ -35,7 +35,7 @@ import jakarta.ws.rs.core.MediaType;
 public interface AzureKeyVaultClient {
 	/**
 	 * 
-	 * @param accessToken
+	 * @param authorization
 	 * @param keyName
 	 * @param createKeyRequest
 	 * @return
@@ -46,15 +46,13 @@ public interface AzureKeyVaultClient {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
 	Uni<CreateKeyResponse> createKey(
-		@HeaderParam("Authorization") String accessToken,
+		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName,
 		CreateKeyRequest createKeyRequest);
 
 	/**
 	 * 
-	 * @param accessToken
-	 * @param keyName
-	 * @param createKeyRequest
+	 * @param authorization
 	 * @return
 	 */
 	@Path("/keys")
@@ -62,11 +60,11 @@ public interface AzureKeyVaultClient {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
 	Uni<GetKeysResponse> getKeys(
-		@HeaderParam("Authorization") String accessToken);
+		@HeaderParam("Authorization") String authorization);
 
 	/**
 	 * 
-	 * @param accessToken
+	 * @param authorization
 	 * @param keyName
 	 * @param keyVersion
 	 * @return
@@ -76,13 +74,13 @@ public interface AzureKeyVaultClient {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
 	Uni<GetKeyResponse> getKey(
-		@HeaderParam("Authorization") String accessToken,
+		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName,
 		@PathParam("keyVersion") String keyVersion);
 
 	/**
 	 * 
-	 * @param accessToken
+	 * @param authorization
 	 * @param keyName
 	 * @return
 	 */
@@ -91,12 +89,12 @@ public interface AzureKeyVaultClient {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
 	Uni<GetKeyVersionsResponse> getKeyVersions(
-		@HeaderParam("Authorization") String accessToken,
+		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName);
 
 	/**
 	 * 
-	 * @param accessToken
+	 * @param authorization
 	 * @param keyName
 	 * @param keyVersion
 	 * @param signRequest
@@ -108,14 +106,14 @@ public interface AzureKeyVaultClient {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
 	Uni<SignResponse> sign(
-		@HeaderParam("Authorization") String accessToken,
+		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName,
 		@PathParam("keyVersion") String keyVersion,
 		SignRequest signRequest);
 
 	/**
 	 * 
-	 * @param accessToken
+	 * @param authorization
 	 * @param keyName
 	 * @param keyVersion
 	 * @param verifySignatureRequest
@@ -127,7 +125,7 @@ public interface AzureKeyVaultClient {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
 	Uni<VerifySignatureResponse> verifySignature(
-		@HeaderParam("Authorization") String accessToken,
+		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName,
 		@PathParam("keyVersion") String keyVersion,
 		VerifySignatureRequest verifySignatureRequest);

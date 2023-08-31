@@ -5,8 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.azurekeyvault.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.*;
-import static it.pagopa.swclient.mil.auth.util.UniGenerator.item;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.util.UniGenerator;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -256,9 +256,9 @@ public class AzureKeyFinder implements KeyFinder {
 					Log.debug("Successfully authenticated.");
 					return t;
 				} else {
-					String message = String.format("[%s] Azure access token not valid.", AZURE_ACCESS_TOKEN_IS_NULL);
+					String message = String.format("[%s] Azure access token not valid.", AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL);
 					Log.error(message);
-					throw new AuthError(AZURE_ACCESS_TOKEN_IS_NULL, message);
+					throw new AuthError(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL, message);
 				}
 			}) // Getting the access token.
 			.invoke(token -> context.put(TOKEN, token)) // Storing the access token in the context.
@@ -329,9 +329,9 @@ public class AzureKeyFinder implements KeyFinder {
 			.map(p -> new ItemWithContext<>(context, p))
 			.onFailure(t -> !(t instanceof AuthError))
 			.transform(t -> {
-				String message = String.format("[%s] Error from Azure.", ERROR_FROM_AZURE);
+				String message = String.format("[%s] Error from Azure.", AuthErrorCode.ERROR_FROM_AZURE);
 				Log.errorf(t, message);
-				throw new AuthError(ERROR_FROM_AZURE, message);
+				throw new AuthError(AuthErrorCode.ERROR_FROM_AZURE, message);
 			});
 	}
 
@@ -370,21 +370,21 @@ public class AzureKeyFinder implements KeyFinder {
 							key.getAttributes().getExp(),
 							key.getAttributes().getCreated());
 					} else {
-						String message = String.format("[%s] Error generating the key pair: kid doesn't contain name and version.", ERROR_GENERATING_KEY_PAIR);
+						String message = String.format("[%s] Error generating the key pair: kid doesn't contain name and version.", AuthErrorCode.ERROR_GENERATING_KEY_PAIR);
 						Log.fatal(message);
-						throw new AuthError(ERROR_GENERATING_KEY_PAIR, message);
+						throw new AuthError(AuthErrorCode.ERROR_GENERATING_KEY_PAIR, message);
 					}
 				} else {
-					String message = String.format("[%s] Error generating the key pair: invalid key pair has been generated.", ERROR_GENERATING_KEY_PAIR);
+					String message = String.format("[%s] Error generating the key pair: invalid key pair has been generated.", AuthErrorCode.ERROR_GENERATING_KEY_PAIR);
 					Log.fatal(message);
-					throw new AuthError(ERROR_GENERATING_KEY_PAIR, message);
+					throw new AuthError(AuthErrorCode.ERROR_GENERATING_KEY_PAIR, message);
 				}
 			})
 			.onFailure(t -> !(t instanceof AuthError))
 			.transform(t -> {
-				String message = String.format("[%s] Error generating key pair.", ERROR_GENERATING_KEY_PAIR);
+				String message = String.format("[%s] Error generating key pair.", AuthErrorCode.ERROR_GENERATING_KEY_PAIR);
 				Log.errorf(t, message);
-				throw new AuthError(ERROR_GENERATING_KEY_PAIR, message);
+				throw new AuthError(AuthErrorCode.ERROR_GENERATING_KEY_PAIR, message);
 			});
 	}
 
@@ -421,7 +421,7 @@ public class AzureKeyFinder implements KeyFinder {
 						}
 					});
 
-					return item(new ItemWithContext<>(item.context(), keys.get(0)));
+					return UniGenerator.item(new ItemWithContext<>(item.context(), keys.get(0)));
 				}
 			});
 	}
@@ -460,7 +460,7 @@ public class AzureKeyFinder implements KeyFinder {
 				});
 		} else {
 			Log.warnf("[%s] doesn't contain name and version.", kid);
-			return item(Optional.empty());
+			return UniGenerator.item(Optional.empty());
 		}
 	}
 }

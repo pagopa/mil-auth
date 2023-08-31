@@ -5,6 +5,16 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.ACQUIRER_ID;
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.CHANNEL;
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.CLIENT_ID;
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.GROUPS;
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.MERCHANT_ID;
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.SCOPE;
+import static it.pagopa.swclient.mil.auth.bean.ClaimName.TERMINAL_ID;
+import static it.pagopa.swclient.mil.auth.bean.GrantType.REFRESH_TOKEN;
+import static it.pagopa.swclient.mil.auth.bean.Scope.OFFLINE_ACCESS;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +28,6 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.bean.GrantType;
 import jakarta.inject.Inject;
 
 /**
@@ -88,13 +97,13 @@ public abstract class TokenService {
 			.subject(request.getClientId())
 			.issueTime(now)
 			.expirationTime(new Date(now.getTime() + duration * 1000))
-			.claim("acquirerId", request.getAcquirerId())
-			.claim("channel", request.getChannel())
-			.claim("merchantId", request.getMerchantId())
-			.claim("clientId", request.getClientId())
-			.claim("terminalId", request.getTerminalId())
-			.claim("scope", concat(scopes))
-			.claim("groups", roles)
+			.claim(ACQUIRER_ID, request.getAcquirerId())
+			.claim(CHANNEL, request.getChannel())
+			.claim(MERCHANT_ID, request.getMerchantId())
+			.claim(CLIENT_ID, request.getClientId())
+			.claim(TERMINAL_ID, request.getTerminalId())
+			.claim(SCOPE, concat(scopes))
+			.claim(GROUPS, roles)
 			.build();
 		Log.debug("Token signing.");
 		return tokenSigner.sign(payload).map(SignedJWT::serialize);
@@ -109,14 +118,14 @@ public abstract class TokenService {
 	 */
 	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest request, List<String> roles) {
 		Log.debug("Access token generation.");
-		if (Objects.equals(request.getScope(), "offline_access") || request.getGrantType().equals(GrantType.REFRESH_TOKEN)) {
+		if (Objects.equals(request.getScope(), OFFLINE_ACCESS) || request.getGrantType().equals(REFRESH_TOKEN)) {
 			/*
 			 * With refresh token.
 			 */
 			return generate(request, accessDuration, roles, null)
 				.chain(accessToken -> {
 					Log.debug("Refresh token generation.");
-					return generate(request, refreshDuration, null, List.of("offline_access"))
+					return generate(request, refreshDuration, null, List.of(OFFLINE_ACCESS))
 						.map(refreshToken -> new GetAccessTokenResponse(accessToken, refreshToken, accessDuration));
 				});
 		} else {

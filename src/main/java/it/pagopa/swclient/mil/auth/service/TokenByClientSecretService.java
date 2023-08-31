@@ -7,8 +7,8 @@ package it.pagopa.swclient.mil.auth.service;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import jakarta.enterprise.context.ApplicationScoped;
 
