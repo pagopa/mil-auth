@@ -37,7 +37,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>3.2.0.Final</quarkus.platform.version>
+		<quarkus.platform.version>3.2.5.Final</quarkus.platform.version>
 		<skipITs>true</skipITs>
 		<lombok.version>1.18.28</lombok.version>
 		<depcheck-plugin.version>1.1.1</depcheck-plugin.version>
@@ -126,8 +126,6 @@
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
-		-->
-		<!--
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>

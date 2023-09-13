@@ -1,33 +1,49 @@
 /*
- * TokenByPoyntTokenResourceTest.java
+ * TokenByPasswordResourceTest.java
  *
- * 28 ago 2023
+ * 31 ago 2023
  */
 package it.pagopa.swclient.mil.auth.resource;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.*;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.azurekeyvault.bean.*;
 import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
 import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.bean.*;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
-import it.pagopa.swclient.mil.auth.client.PoyntClient;
+import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateKeySpec;
 import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -36,14 +52,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-
 /**
+ * Get user from repository -> Verify Consistency -> Verify Password -> Super
  * @author Antonio Tarricone
  */
 @QuarkusTest
 @TestHTTPEndpoint(TokenResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TokenByPoyntTokenResourceTest {
+class TokenByPasswordResourceTest {
     /*
      *
      */
@@ -53,8 +69,6 @@ class TokenByPoyntTokenResourceTest {
     private static final String CLIENT_ID = "3965df56-ca9a-49e5-97e8-061433d4a25b";
     private static final String DESCRIPTION = "VAS Layer";
     private static final List<String> ROLES = List.of("NoticePayer", "SlavePos");
-    private static final String EXT_TOKEN = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4NDU3NTMzNiwiaWF0IjoxNjg0NDg4OTM2LCJqdGkiOiJmNzc5MjQ1OS00ODU1LTQ5YjMtYTZiYS05N2QzNzQ5NDQ2ZGIifQ.niR8AS3OHlmWg1-n3FD4DKoAWlY0nJyEJGBZSBFWHYCl01vjIIFYCmTCyBshZVEtDBKpTG1bWTmVctOCX2ybF5gQ0vBH1H3LFD13Tf73Ps439Ht5_u3Q-jHPf_arXDf2enOs_vKwp8TsdJNPRcxMhYZ91yyiAhbHERVypP2YPszwv5h6mMq_HWNzK9qjrLh8zQCGBEMkFfnSG1xOjzTZLJ4ROPazaDHJ9DSZReC4dY_jRqAlivbXVeLOnN3D4y_GatcHQO1_p_jYE-eXHjLP-wINeAqW57P57HmSe2n67q6UkQf5v5zKVHrJpTFAtHWpDVLxmhPKGurTX45yOvaDZw";
-    private static final String ADD_DATA = "4b7eb94b-10c9-4f11-a10e-7292b29ab115";
 
     /*
      *
@@ -82,6 +96,13 @@ class TokenByPoyntTokenResourceTest {
     /*
      *
      */
+    private static final String USERNAME = "user";
+    private static final String PASSWORD = "password";
+    private static final String SALT = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
+
+    /*
+     *
+     */
     @InjectMock
     @RestClient
     AuthDataRepository repository;
@@ -100,20 +121,19 @@ class TokenByPoyntTokenResourceTest {
     @RestClient
     AzureAuthClient authClient;
 
-    /*
-     *
-     */
-    @InjectMock
-    @RestClient
-    PoyntClient poyntClient;
-
     @Test
-    void testOk() {
+    void testOk() throws NoSuchAlgorithmException {
         /*
-         * Poynt client setup.
+         * User respository setup.
          */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
-                .thenReturn(UniGenerator.item(Response.ok().build()));
+        String userHash = Base64.getUrlEncoder().encodeToString(
+                MessageDigest.getInstance("SHA256").digest(
+                        USERNAME.getBytes(StandardCharsets.UTF_8)));
+
+        String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
+
+        when(repository.getUser(userHash))
+                .thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_ID)));
 
         /*
          * Client repository setup.
@@ -131,7 +151,7 @@ class TokenByPoyntTokenResourceTest {
          * Azure auth. client setup.
          */
         when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
+                .thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
 
         /*
          * Azure key vault setup.
@@ -160,15 +180,15 @@ class TokenByPoyntTokenResourceTest {
          */
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000000")
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-400000000000")
                 .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
                 .header(HeaderParamName.CHANNEL, Channel.POS)
                 .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
                 .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
                 .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
+                .formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+                .formParam(FormParamName.USERNAME, USERNAME)
+                .formParam(FormParamName.PASSWORD, PASSWORD)
                 .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
                 .when()
                 .post()
@@ -182,42 +202,85 @@ class TokenByPoyntTokenResourceTest {
     }
 
     @Test
-    void testWebApplicationExceptionGettingBusinessObject() {
+    void testUserNotFound() throws NoSuchAlgorithmException {
         /*
-         * Poynt client setup.
+         * User respository setup.
          */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
+        String userHash = Base64.getUrlEncoder().encodeToString(
+                MessageDigest.getInstance("SHA256").digest(
+                        USERNAME.getBytes(StandardCharsets.UTF_8)));
+
+        when(repository.getUser(userHash))
+                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
         /*
          * Test
          */
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000001")
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-400000000001")
                 .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
                 .header(HeaderParamName.CHANNEL, Channel.POS)
                 .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
                 .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
                 .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
+                .formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+                .formParam(FormParamName.USERNAME, USERNAME)
+                .formParam(FormParamName.PASSWORD, PASSWORD)
                 .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
                 .when()
                 .post()
                 .then()
                 .statusCode(401)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.EXT_TOKEN_NOT_VALID));
+                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_CREDENTIALS));
     }
 
     @Test
-    void testExceptionGettingBusinessObject() {
+    void testWebApplicationExceptionGettingUser() throws NoSuchAlgorithmException {
         /*
-         * Poynt client setup.
+         * User respository setup.
          */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
+        String userHash = Base64.getUrlEncoder().encodeToString(
+                MessageDigest.getInstance("SHA256").digest(
+                        USERNAME.getBytes(StandardCharsets.UTF_8)));
+
+        when(repository.getUser(userHash))
+                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
+
+        /*
+         * Test
+         */
+        given()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-400000000002")
+                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+                .header(HeaderParamName.CHANNEL, Channel.POS)
+                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+                .formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+                .formParam(FormParamName.USERNAME, USERNAME)
+                .formParam(FormParamName.PASSWORD, PASSWORD)
+                .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
+                .when()
+                .post()
+                .then()
+                .statusCode(401)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS));
+    }
+
+    @Test
+    void testExceptionGettingUser() throws NoSuchAlgorithmException {
+        /*
+         * User respository setup.
+         */
+        String userHash = Base64.getUrlEncoder().encodeToString(
+                MessageDigest.getInstance("SHA256").digest(
+                        USERNAME.getBytes(StandardCharsets.UTF_8)));
+
+        when(repository.getUser(userHash))
                 .thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
         /*
@@ -225,53 +288,22 @@ class TokenByPoyntTokenResourceTest {
          */
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000002")
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-400000000003")
                 .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
                 .header(HeaderParamName.CHANNEL, Channel.POS)
                 .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
                 .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
                 .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
-                .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
-                .when()
-                .post()
-                .then()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN));
-    }
-
-    @Test
-    void test401GettingBusinessObject() {
-        /*
-         * Poynt client setup.
-         */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
-                .thenReturn(UniGenerator.item(Response.status(Status.UNAUTHORIZED).build()));
-
-        /*
-         * Test
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000003")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
+                .formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+                .formParam(FormParamName.USERNAME, USERNAME)
+                .formParam(FormParamName.PASSWORD, PASSWORD)
                 .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
                 .when()
                 .post()
                 .then()
                 .statusCode(401)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.EXT_TOKEN_NOT_VALID));
+                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS));
     }
 
     @Test

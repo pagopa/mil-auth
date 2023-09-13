@@ -9,8 +9,8 @@ package it.pagopa.swclient.mil.auth.bean;
  * @author antonio.tarricone
  */
 public class TokenType {
-	public static final String BEARER = "Bearer"; 
-	
-	private TokenType() {
-	}
+    public static final String BEARER = "Bearer";
+
+    private TokenType() {
+    }
 }

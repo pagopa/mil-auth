@@ -9,34 +9,33 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @AllArgsConstructor
 @Getter
 public class Client {
-	/*
-	 * 
-	 */
-	private String id;
+    /*
+     *
+     */
+    private String id;
 
-	/*
-	 * 
-	 */
-	private String channel;
+    /*
+     *
+     */
+    private String channel;
 
-	/*
-	 * 
-	 */
-	private String salt;
+    /*
+     *
+     */
+    private String salt;
 
-	/*
-	 * 
-	 */
-	private String secretHash;
+    /*
+     *
+     */
+    private String secretHash;
 
-	/*
-	 * 
-	 */
-	private String description;
+    /*
+     *
+     */
+    private String description;
 }

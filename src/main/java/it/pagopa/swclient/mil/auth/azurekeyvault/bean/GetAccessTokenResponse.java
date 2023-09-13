@@ -7,16 +7,10 @@ package it.pagopa.swclient.mil.auth.azurekeyvault.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
@@ -27,27 +21,27 @@ import lombok.ToString;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GetAccessTokenResponse {
-	/*
-	 * 
-	 */
-	@JsonProperty("token_type")
-	private String type;
+    /*
+     *
+     */
+    @JsonProperty("token_type")
+    private String type;
 
-	/*
-	 * 
-	 */
-	@JsonProperty("expires_in")
-	private long expiresIn;
-	
-	/*
-	 * 
-	 */
-	@JsonProperty("ext_expires_in")
-	private long extExpiresIn;
-	
-	/*
-	 * 
-	 */
-	@JsonProperty("access_token")
-	private String token;
+    /*
+     *
+     */
+    @JsonProperty("expires_in")
+    private long expiresIn;
+
+    /*
+     *
+     */
+    @JsonProperty("ext_expires_in")
+    private long extExpiresIn;
+
+    /*
+     *
+     */
+    @JsonProperty("access_token")
+    private String token;
 }

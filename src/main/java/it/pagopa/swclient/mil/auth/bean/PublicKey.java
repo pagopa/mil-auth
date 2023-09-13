@@ -10,45 +10,44 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
 @Data
 @AllArgsConstructor
 public class PublicKey {
-	/*
-	 * Public exponent
-	 */
-	private String e;
+    /*
+     * Public exponent
+     */
+    private String e;
 
-	/*
-	 * Public key use
-	 */
-	private KeyUse use;
+    /*
+     * Public key use
+     */
+    private KeyUse use;
 
-	/*
-	 * Key ID
-	 */
-	private String kid;
+    /*
+     * Key ID
+     */
+    private String kid;
 
-	/*
-	 * Modulus
-	 */
-	private String n;
+    /*
+     * Modulus
+     */
+    private String n;
 
-	/*
-	 * Key type
-	 */
-	private KeyType kty;
+    /*
+     * Key type
+     */
+    private KeyType kty;
 
-	/*
-	 * Expiration time
-	 */
-	private long exp;
+    /*
+     * Expiration time
+     */
+    private long exp;
 
-	/*
-	 * Issued at
-	 */
-	private long iat;
+    /*
+     * Issued at
+     */
+    private long iat;
 }

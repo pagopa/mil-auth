@@ -5,82 +5,76 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static it.pagopa.swclient.mil.auth.AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN;
-import static it.pagopa.swclient.mil.auth.AuthErrorCode.EXT_TOKEN_NOT_VALID;
-import static it.pagopa.swclient.mil.auth.bean.TokenType.BEARER;
-import static it.pagopa.swclient.mil.auth.util.UniGenerator.exception;
-import static it.pagopa.swclient.mil.auth.util.UniGenerator.voidItem;
-
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.TokenType;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
 import it.pagopa.swclient.mil.auth.qualifier.PoyntToken;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
+import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @ApplicationScoped
 @PoyntToken
 public class TokenByPoyntTokenService extends TokenService {
-	/*
-	 * 
-	 */
-	@RestClient
-	PoyntClient poyntClient;
+    /*
+     *
+     */
+    @RestClient
+    PoyntClient poyntClient;
 
-	/**
-	 * This method verifies Poynt token.
-	 *
-	 * @param getAccessToken
-	 * @return
-	 */
-	public Uni<Void> verifyPoyntToken(GetAccessTokenRequest getAccessToken) {
-		Log.debug("Poynt token verification.");
-		return poyntClient.getBusinessObject(BEARER + " " + getAccessToken.getExtToken(), getAccessToken.getAddData())
-			.onFailure().transform(t -> {
-				if (t instanceof WebApplicationException e) {
-					Response r = e.getResponse();
-					// r cannot be null
-					String message = String.format("[%s] Poynt Token not valid. Status: [%s]", EXT_TOKEN_NOT_VALID, r.getStatus());
-					Log.warnf(e, message);
-					return new AuthException(EXT_TOKEN_NOT_VALID, message);
-				} else {
-					String message = String.format("[%s] Error validating Poynt token.", ERROR_VALIDATING_EXT_TOKEN);
-					Log.errorf(t, message);
-					return new AuthError(ERROR_VALIDATING_EXT_TOKEN, message);
-				}
-			})
-			.chain(r -> {
-				if (r.getStatus() != 200) {
-					String message = String.format("[%s] Poynt Token not valid. Status: %s", EXT_TOKEN_NOT_VALID, r.getStatus());
-					Log.warn(message);
-					return exception(EXT_TOKEN_NOT_VALID, message);
-				} else {
-					Log.debug("Poynt token has been successfully verified.");
-					return voidItem();
-				}
-			});
-	}
+    /**
+     * This method verifies Poynt token.
+     *
+     * @param getAccessToken
+     * @return
+     */
+    public Uni<Void> verifyPoyntToken(GetAccessTokenRequest getAccessToken) {
+        Log.debug("Poynt token verification.");
+        return poyntClient.getBusinessObject(TokenType.BEARER + " " + getAccessToken.getExtToken(), getAccessToken.getAddData())
+                .onFailure().transform(t -> {
+                    if (t instanceof WebApplicationException e) {
+                        Response r = e.getResponse();
+                        // r cannot be null
+                        String message = String.format("[%s] Poynt Token not valid. Status: [%s]", AuthErrorCode.EXT_TOKEN_NOT_VALID, r.getStatus());
+                        Log.warnf(e, message);
+                        return new AuthException(AuthErrorCode.EXT_TOKEN_NOT_VALID, message);
+                    } else {
+                        String message = String.format("[%s] Error validating Poynt token.", AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN);
+                        Log.errorf(t, message);
+                        return new AuthError(AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN, message);
+                    }
+                })
+                .chain(r -> {
+                    if (r.getStatus() != 200) {
+                        String message = String.format("[%s] Poynt Token not valid. Status: %s", AuthErrorCode.EXT_TOKEN_NOT_VALID, r.getStatus());
+                        Log.warn(message);
+                        return UniGenerator.exception(AuthErrorCode.EXT_TOKEN_NOT_VALID, message);
+                    } else {
+                        Log.debug("Poynt token has been successfully verified.");
+                        return UniGenerator.voidItem();
+                    }
+                });
+    }
 
-	/**
-	 * 
-	 * @param getAccessToken
-	 * @return
-	 */
-	@Override
-	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
-		Log.debugf("Generation of the token/s by Poynt token.");
-		return verifyPoyntToken(getAccessToken)
-			.chain(() -> super.process(getAccessToken));
-	}
+    /**
+     * @param getAccessToken
+     * @return
+     */
+    @Override
+    public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
+        Log.debugf("Generation of the token/s by Poynt token.");
+        return verifyPoyntToken(getAccessToken)
+                .chain(() -> super.process(getAccessToken));
+    }
 }

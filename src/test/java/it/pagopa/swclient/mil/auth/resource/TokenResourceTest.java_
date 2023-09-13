@@ -158,23 +158,23 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000005")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000005")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", nullValue());
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo("Bearer"))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
 
 	/**
@@ -203,19 +203,19 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000006")
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000006")
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", nullValue());
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo("Bearer"))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
 
 	/**
@@ -244,16 +244,16 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000022")
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000022")
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -271,20 +271,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001f")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", CLIENT_ID_2)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001f")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID_2)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -304,19 +304,19 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001c")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.ATM)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001c")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -336,19 +336,19 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000023")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.ATM)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000023")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -377,20 +377,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000020")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000020")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -419,20 +419,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000021")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000021")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -450,19 +450,19 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001b")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.ATM)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001b")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -480,20 +480,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001a")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_secret", CLIENT_SECRET_2)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001a")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET_2)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -526,22 +526,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000019")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", USER_NAME)
-			.formParam("password", PASSWORD)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000019")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.USERNAME, USER_NAME)
+			.formParam(FormParamName.PASSWORD, PASSWORD)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -574,22 +574,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000024")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", USER_NAME)
-			.formParam("password", PASSWORD)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000024")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.USERNAME, USER_NAME)
+			.formParam(FormParamName.PASSWORD, PASSWORD)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -607,22 +607,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000017")
-			.header("AcquirerId", ACQUIRER_ID_2)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", USER_NAME)
-			.formParam("password", PASSWORD)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000017")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID_2)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.USERNAME, USER_NAME)
+			.formParam(FormParamName.PASSWORD, PASSWORD)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -640,24 +640,24 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000004")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", USER_NAME)
-			.formParam("password", PASSWORD)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000004")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.USERNAME, USER_NAME)
+			.formParam(FormParamName.PASSWORD, PASSWORD)
 			.when()
 			.post()
 			.then()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", nullValue());
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo("Bearer"))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
 
 	/**
@@ -675,25 +675,25 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000003")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", USER_NAME)
-			.formParam("password", PASSWORD)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000003")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.USERNAME, USER_NAME)
+			.formParam(FormParamName.PASSWORD, PASSWORD)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", notNullValue());
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo("Bearer"))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, notNullValue());
 	}
 
 	/**
@@ -711,22 +711,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000016")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", USER_NAME)
-			.formParam("password", PASSWORD + PASSWORD)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000016")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.USERNAME, USER_NAME)
+			.formParam(FormParamName.PASSWORD, PASSWORD + PASSWORD)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -744,22 +744,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000018")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("username", USER_NAME + USER_NAME)
-			.formParam("password", PASSWORD)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000018")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.USERNAME, USER_NAME + USER_NAME)
+			.formParam(FormParamName.PASSWORD, PASSWORD)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -792,22 +792,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000012")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", EXT_TOKEN)
-			.formParam("add_data", ADD_DATA)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000012")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -840,22 +840,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000013")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", EXT_TOKEN)
-			.formParam("add_data", ADD_DATA)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000013")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -888,22 +888,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000014")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", EXT_TOKEN)
-			.formParam("add_data", ADD_DATA)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000014")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -936,22 +936,22 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000015")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", EXT_TOKEN)
-			.formParam("add_data", ADD_DATA)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000015")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -969,24 +969,24 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000002")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", EXT_TOKEN)
-			.formParam("add_data", ADD_DATA)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000002")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
 			.when()
 			.post()
 			.then()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", nullValue());
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo("Bearer"))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
 
 	/**
@@ -1004,25 +1004,25 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000001")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("ext_token", EXT_TOKEN)
-			.formParam("add_data", ADD_DATA)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000001")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, "offline_access")
 			.when()
 			.post()
 			.then()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", notNullValue());
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo("Bearer"))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, notNullValue());
 	}
 
 	/**
@@ -1076,23 +1076,23 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000007")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000007")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token)
 			.when()
 			.post()
 			.then()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("access_token", notNullValue())
-			.body("token_type", equalTo("Bearer"))
-			.body("expires_in", notNullValue(Long.class))
-			.body("refresh_token", notNullValue());
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo("Bearer"))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, notNullValue());
 	}
 
 	/**
@@ -1105,20 +1105,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000008")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", "a.a.a")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000008")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, "a.a.a")
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1157,20 +1157,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000011")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000011")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token)
 			.when()
 			.post()
 			.then()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1205,20 +1205,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000a")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000a")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1251,20 +1251,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000b")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000b")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1292,20 +1292,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000009")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000009")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1351,20 +1351,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-000000000010")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token.serialize())
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000010")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token.serialize())
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1410,20 +1410,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000f")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token.serialize())
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000f")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token.serialize())
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1458,20 +1458,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000d")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000d")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1520,20 +1520,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000001d")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token.serialize())
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001d")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token.serialize())
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1580,20 +1580,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000e")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token.serialize())
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000e")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token.serialize())
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -1629,20 +1629,20 @@ class TokenResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-00000000000c")
-			.header("AcquirerId", ACQUIRER_ID)
-			.header("Channel", Channel.POS)
-			.header("MerchantId", MERCHANT_ID)
-			.header("TerminalId", TERMINAL_ID)
-			.formParam("client_id", clientId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("refresh_token", token)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000c")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, token)
 			.when()
 			.post()
 			.then()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**

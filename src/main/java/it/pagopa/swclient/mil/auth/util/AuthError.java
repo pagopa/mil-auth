@@ -7,36 +7,34 @@ package it.pagopa.swclient.mil.auth.util;
 
 /**
  * To be used if an application error occurs.
- * 
+ *
  * @author Antonio Tarricone
  */
 public class AuthError extends Error {
-	/*
-	 * 
-	 */
+    /*
+     *
+     */
 
-	private static final long serialVersionUID = 7785715776960328601L;
+    private static final long serialVersionUID = 7785715776960328601L;
 
-	/*
-	 * 
-	 */
-	private final String code;
+    /*
+     *
+     */
+    private final String code;
 
-	/**
-	 * 
-	 * @param code
-	 * @param message
-	 */
-	public AuthError(String code, String message) {
-		super(message);
-		this.code = code;
-	}
+    /**
+     * @param code
+     * @param message
+     */
+    public AuthError(String code, String message) {
+        super(message);
+        this.code = code;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getCode() {
-		return code;
-	}
+    /**
+     * @return
+     */
+    public String getCode() {
+        return code;
+    }
 }
