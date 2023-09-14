@@ -6,7 +6,11 @@
 package it.pagopa.swclient.mil.auth.bean;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Antonio Tarricone
@@ -18,50 +22,50 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class KeyPair {
-    /*
-     * Private exponent
-     */
-    private String d;
+	/*
+	 * Private exponent
+	 */
+	private String d;
 
-    /*
-     * Public exponent
-     */
-    private String e;
+	/*
+	 * Public exponent
+	 */
+	private String e;
 
-    /*
-     * Public key use
-     */
-    private KeyUse use;
+	/*
+	 * Public key use
+	 */
+	private KeyUse use;
 
-    /*
-     * Key ID
-     */
-    private String kid;
+	/*
+	 * Key ID
+	 */
+	private String kid;
 
-    /*
-     * Modulus
-     */
-    private String n;
+	/*
+	 * Modulus
+	 */
+	private String n;
 
-    /*
-     * Key type
-     */
-    private KeyType kty;
+	/*
+	 * Key type
+	 */
+	private KeyType kty;
 
-    /*
-     * Expiration time
-     */
-    private long exp;
+	/*
+	 * Expiration time
+	 */
+	private long exp;
 
-    /*
-     * Issued at
-     */
-    private long iat;
+	/*
+	 * Issued at
+	 */
+	private long iat;
 
-    /**
-     * @return
-     */
-    public PublicKey publicKey() {
-        return new PublicKey(e, use, kid, n, kty, exp, iat);
-    }
+	/**
+	 * @return
+	 */
+	// public PublicKey publicKey() {
+	// return new PublicKey(e, use, kid, n, kty, exp, iat);
+	// }
 }

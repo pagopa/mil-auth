@@ -36,7 +36,8 @@ import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Inject;
 
 /**
- * 
+ *
+ * @author Antonio Tarricone
  */
 @QuarkusTest
 @TestInstance(Lifecycle.PER_CLASS)
@@ -58,7 +59,7 @@ public class TokenByPasswordServiceTest {
 	@Inject
 	@Any
 	Instance<TokenService> tokenService;
-	
+
 	/*
 	 *
 	 */
@@ -79,14 +80,15 @@ public class TokenByPasswordServiceTest {
 			/*
 			 * Test.
 			 */
-			tokenService.select(new AnnotationLiteral<Password>() { })
+			tokenService.select(new AnnotationLiteral<Password>() {
+			})
 				.get().process(new GetAccessTokenRequest("00000000-0000-0000-0000-500000000000", null, ACQUIRER_ID, Channel.POS, MERCHANT_ID, TERMINAL_ID, GrantType.PASSWORD, USERNAME, PASSWORD, null, null, null, CLIENT_ID, Scope.OFFLINE_ACCESS, null))
 				.subscribe()
 				.withSubscriber(UniAssertSubscriber.create())
 				.assertFailedWith(AuthError.class);
 		}
 	}
-	
+
 	/*
 	 * 
 	 */
@@ -104,7 +106,7 @@ public class TokenByPasswordServiceTest {
 
 		when(repository.getUser(userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_ID)));
-		
+
 		try (MockedStatic<PasswordVerifier> passwordVerifier = Mockito.mockStatic(PasswordVerifier.class)) {
 			passwordVerifier.when(() -> PasswordVerifier.verify(PASSWORD, SALT, passwordHash))
 				.thenThrow(NoSuchAlgorithmException.class);
@@ -112,7 +114,8 @@ public class TokenByPasswordServiceTest {
 			/*
 			 * Test.
 			 */
-			tokenService.select(new AnnotationLiteral<Password>() { })
+			tokenService.select(new AnnotationLiteral<Password>() {
+			})
 				.get().process(new GetAccessTokenRequest("00000000-0000-0000-0000-500000000001", null, ACQUIRER_ID, Channel.POS, MERCHANT_ID, TERMINAL_ID, GrantType.PASSWORD, USERNAME, PASSWORD, null, null, null, CLIENT_ID, Scope.OFFLINE_ACCESS, null))
 				.subscribe()
 				.withSubscriber(UniAssertSubscriber.create())

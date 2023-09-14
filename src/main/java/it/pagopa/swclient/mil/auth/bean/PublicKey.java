@@ -5,6 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,38 +18,45 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class PublicKey {
-    /*
-     * Public exponent
-     */
-    private String e;
+	/*
+	 * Public exponent
+	 */
+	@JsonProperty(JsonPropertyName.EXPONENT)
+	private String e;
 
-    /*
-     * Public key use
-     */
-    private KeyUse use;
+	/*
+	 * Public key use
+	 */
+	@JsonProperty(JsonPropertyName.USE)
+	private KeyUse use;
 
-    /*
-     * Key ID
-     */
-    private String kid;
+	/*
+	 * Key ID
+	 */
+	@JsonProperty(JsonPropertyName.KID)
+	private String kid;
 
-    /*
-     * Modulus
-     */
-    private String n;
+	/*
+	 * Modulus
+	 */
+	@JsonProperty(JsonPropertyName.MODULUS)
+	private String n;
 
-    /*
-     * Key type
-     */
-    private KeyType kty;
+	/*
+	 * Key type
+	 */
+	@JsonProperty(JsonPropertyName.TYPE)
+	private KeyType kty;
 
-    /*
-     * Expiration time
-     */
-    private long exp;
+	/*
+	 * Expiration time
+	 */
+	@JsonProperty(JsonPropertyName.EXPIRATION)
+	private long exp;
 
-    /*
-     * Issued at
-     */
-    private long iat;
+	/*
+	 * Issued at
+	 */
+	@JsonProperty(JsonPropertyName.ISSUED_AT)
+	private long iat;
 }

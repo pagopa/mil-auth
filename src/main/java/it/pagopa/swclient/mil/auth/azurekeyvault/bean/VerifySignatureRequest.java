@@ -7,8 +7,13 @@ package it.pagopa.swclient.mil.auth.azurekeyvault.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author Antonio Tarricone
@@ -21,21 +26,21 @@ import lombok.*;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VerifySignatureRequest {
-    /*
-     *
-     */
-    @JsonProperty("alg")
-    private String alg;
+	/*
+	 *
+	 */
+	@JsonProperty("alg")
+	private String alg;
 
-    /*
-     *
-     */
-    @JsonProperty("digest")
-    private String data;
+	/*
+	 *
+	 */
+	@JsonProperty("digest")
+	private String data;
 
-    /*
-     *
-     */
-    @JsonProperty("value")
-    private String signature;
+	/*
+	 *
+	 */
+	@JsonProperty("value")
+	private String signature;
 }

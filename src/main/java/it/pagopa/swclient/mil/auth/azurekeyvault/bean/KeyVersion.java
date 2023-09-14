@@ -5,7 +5,6 @@
  */
 package it.pagopa.swclient.mil.auth.azurekeyvault.bean;
 
-
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.NoArgsConstructor;
 
@@ -15,11 +14,11 @@ import lombok.NoArgsConstructor;
 @RegisterForReflection
 @NoArgsConstructor
 public class KeyVersion extends Key {
-    /**
-     * @param kid
-     * @param attributes
-     */
-    public KeyVersion(String kid, KeyAttributes attributes) {
-        super(kid, attributes);
-    }
+	/**
+	 * @param kid
+	 * @param attributes
+	 */
+	public KeyVersion(String kid, KeyAttributes attributes) {
+		super(kid, attributes);
+	}
 }

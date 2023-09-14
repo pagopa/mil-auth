@@ -16,33 +16,33 @@ import lombok.ToString;
 @Getter
 @ToString
 public class User {
-    /*
-     *
-     */
-    private String username;
+	/*
+	 *
+	 */
+	private String username;
 
-    /*
-     *
-     */
-    private String salt;
+	/*
+	 *
+	 */
+	private String salt;
 
-    /*
-     *
-     */
-    private String passwordHash;
+	/*
+	 *
+	 */
+	private String passwordHash;
 
-    /*
-     *
-     */
-    private String acquirerId;
+	/*
+	 *
+	 */
+	private String acquirerId;
 
-    /*
-     *
-     */
-    private String channel;
+	/*
+	 *
+	 */
+	private String channel;
 
-    /*
-     *
-     */
-    private String merchantId;
+	/*
+	 *
+	 */
+	private String merchantId;
 }

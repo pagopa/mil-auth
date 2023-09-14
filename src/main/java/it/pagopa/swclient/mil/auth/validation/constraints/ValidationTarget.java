@@ -5,10 +5,14 @@
  */
 package it.pagopa.swclient.mil.auth.validation.constraints;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
-import java.lang.annotation.*;
 
 /**
  * @author Antonio Tarricone
@@ -17,12 +21,12 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Constraint(validatedBy = {
-        Validator.class
+	Validator.class
 })
 public @interface ValidationTarget {
-    String message() default "";
+	String message() default "";
 
-    Class<?>[] groups() default {};
+	Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
 }

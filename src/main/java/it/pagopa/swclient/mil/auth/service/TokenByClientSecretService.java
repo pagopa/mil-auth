@@ -18,13 +18,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 @ClientCredentials
 public class TokenByClientSecretService extends TokenService {
-    /**
-     * @param getAccessToken
-     * @return
-     */
-    @Override
-    public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
-        Log.debugf("Generation of the token by client secret.");
-        return super.process(getAccessToken);
-    }
+	/**
+	 * @param getAccessToken
+	 * @return
+	 */
+	@Override
+	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
+		Log.debugf("Generation of the token by client secret.");
+		return super.process(getAccessToken);
+	}
 }

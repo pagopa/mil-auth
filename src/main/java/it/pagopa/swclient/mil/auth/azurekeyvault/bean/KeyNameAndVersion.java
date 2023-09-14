@@ -5,7 +5,11 @@
  */
 package it.pagopa.swclient.mil.auth.azurekeyvault.bean;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author Antonio Tarricone
@@ -16,20 +20,20 @@ import lombok.*;
 @Setter
 @ToString
 public class KeyNameAndVersion {
-    /*
-     *
-     */
-    private String name;
+	/*
+	 *
+	 */
+	private String name;
 
-    /*
-     *
-     */
-    private String version;
+	/*
+	 *
+	 */
+	private String version;
 
-    /**
-     * @return
-     */
-    public boolean isValid() {
-        return name != null && version != null;
-    }
+	/**
+	 * @return
+	 */
+	public boolean isValid() {
+		return name != null && version != null;
+	}
 }

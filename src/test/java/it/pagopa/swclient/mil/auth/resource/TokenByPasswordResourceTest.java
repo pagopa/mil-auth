@@ -77,7 +77,7 @@ class TokenByPasswordResourceTest {
 	private static final String CLIENT_ID = "3965df56-ca9a-49e5-97e8-061433d4a25b";
 	private static final String DESCRIPTION = "VAS Layer";
 	private static final List<String> ROLES = List.of("NoticePayer", "SlavePos");
-	
+
 	/*
 	 * 
 	 */
@@ -113,7 +113,7 @@ class TokenByPasswordResourceTest {
 	private static final String USERNAME = "user";
 	private static final String PASSWORD = "password";
 	private static final String SALT = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
-	
+
 	/*
 	 * 
 	 */
@@ -328,7 +328,7 @@ class TokenByPasswordResourceTest {
 	void testNoSuchAlgorithmFindingCredentials() {
 		// See TokenByPasswordServiceTest.testNoSuchAlgorithmFindingCredentials
 	}
-	
+
 	@Test
 	void testInconsistentAcquirerId() throws NoSuchAlgorithmException {
 		/*
@@ -365,7 +365,7 @@ class TokenByPasswordResourceTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.INCONSISTENT_CREDENTIALS));
 	}
-	
+
 	@Test
 	void testInconsistentChannel() throws NoSuchAlgorithmException {
 		/*
@@ -402,7 +402,7 @@ class TokenByPasswordResourceTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.INCONSISTENT_CREDENTIALS));
 	}
-	
+
 	@Test
 	void testInconsistentMerchantId() throws NoSuchAlgorithmException {
 		/*
@@ -439,7 +439,7 @@ class TokenByPasswordResourceTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.INCONSISTENT_CREDENTIALS));
 	}
-	
+
 	@Test
 	void testWrongPassword() throws NoSuchAlgorithmException {
 		/*
@@ -477,8 +477,7 @@ class TokenByPasswordResourceTest {
 			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_CREDENTIALS));
 	}
 
-	@Test
-	void testErrorFromSuper() {
-		// TODO Not yet implemented
-	}
+//	@Test
+//	void testErrorFromSuper() {
+//	}
 }
