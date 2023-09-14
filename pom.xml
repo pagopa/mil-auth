@@ -8,19 +8,13 @@
 
 	<groupId>it.pagopa.swclient.mil</groupId>
 	<artifactId>auth</artifactId>
-	<version>1.7.3</version>
-
+	<version>1.7.4</version>
 	<description>Authorization Microservice for Multi-channel Integration Layer of SW Client Project.</description>
 
 	<developers>
 		<developer>
 			<name>Antonio Tarricone</name>
 			<email>antonio.tarricone@pagopa.it</email>
-			<organization>PagoPA S.p.A.</organization>
-		</developer>
-		<developer>
-			<name>Anis Lucidi</name>
-			<email>anis.lucidi@pagopa.it</email>
 			<organization>PagoPA S.p.A.</organization>
 		</developer>
 	</developers>
