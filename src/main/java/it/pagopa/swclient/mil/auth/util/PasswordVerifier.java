@@ -12,18 +12,16 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 public class PasswordVerifier {
 	/**
-	 * 
+	 *
 	 */
 	private PasswordVerifier() {
 	}
 
 	/**
-	 * 
 	 * @param password
 	 * @param salt
 	 * @param hash
@@ -37,13 +35,12 @@ public class PasswordVerifier {
 	}
 
 	/**
-	 * 
 	 * @param password
 	 * @param salt
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
-	private static byte[] hashBytes(String password, String salt) throws NoSuchAlgorithmException {
+	public static byte[] hashBytes(String password, String salt) throws NoSuchAlgorithmException {
 		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
 		byte[] saltBytes = Base64.getDecoder().decode(salt);
 
@@ -53,17 +50,5 @@ public class PasswordVerifier {
 
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		return digest.digest(data);
-	}
-
-	/**
-	 * 
-	 * @param password
-	 * @param salt
-	 * @return
-	 * @throws NoSuchAlgorithmException
-	 */
-	public static String hash(String password, String salt) throws NoSuchAlgorithmException {
-		byte[] hashBytes = hashBytes(password, salt);
-		return Base64.getEncoder().encodeToString(hashBytes);
 	}
 }

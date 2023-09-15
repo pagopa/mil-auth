@@ -18,13 +18,11 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @RegisterRestClient(configKey = "poynt-api")
 public interface PoyntClient {
 	/**
-	 * 
 	 * @param poyntToken
 	 * @param businessId
 	 * @return
@@ -38,7 +36,6 @@ public interface PoyntClient {
 		@PathParam("businessId") String businessId);
 
 	/**
-	 * 
 	 * @param name
 	 * @return
 	 */

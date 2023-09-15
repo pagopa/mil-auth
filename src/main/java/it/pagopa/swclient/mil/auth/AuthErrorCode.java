@@ -1,5 +1,5 @@
 /*
- * ErrorCode.java
+ * AuthErrorCode.java
  *
  * 15 mar 2023
  */
@@ -7,10 +7,10 @@ package it.pagopa.swclient.mil.auth;
 
 /**
  * Error codes returned by this service.
- * 
+ *
  * @author Antonio Tarricone
  */
-public final class ErrorCode {
+public final class AuthErrorCode {
 	public static final String MODULE_ID = "009";
 
 	public static final String CLIENT_ID_MUST_NOT_BE_NULL = MODULE_ID + "000001";
@@ -52,10 +52,13 @@ public final class ErrorCode {
 	public static final String ERROR_GENERATING_KEY_PAIR = MODULE_ID + "000025";
 	public static final String UNEXPECTED_ERROR = MODULE_ID + "000026";
 	public static final String ERROR_VERIFING_SECRET = MODULE_ID + "000027";
+	public static final String ERROR_STORING_KEY_PAIR = MODULE_ID + "000028";
+	public static final String AZURE_ACCESS_TOKEN_IS_NULL = MODULE_ID + "000029";
+	public static final String ERROR_FROM_AZURE = MODULE_ID + "00002A";
 
 	/**
-	 * 
+	 *
 	 */
-	private ErrorCode() {
+	private AuthErrorCode() {
 	}
 }

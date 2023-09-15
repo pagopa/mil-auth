@@ -6,7 +6,6 @@
 package it.pagopa.swclient.mil.auth.bean;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 public class GrantType {

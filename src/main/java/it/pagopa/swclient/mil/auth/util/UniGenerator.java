@@ -8,19 +8,18 @@ package it.pagopa.swclient.mil.auth.util;
 import io.smallrye.mutiny.Uni;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 public class UniGenerator {
 	/**
-	 * 
+	 *
 	 */
 	private UniGenerator() {
 	}
 
 	/**
 	 * To be used if a check fails.
-	 * 
+	 *
 	 * @param <T>
 	 * @param code
 	 * @param message
@@ -32,7 +31,7 @@ public class UniGenerator {
 
 	/**
 	 * To be used if an application error occurs.
-	 * 
+	 *
 	 * @param <T>
 	 * @param code
 	 * @param message
@@ -43,7 +42,6 @@ public class UniGenerator {
 	}
 
 	/**
-	 * 
 	 * @param <T>
 	 * @param t
 	 * @return
@@ -53,7 +51,6 @@ public class UniGenerator {
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	public static Uni<Void> voidItem() {

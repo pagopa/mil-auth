@@ -16,13 +16,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @RegisterRestClient(configKey = "auth-data-repository")
 public interface AuthDataRepository {
 	/**
-	 * 
 	 * @param clientId
 	 * @return
 	 */
@@ -31,7 +29,6 @@ public interface AuthDataRepository {
 	Uni<Client> getClient(@PathParam("clientId") String clientId);
 
 	/**
-	 * 
 	 * @param acquirerId
 	 * @param channel
 	 * @param merchantId
@@ -47,9 +44,8 @@ public interface AuthDataRepository {
 		@PathParam("clientId") String clientId,
 		@PathParam("merchantId") String merchantId,
 		@PathParam("terminalId") String terminalId);
-	
+
 	/**
-	 * 
 	 * @param userHash
 	 * @return
 	 */

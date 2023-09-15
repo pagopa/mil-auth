@@ -13,12 +13,15 @@ import org.junit.jupiter.api.TestInstance;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.swclient.mil.auth.bean.FormParamName;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
+import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
+import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
+import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.ws.rs.core.MediaType;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @QuarkusTest
@@ -26,7 +29,7 @@ import jakarta.ws.rs.core.MediaType;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RequestValidationTest {
 	/*
-	 * 
+	 *
 	 */
 	private static final String clientId = "5254f087-1214-45cd-94ae-fda53c835197";
 	private static final String acquirerId = "4585625";
@@ -49,24 +52,24 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000001")
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000001")
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -79,17 +82,17 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000002")
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000002")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -102,23 +105,23 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000003")
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000003")
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -131,22 +134,22 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000004")
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000004")
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -159,21 +162,21 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000005")
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000005")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -186,22 +189,22 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000006")
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000006")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -214,21 +217,21 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000007")
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000007")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -241,20 +244,20 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000008")
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000008")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -267,19 +270,19 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000009")
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000009")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -292,22 +295,22 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000000a")
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000000a")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm1() {
@@ -316,50 +319,50 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000000b")
-			.header("Channel", Channel.ATM)
-			.header("MerchantId", merchantId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000000b")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm10() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000000c")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000000c")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm2() {
@@ -368,211 +371,211 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000000d")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000000d")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm3() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000000e")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000000e")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm4() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000000f")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000000f")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm5() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000010")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000010")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm6() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000011")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000011")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm7() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000012")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000012")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm8() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000013")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000013")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsAtm9() {
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000014")
-			.header("Channel", Channel.ATM)
-			.header("AcquirerId", acquirerId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000014")
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void clientCredentialsPos1() {
@@ -581,22 +584,22 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000015")
-			.header("Channel", Channel.POS)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000015")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -609,21 +612,21 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000016")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000016")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -636,23 +639,23 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000018")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000018")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -665,24 +668,24 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000019")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000019")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -695,25 +698,25 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000001a")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000001a")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -726,26 +729,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000001b")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000001b")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -758,25 +761,25 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000001c")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000001c")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -789,24 +792,24 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000001d")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000001d")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -819,23 +822,23 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000001e")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000001e")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -848,26 +851,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000001f")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.CLIENT_CREDENTIALS)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000001f")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password1() {
@@ -876,25 +879,25 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000020")
-			.header("Channel", Channel.POS)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000020")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password2() {
@@ -903,26 +906,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000021")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000021")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password3() {
@@ -931,27 +934,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000022")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000022")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password4() {
@@ -960,28 +963,28 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000023")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000023")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password5() {
@@ -990,27 +993,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000024")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000024")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password6() {
@@ -1019,26 +1022,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000025")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000025")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password7() {
@@ -1047,25 +1050,25 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000026")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("refresh_token", refreshToken)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000026")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password8() {
@@ -1074,24 +1077,24 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000027")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000027")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void password9() {
@@ -1100,25 +1103,25 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000028")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
-			.formParam("username", username)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000028")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt1() {
@@ -1127,25 +1130,25 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000029")
-			.header("Channel", Channel.POS)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000029")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt2() {
@@ -1154,26 +1157,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000002a")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000002a")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt3() {
@@ -1182,27 +1185,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000002b")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000002b")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt4() {
@@ -1211,28 +1214,28 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000002c")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000002c")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt5() {
@@ -1241,27 +1244,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000002d")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000002d")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt6() {
@@ -1270,28 +1273,28 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000002e")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000002e")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt7() {
@@ -1300,29 +1303,29 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000002f")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000002f")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt8() {
@@ -1331,28 +1334,28 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000030")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000030")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void poynt9() {
@@ -1361,27 +1364,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000031")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.POYNT_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000031")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken1() {
@@ -1390,26 +1393,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000032")
-			.header("Channel", Channel.POS)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000032")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken2() {
@@ -1418,27 +1421,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000033")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000033")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken3() {
@@ -1447,28 +1450,28 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000034")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000034")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken4() {
@@ -1477,29 +1480,29 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000035")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("client_secret", clientSecret)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000035")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.CLIENT_SECRET, clientSecret)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken5() {
@@ -1508,28 +1511,28 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000036")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("ext_token", extToken)
-			.formParam("add_data", addData)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000036")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.EXT_TOKEN, extToken)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken6() {
@@ -1538,27 +1541,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000037")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("add_data", addData)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000037")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.ADD_DATA, addData)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken7() {
@@ -1567,26 +1570,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000038")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000038")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken8() {
@@ -1595,27 +1598,27 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-100000000039")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("refresh_token", refreshToken)
-			.formParam("username", username)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-100000000039")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.USERNAME, username)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void refreshToken9() {
@@ -1624,26 +1627,26 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000003a")
-			.header("Channel", Channel.POS)
-			.header("AcquirerId", acquirerId)
-			.header("MerchantId", merchantId)
-			.header("TerminalId", terminalId)
-			.formParam("grant_type", GrantType.REFRESH_TOKEN)
-			.formParam("client_id", clientId)
-			.formParam("refresh_token", refreshToken)
-			.formParam("password", password)
-			.formParam("scope", "offline_access")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000003a")
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.ACQUIRER_ID, acquirerId)
+			.header(HeaderParamName.MERCHANT_ID, merchantId)
+			.header(HeaderParamName.TERMINAL_ID, terminalId)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.CLIENT_ID, clientId)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshToken)
+			.formParam(FormParamName.PASSWORD, password)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	void withoutValidator() {
@@ -1652,14 +1655,14 @@ class RequestValidationTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header("RequestId", "00000000-0000-0000-0000-10000000003b")
-			.formParam("grant_type", GrantType.PASSWORD)
-			.formParam("client_id", clientId)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-10000000003b")
+			.formParam(FormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(FormParamName.CLIENT_ID, clientId)
 			.when()
 			.post()
 			.then()
 			.statusCode(400)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body("errors", notNullValue());
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 }

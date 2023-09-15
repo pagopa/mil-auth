@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @AllArgsConstructor
@@ -18,32 +17,32 @@ import lombok.ToString;
 @ToString
 public class User {
 	/*
-	 * 
+	 *
 	 */
 	private String username;
 
 	/*
-	 * 
+	 *
 	 */
 	private String salt;
 
 	/*
-	 * 
+	 *
 	 */
 	private String passwordHash;
 
 	/*
-	 * 
+	 *
 	 */
 	private String acquirerId;
 
 	/*
-	 * 
+	 *
 	 */
 	private String channel;
 
 	/*
-	 * 
+	 *
 	 */
 	private String merchantId;
 }

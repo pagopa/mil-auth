@@ -11,9 +11,9 @@ import java.util.Map;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.ErrorCode;
-import it.pagopa.swclient.mil.auth.bean.AccessToken;
-import it.pagopa.swclient.mil.auth.bean.GetAccessToken;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
@@ -40,23 +40,16 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @SuppressWarnings("serial")
 @Path("/token")
 public class TokenResource {
 	/*
-	 * 
-	 */
-	@Inject
-	@Any
-	Instance<TokenService> tokenService;
-
-	/*
-	 * 
+	 *
 	 */
 	private static Map<String, AnnotationLiteral<?>> qualifiers = new HashMap<>();
+
 	static {
 		qualifiers.put(GrantType.CLIENT_CREDENTIALS, new AnnotationLiteral<ClientCredentials>() {
 		});
@@ -68,6 +61,13 @@ public class TokenResource {
 		});
 	}
 
+	/*
+	 *
+	 */
+	@Inject
+	@Any
+	Instance<TokenService> tokenService;
+
 	/**
 	 * Dispatches the request to the right method.
 	 *
@@ -77,7 +77,7 @@ public class TokenResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<AccessToken> createOrRefreshToken(@Valid @BeanParam GetAccessToken getAccessToken) {
+	public Uni<GetAccessTokenResponse> createOrRefreshToken(@Valid @BeanParam GetAccessTokenRequest getAccessToken) {
 		/*
 		 * If the flow reaches this point, the input is validated!
 		 */
@@ -88,7 +88,7 @@ public class TokenResource {
 			.transform(t -> {
 				Log.errorf(t, "Unexpected error.");
 				return new InternalServerErrorException(Response.status(Status.INTERNAL_SERVER_ERROR)
-					.entity(new Errors(List.of(ErrorCode.UNEXPECTED_ERROR)))
+					.entity(new Errors(List.of(AuthErrorCode.UNEXPECTED_ERROR)))
 					.build());
 			})
 			.onFailure(AuthError.class)

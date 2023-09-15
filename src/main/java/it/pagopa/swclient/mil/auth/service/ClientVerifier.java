@@ -5,12 +5,6 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static it.pagopa.swclient.mil.auth.ErrorCode.CLIENT_NOT_FOUND;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_SEARCHING_FOR_CLIENT;
-import static it.pagopa.swclient.mil.auth.ErrorCode.ERROR_VERIFING_SECRET;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_CHANNEL;
-import static it.pagopa.swclient.mil.auth.ErrorCode.WRONG_SECRET;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
@@ -19,6 +13,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
@@ -29,19 +24,19 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @ApplicationScoped
 public class ClientVerifier {
 	/*
-	 * 
+	 *
 	 */
 	@RestClient
 	AuthDataRepository repository;
 
 	/**
-	 * 
+	 * Due to caching this method must be public.
+	 *
 	 * @param clientId
 	 * @return
 	 */
@@ -51,36 +46,34 @@ public class ClientVerifier {
 	}
 
 	/**
-	 * 
-	 * @param cliendId
+	 * @param clientId
 	 * @return
 	 */
 	public Uni<Client> findClient(String clientId) {
-		Log.debugf("Search for the client %s.", clientId);
+		Log.debugf("Search for the client [%s].", clientId);
 		return getClient(clientId)
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
 					if (r.getStatus() == 404) {
-						String message = String.format("[%s] Client %s not found.", CLIENT_NOT_FOUND, clientId);
+						String message = String.format("[%s] Client [%s] not found.", AuthErrorCode.CLIENT_NOT_FOUND, clientId);
 						Log.warnf(t, message);
-						return new AuthException(CLIENT_NOT_FOUND, message);
+						return new AuthException(AuthErrorCode.CLIENT_NOT_FOUND, message);
 					} else {
-						String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
+						String message = String.format("[%s] Error searching for the client [%s].", AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT, clientId);
 						Log.errorf(t, message);
-						return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
+						return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT, message);
 					}
 				} else {
-					String message = String.format("[%s] Error searching for the client %s.", ERROR_SEARCHING_FOR_CLIENT, clientId);
+					String message = String.format("[%s] Error searching for the client [%s].", AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT, clientId);
 					Log.errorf(t, message);
-					return new AuthError(ERROR_SEARCHING_FOR_CLIENT, message);
+					return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT, message);
 				}
 			});
 	}
 
 	/**
-	 * 
 	 * @param clientEntity
 	 * @param expectedChannel
 	 */
@@ -91,14 +84,13 @@ public class ClientVerifier {
 			Log.debug("Channel has been successfully verified.");
 			return clientEntity;
 		} else {
-			String message = String.format("[%s] Wrong channel. Expected %s, found %s.", WRONG_CHANNEL, expectedChannel, expectedChannel);
+			String message = String.format("[%s] Wrong channel. Expected [%s], found [%s].", AuthErrorCode.WRONG_CHANNEL, expectedChannel, foundChannel);
 			Log.warn(message);
-			throw new AuthException(WRONG_CHANNEL, message);
+			throw new AuthException(AuthErrorCode.WRONG_CHANNEL, message);
 		}
 	}
 
 	/**
-	 * 
 	 * @param clientEntity
 	 * @param expectedSecret
 	 */
@@ -109,23 +101,22 @@ public class ClientVerifier {
 			if (foundSecret == null && expectedSecret == null) {
 				Log.debug("Secret is not used.");
 				return clientEntity;
-			} else if (PasswordVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
+			} else if (foundSecret != null && expectedSecret != null && PasswordVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
 				Log.debug("Secret is ok.");
 				return clientEntity;
 			} else {
-				String message = String.format("[%s] Wrong secret.", WRONG_SECRET);
+				String message = String.format("[%s] Wrong secret.", AuthErrorCode.WRONG_SECRET);
 				Log.warn(message);
-				throw new AuthException(WRONG_SECRET, message);
+				throw new AuthException(AuthErrorCode.WRONG_SECRET, message);
 			}
 		} catch (NoSuchAlgorithmException e) {
-			String message = String.format("[%s] Error verifing secret.", ERROR_VERIFING_SECRET);
+			String message = String.format("[%s] Error verifing secret.", AuthErrorCode.ERROR_VERIFING_SECRET);
 			Log.error(message);
-			throw new AuthError(ERROR_VERIFING_SECRET, message);
+			throw new AuthError(AuthErrorCode.ERROR_VERIFING_SECRET, message);
 		}
 	}
 
 	/**
-	 * 
 	 * @param clientId
 	 * @param channel
 	 * @param secret

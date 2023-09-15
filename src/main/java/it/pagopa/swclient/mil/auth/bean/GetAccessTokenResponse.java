@@ -1,5 +1,5 @@
 /*
- * AccessToken.java
+ * GetAccessTokenResponse.java
  *
  * 16 mar 2023
  */
@@ -13,45 +13,43 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Getter;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
 @JsonInclude(Include.NON_NULL)
 @Getter
-public class AccessToken {
+public class GetAccessTokenResponse {
 	/*
 	 * access_token
 	 */
-	@JsonProperty("access_token")
-	private String accessTokenProper;
+	@JsonProperty(JsonPropertyName.ACCESS_TOKEN)
+	private String accessToken;
 
 	/*
 	 * refresh_token
 	 */
-	@JsonProperty("refresh_token")
+	@JsonProperty(JsonPropertyName.REFRESH_TOKEN)
 	private String refreshToken;
 
 	/*
 	 * token_type
 	 */
-	@JsonProperty("token_type")
-	private String tokenType = "Bearer";
+	@JsonProperty(JsonPropertyName.TOKEN_TYPE)
+	private String tokenType = TokenType.BEARER;
 
 	/*
 	 * expires_in
 	 */
-	@JsonProperty("expires_in")
+	@JsonProperty(JsonPropertyName.EXPIRES_IN)
 	private long expiresIn;
 
 	/**
-	 * 
-	 * @param accessTokenProper
+	 * @param accessToken
 	 * @param refreshToken
 	 * @param expiresIn
 	 */
-	public AccessToken(String accessTokenProper, String refreshToken, long expiresIn) {
-		this.accessTokenProper = accessTokenProper;
+	public GetAccessTokenResponse(String accessToken, String refreshToken, long expiresIn) {
+		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.expiresIn = expiresIn;
 	}

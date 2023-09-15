@@ -7,12 +7,12 @@ package it.pagopa.swclient.mil.auth.bean;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
@@ -20,6 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class KeyPair {
 	/*
 	 * Private exponent
@@ -60,12 +61,4 @@ public class KeyPair {
 	 * Issued at
 	 */
 	private long iat;
-
-	/**
-	 * 
-	 * @return
-	 */
-	public PublicKey publicKey() {
-		return new PublicKey(e, use, kid, n, kty, exp, iat);
-	}
 }
