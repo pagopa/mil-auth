@@ -45,7 +45,7 @@ public class KidUtil {
 	 */
 	@PostConstruct
 	void init() {
-		String temp = (vaultBaseUrl + "/keys/").replaceAll("//keys", "/keys");
+		String temp = (vaultBaseUrl + "/keys/").replace("//keys", "/keys");
 		patternForAzureKidWithNameAndVersion = Pattern.compile("^" + Pattern.quote(temp) + "(?<name>\\w+)\\/(?<version>\\w+)$");
 		patternForAzureKidWithName = Pattern.compile("^" + Pattern.quote(temp) + "(?<name>\\w+)$");
 		patternForMyKid = Pattern.compile("^(?<name>\\w+)\\/(?<version>\\w+)$");

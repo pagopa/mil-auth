@@ -41,7 +41,7 @@ import jakarta.inject.Inject;
  */
 @QuarkusTest
 @TestInstance(Lifecycle.PER_CLASS)
-public class TokenByPasswordServiceTest {
+class TokenByPasswordServiceTest {
 	/*
 	 *
 	 */

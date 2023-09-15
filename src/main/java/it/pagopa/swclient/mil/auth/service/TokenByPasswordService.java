@@ -37,6 +37,11 @@ import jakarta.ws.rs.core.Response;
 @Password
 public class TokenByPasswordService extends TokenService {
 	/*
+	 * 
+	 */
+	private static final String ERROR_SEARCHING_FOR_CREDENTIALS_MSG = "[%s] Error searching for the credentials.";
+	
+	/*
 	 *
 	 */
 	@RestClient
@@ -66,7 +71,7 @@ public class TokenByPasswordService extends TokenService {
 				MessageDigest.getInstance("SHA256").digest(
 					getAccessToken.getUsername().getBytes(StandardCharsets.UTF_8)));
 		} catch (NoSuchAlgorithmException e) {
-			String message = String.format("[%s] Error searching for the credentials.", AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
+			String message = String.format(ERROR_SEARCHING_FOR_CREDENTIALS_MSG, AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
 			Log.errorf(e, message);
 			return UniGenerator.error(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS, message);
 		}
@@ -80,12 +85,12 @@ public class TokenByPasswordService extends TokenService {
 						Log.warnf("[%s] Credentials not found.", AuthErrorCode.WRONG_CREDENTIALS);
 						return new AuthException(AuthErrorCode.WRONG_CREDENTIALS, String.format("[%s] Wrong credentials.", AuthErrorCode.WRONG_CREDENTIALS)); // It's better not to give details...
 					} else {
-						String message = String.format("[%s] Error searching for the credentials.", AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
+						String message = String.format(ERROR_SEARCHING_FOR_CREDENTIALS_MSG, AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
 						Log.errorf(t, message);
 						return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS, message);
 					}
 				} else {
-					String message = String.format("[%s] Error searching for the credentials.", AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
+					String message = String.format(ERROR_SEARCHING_FOR_CREDENTIALS_MSG, AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
 					Log.errorf(t, message);
 					return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS, message);
 				}
@@ -177,11 +182,4 @@ public class TokenByPasswordService extends TokenService {
 		return verifyCredentials(getAccessToken)
 			.chain(() -> super.process(getAccessToken));
 	}
-
-	// public static void main(String[] args) throws NoSuchAlgorithmException {
-	// System.out.println(Base64.getEncoder().encodeToString(
-	// MessageDigest.getInstance("SHA256").digest(
-	// "carlodeche2".getBytes(UTF_8)))
-	// .replace("+", "-"));
-	// }
 }

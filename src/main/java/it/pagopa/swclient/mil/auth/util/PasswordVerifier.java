@@ -51,15 +51,4 @@ public class PasswordVerifier {
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		return digest.digest(data);
 	}
-
-	/**
-	 * @param password
-	 * @param salt
-	 * @return
-	 * @throws NoSuchAlgorithmException
-	 */
-	// public static String hash(String password, String salt) throws NoSuchAlgorithmException {
-	// byte[] hashBytes = hashBytes(password, salt);
-	// return Base64.getEncoder().encodeToString(hashBytes);
-	// }
 }

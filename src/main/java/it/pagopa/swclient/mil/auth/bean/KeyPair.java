@@ -61,11 +61,4 @@ public class KeyPair {
 	 * Issued at
 	 */
 	private long iat;
-
-	/**
-	 * @return
-	 */
-	// public PublicKey publicKey() {
-	// return new PublicKey(e, use, kid, n, kty, exp, iat);
-	// }
 }
