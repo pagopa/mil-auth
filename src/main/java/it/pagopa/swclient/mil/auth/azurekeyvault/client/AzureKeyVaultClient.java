@@ -10,9 +10,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import io.quarkus.rest.client.reactive.ClientQueryParam;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeyResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeyVersionsResponse;
+import it.pagopa.swclient.mil.auth.azurekeyvault.bean.DetailedKey;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignResponse;
@@ -43,7 +41,7 @@ public interface AzureKeyVaultClient {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
-	Uni<CreateKeyResponse> createKey(
+	Uni<DetailedKey> createKey(
 		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName,
 		CreateKeyRequest createKeyRequest);
@@ -69,7 +67,7 @@ public interface AzureKeyVaultClient {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
-	Uni<GetKeyResponse> getKey(
+	Uni<DetailedKey> getKey(
 		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName,
 		@PathParam("keyVersion") String keyVersion);
@@ -83,7 +81,7 @@ public interface AzureKeyVaultClient {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
-	Uni<GetKeyVersionsResponse> getKeyVersions(
+	Uni<GetKeysResponse> getKeyVersions(
 		@HeaderParam("Authorization") String authorization,
 		@PathParam("keyName") String keyName);
 

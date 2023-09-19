@@ -16,10 +16,10 @@ import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-//import java.security.PublicKey;
+// import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
-//import java.security.spec.RSAPublicKeySpec;
+// import java.security.spec.RSAPublicKeySpec;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Base64;
@@ -80,7 +80,7 @@ class AzureTokenSignerTest {
 	private static final String PRIVATE_EXPONENT = "IlITaUNTFtzaUVA8lIuqxhOHLW3vCv4_ixMVLnwXC0cHteudliGIZ8vGyX9laPTDezS3lkEPSuSI9gqpO6cqRs9Xtr7IW-9NQDYQLO2AoVGh21SfZVZxL2Tm8gdnnGBA9J1wXcMLIBp7uGjBtkXUF2Y2CRcm0XowU_MEASAgQLEFE_8Xn4vSgsXWiIld6F1dFcinxaT9xOul5H-Yeozll4dcwKsCh0pehBJs-wCWXxK6S_-g4JZe29lHJMbu7hjpU7f1_AcIKNEH3d8nzID-5ux49RCz4goasgonua8FXOS23Sh-Jg6WjmwtZj0nEc6c4rVlzzqlBG2a8I0ApJsnlo2RK1E-XftVNip52Bsb9jRKGNjNZP3VOgAdLg-py8HVU3sxn95yJRN6AF7S8a0Jnb6uAzxagmfZqLe1ykswBPJWPP2dyQivb59CMcmHQoOK-up_Tt1P6oIltTCHEg0z79GVatWvikmfrN0tLrMJl8iR_67IDvehkp0r4DoFQNkhKNm5moFGFJWqkWZSpi3OUhPYZNmWPJTf1CxM3li6hNqRuGLCe-M9-gyZ01U9j9sUbV3xaK6kXhDPje2JB-0FkZuU7ewmpmQ5ETuRYrXyQa6b6VyxNwYokvgAGxdQ8leT2jxq_UVoMw-C0JU8tOC1fkXxClfOsSfCKx5WQXIKFrU=";
 	private static final String PUBLIC_EXPONENT = "AQAB";
 	private static final long KEY_DURATION = 5 * 60;
-	
+
 	/*
 	 *
 	 */
@@ -92,38 +92,38 @@ class AzureTokenSignerTest {
 	private static final String TERMINAL_ID = "TERMINAL_ID";
 	private static final String SCOPES = "SCOPES";
 	private static final List<String> GROUPS = List.of("GROUP_1", "GROUP_2");
-	
+
 	/*
 	 *
 	 */
 	@Inject
 	TokenSigner tokenSigner;
-	
+
 	/*
 	 *
 	 */
 	@InjectMock
 	AzureKeyFinder keyFinder;
-	
+
 	/*
 	 *
 	 */
 	@InjectMock
 	@RestClient
 	AzureKeyVaultClient keyVaultClient;
-	
+
 	/*
 	 *
 	 */
 	@InjectMock
 	@RestClient
 	AzureAuthClient authClient;
-	
+
 	/*
 	 *
 	 */
 	private PrivateKey privateKey;
-	//private PublicKey publicKey;
+	// private PublicKey publicKey;
 
 	/**
 	 *
@@ -132,11 +132,11 @@ class AzureTokenSignerTest {
 	void init() throws NoSuchAlgorithmException, InvalidKeySpecException {
 		BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(MODULUS));
 		BigInteger privateExponent = new BigInteger(1, Base64.getUrlDecoder().decode(PRIVATE_EXPONENT));
-		//BigInteger publicExponent = new BigInteger(1, Base64.getUrlDecoder().decode(PUBLIC_EXPONENT));
+		// BigInteger publicExponent = new BigInteger(1, Base64.getUrlDecoder().decode(PUBLIC_EXPONENT));
 
 		KeyFactory factory = KeyFactory.getInstance("RSA");
 		privateKey = factory.generatePrivate(new RSAPrivateKeySpec(modulus, privateExponent));
-		//publicKey = factory.generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
+		// publicKey = factory.generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
 	}
 
 	/**

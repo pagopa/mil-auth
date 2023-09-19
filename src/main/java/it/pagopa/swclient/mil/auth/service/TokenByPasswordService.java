@@ -40,7 +40,7 @@ public class TokenByPasswordService extends TokenService {
 	 * 
 	 */
 	private static final String ERROR_SEARCHING_FOR_CREDENTIALS_MSG = "[%s] Error searching for the credentials.";
-	
+
 	/*
 	 *
 	 */

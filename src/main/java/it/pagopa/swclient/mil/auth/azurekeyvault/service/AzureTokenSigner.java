@@ -73,12 +73,14 @@ public class AzureTokenSigner implements TokenSigner {
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		digest.update(bytesToSign);
 		byte[] hash = digest.digest();
+		
+		return Base64.getUrlEncoder().encodeToString(hash);
 
-		byte[] derDigestInfo = new byte[ID.length + hash.length];
-		System.arraycopy(ID, 0, derDigestInfo, 0, ID.length);
-		System.arraycopy(hash, 0, derDigestInfo, ID.length, hash.length);
-
-		return Base64.getUrlEncoder().encodeToString(derDigestInfo);
+//		byte[] derDigestInfo = new byte[ID.length + hash.length];
+//		System.arraycopy(ID, 0, derDigestInfo, 0, ID.length);
+//		System.arraycopy(hash, 0, derDigestInfo, ID.length, hash.length);
+//
+//		return Base64.getUrlEncoder().encodeToString(derDigestInfo);
 	}
 
 	/**

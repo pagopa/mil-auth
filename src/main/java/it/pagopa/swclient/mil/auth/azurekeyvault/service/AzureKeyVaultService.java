@@ -10,9 +10,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeyResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeyVersionsResponse;
+import it.pagopa.swclient.mil.auth.azurekeyvault.bean.DetailedKey;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignResponse;
@@ -42,7 +40,7 @@ public class AzureKeyVaultService {
 	 * @param createKeyRequest
 	 * @return
 	 */
-	public Uni<CreateKeyResponse> createKey(String accessToken, String keyName, CreateKeyRequest createKeyRequest) {
+	public Uni<DetailedKey> createKey(String accessToken, String keyName, CreateKeyRequest createKeyRequest) {
 		Log.debugf("Creating a new key [%s]: [%s]", keyName, createKeyRequest);
 		return client.createKey(BEARER + accessToken, keyName, createKeyRequest);
 	}
@@ -62,7 +60,7 @@ public class AzureKeyVaultService {
 	 * @param keyVersion
 	 * @return
 	 */
-	public Uni<GetKeyResponse> getKey(String accessToken, String keyName, String keyVersion) {
+	public Uni<DetailedKey> getKey(String accessToken, String keyName, String keyVersion) {
 		Log.debugf("Retrieving details of version [%s] of the key [%s].", keyVersion, keyName);
 		return client.getKey(BEARER + accessToken, keyName, keyVersion);
 	}
@@ -72,7 +70,7 @@ public class AzureKeyVaultService {
 	 * @param keyName
 	 * @return
 	 */
-	public Uni<GetKeyVersionsResponse> getKeyVersions(String accessToken, String keyName) {
+	public Uni<GetKeysResponse> getKeyVersions(String accessToken, String keyName) {
 		Log.debugf("Retrieving versions of the key [%s].", keyName);
 		return client.getKeyVersions(BEARER + accessToken, keyName);
 	}

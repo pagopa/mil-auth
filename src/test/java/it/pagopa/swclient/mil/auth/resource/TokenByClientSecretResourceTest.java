@@ -27,16 +27,13 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.azurekeyvault.bean.BasicKey;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyResponse;
+import it.pagopa.swclient.mil.auth.azurekeyvault.bean.DetailedKey;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeyResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeyVersionsResponse;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.Key;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyAttributes;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyDetails;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyVersion;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignResponse;
 import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
@@ -89,7 +86,7 @@ class TokenByClientSecretResourceTest {
 	 *
 	 */
 	private static final String KEY_URL = "https://mil-d-appl-kv.vault.azure.net/keys/";
-	private static final String KEY_NAME = "0709643f49394529b92c19a68c8e184a";
+	private static final String KEY_NAME = "auth0709643f49394529b92c19a68c8e184a";
 	private static final String KEY_VERSION = "6581c704deda4979943c3b34468df7c2";
 	private static final String KID = KEY_NAME + "/" + KEY_VERSION;
 	private static final String KEY_RECOVERY_LEVEL = "Purgeable";
@@ -149,17 +146,17 @@ class TokenByClientSecretResourceTest {
         KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new Key[]{
-                        new Key(KEY_URL + KEY_NAME, keyAttributes)
+                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
+                        new BasicKey(KEY_URL + KEY_NAME, keyAttributes)
                 })));
 
         when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeyVersionsResponse(new KeyVersion[]{
-                        new KeyVersion(KEY_URL + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
+                        new BasicKey(KEY_URL + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
                 })));
 
         when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new GetKeyResponse(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT, keyAttributes))));
+                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
 
         when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
                 .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
@@ -217,17 +214,17 @@ class TokenByClientSecretResourceTest {
         KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new Key[]{
-                        new Key(KEY_URL + KEY_NAME, keyAttributes)
+                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
+                        new BasicKey(KEY_URL + KEY_NAME, keyAttributes)
                 })));
 
         when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeyVersionsResponse(new KeyVersion[]{
-                        new KeyVersion(KEY_URL + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
+                        new BasicKey(KEY_URL + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
                 })));
 
         when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new GetKeyResponse(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT, keyAttributes))));
+                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
 
         when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
                 .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
@@ -284,17 +281,17 @@ class TokenByClientSecretResourceTest {
         KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new Key[]{
-                        new Key(KEY_URL + KEY_NAME, keyAttributes)
+                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
+                        new BasicKey(KEY_URL + KEY_NAME, keyAttributes)
                 })));
 
         when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeyVersionsResponse(new KeyVersion[]{
-                        new KeyVersion(KEY_URL + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
+                        new BasicKey(KEY_URL + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
                 })));
 
         when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new GetKeyResponse(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT, keyAttributes))));
+                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
 
         when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
                 .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
@@ -720,11 +717,11 @@ class TokenByClientSecretResourceTest {
          * Azure key vault setup.
          */
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[]{})));
+                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
 
         long now = Instant.now().getEpochSecond();
         when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().item(new CreateKeyResponse(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT, new KeyAttributes(now - 300, now - 100, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE)))));
+                .thenReturn(Uni.createFrom().item(new DetailedKey(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), new KeyAttributes(now - 300, now - 100, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE))));
 
         /*
          * Test.
@@ -773,7 +770,7 @@ class TokenByClientSecretResourceTest {
          * Azure key vault setup.
          */
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new Key[]{})));
+                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
 
         when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
