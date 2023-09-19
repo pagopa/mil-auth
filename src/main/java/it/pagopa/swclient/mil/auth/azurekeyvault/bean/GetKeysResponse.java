@@ -16,6 +16,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
+ * GetKeysResponse GetKeyVersionsResponse
+ * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
@@ -30,5 +32,5 @@ public class GetKeysResponse {
 	 *
 	 */
 	@JsonProperty("value")
-	private Key[] keys;
+	private BasicKey[] keys;
 }

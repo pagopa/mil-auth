@@ -8,6 +8,9 @@ package it.pagopa.swclient.mil.auth.resource;
 import java.time.Instant;
 import java.util.List;
 import java.util.OptionalLong;
+import java.util.UUID;
+
+import org.jboss.logging.MDC;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -59,6 +62,8 @@ public class JwksResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> get() {
+		String correlationId = UUID.randomUUID().toString();
+		MDC.put("requestId", correlationId);
 		Log.debug("get - Input parameters: n/a");
 		return keyFinder.findPublicKeys() // Retrieve keys.
 			.invoke(l -> Log.debugf("get - Output parameters: [%s]", l.toString()))
@@ -89,6 +94,7 @@ public class JwksResource {
 				return Response
 					.status(Status.OK)
 					.cacheControl(cacheControl)
+					.header("CorrelationId", correlationId)
 					.entity(l)
 					.build();
 			})

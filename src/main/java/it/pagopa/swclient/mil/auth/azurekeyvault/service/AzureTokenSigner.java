@@ -38,19 +38,15 @@ public class AzureTokenSigner implements TokenSigner {
 	/*
 	 *
 	 */
-	private static final byte[] ID = new byte[] {
-		0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, (byte) 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20
-	};
-	/*
-	 *
-	 */
 	@Inject
 	AzureKeyFinder keyFinder;
+	
 	/*
 	 *
 	 */
 	@Inject
 	AzureKeyVaultService keyVaultService;
+	
 	/*
 	 *
 	 */
@@ -73,12 +69,8 @@ public class AzureTokenSigner implements TokenSigner {
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		digest.update(bytesToSign);
 		byte[] hash = digest.digest();
-
-		byte[] derDigestInfo = new byte[ID.length + hash.length];
-		System.arraycopy(ID, 0, derDigestInfo, 0, ID.length);
-		System.arraycopy(hash, 0, derDigestInfo, ID.length, hash.length);
-
-		return Base64.getUrlEncoder().encodeToString(derDigestInfo);
+		
+		return Base64.getUrlEncoder().encodeToString(hash);
 	}
 
 	/**

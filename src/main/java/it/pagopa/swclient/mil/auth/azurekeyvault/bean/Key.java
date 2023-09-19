@@ -1,7 +1,7 @@
 /*
- * Key.java
+ * BasicKey.java
  *
- * 23 lug 2023
+ * 19 set 2023
  */
 package it.pagopa.swclient.mil.auth.azurekeyvault.bean;
 
@@ -16,6 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
@@ -26,12 +27,6 @@ import lombok.ToString;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Key {
-	/*
-	 *
-	 */
-	@JsonProperty("kid")
-	private String kid;
-
 	/*
 	 *
 	 */

@@ -1,7 +1,7 @@
 /*
- * GetKeyVersionsResponse.java
+ * BasicKey.java
  *
- * 26 lug 2023
+ * 19 set 2023
  */
 package it.pagopa.swclient.mil.auth.azurekeyvault.bean;
 
@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,15 +19,23 @@ import lombok.ToString;
  */
 @RegisterForReflection
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GetKeyVersionsResponse {
+public class BasicKey extends Key {
 	/*
 	 *
 	 */
-	@JsonProperty("value")
-	private KeyVersion[] keys;
+	@JsonProperty("kid")
+	private String kid;
+
+	/**
+	 * @param kid
+	 * @param attributes
+	 */
+	public BasicKey(String kid, KeyAttributes attributes) {
+		super(attributes);
+		this.kid = kid;
+	}
 }
