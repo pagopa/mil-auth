@@ -40,13 +40,13 @@ public class AzureTokenSigner implements TokenSigner {
 	 */
 	@Inject
 	AzureKeyFinder keyFinder;
-	
+
 	/*
 	 *
 	 */
 	@Inject
 	AzureKeyVaultService keyVaultService;
-	
+
 	/*
 	 *
 	 */
@@ -66,7 +66,7 @@ public class AzureTokenSigner implements TokenSigner {
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		digest.update(bytesToSign);
 		byte[] hash = digest.digest();
-		
+
 		return Base64.getUrlEncoder().encodeToString(hash);
 	}
 
