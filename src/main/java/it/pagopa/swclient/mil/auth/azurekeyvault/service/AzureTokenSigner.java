@@ -59,11 +59,8 @@ public class AzureTokenSigner implements TokenSigner {
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
-	private String getDerDigestInfo(JWSHeader header, JWTClaimsSet payload) throws NoSuchAlgorithmException {
-		String headerBase64 = Base64.getUrlEncoder().encodeToString(header.toString().getBytes(StandardCharsets.UTF_8));
-		String payloadBase64 = Base64.getUrlEncoder().encodeToString(payload.toString().getBytes(StandardCharsets.UTF_8));
-
-		String stringToSign = headerBase64 + "." + payloadBase64;
+	private String getDerDigestInfo(Base64URL header, Base64URL payload) throws NoSuchAlgorithmException {
+		String stringToSign = header.toString() + "." + payload.toString();
 		byte[] bytesToSign = stringToSign.getBytes(StandardCharsets.UTF_8);
 
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
@@ -80,7 +77,7 @@ public class AzureTokenSigner implements TokenSigner {
 	 * @return
 	 */
 	@Override
-	public Uni<SignedJWT> sign(JWTClaimsSet payload) {
+	public Uni<SignedJWT> sign(JWTClaimsSet claimsSet) {
 		Log.debug("Token signing.");
 		return keyFinder.findValidPublicKeyWithGreatestExpiration()
 			.chain(item -> {
@@ -89,7 +86,8 @@ public class AzureTokenSigner implements TokenSigner {
 				String keyName = components[components.length - 2];
 				String keyVersion = components[components.length - 1];
 
-				JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, kid, true, null, null);
+				Base64URL header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, kid, true, null, null).toBase64URL();
+				Base64URL payload = claimsSet.toPayload().toBase64URL();
 
 				try {
 					String derDigestInfoBase64 = getDerDigestInfo(header, payload);
@@ -99,7 +97,7 @@ public class AzureTokenSigner implements TokenSigner {
 					return keyVaultService.sign(item.context().get(AzureKeyFinder.TOKEN), keyName, keyVersion, req)
 						.map(resp -> {
 							try {
-								return SignedJWTFactory.createInstance(header.toBase64URL(), payload.toPayload().toBase64URL(), Base64URL.from(resp.getSignature()));
+								return SignedJWTFactory.createInstance(header, payload, Base64URL.from(resp.getSignature()));
 							} catch (ParseException e) {
 								String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
 								Log.errorf(e, message);
@@ -146,7 +144,7 @@ public class AzureTokenSigner implements TokenSigner {
 			}) // Getting the access token.
 			.chain(azureToken -> {
 				try {
-					String derDigestInfoBase64 = getDerDigestInfo(token.getHeader(), token.getJWTClaimsSet());
+					String derDigestInfoBase64 = getDerDigestInfo(token.getHeader().toBase64URL(), token.getJWTClaimsSet().toPayload().toBase64URL());
 					String signatureBase64 = Base64.getUrlEncoder().encodeToString(token.getSignature().decode());
 					VerifySignatureRequest req = new VerifySignatureRequest(JWSAlgorithm.RS256.getName(), derDigestInfoBase64, signatureBase64);
 					return keyVaultService.verifySignature(azureToken, keyName, keyVersion, req)

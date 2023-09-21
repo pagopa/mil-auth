@@ -17,14 +17,14 @@ public interface TokenSigner {
 	/**
 	 * Signs the given token by means of the valid private key with the greatest expiration.
 	 *
-	 * @param payload
+	 * @param claimsSet
 	 * @return
 	 */
-	public Uni<SignedJWT> sign(JWTClaimsSet payload);
+	public Uni<SignedJWT> sign(JWTClaimsSet claimsSet);
 
 	/**
 	 * This class verifies the token signature.
-	 * <p>
+	 * 
 	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
 	 * specific error code.
 	 *
