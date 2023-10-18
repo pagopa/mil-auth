@@ -35,14 +35,20 @@ public class GetAccessTokenResponse {
 	/*
 	 *
 	 */
-	@JsonProperty("expires_in")
-	private long expiresIn;
+	@JsonProperty("expires_on")
+	private long expiresOn;
 
 	/*
 	 *
 	 */
-	@JsonProperty("ext_expires_in")
-	private long extExpiresIn;
+	@JsonProperty("client_id")
+	private String clientId;
+	
+	/*
+	 *
+	 */
+	@JsonProperty("resource")
+	private String resource;
 
 	/*
 	 *

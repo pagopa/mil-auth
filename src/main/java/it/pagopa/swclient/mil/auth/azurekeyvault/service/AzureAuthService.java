@@ -20,39 +20,27 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class AzureAuthService {
 	/*
-	 * Grant types.
-	 */
-	private static final String CLIENT_CREDENTIALS = "client_credentials";
-	/*
 	 * Scope for authentication.
 	 */
 	private static final String VAULT = "https://vault.azure.net/.default";
+	
 	/*
 	 *
 	 */
 	@RestClient
 	AzureAuthClient client;
+	
 	/*
 	 *
 	 */
-	@ConfigProperty(name = "azure-auth-api.tenant-id")
-	String tenantId;
-	/*
-	 *
-	 */
-	@ConfigProperty(name = "azure-auth-api.client-id")
-	String clientId;
-	/*
-	 *
-	 */
-	@ConfigProperty(name = "azure-auth-api.client-secret")
-	String clientSecret;
-
+	@ConfigProperty(name = "azure-auth-api.identity")
+	String identity;
+	
 	/**
 	 * @return
 	 */
 	public Uni<GetAccessTokenResponse> getAccessToken() {
 		Log.debug("Authenticating to Azure AD.");
-		return client.getAccessToken(tenantId, CLIENT_CREDENTIALS, clientId, clientSecret, VAULT);
+		return client.getAccessToken(identity, VAULT);
 	}
 }

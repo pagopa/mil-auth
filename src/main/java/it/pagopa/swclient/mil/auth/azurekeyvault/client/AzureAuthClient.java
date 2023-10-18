@@ -9,9 +9,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.POST;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -30,14 +29,10 @@ public interface AzureAuthClient {
 	 * @param scope
 	 * @return
 	 */
-	@Path("/{tenantId}/oauth2/v2.0/token")
-	@POST
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("?resource={scope}&api-version=2019-08-01")
+	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	Uni<GetAccessTokenResponse> getAccessToken(
-		@PathParam("tenantId") String tenantId,
-		@FormParam("grant_type") String grantType,
-		@FormParam("client_id") String clientId,
-		@FormParam("client_secret") String clientSecret,
-		@FormParam("scope") String scope);
+		@HeaderParam("x-identity-header") String identity,
+		@PathParam("scope") String scope);
 }
