@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -83,29 +84,40 @@ class AzureKeyFinderTest {
 	/*
 	 *
 	 */
-	private static final String KEY_URL = "https://mil-d-appl-kv.vault.azure.net/keys/";
+	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
+	String vaultBaseUrl;
+	
+	/*
+	 * 
+	 */
+	private String keyUrl;
+	
 	/*
 	 *
 	 */
 	private static final String AZURE_ACCESS_TOKEN = "this_is_the_token";
 	private static final String AUTHORIZATION_HDR_VALUE = "Bearer " + AZURE_ACCESS_TOKEN;
+	
 	/*
 	 *
 	 */
 	@InjectMock
 	@RestClient
 	AzureAuthClient authClient;
+	
 	/*
 	 *
 	 */
 	@InjectMock
 	@RestClient
 	AzureKeyVaultClient keyVaultClient;
+	
 	/*
 	 *
 	 */
 	@Inject
 	AzureKeyFinder azureKeyFinder;
+	
 	/*
 	 *
 	 */
@@ -172,6 +184,8 @@ class AzureKeyFinderTest {
 	 */
 	@BeforeAll
 	void setup() {
+		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
+		
 		now = Instant.now().getEpochSecond();
 
 		/*
@@ -202,7 +216,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		keyWithValidKid1 = new BasicKey(
-			KEY_URL + K1,
+			keyUrl + K1,
 			new KeyAttributes(
 				now - 300,
 				now + 600,
@@ -214,7 +228,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		keyWithValidKid2 = new BasicKey(
-			KEY_URL + K2,
+			keyUrl + K2,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -226,7 +240,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		keyWithValidKidWithoutVersions = new BasicKey(
-			KEY_URL + K3,
+			keyUrl + K3,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -238,7 +252,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		keyBelogingToAnotherDomain = new BasicKey(
-			KEY_URL + K5,
+			keyUrl + K5,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -250,7 +264,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		keyWithoutDetails = new BasicKey(
-			KEY_URL + K6,
+			keyUrl + K6,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -267,11 +281,11 @@ class AzureKeyFinderTest {
 		nullVersionK1V1 = null;
 
 		versionWithNullAttributesK2V1 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V1,
+			keyUrl + K2 + "/" + K2_V1,
 			null);
 
 		versionWithNullEnabledAttributeK1V2 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V2,
+			keyUrl + K1 + "/" + K1_V2,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -283,7 +297,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithFalseEnabledAttributeK2V2 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V2,
+			keyUrl + K2 + "/" + K2_V2,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -295,7 +309,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithNullCreationTimestampAttributeK1V3 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V3,
+			keyUrl + K1 + "/" + K1_V3,
 			new KeyAttributes(
 				null,
 				now + 300,
@@ -307,7 +321,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithNotCoherentCreationTimestampAttributeK2V3 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V3,
+			keyUrl + K2 + "/" + K2_V3,
 			new KeyAttributes(
 				now + 300,
 				now + 300,
@@ -319,7 +333,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithNullExpiredTimestampAttributeK1V4 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V4,
+			keyUrl + K1 + "/" + K1_V4,
 			new KeyAttributes(
 				now - 300,
 				null,
@@ -331,7 +345,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		expiredVersionK2V4 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V4,
+			keyUrl + K2 + "/" + K2_V4,
 			new KeyAttributes(
 				now - 300,
 				now - 100,
@@ -343,7 +357,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithNullNotBeforeAttributeK1V5 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V5,
+			keyUrl + K1 + "/" + K1_V5,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -355,7 +369,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithUnmetNotBeforeAttributeK2V5 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V5,
+			keyUrl + K2 + "/" + K2_V5,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -391,7 +405,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithNullDetailsK1V7 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V7,
+			keyUrl + K1 + "/" + K1_V7,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -403,7 +417,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithExpiredDetailsK2V7 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V7,
+			keyUrl + K2 + "/" + K2_V7,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -415,7 +429,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithDetailsWithNoRsaKeyTypeK1V8 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V8,
+			keyUrl + K1 + "/" + K1_V8,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -427,7 +441,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithDetailsWithNullOpsK2V8 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V8,
+			keyUrl + K2 + "/" + K2_V8,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -439,7 +453,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithDetailsWithoutSignOpK1V9 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V9,
+			keyUrl + K1 + "/" + K1_V9,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -451,7 +465,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithDetailsWithoutVerifyOpK2V9 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V9,
+			keyUrl + K2 + "/" + K2_V9,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -463,7 +477,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithDetailsWithoutSignAndVerifyOpK1V10 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V10,
+			keyUrl + K1 + "/" + K1_V10,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -475,7 +489,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithValidDetailsK2V10 = new BasicKey(
-			KEY_URL + K2 + "/" + K2_V10,
+			keyUrl + K2 + "/" + K2_V10,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -487,7 +501,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithValidDetailsWithGreatestExpirationK1V11 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V11,
+			keyUrl + K1 + "/" + K1_V11,
 			new KeyAttributes(
 				now - 300,
 				now + 600,
@@ -499,7 +513,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWith500OnGetKeyK1V12 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V12,
+			keyUrl + K1 + "/" + K1_V12,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -511,7 +525,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWith500OnGetKeyK1V12 = new BasicKey(
-			KEY_URL + K1 + "/" + K1_V12,
+			keyUrl + K1 + "/" + K1_V12,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -523,7 +537,7 @@ class AzureKeyFinderTest {
 				Boolean.FALSE));
 
 		versionWithoutDetailsK6V1 = new BasicKey(
-			KEY_URL + K6 + "/" + K6_V1,
+			keyUrl + K6 + "/" + K6_V1,
 			new KeyAttributes(
 				now - 300,
 				now + 300,
@@ -539,7 +553,7 @@ class AzureKeyFinderTest {
 		 */
 		expiredDetailsK2V7 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K2 + "/" + K2_V7,
+				keyUrl + K2 + "/" + K2_V7,
 				"RSA",
 				new String[] {
 					"sign", "verify"
@@ -558,7 +572,7 @@ class AzureKeyFinderTest {
 
 		detailsWithNoRsaKeyTypeK1V8 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K1 + "/" + K1_V8,
+				keyUrl + K1 + "/" + K1_V8,
 				"non-RSA",
 				new String[] {
 					"sign", "verify"
@@ -577,7 +591,7 @@ class AzureKeyFinderTest {
 
 		detailsWithNullOpsK2V8 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K2 + "/" + K2_V8,
+				keyUrl + K2 + "/" + K2_V8,
 				"RSA",
 				null,
 				"this_is_the_modulus",
@@ -594,7 +608,7 @@ class AzureKeyFinderTest {
 
 		detailsWithoutSignOpK1V9 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K1 + "/" + K1_V9,
+				keyUrl + K1 + "/" + K1_V9,
 				"RSA",
 				new String[] {
 					"verify"
@@ -613,7 +627,7 @@ class AzureKeyFinderTest {
 
 		detailsWithoutVerifyOpK2V9 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K2 + "/" + K2_V9,
+				keyUrl + K2 + "/" + K2_V9,
 				"RSA",
 				new String[] {
 					"sign"
@@ -632,7 +646,7 @@ class AzureKeyFinderTest {
 
 		detailsWithoutSignAndVerifyOpK1V10 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K1 + "/" + K1_V10,
+				keyUrl + K1 + "/" + K1_V10,
 				"RSA",
 				new String[] {},
 				"this_is_the_modulus",
@@ -649,7 +663,7 @@ class AzureKeyFinderTest {
 
 		validDetailsK2V10 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K2 + "/" + K2_V10,
+				keyUrl + K2 + "/" + K2_V10,
 				"RSA",
 				new String[] {
 					"verify", "sign"
@@ -668,7 +682,7 @@ class AzureKeyFinderTest {
 
 		validDetailsWithGreatestExpirationK1V11 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K1 + "/" + K1_V11,
+				keyUrl + K1 + "/" + K1_V11,
 				"RSA",
 				new String[] {
 					"verify", "sign"
@@ -721,8 +735,8 @@ class AzureKeyFinderTest {
      *
      */
     private void mostCommonSetup() {
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
                 .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {
@@ -814,8 +828,8 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, null)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", null)));
 
         /*
          * Test.
@@ -834,7 +848,7 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
+        when(authClient.getAccessToken(anyString(), anyString()))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
 
         /*
@@ -932,8 +946,8 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
@@ -991,7 +1005,7 @@ class AzureKeyFinderTest {
 
 		DetailedKey validDetails1 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K1 + "/" + K1_V11,
+				keyUrl + K1 + "/" + K1_V11,
 				"RSA",
 				new String[] {
 					"verify", "sign"
@@ -1010,7 +1024,7 @@ class AzureKeyFinderTest {
 
 		DetailedKey validDetails2 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K2 + "/" + K2_V10,
+				keyUrl + K2 + "/" + K2_V10,
 				"RSA",
 				new String[] {
 					"verify", "sign"
@@ -1067,7 +1081,7 @@ class AzureKeyFinderTest {
 
 		DetailedKey validDetails1 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K1 + "/" + K1_V11,
+				keyUrl + K1 + "/" + K1_V11,
 				"RSA",
 				new String[] {
 					"verify", "sign"
@@ -1086,7 +1100,7 @@ class AzureKeyFinderTest {
 
 		DetailedKey validDetails2 = new DetailedKey(
 			new KeyDetails(
-				KEY_URL + K2 + "/" + K2_V10,
+				keyUrl + K2 + "/" + K2_V10,
 				"RSA",
 				new String[] {
 					"verify", "sign"
@@ -1139,8 +1153,8 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
                 .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
@@ -1165,8 +1179,8 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
                 .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
@@ -1191,8 +1205,8 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
                 .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
@@ -1217,8 +1231,8 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
                 .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
@@ -1243,8 +1257,8 @@ class AzureKeyFinderTest {
         /*
          * Setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, AZURE_ACCESS_TOKEN)));
+        when(authClient.getAccessToken(anyString(), anyString()))
+                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
 
         when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
                 .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));

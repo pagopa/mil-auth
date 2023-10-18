@@ -369,8 +369,8 @@ class AzureTokenSignerTest {
 		/*
 		 * Setup.
 		 */
-		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now.getEpochSecond() + 3599, "", "", "this_is_the_token")));
 
 		when(keyVaultClient.verifySignature(anyString(), eq(KEY_NAME), eq(KEY_VERSION), any(VerifySignatureRequest.class)))
 			.thenReturn(Uni.createFrom().item(new VerifySignatureResponse(Boolean.TRUE)));
@@ -417,8 +417,8 @@ class AzureTokenSignerTest {
 		/*
 		 * Setup.
 		 */
-		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now.getEpochSecond() + 3599, "", "", "this_is_the_token")));
 
 		when(keyVaultClient.verifySignature(anyString(), eq(KEY_NAME), eq(KEY_VERSION), any(VerifySignatureRequest.class)))
 			.thenReturn(Uni.createFrom().item(new VerifySignatureResponse(Boolean.FALSE)));
@@ -464,8 +464,8 @@ class AzureTokenSignerTest {
 		/*
 		 * Setup.
 		 */
-		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, null)));
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now.getEpochSecond() + 3599, "", "", null)));
 
 		when(keyVaultClient.verifySignature(anyString(), eq(KEY_NAME), eq(KEY_VERSION), any(VerifySignatureRequest.class)))
 			.thenReturn(Uni.createFrom().item(new VerifySignatureResponse(Boolean.TRUE)));
@@ -511,8 +511,8 @@ class AzureTokenSignerTest {
 		/*
 		 * Setup.
 		 */
-		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", 3599, 3599, "this_is_the_token")));
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now.getEpochSecond() + 3599, "", "", "this_is_the_token")));
 
 		when(keyVaultClient.verifySignature(anyString(), eq(KEY_NAME), eq(KEY_VERSION), any(VerifySignatureRequest.class)))
 			.thenReturn(Uni.createFrom().item(new VerifySignatureResponse(Boolean.TRUE)));

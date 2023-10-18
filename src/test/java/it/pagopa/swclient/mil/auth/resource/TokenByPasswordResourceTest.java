@@ -21,7 +21,9 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -92,7 +94,17 @@ class TokenByPasswordResourceTest {
 	/*
 	 *
 	 */
-	private static final String KEY_URL = "https://mil-d-appl-kv.vault.azure.net/keys/";
+	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
+	String vaultBaseUrl;
+	
+	/*
+	 *
+	 */
+	private String keyUrl;
+	
+	/*
+	 * 
+	 */
 	private static final String KEY_NAME = "auth0709643f49394529b92c19a68c8e184a";
 	private static final String KEY_VERSION = "6581c704deda4979943c3b34468df7c2";
 	private static final String KID = KEY_NAME + "/" + KEY_VERSION;
@@ -138,6 +150,14 @@ class TokenByPasswordResourceTest {
 	@RestClient
 	AzureAuthClient authClient;
 
+	/**
+	 *
+	 */
+	@BeforeAll
+	void setup() {
+		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
+	}
+	
 	@Test
 	void testOk() throws NoSuchAlgorithmException {
 		/*
@@ -167,8 +187,8 @@ class TokenByPasswordResourceTest {
 		/*
 		 * Azure auth. client setup.
 		 */
-		when(authClient.getAccessToken(anyString(), anyString(), anyString(), anyString(), anyString()))
-			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, AZURE_TOKEN_DURATION, AZURE_TOKEN_DURATION, AZURE_TOKEN)));
+		when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
 		/*
 		 * Azure key vault setup.
@@ -178,16 +198,16 @@ class TokenByPasswordResourceTest {
 
 		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
 			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
-				new BasicKey(KEY_URL + KEY_NAME, keyAttributes)
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
 			})));
 
 		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
 			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
-				new BasicKey(KEY_URL + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
 			})));
 
 		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(KEY_URL + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
 
 		when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
 			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
