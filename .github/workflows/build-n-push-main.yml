@@ -97,7 +97,7 @@ jobs:
       #
       - name: Build Docker image
         run: |
-          BRANCH_NAME=${GITHUB_REF////_}"
+          BRANCH_NAME="${GITHUB_REF////_}"
           docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:$BRANCH_NAME .
 
       #
