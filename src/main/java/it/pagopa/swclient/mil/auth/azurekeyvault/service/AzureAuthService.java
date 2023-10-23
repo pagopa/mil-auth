@@ -22,7 +22,8 @@ public class AzureAuthService {
 	/*
 	 * Scope for authentication.
 	 */
-	private static final String VAULT = "https://vault.azure.net/.default";
+	//private static final String VAULT = "https://vault.azure.net/.default";
+	private static final String VAULT = "https://vault.azure.net";
 	
 	/*
 	 *
