@@ -43,18 +43,19 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.BasicKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.DetailedKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyAttributes;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyDetails;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.VerifySignatureRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.VerifySignatureResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureKeyVaultClient;
+import it.pagopa.swclient.mil.auth.azure.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.azure.auth.client.AzureAuthClient;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.BasicKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.DetailedKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.GetKeysResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyAttributes;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyDetails;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignRequest;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.VerifySignatureRequest;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.VerifySignatureResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
+import it.pagopa.swclient.mil.auth.azure.storage.client.AzureAuthDataRepositoryClient;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.FormParamName;
@@ -64,7 +65,6 @@ import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
-import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.ws.rs.core.MediaType;
@@ -131,7 +131,7 @@ class RefreshTokensResourceTest {
 	 */
 	@InjectMock
 	@RestClient
-	AuthDataRepository repository;
+	AzureAuthDataRepositoryClient repository;
 
 	/*
 	 *
@@ -160,13 +160,13 @@ class RefreshTokensResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
         /*
@@ -174,7 +174,7 @@ class RefreshTokensResourceTest {
          */
         when(authClient.getAccessToken(anyString(), anyString()))
                 .thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-
+        
         /*
          * Azure key vault setup.
          */

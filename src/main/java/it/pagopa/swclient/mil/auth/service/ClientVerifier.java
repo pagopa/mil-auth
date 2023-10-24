@@ -8,18 +8,16 @@ package it.pagopa.swclient.mil.auth.service;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.Client;
-import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
@@ -31,7 +29,7 @@ public class ClientVerifier {
 	/*
 	 *
 	 */
-	@RestClient
+	@Inject
 	AuthDataRepository repository;
 
 	/**
@@ -52,7 +50,7 @@ public class ClientVerifier {
 	public Uni<Client> findClient(String clientId) {
 		Log.debugf("Search for the client [%s].", clientId);
 		return getClient(clientId)
-			.onFailure().transform(t -> {
+			.onFailure(t -> !(t instanceof AuthError)).transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null

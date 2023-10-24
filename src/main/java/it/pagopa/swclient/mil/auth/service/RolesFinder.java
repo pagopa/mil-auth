@@ -5,17 +5,15 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.Role;
-import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
@@ -28,10 +26,11 @@ public class RolesFinder {
 	 *
 	 */
 	private static final String NA = "NA";
+	
 	/*
 	 * Role repository.
 	 */
-	@RestClient
+	@Inject
 	AuthDataRepository repository;
 
 	/**

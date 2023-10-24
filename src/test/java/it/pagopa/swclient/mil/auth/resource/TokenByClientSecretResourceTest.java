@@ -29,17 +29,19 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.BasicKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.CreateKeyRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.DetailedKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyAttributes;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyDetails;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureKeyVaultClient;
+import it.pagopa.swclient.mil.auth.azure.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.azure.auth.client.AzureAuthClient;
+import it.pagopa.swclient.mil.auth.azure.auth.service.AzureAuthService;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.BasicKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.CreateKeyRequest;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.DetailedKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.GetKeysResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyAttributes;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyDetails;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignRequest;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
+import it.pagopa.swclient.mil.auth.azure.storage.client.AzureAuthDataRepositoryClient;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.FormParamName;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
@@ -47,7 +49,6 @@ import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
 import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
-import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.ws.rs.WebApplicationException;
@@ -115,7 +116,7 @@ class TokenByClientSecretResourceTest {
 	 */
 	@InjectMock
 	@RestClient
-	AuthDataRepository repository;
+	AzureAuthDataRepositoryClient repository;
 
 	/*
 	 *
@@ -144,13 +145,13 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
         /*
@@ -212,20 +213,20 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.ATM, CLIENT_ID, "NA", TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.ATM, CLIENT_ID, "NA", TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.ATM, CLIENT_ID, "NA", TERMINAL_ID, ROLES)));
 
         /*
          * Azure auth. client setup.
          */
         when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+                .thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
         /*
          * Azure key vault setup.
@@ -279,20 +280,20 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, null, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles("NA", "NA", CLIENT_ID, "NA", "NA"))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, "NA", "NA", CLIENT_ID, "NA", "NA"))
                 .thenReturn(UniGenerator.item(new Role("NA", "NA", CLIENT_ID, "NA", "NA", ROLES)));
 
         /*
          * Azure auth. client setup.
          */
         when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
         /*
          * Azure key vault setup.
@@ -340,9 +341,12 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testClientNotFound() {
-        when(repository.getClient(anyString()))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
-
+        when(repository.getClient(anyString(), anyString()))
+            .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+        
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+    
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000001")
@@ -365,7 +369,7 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testWebApplicationExceptionSerchingClient() {
-        when(repository.getClient(anyString()))
+        when(repository.getClient(anyString(), anyString()))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
         given()
@@ -390,9 +394,12 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testExceptionSearchingClient() {
-        when(repository.getClient(anyString()))
-                .thenReturn(Uni.createFrom().failure(new Exception()));
+        when(repository.getClient(anyString(), anyString()))
+            .thenReturn(Uni.createFrom().failure(new Exception()));
 
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+        
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000003")
@@ -415,8 +422,12 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testClientHasWrongChannel() {
-        when(repository.getClient(CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
+            .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
+        
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+    
 
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -440,7 +451,11 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testWrongSecret() {
-        when(repository.getClient(CLIENT_ID))
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+    
+		
+		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
         given()
@@ -465,7 +480,11 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testWrongSecretWithNullExpected() {
-        when(repository.getClient(CLIENT_ID))
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+    
+		
+		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
 
         given()
@@ -490,16 +509,20 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testRolesNotFound() {
-        when(repository.getClient(CLIENT_ID))
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+    
+		
+		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, "NA"))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, "NA"))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, "NA", "NA"))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, "NA", "NA"))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
         given()
@@ -524,10 +547,14 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testWebApplicationExceptionSearchingRoles() {
-        when(repository.getClient(CLIENT_ID))
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+    
+		
+		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
         given()
@@ -552,10 +579,14 @@ class TokenByClientSecretResourceTest {
 
 	@Test
     void testExceptionSearchingRoles() {
-        when(repository.getClient(CLIENT_ID))
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+    
+		
+		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(Uni.createFrom().failure(new Exception()));
 
         given()
@@ -583,20 +614,23 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
         /*
          * Azure auth. client setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString()))
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
                 .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
+        
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
         /*
          * Test.
@@ -626,13 +660,13 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
         /*
@@ -652,7 +686,7 @@ class TokenByClientSecretResourceTest {
          */
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001A")
                 .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
                 .header(HeaderParamName.CHANNEL, Channel.POS)
                 .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
@@ -675,27 +709,30 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
         /*
          * Azure auth. client setup.
          */
-        when(authClient.getAccessToken(anyString(), anyString()))
-       		.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", null)));
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
+       		.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", null)));
 
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+    		.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+        
         /*
          * Test.
          */
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000002A")
                 .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
                 .header(HeaderParamName.CHANNEL, Channel.POS)
                 .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
@@ -718,13 +755,13 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
         /*
@@ -748,7 +785,7 @@ class TokenByClientSecretResourceTest {
          */
         given()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000003A")
                 .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
                 .header(HeaderParamName.CHANNEL, Channel.POS)
                 .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
@@ -771,13 +808,13 @@ class TokenByClientSecretResourceTest {
         /*
          * Client repository setup.
          */
-        when(repository.getClient(CLIENT_ID))
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
                 .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
         /*
          * Roles repository setup.
          */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
                 .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
         /*
@@ -816,5 +853,73 @@ class TokenByClientSecretResourceTest {
                 .statusCode(500)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_GENERATING_KEY_PAIR));
+    }
+	
+	@Test
+    void test401WithNullStorageAccessToken() {
+        /*
+         * Client repository setup.
+         */
+        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
+                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+
+        /*
+         * Roles repository setup.
+         */
+        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+
+        /*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+        
+        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", null)));
+
+        /*
+         * Azure key vault setup.
+         */
+        long now = Instant.now().getEpochSecond();
+        KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+
+        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
+            .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+                        new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+                })));
+
+        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
+                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
+                        new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+                })));
+
+        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
+                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+
+        when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+                .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+
+        /*
+         * Test.
+         */
+        given()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000004A")
+                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+                .header(HeaderParamName.CHANNEL, Channel.POS)
+                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+                .formParam(FormParamName.CLIENT_SECRET, SECRET)
+                .when()
+                .post()
+                .then()
+                .log()
+                .everything()
+                .statusCode(500)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL));
     }
 }

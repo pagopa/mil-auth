@@ -32,16 +32,17 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.BasicKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.DetailedKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyAttributes;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyDetails;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureKeyVaultClient;
+import it.pagopa.swclient.mil.auth.azure.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.azure.auth.client.AzureAuthClient;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.BasicKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.DetailedKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.GetKeysResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyAttributes;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyDetails;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignRequest;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
+import it.pagopa.swclient.mil.auth.azure.storage.client.AzureAuthDataRepositoryClient;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.FormParamName;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
@@ -51,7 +52,6 @@ import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
 import it.pagopa.swclient.mil.auth.bean.User;
-import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
@@ -134,7 +134,7 @@ class TokenByPasswordResourceTest {
 	 */
 	@InjectMock
 	@RestClient
-	AuthDataRepository repository;
+	AzureAuthDataRepositoryClient repository;
 
 	/*
 	 *
@@ -169,26 +169,26 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_ID)));
 
 		/*
 		 * Client repository setup.
 		 */
-		when(repository.getClient(CLIENT_ID))
+		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
 			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
 
 		/*
 		 * Roles repository setup.
 		 */
-		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+		when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
 			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
 		/*
 		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
 		/*
 		 * Azure key vault setup.
@@ -247,9 +247,15 @@ class TokenByPasswordResourceTest {
 			MessageDigest.getInstance("SHA256").digest(
 				USERNAME.getBytes(StandardCharsets.UTF_8)));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
+		/*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		
 		/*
 		 * Test
 		 */
@@ -282,9 +288,15 @@ class TokenByPasswordResourceTest {
 			MessageDigest.getInstance("SHA256").digest(
 				USERNAME.getBytes(StandardCharsets.UTF_8)));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
+		/*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		
 		/*
 		 * Test
 		 */
@@ -317,9 +329,15 @@ class TokenByPasswordResourceTest {
 			MessageDigest.getInstance("SHA256").digest(
 				USERNAME.getBytes(StandardCharsets.UTF_8)));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
+		/*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+        
 		/*
 		 * Test
 		 */
@@ -358,9 +376,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_2_ID, Channel.POS, MERCHANT_ID)));
 
+		/*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		
 		/*
 		 * Test
 		 */
@@ -395,9 +419,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.ATM, MERCHANT_ID)));
 
+		/*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		
 		/*
 		 * Test
 		 */
@@ -432,9 +462,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_2_ID)));
 
+		/*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		
 		/*
 		 * Test
 		 */
@@ -469,9 +505,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD_2, SALT));
 
-		when(repository.getUser(userHash))
+		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_ID)));
 
+		/*
+         * Azure auth. client setup.
+         */
+        when(authClient.getAccessToken(anyString(), anyString()))
+        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		
 		/*
 		 * Test
 		 */
