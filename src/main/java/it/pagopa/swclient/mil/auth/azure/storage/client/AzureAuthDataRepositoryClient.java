@@ -5,6 +5,7 @@
  */
 package it.pagopa.swclient.mil.auth.azure.storage.client;
 
+import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import io.smallrye.mutiny.Uni;
@@ -28,6 +29,7 @@ public interface AzureAuthDataRepositoryClient {
 	 */
 	@Path("clients/{clientId}.json")
 	@GET
+	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
 	Uni<Client> getClient(@HeaderParam("Authorization") String authorization, @PathParam("clientId") String clientId);
 
 	/**
@@ -41,6 +43,7 @@ public interface AzureAuthDataRepositoryClient {
 	 */
 	@Path("roles/{acquirerId}/{channel}/{clientId}/{merchantId}/{terminalId}/roles.json")
 	@GET
+	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
 	Uni<Role> getRoles(
 		@HeaderParam("Authorization") String authorization,
 		@PathParam("acquirerId") String acquirerId,
@@ -56,5 +59,6 @@ public interface AzureAuthDataRepositoryClient {
 	 */
 	@Path("users/{userHash}.json")
 	@GET
+	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
 	Uni<User> getUser(@HeaderParam("Authorization") String authorization, @PathParam("userHash") String userHash);
 }
