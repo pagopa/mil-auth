@@ -28,16 +28,16 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.BasicKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.DetailedKey;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.GetKeysResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyAttributes;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.KeyDetails;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignRequest;
-import it.pagopa.swclient.mil.auth.azurekeyvault.bean.SignResponse;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureAuthClient;
-import it.pagopa.swclient.mil.auth.azurekeyvault.client.AzureKeyVaultClient;
+import it.pagopa.swclient.mil.auth.azure.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.azure.auth.client.AzureAuthClient;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.BasicKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.DetailedKey;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.GetKeysResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyAttributes;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyDetails;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignRequest;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignResponse;
+import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.FormParamName;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
@@ -46,7 +46,7 @@ import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
-import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
+import it.pagopa.swclient.mil.auth.service.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
@@ -111,7 +111,6 @@ class TokenByPoyntTokenResourceTest {
 	 *
 	 */
 	@InjectMock
-	@RestClient
 	AuthDataRepository repository;
 
 	/*

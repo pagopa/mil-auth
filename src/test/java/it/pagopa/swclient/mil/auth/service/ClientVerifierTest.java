@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.security.NoSuchAlgorithmException;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -20,7 +19,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import it.pagopa.swclient.mil.auth.bean.Client;
-import it.pagopa.swclient.mil.auth.client.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
@@ -50,7 +48,6 @@ class ClientVerifierTest {
 	 *
 	 */
 	@InjectMock
-	@RestClient
 	AuthDataRepository repository;
 
 	/*
