@@ -12,7 +12,6 @@ import it.pagopa.swclient.mil.auth.validation.constraints.ValidationTarget;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.HeaderParam;
 import lombok.AllArgsConstructor;
@@ -39,8 +38,7 @@ public class GetAccessTokenRequest {
 	 * Version of the required API
 	 */
 	@HeaderParam(HeaderParamName.VERSION)
-	@Size(max = 64, message = ErrorCode.VERSION_SIZE_MUST_BE_AT_MOST_MAX_MSG)
-	@Pattern(regexp = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$", message = ErrorCode.VERSION_MUST_MATCH_REGEXP_MSG)
+	@Pattern(regexp = "^[ -~]{1,64}$", message = ErrorCode.VERSION_MUST_MATCH_REGEXP_MSG)
 	private String version;
 
 	/*
@@ -136,4 +134,11 @@ public class GetAccessTokenRequest {
 	@FormParam(FormParamName.CLIENT_SECRET)
 	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + AuthErrorCode.CLIENT_SECRET_MUST_MATCH_REGEXP + "] client_secret must match \"{regexp}\"")
 	private String clientSecret;
+	
+	/*
+	 * fiscal_code
+	 */
+	@FormParam(FormParamName.FISCAL_CODE)
+	@Pattern(regexp = "^(([A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z])|(\\d{11}))$", message = "[" + AuthErrorCode.FISCAL_CODE_MUST_MATCH_REGEXP + "] fiscal_code must match \"{regexp}\"")
+	private String fiscalCode;
 }

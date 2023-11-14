@@ -24,6 +24,10 @@ public class JsonPropertyName {
 	public static final String TYPE = "kty";
 	public static final String EXPIRATION = "exp";
 	public static final String ISSUED_AT = "iat";
+	
+	public static final String ISSUER = "issuer";
+	public static final String TOKEN_ENDPOINT = "token_endpoint";
+	public static final String JWKS_URI = "jwks_uri";
 
 	private JsonPropertyName() {
 	}
