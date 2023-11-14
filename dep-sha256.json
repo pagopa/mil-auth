@@ -911,11 +911,11 @@
       "sha256": "gA9_DVANL_tCdtseIVgSw4_rxy6Defz2qC7PQlb5NQ0="
     },
     {
-      "id": "it.pagopa.swclient.mil:common:jar:2.0.2",
+      "id": "it.pagopa.swclient.mil:common:jar:2.1.0",
       "artifactId": "common",
       "groupId": "it.pagopa.swclient.mil",
-      "version": "2.0.2",
-      "sha256": "ntDsMD3I1EDFqEs4rg-6ZuUG5fASYx_71DIxCz8fwmw="
+      "version": "2.1.0",
+      "sha256": "8SAtPJV3xz7X2T5U5wEBWRDmAND00hNi1DjjsMsSPPM="
     },
     {
       "id": "com.nimbusds:nimbus-jose-jwt:jar:9.31",
