@@ -95,6 +95,7 @@ public abstract class TokenService {
 			.claim(ClaimName.TERMINAL_ID, request.getTerminalId())
 			.claim(ClaimName.SCOPE, concat(scopes))
 			.claim(ClaimName.GROUPS, roles)
+			.claim(ClaimName.FISCAL_CODE, request.getFiscalCode())
 			.build();
 		Log.debug("Token signing.");
 		return tokenSigner.sign(payload).map(SignedJWT::serialize);

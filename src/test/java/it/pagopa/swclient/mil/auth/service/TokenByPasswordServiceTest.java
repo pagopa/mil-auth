@@ -79,7 +79,7 @@ class TokenByPasswordServiceTest {
 			 */
 			tokenService.select(new AnnotationLiteral<Password>() {
 			})
-				.get().process(new GetAccessTokenRequest("00000000-0000-0000-0000-500000000000", null, ACQUIRER_ID, Channel.POS, MERCHANT_ID, TERMINAL_ID, GrantType.PASSWORD, USERNAME, PASSWORD, null, null, null, CLIENT_ID, Scope.OFFLINE_ACCESS, null))
+				.get().process(new GetAccessTokenRequest("00000000-0000-0000-0000-500000000000", null, ACQUIRER_ID, Channel.POS, MERCHANT_ID, TERMINAL_ID, GrantType.PASSWORD, USERNAME, PASSWORD, null, null, null, CLIENT_ID, Scope.OFFLINE_ACCESS, null, null))
 				.subscribe()
 				.withSubscriber(UniAssertSubscriber.create())
 				.assertFailedWith(AuthError.class);
@@ -113,7 +113,7 @@ class TokenByPasswordServiceTest {
 			 */
 			tokenService.select(new AnnotationLiteral<Password>() {
 			})
-				.get().process(new GetAccessTokenRequest("00000000-0000-0000-0000-500000000001", null, ACQUIRER_ID, Channel.POS, MERCHANT_ID, TERMINAL_ID, GrantType.PASSWORD, USERNAME, PASSWORD, null, null, null, CLIENT_ID, Scope.OFFLINE_ACCESS, null))
+				.get().process(new GetAccessTokenRequest("00000000-0000-0000-0000-500000000001", null, ACQUIRER_ID, Channel.POS, MERCHANT_ID, TERMINAL_ID, GrantType.PASSWORD, USERNAME, PASSWORD, null, null, null, CLIENT_ID, Scope.OFFLINE_ACCESS, null, null))
 				.subscribe()
 				.withSubscriber(UniAssertSubscriber.create())
 				.assertFailedWith(AuthError.class);
