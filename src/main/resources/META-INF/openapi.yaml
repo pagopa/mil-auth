@@ -2,7 +2,7 @@ openapi: 3.0.3
 
 info:
   title: Authorization Microservice
-  version: 1.9.2
+  version: 1.10.0
   description: Authorization Microservice for Multi-channel Integration Layer of SW Client Project
   contact:
     name: Antonio Tarricone
@@ -11,6 +11,8 @@ info:
 servers:
   - description: DEV
     url: https://mil-d-apim.azure-api.net/mil-auth
+  - description: UAT
+    url: https://mil-u-apim.azure-api.net/mil-auth
 
 paths:
   /token:
@@ -25,6 +27,7 @@ paths:
         - $ref: '#/components/parameters/Channel'
         - $ref: '#/components/parameters/MerchantId'
         - $ref: '#/components/parameters/TerminalId'
+        - $ref: '#/components/parameters/FiscalCode'
       requestBody:
         $ref: '#/components/requestBodies/GetAccessToken'
       responses:
@@ -57,14 +60,29 @@ paths:
           $ref: '#/components/responses/Jwks'
         "403":
           description: Forbidden
-        "404":
-          description: Not found
         "406":
           description: Not acceptable. Did you require application/json?
         "429":
           description: Too many request
         "500":
           $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  /.well-known/openid-configuration:
+    get:
+      operationId: getOpenIdConf
+      summary: Returns OpenID configuration
+      security: [ ]
+      responses:
+        "200":
+          $ref: '#/components/responses/OpenIdConf'
+        "403":
+          description: Forbidden
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
         default:
           description: Unexpected error
 
@@ -132,6 +150,26 @@ components:
       type: string
       example: "poynt_token"
     
+    FiscalCode:
+      description: User fiscal (tax) code
+      type: string
+      pattern: "^(([A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z])|(\\d{11}))$"
+      example: "RSSMRA85T10A562S"
+      
+    Issuer:
+      description: URL of token issuer
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      example: "https://mil-d-apim.azure-api.net/mil-auth/"
+
+    JwksUri:
+      description: URL to get JKWS
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      example: "https://mil-d-apim.azure-api.net/mil-auth/.well-known/jwks.json"
+      
     KeyType:
       description: Key type
       enum:
@@ -146,9 +184,10 @@ components:
       example: "28405fHfk73x88D"   
 
     Modulus:
-      description: Modulus (Base64/RFC4648 URL safe)
-      type: string
-      pattern: "^[a-zA-Z0-9_-]{2,1368}$"
+      description: Modulus
+      format: byte  # Base64/RFC4648 URL safe
+      minLength: 128 # bytes
+      maxLength: 512 # bytes
       example: "qjcVEWJTTySeKxHsJSsmVGk2cEvXJ4tBC4uyU5MxYwBAiIWuZb_yDOIjLz7JN8QsJs3QrZtS3vqv18ljW2db6ED90OUo9CVJveSF4eNRozDHOvnHGT0HR-8Wf5GxcNy63zfQLrnfdp5F9TrhMFRMkEA0TCT7PhT3yF6YvwLtQyMciER1_KKnpGomfAkW-UpaF2nHfXiFPrOIHMuNb5BoRR1f0349tqloLgLd7vyMy1jg-BldmEgRV1bcFqjH0Cg3leROjDy9HzdFauRIlSb4VZrqNni2hgaTUHI5Xp7aCwpS9Y_mf19KpxN0_8d-f3UVRlwtI1dryelpdC5jowxia2Pf8UgSZyMs2ZxDf6eU0SH8wHEvMpeFpwmiBD1XcsISoTan0Yv7w_CLo6JOqX6EfogDQZUBzKKlVCZSoSinAz0_7Bj2orgWKQ9sbfgJWgJweKkJLH-bNSRaVcu02boxPnlJeay3wROhSAgtiKWZnsU1_FpPNG0JBFCh_x-VjkuBoREpNEyJM5NvhRCmyObtzocS4eCtAgvmo3EFv_Xa-rp0p5ez4A-_QUb5OsYOswqYbIV1GbtiAfCTOrNbv6K86LaTllZ9WqYrKgDv7KA-604K37k33LHROqcO9Q-bCN8hKzQDWs7M3DFNP6P5iBUUVs-gtWncHvIuUWTth-fBXa8"
     
     OfflineAccessScope:
@@ -178,9 +217,11 @@ components:
       example: 234
 
     PublicExponent:
-      description: Public key exponent (Base64/RFC4648 URL safe)
+      description: Public key exponent
       type: string
-      pattern: "^[a-zA-Z0-9_-]{2,1365}$"
+      format: byte # Base64/RFC4648 URL safe
+      minLength: 1
+      maxLength: 17
       example: "AQAB"
       
     PublicKeyUse:
@@ -209,6 +250,13 @@ components:
       type: string
       pattern: "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$"
       example: "eyJraWQiOiI2OWQzZDEwZi03MGRhLTQ5ODItYjI4ZC03MmU4MTQ4MzI4YTMiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21pbC1kLWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtaWRwIiwiYXVkIjpbImh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1wYXltZW50LW5vdGljZSIsImh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1mZWUtY2FsY3VsYXRvciJdLCJleHAiOjE2Nzg3ODkyOTUsInNjb3BlIjoidmVyaWZ5QnlRckNvZGUgYWN0aXZhdGVCeVFyQ29kZSB2ZXJpZnlCeVRheENvZGVBbmROb3RpY2VOdW1iZXIgYWN0aXZhdGVCeVRheENvZGVBbmROb3RpY2VOdW1iZXIgY2xvc2UgZ2V0UGF5bWVudFN0YXR1cyBnZXRGZWUifQ.UJ8Vwv0NwF5S3fajgsdpgV-t6VeZAVC9dR0QGVpevC6Rw35tTx_1pJq2kI0GVAp0Vm7mNmgpZgzqx14QJfBmtTz3ZMJuUYVJUfHHQxxRxEyVBslrloOCqc8LfFkC-jmVQG5_9p9f6Tb7MB-h9J_f9ivtFX9gz7jK2Q_llD3HU0FujMgHEJiloKl7sp2uDaMIiy9dOKT7m0M6sA1tA84kwuJASudd_KWotideFsiA8LMBy_fGlEO7ogF-WytXD0XfW6VIBwQKq5KB3L3HxUuOZE1Gr2hubZ9SCeGAptiaPCWeEDf4w4x3IvKUL-rmm4bs4xalCmUbWcnTkKJi5f4N_8d2aRBrCL7k01rEK-OI1NH1-cCCk97eanNxvFEAKk_9t8rggipYt9BuL929p11LHVeYqqfemz1yrzc58LJXWPNgSMZ8XjKoITzsEiKWtGMYNV6GodJs_USnMKGIlc_uynZS0Q9mUV5IWhFaOZWFkM1nNwebMq9edg-kxtj1WpNkXfP1lahOMt36a9Rn2rWBLAhMBnerigsxFmUpi90EmbDkgOKTEXd3adOWLBb0jQSw0gPlNHe4bHh_LxBNNWljd6P9yZ4CYvZsWFwt_85d-PS56y-mNWV5oFMgPd-_qeF3Fn-QMj3Q5qySoqNCLzX7pnqjzXrveazLcR-CrroIUGM"
+
+    TokenEndpoint:
+      description: URL to get tokens
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      example: "https://mil-d-apim.azure-api.net/mil-auth/token"
 
     Username:
       description: User name
@@ -340,6 +388,18 @@ components:
         scope: "offline_access"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
   
+    OpenIdConf:
+      description: OpenID configuration
+      type: object
+      additionalProperties: false
+      properties:
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        token_endpoint:
+          $ref: '#/components/schemas/TokenEndpoint'
+        jwks_uri:
+          $ref: '#/components/schemas/JwksUri'
+
     PublicKey:
       description: Public key
       type: object
@@ -453,6 +513,14 @@ components:
       schema:
         $ref: '#/components/schemas/Channel'
 
+    FiscalCode:
+      name: FiscalCode
+      in: header
+      description: User fiscal (tax) code
+      required: false
+      schema:
+        $ref: '#/components/schemas/FiscalCode'
+
     MerchantId:
       name: MerchantId
       description: Merchant ID. Mandatory when Channel equals POS.
@@ -484,8 +552,7 @@ components:
       required: false
       schema:
         type: string
-        pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
-        maxLength: 64
+        pattern: "^[ -~]{1,64}$"
         example: "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay"
 
   # ========================================================
@@ -512,3 +579,10 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicKeys'
+
+    OpenIdConf:
+      description: OpenID configuration
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OpenIdConf'
