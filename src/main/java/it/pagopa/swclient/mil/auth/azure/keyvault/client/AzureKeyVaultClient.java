@@ -24,6 +24,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
  * @author Antonio Tarricone
@@ -120,4 +121,18 @@ public interface AzureKeyVaultClient {
 		@PathParam("keyName") String keyName,
 		@PathParam("keyVersion") String keyVersion,
 		VerifySignatureRequest verifySignatureRequest);
+
+	/**
+	 * @param authorization
+	 * @param keyName
+	 * @param createKeyRequest
+	 * @return
+	 */
+	@Path("/certificates/{certificateName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
+	Uni<Response> getCertificate(
+		@HeaderParam("Authorization") String authorization,
+		@PathParam("certificateName") String certificateName);
 }
