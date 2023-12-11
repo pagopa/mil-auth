@@ -86,6 +86,21 @@ paths:
         default:
           description: Unexpected error
 
+  /certificates/{certificateName}:
+    get:
+      operationId: getCertificate
+      summary: Returns OpenID configuration
+      security: [ ]
+      parameters:
+        - $ref: '#/components/parameters/CertificateName'
+      responses:
+        "200":
+          description: Ok.
+        "404":
+          description: Not found.
+        default:
+          description: Unexpected error
+
 components:
   # ========================================================
   # Schemas
@@ -113,6 +128,12 @@ components:
         - Bearer
       example: "Bearer"
 
+    CertificateName:
+      description: Certificate name
+      type: string
+      pattern: "^[ -~]{1,64}$"
+      example: "cert-001"
+      
     Channel:
       description: Channel originating the request
       enum:
@@ -504,6 +525,14 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/AcquirerId'
+
+    CertificateName:
+      name: certificateName
+      in: path
+      description: Certificate name
+      required: true
+      schema:
+        $ref: '#/components/schemas/CertificateName'
 
     Channel:
       name: Channel
