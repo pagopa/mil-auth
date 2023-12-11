@@ -110,4 +110,14 @@ public class AzureKeyVaultService {
 		Log.debugf("Retrieving certificate [%s].", certificateName);
 		return client.getCertificate(BEARER + accessToken, certificateName);
 	}
+	
+	/**
+	 * @param accessToken
+	 * @param secretName
+	 * @return
+	 */
+	public Uni<Response> getSecret(String accessToken, String secretName) {
+		Log.debugf("Retrieving certificate [%s].", secretName);
+		return client.getSecret(BEARER + accessToken, secretName);
+	}
 }

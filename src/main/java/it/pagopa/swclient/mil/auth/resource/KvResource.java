@@ -24,8 +24,8 @@ import jakarta.ws.rs.core.Response;
 /**
  * @author Antonio Tarricone
  */
-@Path("/certificates")
-public class CertificateResource {
+@Path("/kv")
+public class KvResource {
 	/*
 	 *
 	 */
@@ -42,7 +42,7 @@ public class CertificateResource {
 	 * @param keyVaultService
 	 */
 	@Inject
-	CertificateResource(AzureAuthService authService, AzureKeyVaultService keyVaultService) {
+	KvResource(AzureAuthService authService, AzureKeyVaultService keyVaultService) {
 		this.authService=authService;
 		this.keyVaultService=keyVaultService;
 	}
@@ -50,13 +50,26 @@ public class CertificateResource {
 	/**
 	 * @return
 	 */
-	@Path("/{certificateName}")
+	@Path("/certificates/{certificateName}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<Response> get(@PathParam("certificateName") String certificateName) {
+	public Uni<Response> getCertificate(@PathParam("certificateName") String certificateName) {
 		String correlationId = UUID.randomUUID().toString();
 		MDC.put("requestId", correlationId);
-		Log.debug("get - Input parameters: n/a");
+		Log.debug("getCertificate - Input parameters: n/a");
 		return authService.getAccessToken().chain(x -> keyVaultService.getCertificate(x.getToken(), certificateName));
+	}
+	
+	/**
+	 * @return
+	 */
+	@Path("/secrets/{secretName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Uni<Response> getSecret(@PathParam("secretName") String secretName) {
+		String correlationId = UUID.randomUUID().toString();
+		MDC.put("requestId", correlationId);
+		Log.debug("getSecret - Input parameters: n/a");
+		return authService.getAccessToken().chain(x -> keyVaultService.getSecret(x.getToken(), secretName));
 	}
 }

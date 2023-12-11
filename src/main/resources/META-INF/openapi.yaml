@@ -86,13 +86,28 @@ paths:
         default:
           description: Unexpected error
 
-  /certificates/{certificateName}:
+  /kv/certificates/{name}:
     get:
       operationId: getCertificate
-      summary: Returns OpenID configuration
+      summary: Returns something
       security: [ ]
       parameters:
-        - $ref: '#/components/parameters/CertificateName'
+        - $ref: '#/components/parameters/Name'
+      responses:
+        "200":
+          description: Ok.
+        "404":
+          description: Not found.
+        default:
+          description: Unexpected error
+
+  /kv/secrets/{name}:
+    get:
+      operationId: getSecret
+      summary: Returns something
+      security: [ ]
+      parameters:
+        - $ref: '#/components/parameters/Name'
       responses:
         "200":
           description: Ok.
@@ -128,8 +143,8 @@ components:
         - Bearer
       example: "Bearer"
 
-    CertificateName:
-      description: Certificate name
+    Name:
+      description: Key/Secret/Certificate name
       type: string
       pattern: "^[ -~]{1,64}$"
       example: "cert-001"
@@ -526,13 +541,13 @@ components:
       schema:
         $ref: '#/components/schemas/AcquirerId'
 
-    CertificateName:
-      name: certificateName
+    Name:
+      name: name
       in: path
-      description: Certificate name
+      description: Key/Secret/Certificate name
       required: true
       schema:
-        $ref: '#/components/schemas/CertificateName'
+        $ref: '#/components/schemas/Name'
 
     Channel:
       name: Channel

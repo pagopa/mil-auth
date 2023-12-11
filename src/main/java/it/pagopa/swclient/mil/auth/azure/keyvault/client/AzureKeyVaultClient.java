@@ -125,7 +125,6 @@ public interface AzureKeyVaultClient {
 	/**
 	 * @param authorization
 	 * @param keyName
-	 * @param createKeyRequest
 	 * @return
 	 */
 	@Path("/certificates/{certificateName}")
@@ -135,4 +134,17 @@ public interface AzureKeyVaultClient {
 	Uni<Response> getCertificate(
 		@HeaderParam("Authorization") String authorization,
 		@PathParam("certificateName") String certificateName);
+
+	/**
+	 * @param authorization
+	 * @param secretName
+	 * @return
+	 */
+	@Path("/secrets/{secretName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ClientQueryParam(name = "api-version", value = "${azure-key-vault-api.version}")
+	Uni<Response> getSecret(
+		@HeaderParam("Authorization") String authorization,
+		@PathParam("secretName") String secretName);
 }
