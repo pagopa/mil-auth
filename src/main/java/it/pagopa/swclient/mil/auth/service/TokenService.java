@@ -40,6 +40,18 @@ public abstract class TokenService {
 	 */
 	@ConfigProperty(name = "refresh.duration")
 	long refreshDuration;
+	
+	/*
+	 * mil-auth base URL.
+	 */
+	@ConfigProperty(name = "base-url", defaultValue = "")
+	String baseUrl;
+	
+	/*
+	 * Token audience.
+	 */
+	@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it")
+	String audience;
 
 	/*
 	 *
@@ -96,6 +108,8 @@ public abstract class TokenService {
 			.claim(ClaimName.SCOPE, concat(scopes))
 			.claim(ClaimName.GROUPS, roles)
 			.claim(ClaimName.FISCAL_CODE, request.getFiscalCode())
+			.issuer(baseUrl)
+			.audience(audience)
 			.build();
 		Log.debug("Token signing.");
 		return tokenSigner.sign(payload).map(SignedJWT::serialize);
