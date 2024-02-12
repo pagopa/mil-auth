@@ -18,7 +18,6 @@ import it.pagopa.swclient.mil.auth.azure.keyvault.bean.VerifySignatureRequest;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.VerifySignatureResponse;
 import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.Response;
 
 /**
  * @author Antonio Tarricone
@@ -99,25 +98,5 @@ public class AzureKeyVaultService {
 	public Uni<VerifySignatureResponse> verifySignature(String accessToken, String keyName, String keyVersion, VerifySignatureRequest verifySignatureRequest) {
 		Log.debugf("Verifing signature with key [%s/%s]: [%s]", keyName, keyVersion, verifySignatureRequest);
 		return client.verifySignature(BEARER + accessToken, keyName, keyVersion, verifySignatureRequest);
-	}
-	
-	/**
-	 * @param accessToken
-	 * @param certificateName
-	 * @return
-	 */
-	public Uni<Response> getCertificate(String accessToken, String certificateName) {
-		Log.debugf("Retrieving certificate [%s].", certificateName);
-		return client.getCertificate(BEARER + accessToken, certificateName);
-	}
-	
-	/**
-	 * @param accessToken
-	 * @param secretName
-	 * @return
-	 */
-	public Uni<Response> getSecret(String accessToken, String secretName) {
-		Log.debugf("Retrieving certificate [%s].", secretName);
-		return client.getSecret(BEARER + accessToken, secretName);
 	}
 }
