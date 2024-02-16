@@ -1,0 +1,10 @@
+group build tokens header
+	mil_auth -> mil_auth : generate //<token header>//
+		note left
+			__//<token header>//__
+			{
+				"kid": "//<key name>/////<key version>//",
+				"alg": "RS256"
+			}
+		end note
+end
