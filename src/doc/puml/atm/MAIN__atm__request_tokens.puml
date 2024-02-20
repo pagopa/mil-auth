@@ -2,22 +2,26 @@
 !include_many ../common/skin.puml
 !include_many actors.puml
 
-activate pos
+activate atm
 
-pos -> mil_auth ++ : POST /token
+atm -> mil_auth ++ : POST /token
 	note left
 		__header__
 		RequestId: //<request id>//
 		__body__
-		grant_type=refresh_token&
+		grant_type=client_credentials&
 		client_id=//<client id>//&
-		refresh_token=//<refresh token>//
+		client_secret=//<client secret>//&
+		bankId=//<bank id>//&
+		terminalId=//<terminal id>//&
+		userCode=//<user code>//
+		__//<user code>//__
+		It's optional.
 	end note
 
-!include_many verify_refresh_token.puml
 !include_many build_tokens.puml
 
-mil_auth --> pos -- : HTTP 200 (ok)
+mil_auth --> atm -- : HTTP 200 (ok)
 	note right
 		{
 			"access_token": "//<access token>//",
@@ -27,5 +31,5 @@ mil_auth --> pos -- : HTTP 200 (ok)
 		}
 	end note
 
-deactivate pos
+deactivate atm
 @enduml

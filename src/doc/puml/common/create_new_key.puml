@@ -10,7 +10,7 @@ group create new key
 				"kty": "RSA",
 				"key_size": 4096, <&arrow-left> //This must be a conf. par.//
 				"key_ops": [
-				    "sign",
+					"sign",
 					"verify"
 				],
 				"attributes": {

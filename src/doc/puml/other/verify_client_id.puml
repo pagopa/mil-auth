@@ -14,11 +14,14 @@ group verify client id
 				__body__
 				{
 					"id": "//<client id>//",
-					"channel": "POS",
+					"channel": "//<channel>//",
 					"grantTypes": [
-						"device_code",
-						"refresh_token"
-					]
+						"client_credentials"
+					],
+					"sub": "//<subject id>//",
+					"salt": "//<salt>//",
+					"secretHash": "//<secret hash>//",
+					"secretExp": //<secret expiration unix epoch>//
 				}
 			end note
 
@@ -27,10 +30,4 @@ group verify client id
 			On any other failure, return HTTP 500 (server error) with specific error body. 
 		end note
 	end
-
-	mil_auth -> mil_auth : verify channel and grant types
-
-	note over mil_auth #Orange
-		On channel or grant type mismatch, return HTTP 401 (unauthorized) with specific error body.
-	end note
 end

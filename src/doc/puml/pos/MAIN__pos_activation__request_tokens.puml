@@ -1,5 +1,5 @@
 @startuml
-!include_many skin.puml
+!include_many ../common/skin.puml
 !include_many actors.puml
 
 activate pos
@@ -20,10 +20,10 @@ pos -> mil_auth ++ : POST /token
 mil_auth --> pos -- : HTTP 200 (ok)
 	note right
 		{
-    		"access_token": "//<access token>//",
-    		"refresh_token": "//<refresh token>//",
-    		"token_type": "Bearer",
-    		"expires_in": //<access token duration>//
+			"access_token": "//<access token>//",
+			"refresh_token": "//<refresh token>//",
+			"token_type": "Bearer",
+			"expires_in": //<access token duration>//
 		}
 	end note
 

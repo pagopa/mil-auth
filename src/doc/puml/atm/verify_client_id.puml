@@ -14,17 +14,19 @@ group verify client id
 				__body__
 				{
 					"id": "//<client id>//",
-					"channel": "POS",
-					"grantTypes": [
-						"device_code",
-						"refresh_token"
-					]
+					"channel": "ATM",
+					"grantTypes": [ 
+						"client_credentials"
+					],
+					"salt": "//<salt>//",
+					"secretHash": "//<secret hash>//",
+					"secretExp": //<secret expiration unix epoch>//
 				}
 			end note
 
 		note over mil_auth #Orange
 			On //<client id>// file not found, return HTTP 401 (unauthorized) with specific error body.
-			On any other failure, return HTTP 500 (server error) with specific error body. 
+			On any other failure, return HTTP 500 (server error) with specific error body.
 		end note
 	end
 

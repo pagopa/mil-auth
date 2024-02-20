@@ -1,0 +1,151 @@
+@startuml
+!include_many ../common/skin.puml
+!include_many actors.puml
+
+activate other
+
+other -> mil_auth ++ : POST /token_info
+	note left
+		__header__
+		RequestId: //<request id>//
+		Authorization: Bearer //<access token>//
+		__body__
+		token=//<token to introspect>//
+	end note
+
+note over mil_auth #LightGreen
+	__//<access token>//__
+	base64url(//<access token header>//) + "." +
+	base64url(//<access token payload>//) + "." +
+	//<base64url of access token signature>//
+	__//<access token payload>//__
+	{
+		"sub": "//<subject id>//",
+		"aud": "mil.pagopa.it",
+		"iss": "https:////<host name>///mil-auth",
+		"iat": //<issue unix epoch>//,
+		"exp": //<expiration unix epoch>//,
+		"channel": "//<channel>//",
+		"groups": [
+			"atm_access_token_introspector"
+		]
+	}
+end note
+
+note over mil_auth
+	__//<token to introspect>//__
+	base64url(//<header of token to introspect>//) + "." +
+	base64url(//<payload of token to introspect>//) + "." +
+	//<base64url of signature of token to introspect>//
+	__//<header of token to introspect>//__
+	{
+		"kid": "//<key name>/////<key version>//",
+		"alg": "RS256"
+	}
+	__//<payload of token to introspect>//__
+	{
+		"sub": "//<bank id>// || //<terminal id>//",
+		"aud": "mil.pagopa.it",
+		"iss": "https:////<host name>///mil-auth",
+		"iat": //<issue unix epoch>//,
+		"exp": //<expiration unix epoch>//,
+		"channel": "ATM",
+		"bankId": "//<bank id>//",
+		"terminalId": "//<terminal id>//",
+		"userCodeToken": "//<token of user code>//",
+		"groups": [ //<array of roles>// ]
+	}
+end note
+
+mil_auth -> mil_auth : verify header validity
+	note left
+		"alg" == "RS256"
+	end note
+
+note over mil_auth #Orange
+	On verification failure, return HTTP 403 (forbidden) with specific error body.
+end note
+
+mil_auth -> mil_auth : verify payload validity
+	note left
+		//<issue unix epoch>// < //<current unix epoch>// &&
+		//<expiration unix epoch>// > //<current unix epoch>// &&
+		"channel" == "ATM"
+	end note
+
+note over mil_auth #Orange
+   	On verification failure, return HTTP 403 (forbidden) with specific error body.
+end note
+
+!include_many ../common/get_azure_access_token_for_vault.puml
+
+mil_auth -> mil_auth : generate //<string to verify token>//
+	note left
+		__//<string to verify token>//__
+		base64url(
+			sha256(
+				utf8(
+					base64url(//<header of token to introspect>//) +
+					"." +
+					base64url(//<payload of token to introspect>//)
+				)
+			)
+		)
+	end note
+
+mil_auth -> azure_kv ++ : POST //<key vault base url>///keys///<key name>/////<key version>///verify?api-version=7.4
+	note left
+		__header__
+		Authorization: Bearer //<access token for key vault>//
+		__body__
+		{
+			"alg": "RS256",
+			"value": "//<string to verify token>//",
+			"digest": "//<base64url of signature of token to introspect>//"
+		}
+	end note
+
+azure_kv --> mil_auth -- : HTTP 200 (ok)
+	note right
+		__body__
+		{
+			"value": true
+		}
+	end note
+
+note over mil_auth #Orange
+	On "value" == false in the response body, return HTTP 403 (forbidden) with specific error body.
+	On any other failure, return HTTP 500 (server error) with specific error body. 
+end note
+
+alt //<token of user code>// != null
+	mil_auth -> pdv ++ : GET /tokenizer/v1/tokens///<token of user code>///pii
+		note left
+			__header__
+			x-api-key: //<pdv api-key>//
+		end note
+
+	pdv --> mil_auth -- : HTTP 200 (ok)
+		note right
+			{
+				"pii": "//<user code>//"
+			}
+		end note
+
+	note over mil_auth #Orange
+		On any failure, return HTTP 500 (server error) with specific error body. 
+	end note
+
+	mil_auth --> other : HTTP 200 (ok)
+		note right
+			__body__
+			{
+				"userCode": "//<user code>//"
+			}
+		end note
+else //<token of user code>// == null
+	mil_auth --> other -- : HTTP 204 (no content)
+end
+
+deactivate other
+@enduml

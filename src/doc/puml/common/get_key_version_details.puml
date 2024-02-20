@@ -28,6 +28,6 @@ group get key version details
 		end note
 
 		note over mil_auth #Orange
-		    On any failure, return HTTP 500 (server error) with specific error body. 
+			On any failure, return HTTP 500 (server error) with specific error body. 
 		end note
 end

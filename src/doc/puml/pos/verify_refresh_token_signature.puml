@@ -1,5 +1,5 @@
 group verify refresh token signature
-    mil_auth -> mil_auth : generate //<string to verify refresh token>//
+	mil_auth -> mil_auth : generate //<string to verify refresh token>//
 		note left
 			__//<string to verify refresh token>//__
 			base64url(
@@ -15,13 +15,13 @@ group verify refresh token signature
 
 	mil_auth -> azure_kv ++ : POST //<key vault base url>///keys///<key name>/////<key version>///verify?api-version=7.4
 		note left
-        	__header__
+			__header__
 			Authorization: Bearer //<access token for key vault>//
 			__body__
 			{
 				"alg": "RS256",
 				"value": "//<string to verify for refresh token>//",
-                "digest": "//<base64url of refresh token signature>//"
+				"digest": "//<base64url of refresh token signature>//"
 			}
 		end note
 

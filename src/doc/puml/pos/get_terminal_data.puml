@@ -63,5 +63,5 @@ group get terminal data
 		On terminal not found, return HTTP 401 (unauthorized) with specific error body.
 		On //<enabled>// = false, return HTTP 401 (unauthorized) with specific error body.
 		On any other failure, return HTTP 500 (server error) with specific error body. 
-    end note
+	end note
 end

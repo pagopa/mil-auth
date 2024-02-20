@@ -1,0 +1,71 @@
+group get roles
+	!include_many ../common/get_azure_access_token_for_storage.puml
+	
+	mil_auth -> azure_st ++ : GET //<storage account base url>///atms///<bank id>/////<terminal id>///roles.json
+		note left
+			__header__
+			x-ms-version: 2019-07-07
+			Authorization: Bearer //<access token for storage account>//
+		end note
+
+	azure_st --> mil_auth -- : HTTP 200 (ok)
+		note right
+			__body__
+			{
+				"roles": [ 
+					//<array of roles>//
+				]
+			}
+		end note
+
+	note over mil_auth #Orange
+		On any other failure, return HTTP 500 (server error) with specific error body. 
+	end note
+	
+	opt /atms///<bank id>/////<terminal id>///roles.json not found
+		mil_auth -> azure_st ++ : GET //<storage account base url>///atms///<bank id>///roles.json
+			note left
+				__header__
+				x-ms-version: 2019-07-07
+				Authorization: Bearer //<access token for storage account>//
+			end note
+
+		azure_st --> mil_auth -- : HTTP 200 (ok)
+			note right
+				__body__
+				{
+					"roles": [ 
+						//<array of roles>//
+					]
+				}
+			end note
+
+		note over mil_auth #Orange
+			On any other failure, return HTTP 500 (server error) with specific error body. 
+		end note
+
+		opt /atms///<bank id>////roles.json not found
+			mil_auth -> azure_st ++ : GET //<storage account base url>///atms/roles.json
+				note left
+					__header__
+					x-ms-version: 2019-07-07
+					Authorization: Bearer //<access token for storage account>//
+				end note
+
+			azure_st --> mil_auth -- : HTTP 200 (ok)
+				note right
+					__body__
+					{
+						"roles": [ 
+							//<array of roles>//
+						]
+					}
+				end note
+
+			note over mil_auth #Orange
+				On file not found, return HTTP 401 (unauthorized) with specific error body.
+				On any other failure, return HTTP 500 (server error) with specific error body. 
+			end note
+		end
+	end
+end

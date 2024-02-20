@@ -1,5 +1,5 @@
 @startuml
-!include_many skin.puml
+!include_many ../common/skin.puml
 !include_many actors.puml
 
 activate installer
@@ -11,8 +11,8 @@ pos -> mil_auth ++ : POST /device/code
 		__header__
 		RequestId: //<request id>//
 		__body__
-		client_id=//<client id>//&&
-		terminalHandlerId=//<terminal handler id>//&&
+		client_id=//<client id>//&
+		terminalHandlerId=//<terminal handler id>//&
 		terminalId=//<terminal id>//
 	end note
 

@@ -7,7 +7,7 @@ group retrieve key to sign tokens
 		mil_auth -> mil_auth : search the key with greatest expiration
 	end
 
-    note over mil_auth #LightGreen
+	note over mil_auth #LightGreen
 		Here the //key// to use to sign the tokens.
 		__//key//__
 		{
@@ -19,5 +19,5 @@ group retrieve key to sign tokens
 			"n": "//<modulus>//",
 			"e": "//<public exponent>//"
 		}
-    end note
+	end note
 end

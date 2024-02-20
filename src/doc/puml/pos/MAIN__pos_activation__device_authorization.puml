@@ -1,5 +1,5 @@
 @startuml
-!include_many skin.puml
+!include_many ../common/skin.puml
 !include_many actors.puml
 
 activate installer

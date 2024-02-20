@@ -1,5 +1,5 @@
 group verify refresh token
-    note over mil_auth #LightGreen
+	note over mil_auth #LightGreen
 		__//<refresh token>//__
 		base64url(//<token header>//) + "." +
 		base64url(//<refresh token payload>//) + "." +
@@ -18,15 +18,15 @@ group verify refresh token
 			"channel": "POS",
 			"scope": "offline_access"
 		}
-    end note
+	end note
 
-    mil_auth -> mil_auth : verify header validity
+	mil_auth -> mil_auth : verify header validity
 		note left
 			"alg" == "RS256"
 		end note
 
-    note over mil_auth #Orange
-    	On verification failure, return HTTP 401 (unauthorized) with specific error body.
+	note over mil_auth #Orange
+		On verification failure, return HTTP 401 (unauthorized) with specific error body.
 	end note
 	
 	mil_auth -> mil_auth : verify payload validity
@@ -37,9 +37,9 @@ group verify refresh token
 		end note
 
 	note over mil_auth #Orange
-    	On verification failure, return HTTP 401 (unauthorized) with specific error body.
+		On verification failure, return HTTP 401 (unauthorized) with specific error body.
 	end note
 
-	!include_many get_azure_access_token_for_vault.puml
+	!include_many ../common/get_azure_access_token_for_vault.puml
 	!include_many verify_refresh_token_signature.puml
 end
