@@ -5,6 +5,7 @@
 activate installer
 
 installer -> management ++ : authorize device (in: //<user code>//)
+
 management -> mil_auth ++ : POST /activate
 	note left
 		__header__
@@ -14,7 +15,62 @@ management -> mil_auth ++ : POST /activate
 		user_code=//<user code>//
 	end note
 
+alt the installer is part of pos service provider
+	note over mil_auth #LightGreen
+		__//<access token>//__
+		base64url(//<token header>//) + "." +
+		base64url(//<access token payload>//) + "." +
+		//<base64url of access token signature>//
+		__//<access token payload>//__
+		{
+			"sub": "//<service provider id>//",
+			"aud": "mil.pagopa.it",
+			"iss": "https:////<host name>///mil-auth",
+			"iat": //<issue unix epoch>//,
+			"exp": //<expiration unix epoch>//,
+			"channel": "POS_SERVICE_PROVIDER",
+			"groups": [
+				"pos_service_provider"
+			]
+		}
+	end note
+else the installer is part of public administration
+	note over mil_auth #LightGreen
+		__//<access token>//__
+		base64url(//<token header>//) + "." +
+		base64url(//<access token payload>//) + "." +
+		//<base64url of access token signature>//
+		__//<access token payload>//__
+		{
+			"sub": "//<payee code>//",
+			"aud": "mil.pagopa.it",
+			"iss": "https:////<host name>///mil-auth",
+			"iat": //<issue unix epoch>//,
+			"exp": //<expiration unix epoch>//,
+			"channel": "PUBLIC_ADMINISTRATION",
+			"groups": [
+				"public_administration"
+			]
+		}
+	end note
+end
+
 !include_many get_user_code.puml
+
+!include_many get_terminal_data_by_id.puml
+
+alt the installer is part of pos service provider
+	mil_auth -> mil_auth : verify that the value of //<service provider id>// contained in the claim sub of access token is equal to the value retrieved from terminal-registry
+	note over mil_auth #Orange
+		On //<service provider id>// mismatch, return HTTP 403 (forbidden) with specific error body.
+	end note
+else the installer is part of public administration
+	mil_auth -> mil_auth : verify that the value of //<payee code>// contained in the claim sub of access token is equal to the value retrieved from terminal-registry
+	note over mil_auth #Orange
+		On //<payee code>// mismatch, return HTTP 403 (forbidden) with specific error body.
+	end note
+end
+
 !include_many store_auth_state.puml
 
 mil_auth --> management -- : ok
