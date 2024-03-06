@@ -28,7 +28,7 @@ group get terminal data
 			}
 		end note
 
-	mil_auth -> mil_registry ++ : GET /terminals?terminalHandlerId=//<terminal handler id>//&terminalId=//<terminal id>//
+	mil_auth -> mil_registry ++ : GET /terminals/findByThIds?terminalHandlerId=//<terminal handler id>//&terminalId=//<terminal id>//
 		note left
 			__header__
 			RequestId: //<request id>//
