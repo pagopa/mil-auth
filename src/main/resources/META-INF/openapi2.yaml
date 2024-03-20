@@ -1,0 +1,1048 @@
+openapi: 3.0.3
+
+info:
+  title: Authorization Microservice
+  version: 2.0.0
+  description: Authorization Microservice for Multi-channel Integration Layer of SW Client Project
+  contact:
+    name: Antonio Tarricone
+    email: antonio.tarricone@pagopa.it
+
+servers:
+  - description: Development Test
+    url: https://mil-d-apim.azure-api.net/mil-auth/v2
+    x-internal: true
+  - description: User Acceptance Test
+    url: https://mil-u-apim.azure-api.net/mil-auth/v2
+    x-internal: true
+
+tags:
+  - name: info
+    description: For info purpose
+  - name: all
+    description: For all grant types
+  - name: device
+    description: For device authentication code flow
+
+paths:
+  /device/code:
+    post:
+      operationId: getDeviceCode
+      description: Returns user code and device code for device authentication flow
+      tags: [ device ]
+      security: [ ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        $ref: '#/components/requestBodies/DeviceCode'
+      responses:
+        "201":
+          #description: Created
+          $ref: '#/components/responses/DeviceCode'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /activate:
+    post:
+      operationId: activate
+      description: Activate a device
+      tags: [ device ]
+      security: [ ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        $ref: '#/components/requestBodies/Activate'
+      responses:
+        "204":
+          #description: No content
+          $ref: '#/components/responses/NoContent'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /token:
+    post:
+      operationId: getAccessToken
+      description: Returns access token or refreshes it
+      tags: [ all ]
+      security: [ ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        $ref: '#/components/requestBodies/AccessToken'
+      responses:
+        "201":
+          #description: Created
+          $ref: '#/components/responses/AccessToken'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /token_info:
+    post:
+      operationId: introspect
+      description: Introspects a given access token returning the clear value of user tax code (if any)
+      tags: [ info ]
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        $ref: '#/components/requestBodies/TokenInfo'
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/TokenInfo'
+        "204":
+          #description: No content
+          $ref: '#/components/responses/NoContent'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+  
+  /.well-known/jwks.json:
+    get:
+      operationId: getJwks
+      description: Returns keys
+      tags: [ info ]
+      security: [ ]
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/Keys'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /.well-known/openid-configuration:
+    get:
+      operationId: getOpenIdConf
+      description: Returns OpenID configuration
+      tags: [ info ]
+      security: [ ]
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/OpenIdConf'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+components:
+  # ----------------------------------------------------------------------------------
+  # Schemas
+  # ----------------------------------------------------------------------------------
+  schemas:
+    # --------------------------------------------------------------------------------
+    # Basic types
+    # --------------------------------------------------------------------------------
+    AccessControlAllowOrigin:
+      description: Indicates whether the response can be shared with requesting code from the given origin
+      type: string
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/portal"
+
+    AccessToken:
+      description: Access token
+      type: string
+      pattern: "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$"
+      minLength: 5
+      maxLength: 3074
+      example: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLXUtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwiZ3JvdXBzIjpbIk5vdGljZVBheWVyIiwiU2xhdmVQb3MiLCJQYXlXaXRoSURQYXkiXSwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzEwNzYwMDc0LCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTcxMDc1OTE3NH0.DwdwI-kYMf9OWY5PjBUw9zrSZGXGaqWlj1FwygAKv_AMvZ41_Uu8fnL7LOpYTYS0qNouxOVsRmpOnjfvt1zfx8t8MZP07O7KpO4cJpBfqm2kXI5_A2gimFrF4m_4LM-exNM0fW5gaGC8TVfMm0dkrJh0tFnZ3j-xw9bGi1ZqubIth0H7M8JkvzZ1o6CMOyfEVTYbiJb9lhsP6qrmduhhv9uRAo7SyIVFVudjsNyrw-MFDwQhpGdhrKa_2q6ZpkjzRcK1t_NynFI1IFbWuy5wYS1DllA9uJxU9Rc1zPHQk1UR_Cfrek3D7rfg9tJY0XqDerG8gUMg7wlizMZSkmWfhNKz5yH9seV4_ktVU2rBVsN-OIwMfOiD3kwjIxw4NcX5Uza9cMCQPSZqbDCG4jeFQjJ1WxBkKAfFJLc_Vb59CS2UttwCJA8A9OsCJ2kQQ9fg_Ez1tzNdsCsMXQo7XAFPKGTe0MpL2UPiErPATEjdfdzHnwyZsx-DubAEwKUREHjAevAQb6i6b6aI_3Ti51ArLor1jW_1EHwt2fRyhbDdTyvKSI7trqtx8DkNgd42dOBYrIqYUs2xfaFdKLGDmH5dFX7n8l--xqaNDU983Z1neNX-lsRWe-22eT0ykfRW_GI84v_uRA2My5RL2mmJ9vjRQ3LTlaOairNYkYplyXcydSQ"
+
+    AtmId:
+      description: ID of the ATM. It must be unique per Bank ID.
+      type: string
+      pattern: "^\\d{4,9}$"
+      minLength: 4
+      maxLength: 9
+      example: "34523860"
+
+    BankId:
+      description: ID of the Bank assigned by the ABI.
+      type: string
+      pattern: "^\\d{5}$"
+      minLength: 5
+      maxLength: 5
+      example: "05424"
+
+    ClientCredentialsGrantType:
+      description: Grant type to get an access token
+      type: string
+      enum:
+        - client_credentials
+      example: "client_credentials"
+
+    ClientId:
+      description: Client ID
+      type: string
+      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      minLength: 36
+      maxLength: 36
+      example: "d274d828-00ed-4fa2-8898-371f189d0c24"
+
+    ClientSecret:
+      description: Client secret
+      type: string
+      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      minLength: 36
+      maxLength: 36
+      example: "acd6e577-839b-490e-9d63-1f004bf6dfc0"
+
+    DeviceCode:
+      description: Device code
+      type: string
+      pattern: "^[0-9a-f]{24}$"
+      minLength: 24
+      maxLength: 24
+      example: "c7a1b24b0583477292ebdbaa"
+
+    DeviceCodeGrantType:
+      description: Grant type to get an access token
+      type: string
+      enum:
+        - device_code
+      example: "device_code"
+
+    ErrorCode:
+      description: Error code
+      type: string
+      pattern: "^[A-F0-9]{9}$"
+      minLength: 9
+      maxLength: 9
+      example: "001000005"
+
+    ErrorDescription:
+      description: Error description
+      type: string
+      pattern: "^[ -~]{1,256}$"
+      minLength: 1
+      maxLength: 256
+      example: "Unexpected error from server"
+
+    ExpiresIn:
+      description: The lifetime in seconds of the access token or of the user code and device code
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 2592000
+      example: 900
+
+    Interval:
+      description: The minimum amount of time in seconds that the client should wait between polling requests to the token endpoint
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 240
+      example: 5
+
+    Issuer:
+      description: URL of token issuer
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/mil-auth/"
+
+    JwksUri:
+      description: URL to get keys
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/mil-auth/.well-known/jwks.json"
+
+    KeyExp:
+      description: The key expiration time (unix epoch in seconds)
+      type: integer
+      format: int64
+      minimum: 1785401510
+      maximum: 9223372036854775807
+      example: 1785401510
+
+    KeyIat:
+      description: The key issue time (unix epoch in seconds)
+      type: integer
+      format: int64
+      minimum: 1699001510
+      maximum: 9223372036854775807
+      example: 1699001510
+
+    KeyType:
+      description: The family of cryptographic algorithms used with the key
+      type: string
+      enum:
+        - RSA
+      example: "RSA"
+
+    KeyUse:
+      description: How the key was meant to be used
+      enum:
+        - sig
+        - enc
+      type: string
+      example: "sig"
+
+    Kid:
+      description: The unique identifier for the key
+      type: string
+      pattern: "^[ -~]{1,1024}$"
+      minLength: 1
+      maxLength: 1024
+      example: "authb940bf66adf7481a971b4e2693ad9c1b/a7f47f409d75478abb6654a36d1cf469"
+
+    Modulus:
+      description: The modulus for the RSA public key
+      type: string
+      pattern: "^[a-zA-Z0-9_-]{171,683}$" # Base64/RFC4648 URL safe w/o =
+      minLength: 171 # ⌈4 * number of bytes / 3⌉; number of bytes = 128
+      maxLength: 683 # ⌈4 * number of bytes / 3⌉; number of bytes = 512
+      example: "16S2OgUL_eF-WDAQrflZc96cASN7GDcTFeg_JKYQhEjVIxu96YgIYtbGZp6wIhZYfWIclkM_NXOtBTp-wZUpPlGEsw8ixdonCzMCO6L9tOzzfMjN3fxKxgiwIHnEC9onN-3Ld5uuCQy4ShOtmw3qlnBImXiEOIbdqsNjQNUZsgXTDzCe7zku7PItZeXGdaFpVgcdWN5emmaTEpPI9xzky_tkLYonluGTGKeoVRlNJEjLdbc9GhdsnBz6TDQzthWVyd-qiZfFN0syH7rfxDbSrqvDV3vThiW34d058t5xUZ-n7j3NkqjeQqAB11l1ZVAVut0-0bDPpIensuOP66rGMuC7VTAuIGIlV7srthgEXFLas1Zq5UcjLk3HFLVYVueW47WmSIfexb2jC4fJm2_qGbEclCKDl0MvM9FuSMIxLUrzn-TosL-mZ1NRpBt36HP28i8WpaV-bPJlSNefXUSuJkHGQ4sNblMqNtX0OOLVMQqBzJeeBYw5zsmYNHqM0G6vVqYfrDezOeuQsXTqaSWLmvdU-gsM6TQPg34ZaYLMlC0B88J80-YNPy-Xw3VzaQJouhsSgYn5J6BBu9lq_Gv9Y1lukKM-u1xg5hwgS_iuUsggWEWfGq4mlhgBZMKw7EBlrwNB2We1vjsVghVpknff9X9Xi_FYFg86KST7NVDj1PE"
+
+    PosId:
+      description: ID of the POS. It must be unique per terminal handler.
+      type: string
+      pattern: "^\\d{8}$"
+      minLength: 8
+      maxLength: 8
+      example: "34523860"
+
+    PublicExponent:
+      description: The exponent for the RSA public key
+      type: string
+      pattern: "^[a-zA-Z0-9_-]{4}$" # Base64/RFC4648 URL safe w/o =
+      minLength: 2 # ⌈4 * number of bytes / 3⌉; number of byte = 1
+      maxLength: 4 # ⌈4 * number of bytes / 3⌉; number of bytes = 3
+      example: "AQAB"
+
+    RateLimitLimit:
+      description: The number of allowed requests in the current period
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 240
+      example: 2
+
+    RateLimitReset:
+      description: The number of seconds left in the current period
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 60
+      example: 30
+
+    RefreshTokenGrantType:
+      description: Grant type to get an access token
+      type: string
+      enum:
+        - refresh_token
+      example: "refresh_token"
+
+    RefreshToken:
+      description: Refresh token
+      type: string
+      pattern: "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$"
+      minLength: 5
+      maxLength: 3074
+      example: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyIsImNoYW5uZWwiOiJQT1MiLCJpc3MiOiJodHRwczovL21pbC11LWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtYXV0aCIsInRlcm1pbmFsSWQiOiIwMTIzNDU2NyIsImV4cCI6MTcxMDc2Mjc3NCwiYWNxdWlyZXJJZCI6IjQ1ODU2MjUiLCJpYXQiOjE3MTA3NTkxNzR9.AOWNp6y-nMdYwo4EmoxM15B5tB74QvA8amJyl85aadc-D6uKvSwe89woCf-uyT9Ci9lFDjxGV6gUDoSwPzuuIi58jisikAS_Gt67Ux9O0fVtAEGeEhLstYG4Sa1DpA3inPGaulOC2ZKj-yLgTyyansE9Ff_7gVVzh05vgLQKuw9e3iA6GzAhwZ2kxYtc0_VZqlEup-zfiu1V9z3_o1t2S5oNYVPwBvloNgkYP7iZMraMc4DXZtHJP0k_gvLDtc7lLESHnIE4a9YThOmex9NEBxktVaXrjNIxd8LN_SxxB7mTDdR9eG5B6NXEltkkIk5os5g5JKyVSjlK2tB1G0SjO0PResWzgMQiLNHErKXDf7-z5XdPDHSKH5LdU5kcvZ1-zKUjmr_l_QH6UfSCaZ5tO79Fki9epVgGIclg2F9mWt1mUlVipKlN1bX6rond2MJU0v21uMlDXix7bihAW8yovizAtRG-xc_xx0JE3Tl44u0DHM_kRC_tLAQikwzAaG6A9SmP5_08P52q_aTFWvyNcncDUfvEHqk5-tKhAYkEsnDdaXJDprY_vam6e_jMgwPRBY7GAFAjJdgoimQkcUyFXg_rpslr05qW8bFcK-FmD6MFB1ySZz8mi_iMPd5lzPhhDWd9jyUPY4jJZvy3ZNaCppLg4NJ7attQ0X7K3cfFj84"
+
+    RetryAfter:
+      description: The number of seconds to wait before allowing a follow-up request
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 240
+      example: 60
+
+    RequestId:
+      description: Request ID that will be logged by service
+      type: string
+      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      minLength: 36
+      maxLength: 36
+      example: "d0d654e6-97da-4848-b568-99fedccb642b"
+
+    TokenEndpoint:
+      description: URL to get tokens
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/mil-auth/token"
+
+    TerminalHandlerId:
+      description: Terminal handler identifier
+      type: string
+      pattern: "^\\d{5}$"
+      minLength: 5
+      maxLength: 5
+      example: "45856"
+
+    TokenType:
+      description: Type of token
+      type: string
+      enum:
+        - Bearer
+      example: "Bearer"
+
+    UserCode:
+      description: Base20 user code to authenticate the terminal
+      type: string
+      pattern: "^[BCDFGHJKLMNPQRSTVWXZ]{8}$"
+      minLength: 8
+      maxLength: 8
+      example: "FXBKHJCL"
+
+    UserTaxCode:
+      description: User tax code (a.k.a. fiscal code)
+      type: string
+      pattern: "^(([A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z])|(\\d{11}))$"
+      minLength: 16
+      maxLength: 16
+      example: "RSSMRA85T10A562S"
+
+    # --------------------------------------------------------------------------------
+    # Complex types
+    # --------------------------------------------------------------------------------
+    AccessTokenRequestFromAtmServer:
+      description: Request to get the access token from ATM server
+      type: object
+      additionalProperties: false
+      properties:
+        grant_type:
+          $ref: '#/components/schemas/ClientCredentialsGrantType'
+        client_id:
+          $ref: '#/components/schemas/ClientId'
+        client_secret:
+          $ref: '#/components/schemas/ClientSecret'
+        bank_id:
+          $ref: '#/components/schemas/BankId'
+        terminal_id:
+          $ref: '#/components/schemas/AtmId'
+        user_code:
+          $ref: '#/components/schemas/ClientId'
+      required:
+        - grant_type
+        - client_id
+        - client_secret
+        - bank_id
+        - terminal_id
+      example:
+        grant_type: "client_credentials"
+        client_id: "d274d828-00ed-4fa2-8898-371f189d0c24"
+        client_secret: "acd6e577-839b-490e-9d63-1f004bf6dfc0"
+        bank_id: "05424"
+        terminal_id: "34523860"
+
+    AccessTokenRequestFromPos:
+      description: Request to get the access token from POS
+      type: object
+      additionalProperties: false
+      properties:
+        grant_type:
+          $ref: '#/components/schemas/DeviceCodeGrantType'
+        client_id:
+          $ref: '#/components/schemas/ClientId'
+        device_code:
+          $ref: '#/components/schemas/DeviceCode'
+      required:
+        - grant_type
+        - client_id
+        - device_code
+      example:
+        grant_type: "device_code"
+        client_id: "d274d828-00ed-4fa2-8898-371f189d0c24"
+        device_code: "c7a1b24b0583477292ebdbaa"
+
+    AccessTokenRequestWithClientCredentalsGrant:
+      description: Request to get the access token with client credentials grant flow
+      type: object
+      additionalProperties: false
+      properties:
+        grant_type:
+          $ref: '#/components/schemas/ClientCredentialsGrantType'
+        client_id:
+          $ref: '#/components/schemas/ClientId'
+        client_secret:
+          $ref: '#/components/schemas/ClientSecret'
+      required:
+        - grant_type
+        - client_id
+        - client_secret
+      example:
+        grant_type: "client_credentials"
+        client_id: "d274d828-00ed-4fa2-8898-371f189d0c24"
+        client_secret: "acd6e577-839b-490e-9d63-1f004bf6dfc0"
+
+    AccessTokenResponse:
+      description: Response to a request to get or refresh the access token
+      type: object
+      additionalProperties: false
+      properties:
+        access_token:
+          $ref: '#/components/schemas/AccessToken'
+        refresh_token:
+          $ref: '#/components/schemas/RefreshToken'
+        token_type:
+          $ref: '#/components/schemas/TokenType'
+        expires_in:
+          $ref: '#/components/schemas/ExpiresIn'
+      required:
+        - access_token
+        - token_type
+        - expires_in
+      example:
+        access_token: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLXUtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwiZ3JvdXBzIjpbIk5vdGljZVBheWVyIiwiU2xhdmVQb3MiLCJQYXlXaXRoSURQYXkiXSwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzEwODMxMjExLCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTcxMDgzMDMxMX0.B8eAagE7h9h0kcBnKvpD5JsN8l71W7iKmoZasKOAsnv3qcNYCaOSd2JJiydEBwaeVLszLC4Dji9j5dY92cYYMKvKHi-QPKY2UKe6A_V2zbODIrc2DVgzhV_ygSaBhaJz3ULr-3X1KSMeoksuoUCBHVXNs74IvliiNVLDxlfrP6U3pcUfCIkBzwHYxJwDUu7WGxEAB6GWZGH-iQ3LmAXYGza1U8mzJoVsPsS3lFHN-KlngvLCEs7qqfc_E-irYjMZG6_H3BKR_uUU-TJnaCzPUSnG9zBBa26clDEG6ij5V2l05OidBn4qPC1tSFZ35SCdoUnTqBEdlxXEj8LPvlAXV4I1r5HXYFYHbI9btj6fHOO1AdP8e2TNJs_25_iIAKFBwHlfYsrL6OWVUXwh5HiGYYzU71c7KlHGJEk5JZ_dqdzfdU44Yor3_cGeHg4m5EYyGG5QIffb_FzCfWX2gNB07wCyn4a_Lwvy3bWFhHSRqGOY4_5FycxB1WLW-lcq9W19A5dqJAFtf4zWP8LXV7ythefmzMusu52DBsNJH1rQKvkds-eHgXJO3Tb8CI3UTPTFkfc-dqrF-uxzeCZA5p42XWEtSnHyHTx4ZGBB8fwJg3yu9bs1wC854KtMIfL2nBZcFB_3ix3jMsa655_cL5r7YTsZ87SQlSgfLJtGdKz8qWg"
+        refresh_token: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyIsImNoYW5uZWwiOiJQT1MiLCJpc3MiOiJodHRwczovL21pbC11LWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtYXV0aCIsInRlcm1pbmFsSWQiOiIwMTIzNDU2NyIsImV4cCI6MTcxMDgzMzkxMSwiYWNxdWlyZXJJZCI6IjQ1ODU2MjUiLCJpYXQiOjE3MTA4MzAzMTF9.gV5oinUd2TSFLFH3KVjO7hAJHBDI-m9_3AvlmOP3priuoHWIwNpqtBqbQ9xwxyiRJqSmNp8u7_92SUWA1qIs1mSiB1_RsemgqufZkAcOA8YdoK7DqegvNVY1E0swmkesv3_K0m-u9QPjTvwUP1_5QX9wBI3_fSfVHsytH6HZvwxeZpqfrQ8ciskFhVCDy2qDQ9NEd6Im2EMefIHGxHpsqY-0RPTh6DU5E0_BY2vbQdw5XNb7_O2Ssg3bITlvWMxA9k4UAAZx3bTXwtbhl65cWSJSvtm-izRMIyvnczF1lJyR1LfsHiJMI-Xg7ixQODdeEbxJj3GnwFoI8hbSo7hUPKnVXUs3kWRsHsGkrODBh3MjZ4c8EdH7BLFycgykdtInBfMzKpL1K3bFEMu3T_c_9b61uG_58TfNRQGOMboK3ZuImtpt1NEYwmAiqC1iR9zifHL_cyQsVEJqLxhR0J_ugISkSs5oLd-lvWMHAZc_McY8v0Cloq9q8DGpcbLf9x5QF2lEkKB7yNCjUVDZJcjcnztZryjLIW2PNvdHaof4KtEAWsGlvEAC0nxbUx98uofkBijb3s8q_NTUUOyD7Dlif9AFqS4-j0dDXM1aeB8P0abzuTFa2Aw5VvICp5DtUottaKr9ioO2IJRPh66LuKlUTMKsDUEZ2InhZqxtKzlj_gQ"
+        token_type: "Bearer"
+        expires_in: 900
+
+    ActivateRequest:
+      description: Request to activate a device
+      type: object
+      additionalProperties: false
+      properties:
+        user_code:
+          $ref: '#/components/schemas/UserCode'
+      required:
+        - user_code
+      example:
+        user_code: "FXBKHJCL"
+
+    DeviceCodeRequest:
+      description: Request to get device code and user code
+      type: object
+      additionalProperties: false
+      properties:
+        client_id:
+          $ref: '#/components/schemas/ClientId'
+        terminal_handler_id:
+          $ref: '#/components/schemas/TerminalHandlerId'
+        terminal_id:
+          $ref: '#/components/schemas/PosId'
+      required:
+        - client_id
+        - terminal_handler_id
+        - terminal_id
+      example:
+        client_id: "d274d828-00ed-4fa2-8898-371f189d0c24"
+        terminal_handler_id: "45856"
+        terminal_id: "34523860"
+
+    DeviceCodeResponse:
+      description: Response to the request to get device code and user code
+      type: object
+      additionalProperties: false
+      properties:
+        device_code:
+          $ref: '#/components/schemas/DeviceCode'
+        user_code:
+          $ref: '#/components/schemas/UserCode'
+        expires_in:
+          $ref: '#/components/schemas/ExpiresIn'
+        interval:
+          $ref: '#/components/schemas/Interval'
+      required:
+        - device_code
+        - user_code
+        - expires_in
+        - interval
+      example:
+        device_code: "c7a1b24b0583477292ebdbaa"
+        user_code: "FXBKHJCL"
+        expires_in: 300
+        interval: 5
+
+    Error:
+      description: Error details
+      type: object
+      additionalProperties: false
+      properties:
+        errorCode:
+          $ref: '#/components/schemas/ErrorCode'
+        errorDescription:
+          $ref: '#/components/schemas/ErrorDescription'
+      required:
+        - errorCode
+        - errorDescription
+      example:
+        errorCode: "001000001"
+        errorDescription: "Generic error"
+
+    Errors:
+      description: Errors list
+      type: object
+      additionalProperties: false
+      properties:
+        errors:
+          type: array
+          minItems: 1
+          maxItems: 32
+          items:
+            $ref: '#/components/schemas/Error'
+      required:
+        - errors
+      example:
+        errors:
+          - errorCode: "00000000A"
+            errorDescription: "Generic error"
+          - errorCode: "001000001"
+            errorDescription: "Unexpected error from server"
+
+    Keys:
+      description: Keys
+      type: object
+      additionalProperties: false
+      properties:
+        keys:
+          type: array
+          minItems: 0
+          maxItems: 64
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/PublicKey'
+      required:
+        - keys
+      example:
+        keys:
+          - e: "AQAB"
+            use: "sig"
+            kid: "authb940bf66adf7481a971b4e2693ad9c1b/a7f47f409d75478abb6654a36d1cf469"
+            n: "16S2OgUL_eF-WDAQrflZc96cASN7GDcTFeg_JKYQhEjVIxu96YgIYtbGZp6wIhZYfWIclkM_NXOtBTp-wZUpPlGEsw8ixdonCzMCO6L9tOzzfMjN3fxKxgiwIHnEC9onN-3Ld5uuCQy4ShOtmw3qlnBImXiEOIbdqsNjQNUZsgXTDzCe7zku7PItZeXGdaFpVgcdWN5emmaTEpPI9xzky_tkLYonluGTGKeoVRlNJEjLdbc9GhdsnBz6TDQzthWVyd-qiZfFN0syH7rfxDbSrqvDV3vThiW34d058t5xUZ-n7j3NkqjeQqAB11l1ZVAVut0-0bDPpIensuOP66rGMuC7VTAuIGIlV7srthgEXFLas1Zq5UcjLk3HFLVYVueW47WmSIfexb2jC4fJm2_qGbEclCKDl0MvM9FuSMIxLUrzn-TosL-mZ1NRpBt36HP28i8WpaV-bPJlSNefXUSuJkHGQ4sNblMqNtX0OOLVMQqBzJeeBYw5zsmYNHqM0G6vVqYfrDezOeuQsXTqaSWLmvdU-gsM6TQPg34ZaYLMlC0B88J80-YNPy-Xw3VzaQJouhsSgYn5J6BBu9lq_Gv9Y1lukKM-u1xg5hwgS_iuUsggWEWfGq4mlhgBZMKw7EBlrwNB2We1vjsVghVpknff9X9Xi_FYFg86KST7NVDj1PE"
+            kty: "RSA"
+            exp: 1785401510
+            iat: 1699001510
+
+    OpenIdConf:
+      description: OpenID configuration
+      type: object
+      additionalProperties: false
+      properties:
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        token_endpoint:
+          $ref: '#/components/schemas/TokenEndpoint'
+        jwks_uri:
+          $ref: '#/components/schemas/JwksUri'
+      example:
+        issuer: "https://mil-u-apim.azure-api.net/mil-auth/"
+        token_endpoint: "https://mil-u-apim.azure-api.net/mil-auth/token"
+        jwks_uri: "https://mil-u-apim.azure-api.net/mil-auth/.well-known/jwks.json"
+
+    PublicKey:
+      description: Public key
+      type: object
+      additionalProperties: false
+      properties:
+        kty:
+          $ref: '#/components/schemas/KeyType'
+        e:
+          $ref: '#/components/schemas/PublicExponent'
+        use:
+          $ref: '#/components/schemas/KeyUse'
+        kid:
+          $ref: '#/components/schemas/Kid'
+        exp:
+          $ref: '#/components/schemas/KeyExp'
+        iat:
+          $ref: '#/components/schemas/KeyIat'
+        n:
+          $ref: '#/components/schemas/Modulus'
+      required:
+        - kty
+        - e
+        - use
+        - kid
+        - exp
+        - iat
+        - n
+      example:
+        e: "AQAB"
+        use: "sig"
+        kid: "authb940bf66adf7481a971b4e2693ad9c1b/a7f47f409d75478abb6654a36d1cf469"
+        n: "16S2OgUL_eF-WDAQrflZc96cASN7GDcTFeg_JKYQhEjVIxu96YgIYtbGZp6wIhZYfWIclkM_NXOtBTp-wZUpPlGEsw8ixdonCzMCO6L9tOzzfMjN3fxKxgiwIHnEC9onN-3Ld5uuCQy4ShOtmw3qlnBImXiEOIbdqsNjQNUZsgXTDzCe7zku7PItZeXGdaFpVgcdWN5emmaTEpPI9xzky_tkLYonluGTGKeoVRlNJEjLdbc9GhdsnBz6TDQzthWVyd-qiZfFN0syH7rfxDbSrqvDV3vThiW34d058t5xUZ-n7j3NkqjeQqAB11l1ZVAVut0-0bDPpIensuOP66rGMuC7VTAuIGIlV7srthgEXFLas1Zq5UcjLk3HFLVYVueW47WmSIfexb2jC4fJm2_qGbEclCKDl0MvM9FuSMIxLUrzn-TosL-mZ1NRpBt36HP28i8WpaV-bPJlSNefXUSuJkHGQ4sNblMqNtX0OOLVMQqBzJeeBYw5zsmYNHqM0G6vVqYfrDezOeuQsXTqaSWLmvdU-gsM6TQPg34ZaYLMlC0B88J80-YNPy-Xw3VzaQJouhsSgYn5J6BBu9lq_Gv9Y1lukKM-u1xg5hwgS_iuUsggWEWfGq4mlhgBZMKw7EBlrwNB2We1vjsVghVpknff9X9Xi_FYFg86KST7NVDj1PE"
+        kty: "RSA"
+        exp: 1785401510
+        iat: 1699001510
+
+    RefreshAccessTokenRequest:
+      description: Request to refresh the access token
+      type: object
+      additionalProperties: false
+      properties:
+        grant_type:
+          $ref: '#/components/schemas/RefreshTokenGrantType'
+        client_id:
+          $ref: '#/components/schemas/ClientId'
+        refresh_token:
+          $ref: '#/components/schemas/RefreshToken'
+      required:
+        - grant_type
+        - client_id
+        - refresh_token
+      example:
+        grant_type: "refresh_token"
+        client_id: "d274d828-00ed-4fa2-8898-371f189d0c24"
+        refresh_token: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyIsImNoYW5uZWwiOiJQT1MiLCJpc3MiOiJodHRwczovL21pbC11LWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtYXV0aCIsInRlcm1pbmFsSWQiOiIwMTIzNDU2NyIsImV4cCI6MTcxMDc2Mjc3NCwiYWNxdWlyZXJJZCI6IjQ1ODU2MjUiLCJpYXQiOjE3MTA3NTkxNzR9.AOWNp6y-nMdYwo4EmoxM15B5tB74QvA8amJyl85aadc-D6uKvSwe89woCf-uyT9Ci9lFDjxGV6gUDoSwPzuuIi58jisikAS_Gt67Ux9O0fVtAEGeEhLstYG4Sa1DpA3inPGaulOC2ZKj-yLgTyyansE9Ff_7gVVzh05vgLQKuw9e3iA6GzAhwZ2kxYtc0_VZqlEup-zfiu1V9z3_o1t2S5oNYVPwBvloNgkYP7iZMraMc4DXZtHJP0k_gvLDtc7lLESHnIE4a9YThOmex9NEBxktVaXrjNIxd8LN_SxxB7mTDdR9eG5B6NXEltkkIk5os5g5JKyVSjlK2tB1G0SjO0PResWzgMQiLNHErKXDf7-z5XdPDHSKH5LdU5kcvZ1-zKUjmr_l_QH6UfSCaZ5tO79Fki9epVgGIclg2F9mWt1mUlVipKlN1bX6rond2MJU0v21uMlDXix7bihAW8yovizAtRG-xc_xx0JE3Tl44u0DHM_kRC_tLAQikwzAaG6A9SmP5_08P52q_aTFWvyNcncDUfvEHqk5-tKhAYkEsnDdaXJDprY_vam6e_jMgwPRBY7GAFAjJdgoimQkcUyFXg_rpslr05qW8bFcK-FmD6MFB1ySZz8mi_iMPd5lzPhhDWd9jyUPY4jJZvy3ZNaCppLg4NJ7attQ0X7K3cfFj84"
+
+    TokenInfoRequest:
+      description: Request to introspect an access token
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          $ref: '#/components/schemas/AccessToken'
+      required:
+        - token
+      example:
+        token: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLXUtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwiZ3JvdXBzIjpbIk5vdGljZVBheWVyIiwiU2xhdmVQb3MiLCJQYXlXaXRoSURQYXkiXSwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzEwNzYwMDc0LCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTcxMDc1OTE3NH0.DwdwI-kYMf9OWY5PjBUw9zrSZGXGaqWlj1FwygAKv_AMvZ41_Uu8fnL7LOpYTYS0qNouxOVsRmpOnjfvt1zfx8t8MZP07O7KpO4cJpBfqm2kXI5_A2gimFrF4m_4LM-exNM0fW5gaGC8TVfMm0dkrJh0tFnZ3j-xw9bGi1ZqubIth0H7M8JkvzZ1o6CMOyfEVTYbiJb9lhsP6qrmduhhv9uRAo7SyIVFVudjsNyrw-MFDwQhpGdhrKa_2q6ZpkjzRcK1t_NynFI1IFbWuy5wYS1DllA9uJxU9Rc1zPHQk1UR_Cfrek3D7rfg9tJY0XqDerG8gUMg7wlizMZSkmWfhNKz5yH9seV4_ktVU2rBVsN-OIwMfOiD3kwjIxw4NcX5Uza9cMCQPSZqbDCG4jeFQjJ1WxBkKAfFJLc_Vb59CS2UttwCJA8A9OsCJ2kQQ9fg_Ez1tzNdsCsMXQo7XAFPKGTe0MpL2UPiErPATEjdfdzHnwyZsx-DubAEwKUREHjAevAQb6i6b6aI_3Ti51ArLor1jW_1EHwt2fRyhbDdTyvKSI7trqtx8DkNgd42dOBYrIqYUs2xfaFdKLGDmH5dFX7n8l--xqaNDU983Z1neNX-lsRWe-22eT0ykfRW_GI84v_uRA2My5RL2mmJ9vjRQ3LTlaOairNYkYplyXcydSQ"
+
+    TokenInfoResponse:
+      description: Response to the request to introspect an access token
+      type: object
+      additionalProperties: false
+      properties:
+        userCode:
+          $ref: '#/components/schemas/UserTaxCode'
+      required:
+        - userCode
+      example:
+        userCode: "RSSMRA85T10A562S"
+
+  # ----------------------------------------------------------------------------------
+  # Request bodies
+  # ----------------------------------------------------------------------------------
+  requestBodies:
+    AccessToken:
+      description: Request to get or refresh the access token
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/AccessTokenRequestFromAtmServer'
+              - $ref: '#/components/schemas/AccessTokenRequestFromPos'
+              - $ref: '#/components/schemas/AccessTokenRequestWithClientCredentalsGrant'
+              - $ref: '#/components/schemas/RefreshAccessTokenRequest'
+
+    Activate:
+      description: Request to activate a device
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/ActivateRequest'
+
+    DeviceCode:
+      description: Request to get device code and user code
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/DeviceCodeRequest'
+
+    TokenInfo:
+      description: Request to introspect an access token
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/TokenInfoRequest'
+
+  # ----------------------------------------------------------------------------------
+  # Parameters
+  # ----------------------------------------------------------------------------------
+  parameters:
+    RequestId:
+      name: RequestId
+      in: header
+      description: Request ID that will be logged by service
+      required: true
+      schema:
+        $ref: '#/components/schemas/RequestId'
+
+  # ----------------------------------------------------------------------------------
+  # Responses
+  # ----------------------------------------------------------------------------------
+  responses:
+    AccessToken:
+      description: Response to the request to get or refresh the access token
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccessTokenResponse'
+
+    DeviceCode:
+      description: Response to the request to get device code and user code
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DeviceCodeResponse'
+
+    Error:
+      description: Error response
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+        Retry-After:
+          description: The number of seconds to wait before allowing a follow-up request
+          required: false
+          schema:
+            $ref: '#/components/schemas/RetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+
+    Keys:
+      description: Keys
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Keys'
+
+    NoContent:
+      description: No content response
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+
+    OpenIdConf:
+      description: OpenID configuration
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OpenIdConf'
+
+    TokenInfo:
+      description: Response to the request to introspect an access token
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenInfoResponse'
+
+  # ----------------------------------------------------------------------------------
+  # Security schemes
+  # ----------------------------------------------------------------------------------
+  securitySchemes:
+    BearerAuth:
+      description: A bearer token in the format of a JWS and conforms to the specifications included in RFC8725
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
