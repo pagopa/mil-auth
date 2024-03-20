@@ -6,6 +6,7 @@ on:
       - closed
     branches:
       - main
+      - v2
 
 jobs:
   post_merge:
@@ -213,7 +214,7 @@ jobs:
           git config user.email "<>"
           git add pom.xml
           git commit -m "pom.xml updated with new version ${{ steps.semantic.outputs.new_release_version }}"
-          git push origin main
+          git push origin ${{ github.ref_name }}
       
       #
       # Calculation of the new version (again) with tagging + releasing + etc.
