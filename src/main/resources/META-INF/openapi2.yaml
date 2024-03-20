@@ -36,8 +36,8 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/DeviceCode'
       responses:
-        "201":
-          #description: Created
+        "200":
+          #description: Ok
           $ref: '#/components/responses/DeviceCode'
         "400":
           #description: Bad request
