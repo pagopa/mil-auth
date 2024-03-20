@@ -12,9 +12,9 @@ atm -> mil_auth ++ : POST /token
 		grant_type=client_credentials&
 		client_id=//<client id>//&
 		client_secret=//<client secret>//&
-		bankId=//<bank id>//&
-		terminalId=//<terminal id>//&
-		userCode=//<user code>//
+		bank_id=//<bank id>//&
+		terminal_id=//<terminal id>//&
+		user_code=//<user code>//
 		__//<user code>//__
 		It's optional.
 	end note
