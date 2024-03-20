@@ -1,0 +1,33 @@
+@startuml
+!include_many ../common/skin.puml
+!include_many actors.puml
+
+activate atm
+
+atm -> mil_auth ++ : POST /token
+	note left
+		__header__
+		RequestId: //<request id>//
+		__body__
+		grant_type=client_credentials&
+		client_id=//<client id>//&
+		client_secret=//<client secret>//&
+		bank_id=//<bank id>//&
+		terminal_id=//<terminal id>//&
+		user_code=//<user code>//
+		__//<user code>//__
+		It's optional.
+	end note
+
+mil_auth --> atm -- : HTTP 200 (ok)
+	note right
+		{
+			"access_token": "//<access token>//",
+			"refresh_token": "//<refresh token>//",
+			"token_type": "Bearer",
+			"expires_in": //<access token duration>//
+		}
+	end note
+
+deactivate atm
+@enduml

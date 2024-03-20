@@ -1,0 +1,33 @@
+@startuml
+!include_many ../common/skin.puml
+!include_many actors.puml
+
+activate installer
+
+installer -> pos ++ : start app
+
+pos -> mil_auth ++ : POST /device/code
+	note left
+		__header__
+		RequestId: //<request id>//
+		__body__
+		client_id=//<client id>//&
+		terminal_handler_id=//<terminal handler id>//&
+		terminal_id=//<terminal id>//
+	end note
+
+mil_auth --> pos -- : HTTP 200 (ok)
+	note right
+		__body__
+		{
+			"device_code": "//<terminal uuid>//",
+			"user_code": "//<user code>//",
+			"expires_in": //<expires in>//,
+			"interval": //<interval>//
+		}
+		end note
+
+pos --> installer --: //<user code>//
+
+deactivate installer
+@enduml
