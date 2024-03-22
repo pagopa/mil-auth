@@ -20,13 +20,6 @@
 		</developer>
 	</developers>
 
-	<distributionManagement>
-		<site>
-			<id>github</id>
-			<url>https://github.com/pagopa/mil-auth.git</url>
-		</site>
-	</distributionManagement>
-
 	<properties>
 		<java.version>17</java.version>
 		<maven.compiler.release>${java.version}</maven.compiler.release>
@@ -34,14 +27,9 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 
 		<compiler-plugin.version>3.11.0</compiler-plugin.version>
-		<clean-plugin.version>3.3.2</clean-plugin.version>
 		<exec-plugin.version>3.2.0</exec-plugin.version>
 		<surefire-plugin.version>3.0.0</surefire-plugin.version>
 		<sonar-plugin.version>3.9.1.2184</sonar-plugin.version>
-		<site-plugin.version>4.0.0-M13</site-plugin.version>
-		<scm-publish-plugin.version>3.2.1</scm-publish-plugin.version>
-		<openapi-generator-plugin.version>7.4.0</openapi-generator-plugin.version>
-		<antrun-plugin.version>3.1.0</antrun-plugin.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -179,10 +167,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>${clean-plugin.version}</version>
-			</plugin>
-			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${compiler-plugin.version}</version>
 				<configuration>
@@ -223,6 +207,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Verifies the hash of the dependencies -->
 			<plugin>
 				<groupId>it.pagopa.maven</groupId>
 				<artifactId>depcheck</artifactId>
@@ -242,6 +227,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Verifies some quality rules -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -287,92 +273,31 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- Copies src/site to target/site-tmp -->
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>${antrun-plugin.version}</version>
-				<executions>
-					<execution>
-						<phase>pre-site</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target>
-								<mkdir
-									dir="${project.build.directory}/site-tmp" />
-								<copy
-									todir="${project.build.directory}/site-tmp">
-									<fileset dir="${basedir}/src/site"
-										includes="**" />
-								</copy>
-							</target>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Generates OpenAPI MD -->
-			<plugin>
-				<groupId>org.openapitools</groupId>
-				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>${openapi-generator-plugin.version}</version>
-				<executions>
-					<execution>
-						<phase>pre-site</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>
-								${project.basedir}/src/main/resources/META-INF/openapi.yaml</inputSpec>
-							<generatorName>markdown</generatorName>
-							<output>
-								${project.build.directory}/site-tmp/markdown/openapi</output>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>${site-plugin.version}</version>
-				<configuration>
-					<siteDirectory>${project.build.directory}/site-tmp</siteDirectory>
-				</configuration>
-			</plugin>
 			<!-- Generates images from PlantUML files (mvn exec:java) -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>${exec-plugin.version}</version>
-				<executions>
-					<execution>
-						<!-- after site -->
-						<phase>site</phase>
-						<goals>
-							<goal>java</goal>
-						</goals>
-						<configuration>
-							<includeProjectDependencies>false</includeProjectDependencies>
-							<includePluginDependencies>true</includePluginDependencies>
-							<executableDependency>
-								<groupId>net.sourceforge.plantuml</groupId>
-								<artifactId>plantuml-mit</artifactId>
-							</executableDependency>
-							<mainClass>net.sourceforge.plantuml.Run</mainClass>
-							<arguments>
-								<argument>${basedir}/src/site/puml/**/MAIN*.puml</argument>
-								<argument>-o</argument>
-								<argument>${project.build.directory}/site/puml</argument>
-							</arguments>
-							<systemProperties>
-								<systemProperty>
-									<key>PLANTUML_LIMIT_SIZE</key>
-									<value>2147483647</value>
-								</systemProperty>
-							</systemProperties>
-						</configuration>
-					</execution>
-				</executions>
+				<configuration>
+					<includeProjectDependencies>false</includeProjectDependencies>
+					<includePluginDependencies>true</includePluginDependencies>
+					<executableDependency>
+						<groupId>net.sourceforge.plantuml</groupId>
+						<artifactId>plantuml-mit</artifactId>
+					</executableDependency>
+					<mainClass>net.sourceforge.plantuml.Run</mainClass>
+					<arguments>
+						<argument>${basedir}/src/site/puml/**/MAIN*.puml</argument>
+						<argument>-o</argument>
+						<argument>${basedir}/src/site/puml-img</argument>
+					</arguments>
+					<systemProperties>
+						<systemProperty>
+							<key>PLANTUML_LIMIT_SIZE</key>
+							<value>2147483647</value>
+						</systemProperty>
+					</systemProperties>
+				</configuration>
 				<dependencies>
 					<dependency>
 						<groupId>net.sourceforge.plantuml</groupId>
@@ -382,16 +307,9 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-			<plugin>
-				<artifactId>maven-scm-publish-plugin</artifactId>
-				<version>${scm-publish-plugin.version}</version>
-				<configuration>
-					<pubScmUrl>${project.scm.developerConnection}</pubScmUrl>
-					<scmBranch>gh-pages</scmBranch>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
+
 	<profiles>
 		<profile>
 			<id>native</id>
@@ -405,6 +323,7 @@
 				<quarkus.package.type>native</quarkus.package.type>
 			</properties>
 		</profile>
+
 		<!-- To execute SCA with SonarCloud:                                      -->
 		<!--   1. export SONAR_TOKEN=<sonar token provided by PagoPA DevOps team> -->
 		<!--   2. mvn verify -Pvalidate                                           -->
