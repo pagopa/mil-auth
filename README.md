@@ -1,5 +1,5 @@
 ```mermaid
 graph TD
-A[Subriadramma 1.mermaid] --> B
+A[Subdiagramma 1.mermaid] --> B
 B --> C
 ```
