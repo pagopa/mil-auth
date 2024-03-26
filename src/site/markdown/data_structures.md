@@ -16,6 +16,7 @@
 	"terminalHandlerId": "<terminal handler id>",
 	"terminalId": "<terminal id>",
 	"groups": [ <array of roles> ],
+	"slave": <slave>,
 	"pagoPaConf": {
 		"pspId": "<psp id>"
 		"brokerId": "<broker id>"
@@ -38,6 +39,7 @@
 | `<psp id>`                | PSP ID da adoperare nella comunicazione con il Nodo pagoPA. Presente solo se il POS è abilitato al pagamento degli avvisi pagoPA.         |
 | `<broker id>`             | Broker ID da adoperare nella comunicazione con il Nodo pagoPA. Presente solo se il POS è abilitato al pagamento degli avvisi pagoPA.      |
 | `<channel id>`            | Channel ID da adoperare nella comunicazione con il Nodo pagoPA. Presente solo se il POS è abilitato al pagamento degli avvisi pagoPA.     |
+| `<slave>`                 | Se `true` indica che il POS è asservito.                                                                                                  |
 
 ### ATM Layer
 ```json
