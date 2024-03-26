@@ -1,0 +1,50 @@
+name: Generate PlantUML Diagrams
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+      - v2
+
+jobs:
+  generate_diagrams:
+    if: github.event.pull_request.merged == true
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Install Graphviz
+        run: |
+          apt-get update -q
+          apt-get install -y graphviz wget
+
+      - name: Download PlantUML
+        run: |
+          wget https://sourceforge.net/projects/plantuml/files/plantuml.jar/download -O plantuml.jar
+
+      - name: Generate Diagrams
+        run: |
+          for file in $(find ./src/site -type f -name "MAIN_*.puml"); do
+            java -jar plantuml.jar "$file" -tsvg
+          done
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "GitHub Workflow"
+          git config user.email "<>"
+          for file in $(find ./src/site -type f -name "*.svg"); do
+            git add "$file"
+          done
+          git commit -m "PlantUML images updated"
+          git push origin ${{ github.ref_name }}
