@@ -11,6 +11,7 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 /**
  * @author Antonio Tarricone
@@ -18,6 +19,25 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 @ClientCredentials
 public class TokenByClientSecretService extends TokenService {
+	/**
+	 * Non-private no-args constructor.
+	 */
+	TokenByClientSecretService() {
+		super();
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param clientVerifier
+	 * @param roleFinder
+	 * @param tokenSigner
+	 */
+	@Inject
+	TokenByClientSecretService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner) {
+		super(clientVerifier, roleFinder, tokenSigner);
+	}
+
 	/**
 	 * @param getAccessToken
 	 * @return

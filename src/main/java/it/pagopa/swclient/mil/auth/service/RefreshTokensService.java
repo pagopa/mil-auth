@@ -23,6 +23,7 @@ import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 /**
  * @author Antonio Tarricone
@@ -30,6 +31,25 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 @RefreshToken
 public class RefreshTokensService extends TokenService {
+	/**
+	 * Non-private no-args constructor.
+	 */
+	RefreshTokensService() {
+		super();
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param clientVerifier
+	 * @param roleFinder
+	 * @param tokenSigner
+	 */
+	@Inject
+	RefreshTokensService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner) {
+		super(clientVerifier, roleFinder, tokenSigner);
+	}
+
 	/**
 	 * This method verifies the token algorithm.
 	 * <p>

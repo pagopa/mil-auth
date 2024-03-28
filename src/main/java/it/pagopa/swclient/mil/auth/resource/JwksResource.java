@@ -40,8 +40,17 @@ public class JwksResource {
 	/*
 	 *
 	 */
+	private KeyFinder keyFinder;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param keyFinder
+	 */
 	@Inject
-	KeyFinder keyFinder;
+	JwksResource(KeyFinder keyFinder) {
+		this.keyFinder = keyFinder;
+	}
 
 	/**
 	 * @param t

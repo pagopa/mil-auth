@@ -8,7 +8,6 @@ package it.pagopa.swclient.mil.auth.service;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.Role;
-import it.pagopa.swclient.mil.auth.bean.User;
 
 /**
  * @author Antonio Tarricone
@@ -29,10 +28,4 @@ public interface AuthDataRepository {
 	 * @return
 	 */
 	public Uni<Role> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId);
-
-	/**
-	 * @param userHash
-	 * @return
-	 */
-	public Uni<User> getUser(String userHash);
 }

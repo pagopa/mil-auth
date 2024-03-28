@@ -1,7 +1,7 @@
 /*
  * AzureTokenSigner.java
  *
- * 1 ago 2023
+ * 24 mar 2024
  */
 package it.pagopa.swclient.mil.auth.azure.keyvault.service;
 
@@ -9,9 +9,15 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Base64;
 import java.util.Objects;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.security.keyvault.keys.KeyAsyncClient;
+import com.azure.security.keyvault.keys.cryptography.models.SignResult;
+import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
+import com.azure.security.keyvault.keys.cryptography.models.VerifyResult;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.util.Base64URL;
@@ -21,15 +27,15 @@ import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azure.auth.service.AzureAuthService;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignRequest;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.VerifySignatureRequest;
 import it.pagopa.swclient.mil.auth.azure.keyvault.util.SignedJWTFactory;
+import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.service.TokenSigner;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import mutiny.zero.flow.adapters.AdaptersToFlow;
+import reactor.core.publisher.Mono;
 
 /**
  *
@@ -37,38 +43,114 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class AzureTokenSigner implements TokenSigner {
 	/*
-	 *
+	 * Azure Key Vault URL.
 	 */
-	@Inject
-	AzureKeyFinder keyFinder;
+	@ConfigProperty(name = "azure-key-vault.url")
+	String vaultUrl;
 
 	/*
-	 *
+	 * Azure Key Vault client.
 	 */
-	@Inject
-	AzureKeyVaultService keyVaultService;
+	private KeyAsyncClient keyClient;
 
 	/*
-	 *
+	 * Key finder.
 	 */
-	@Inject
-	AzureAuthService authService;
+	private AzureKeyFinder keyFinder;
+	
+	/*
+	 * Error message when something went wrong with Azure.
+	 */
+	private static final String ERROR_FROM_AZURE_MSG = String.format("[%s] Error from Azure.", AuthErrorCode.ERROR_FROM_AZURE);
 
 	/**
+	 * Constructor.
+	 * 
+	 * @param keyFinder
+	 */
+	@Inject
+	AzureTokenSigner(AzureKeyFinder keyFinder) {
+		this.keyFinder = keyFinder;
+		keyClient = keyFinder.getKeyClient();
+	}
+
+	/**
+	 * 
 	 * @param header
 	 * @param payload
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
-	private String getDerDigestInfo(Base64URL header, Base64URL payload) throws NoSuchAlgorithmException {
+	private byte[] getDigest(Base64URL header, Base64URL payload) throws NoSuchAlgorithmException {
 		String stringToSign = header.toString() + "." + payload.toString();
 		byte[] bytesToSign = stringToSign.getBytes(StandardCharsets.UTF_8);
 
 		MessageDigest digest = MessageDigest.getInstance("SHA256");
 		digest.update(bytesToSign);
-		byte[] hash = digest.digest();
 
-		return Base64.getUrlEncoder().encodeToString(hash);
+		return digest.digest();
+	}
+
+	/**
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @param digest
+	 * @return
+	 */
+	private Uni<byte[]> sign(String keyName, String keyVersion, byte[] digest) {
+		try {
+			Mono<byte[]> signature = keyClient.getCryptographyAsyncClient(keyName, keyVersion)
+				.sign(SignatureAlgorithm.RS256, digest)
+				.onErrorMap(t ->  {
+					Log.errorf(t, ERROR_FROM_AZURE_MSG);
+					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+				})
+				.map(SignResult::getSignature);
+
+			return Uni.createFrom().publisher(AdaptersToFlow.publisher(signature));
+		} catch (ResourceNotFoundException | NullPointerException | UnsupportedOperationException e) {
+			Log.errorf(e, ERROR_FROM_AZURE_MSG);
+			throw new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+		}
+	}
+
+	/**
+	 * 
+	 * @param key
+	 * @param claimsSet
+	 * @return
+	 */
+	private Uni<SignedJWT> sign(PublicKey key, JWTClaimsSet claimsSet) {
+		String kid = key.getKid();
+		String[] kidParts = kid.split("/");
+
+		if (kidParts.length == 2) {
+			Base64URL header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, kid, true, null, null).toBase64URL();
+			Base64URL payload = claimsSet.toPayload().toBase64URL();
+
+			try {
+				byte[] digest = getDigest(header, payload);
+				return sign(kidParts[0], kidParts[1], digest)
+					.map(resp -> {
+						try {
+							return SignedJWTFactory.createInstance(header, payload, Base64URL.encode(resp));
+						} catch (ParseException e) {
+							String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
+							Log.errorf(e, message);
+							throw new AuthError(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
+						}
+					});
+			} catch (NoSuchAlgorithmException e) {
+				String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
+				Log.errorf(e, message);
+				throw new AuthError(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
+			}
+		} else {
+			String message = String.format("Invalid kid [%s].", kid);
+			Log.error(message);
+			throw new AuthError(AuthErrorCode.INVALID_KID, message);
+		}
 	}
 
 	/**
@@ -80,44 +162,38 @@ public class AzureTokenSigner implements TokenSigner {
 	@Override
 	public Uni<SignedJWT> sign(JWTClaimsSet claimsSet) {
 		Log.debug("Token signing.");
-		return keyFinder.findValidPublicKeyWithGreatestExpiration()
-			.chain(item -> {
-				String kid = item.get().getKid();
-				String[] components = kid.split("/");
-				String keyName = components[components.length - 2];
-				String keyVersion = components[components.length - 1];
-
-				Base64URL header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, kid, true, null, null).toBase64URL();
-				Base64URL payload = claimsSet.toPayload().toBase64URL();
-
-				try {
-					String derDigestInfoBase64 = getDerDigestInfo(header, payload);
-
-					SignRequest req = new SignRequest(JWSAlgorithm.RS256.getName(), derDigestInfoBase64);
-
-					return keyVaultService.sign(item.context().get(AzureKeyFinder.TOKEN), keyName, keyVersion, req)
-						.map(resp -> {
-							try {
-								return SignedJWTFactory.createInstance(header, payload, Base64URL.from(resp.getSignature()));
-							} catch (ParseException e) {
-								String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
-								Log.errorf(e, message);
-								throw new AuthError(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
-							}
-						});
-				} catch (NoSuchAlgorithmException e) {
-					String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
-					Log.errorf(e, message);
-					throw new AuthError(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
-				}
-			});
+		return keyFinder.findPublicKey()
+			.chain(key -> sign(key, claimsSet));
 	}
 
 	/**
-	 * This class verifies the token signature.
-	 * <p>
-	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
-	 * specific error code.
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @param digest
+	 * @param signature
+	 * @return
+	 */
+	private Uni<Boolean> verify(String keyName, String keyVersion, byte[] digest, byte[] signature) {
+		try {
+			Mono<Boolean> isValid = keyClient.getCryptographyAsyncClient(keyName, keyVersion)
+				.verify(SignatureAlgorithm.RS256, digest, signature)
+				.onErrorMap(t ->  {
+					Log.errorf(t, ERROR_FROM_AZURE_MSG);
+					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+				})
+				.map(VerifyResult::isValid);
+
+			return Uni.createFrom().publisher(AdaptersToFlow.publisher(isValid));
+		} catch (ResourceNotFoundException | NullPointerException | UnsupportedOperationException e) {
+			Log.errorf(e, ERROR_FROM_AZURE_MSG);
+			throw new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+		}
+	}
+
+	/**
+	 * Verifies the token signature. If the verification succeeds, the method returns void, otherwise it
+	 * returns a failure with specific error code.
 	 *
 	 * @param token
 	 * @return
@@ -127,43 +203,32 @@ public class AzureTokenSigner implements TokenSigner {
 		Log.debug("Signature verification.");
 
 		String kid = token.getHeader().getKeyID();
-		String[] components = kid.split("/");
-		String keyName = components[components.length - 2];
-		String keyVersion = components[components.length - 1];
+		String[] kidParts = kid.split("/");
 
-		return authService.getAccessToken()
-			.invoke(x -> Log.debug(x))
-			.map(x -> {
-				String t = x.getToken();
-				if (t != null) {
-					return t;
-				} else {
-					String message = String.format("[%s] Azure access token not valid.", AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL);
-					Log.error(message);
-					throw new AuthError(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL, message);
-				}
-			}) // Getting the access token.
-			.chain(azureToken -> {
-				try {
-					String derDigestInfoBase64 = getDerDigestInfo(token.getHeader().toBase64URL(), token.getJWTClaimsSet().toPayload().toBase64URL());
-					String signatureBase64 = Base64.getUrlEncoder().encodeToString(token.getSignature().decode());
-					VerifySignatureRequest req = new VerifySignatureRequest(JWSAlgorithm.RS256.getName(), derDigestInfoBase64, signatureBase64);
-					return keyVaultService.verifySignature(azureToken, keyName, keyVersion, req)
-						.map(resp -> {
-							if (Objects.equals(resp.getOk(), Boolean.TRUE)) {
-								Log.debug("Signature has been successfully verified.");
-								return null;
-							} else {
-								String message = String.format("[%s] Wrong signature.", AuthErrorCode.WRONG_SIGNATURE);
-								Log.warn(message);
-								throw new AuthException(AuthErrorCode.WRONG_SIGNATURE, message);
-							}
-						});
-				} catch (NoSuchAlgorithmException | ParseException e) {
-					String message = String.format("[%s] Error verifing signature.", AuthErrorCode.ERROR_VERIFING_SIGNATURE);
-					Log.errorf(e, message);
-					throw new AuthError(AuthErrorCode.ERROR_VERIFING_SIGNATURE, message);
-				}
-			});
+		if (kidParts.length == 2) {
+			try {
+				byte[] digest = getDigest(token.getHeader().toBase64URL(), token.getJWTClaimsSet().toPayload().toBase64URL());
+				byte[] signature = token.getSignature().decode();
+				return verify(kidParts[0], kidParts[1], digest, signature)
+					.map(resp -> {
+						if (Objects.equals(resp, Boolean.TRUE)) {
+							Log.debug("Signature has been successfully verified.");
+							return null;
+						} else {
+							String message = String.format("[%s] Wrong signature.", AuthErrorCode.WRONG_SIGNATURE);
+							Log.warn(message);
+							throw new AuthException(AuthErrorCode.WRONG_SIGNATURE, message);
+						}
+					});
+			} catch (NoSuchAlgorithmException | ParseException e) {
+				String message = String.format("[%s] Error verifing signature.", AuthErrorCode.ERROR_VERIFING_SIGNATURE);
+				Log.errorf(e, message);
+				throw new AuthError(AuthErrorCode.ERROR_VERIFING_SIGNATURE, message);
+			}
+		} else {
+			String message = String.format("[%s] Invalid kid [%s].", AuthErrorCode.INVALID_KID, kid);
+			Log.error(message);
+			throw new AuthError(AuthErrorCode.INVALID_KID, message);
+		}
 	}
 }

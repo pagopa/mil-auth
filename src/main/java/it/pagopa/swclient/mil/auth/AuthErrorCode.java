@@ -56,6 +56,8 @@ public final class AuthErrorCode {
 	public static final String AZURE_ACCESS_TOKEN_IS_NULL = MODULE_ID + "000029";
 	public static final String ERROR_FROM_AZURE = MODULE_ID + "00002A";
 	public static final String FISCAL_CODE_MUST_MATCH_REGEXP = MODULE_ID + "00002B";
+	public static final String INVALID_KID = MODULE_ID + "00002C";
+	public static final String CLIENT_DESERIALIZATION_ERROR = MODULE_ID + "00002D";
 
 	/**
 	 *

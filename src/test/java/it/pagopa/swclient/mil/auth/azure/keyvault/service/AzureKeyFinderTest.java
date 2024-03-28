@@ -5,45 +5,47 @@
  */
 package it.pagopa.swclient.mil.auth.azure.keyvault.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import io.quarkus.test.InjectMock;
+import com.azure.core.exception.HttpResponseException;
+import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
+import com.azure.security.keyvault.keys.KeyAsyncClient;
+import com.azure.security.keyvault.keys.implementation.KeyPropertiesHelper;
+import com.azure.security.keyvault.keys.implementation.KeyVaultKeyHelper;
+import com.azure.security.keyvault.keys.models.CreateRsaKeyOptions;
+import com.azure.security.keyvault.keys.models.JsonWebKey;
+import com.azure.security.keyvault.keys.models.KeyOperation;
+import com.azure.security.keyvault.keys.models.KeyProperties;
+import com.azure.security.keyvault.keys.models.KeyVaultKey;
+
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.azure.auth.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.azure.auth.client.AzureAuthClient;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.BasicKey;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.CreateKeyRequest;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.DetailedKey;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.GetKeysResponse;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyAttributes;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyDetails;
-import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
 import it.pagopa.swclient.mil.auth.bean.KeyUse;
 import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.bean.PublicKeys;
 import it.pagopa.swclient.mil.auth.util.AuthError;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Antonio Tarricone
@@ -52,1291 +54,835 @@ import jakarta.ws.rs.core.Response.Status;
 @TestInstance(Lifecycle.PER_CLASS)
 class AzureKeyFinderTest {
 	/*
-	 *
-	 */
-	private static final String K1 = "auth0709643f49394529b92c19a68c8e184a";
-	private static final String K1_V2 = "82f646ef6bd44b5db8b95d76bb151926";
-	private static final String K1_V3 = "4171620a6a8d4f93a1622f95dc7f1ada";
-	private static final String K1_V4 = "e400f109f7ab4c2e9a28916d40ed1925";
-	private static final String K1_V5 = "9df5a14b79c147358f6a3626ea63b8a8";
-	private static final String K1_V7 = "6e1795083aec4467adfd0a5beb05ec06";
-	private static final String K1_V8 = "68afc030808c4bb69b15ff5dcdfb7c3c";
-	private static final String K1_V9 = "eeb5eb71fb7d46eca705601dd6c09426";
-	private static final String K1_V10 = "c47b20cdeba643b59a5b038cb8270c89";
-	private static final String K1_V11 = "6581c704deda4979943c3b34468df7c2"; // Valid key version with the greatest expiration.
-	private static final String K1_V12 = "4a6b1ee949ad40c28f85493328952691";
-	private static final String K2 = "auth10b33e516ee3470cbf5edc9ace919450";
-	private static final String K2_V1 = "6e6075cfe78948f79dc7cbe0b58ec14d";
-	private static final String K2_V2 = "6e6075cfe78948f79dc7cbe0b58ec14d";
-	private static final String K2_V3 = "b59f1231befc4e3cbd5f500a287e290a";
-	private static final String K2_V4 = "90630f81e7244cdb9508969fc9aeb372";
-	private static final String K2_V5 = "2aef3230ed4147238f3e993f626dc2e7";
-	private static final String K2_V7 = "3abba745219d4ce2a45b70321646928f";
-	private static final String K2_V8 = "9af4b74a9c4f4cea93abb5574fb5a884";
-	private static final String K2_V9 = "fa541b9da1794558982a5c4d9e55a17a";
-	private static final String K2_V10 = "a14a9fc70e714ab4b48e6b9baf761b2d"; // Valid key version.
-	private static final String K3 = "authed2dae1359334729a37e4cafb5bc1e11";
-	private static final String K4 = "authfc3db9157e92403db23fd12074730a0b";
-	private static final String K5 = "68d0bf7673ed4abca0ea9de9ab527a9b";
-	private static final String K6 = "auth66cd0b31cf9540b79452a54df70ba808";
-	private static final String K6_V1 = "047195655f2c495b87dfd6ed6eb03ad6";
-
-	/*
-	 *
-	 */
-	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
-	String vaultBaseUrl;
-	
-	/*
 	 * 
 	 */
-	private String keyUrl;
-	
-	/*
-	 *
-	 */
-	private static final String AZURE_ACCESS_TOKEN = "this_is_the_token";
-	private static final String AUTHORIZATION_HDR_VALUE = "Bearer " + AZURE_ACCESS_TOKEN;
-	
-	/*
-	 *
-	 */
-	@InjectMock
-	@RestClient
-	AzureAuthClient authClient;
-	
-	/*
-	 *
-	 */
-	@InjectMock
-	@RestClient
-	AzureKeyVaultClient keyVaultClient;
-	
-	/*
-	 *
-	 */
-	@Inject
-	AzureKeyFinder azureKeyFinder;
-	
-	/*
-	 *
-	 */
-	private long now;
+	private static final long CRYPTO_PERIOD = 86400;
+	private static final int KEY_SIZE = 1024;
 
 	/*
-	 * Basic Keys
+	 * Key pair generator.
 	 */
-	private BasicKey keyWithKidWithoutName1;
-	private BasicKey keyWithKidWithoutName2;
-	private BasicKey keyWithValidKid1;
-	private BasicKey keyWithValidKid2;
-	private BasicKey keyWithValidKidWithoutVersions;
-	private BasicKey keyBelogingToAnotherDomain;
-	private BasicKey keyWithoutDetails;
-
-	/*
-	 * Versions
-	 */
-	private BasicKey nullVersionK1V1;
-	private BasicKey versionWithNullEnabledAttributeK1V2;
-	private BasicKey versionWithNullCreationTimestampAttributeK1V3;
-	private BasicKey versionWithNullExpiredTimestampAttributeK1V4;
-	private BasicKey versionWithNullNotBeforeAttributeK1V5;
-	private BasicKey versionWithNullKidK1V6;
-	private BasicKey versionWithNullDetailsK1V7;
-	private BasicKey versionWithDetailsWithNoRsaKeyTypeK1V8;
-	private BasicKey versionWithDetailsWithoutSignOpK1V9;
-	private BasicKey versionWithDetailsWithoutSignAndVerifyOpK1V10;
-	private BasicKey versionWithValidDetailsWithGreatestExpirationK1V11;
-	private BasicKey versionWith500OnGetKeyK1V12;
-
-	private BasicKey versionWithNullAttributesK2V1;
-	private BasicKey versionWithFalseEnabledAttributeK2V2;
-	private BasicKey versionWithNotCoherentCreationTimestampAttributeK2V3;
-	private BasicKey expiredVersionK2V4;
-	private BasicKey versionWithUnmetNotBeforeAttributeK2V5;
-	private BasicKey versionWithInvalidKidK2V6;
-	private BasicKey versionWithExpiredDetailsK2V7;
-	private BasicKey versionWithDetailsWithNullOpsK2V8;
-	private BasicKey versionWithDetailsWithoutVerifyOpK2V9;
-	private BasicKey versionWithValidDetailsK2V10;
-
-	private BasicKey versionWithoutDetailsK6V1;
-
-	/*
-	 * Detailed Keys
-	 */
-	private DetailedKey detailsWithNoRsaKeyTypeK1V8;
-	private DetailedKey detailsWithoutSignOpK1V9;
-	private DetailedKey detailsWithoutSignAndVerifyOpK1V10;
-	private DetailedKey validDetailsWithGreatestExpirationK1V11;
-
-	private DetailedKey expiredDetailsK2V7;
-	private DetailedKey detailsWithNullOpsK2V8;
-	private DetailedKey detailsWithoutVerifyOpK2V9;
-	private DetailedKey validDetailsK2V10;
-	private DetailedKey detailsWithBadKidK2V11;
-
-	private DetailedKey withoutDetailsK6V1;
+	private KeyPairGenerator generator;
 
 	/**
-	 *
+	 * 
+	 * @throws NoSuchAlgorithmException
 	 */
 	@BeforeAll
-	void setup() {
-		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
-		
-		now = Instant.now().getEpochSecond();
-
-		/*
-		 * Keys returned by getKeys.
-		 */
-		keyWithKidWithoutName1 = new BasicKey(
-			null,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		keyWithKidWithoutName2 = new BasicKey(
-			"",
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		keyWithValidKid1 = new BasicKey(
-			keyUrl + K1,
-			new KeyAttributes(
-				now - 300,
-				now + 600,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		keyWithValidKid2 = new BasicKey(
-			keyUrl + K2,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		keyWithValidKidWithoutVersions = new BasicKey(
-			keyUrl + K3,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		keyBelogingToAnotherDomain = new BasicKey(
-			keyUrl + K5,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		keyWithoutDetails = new BasicKey(
-			keyUrl + K6,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		/*
-		 * Versions returned by getKeyVersions.
-		 */
-		nullVersionK1V1 = null;
-
-		versionWithNullAttributesK2V1 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V1,
-			null);
-
-		versionWithNullEnabledAttributeK1V2 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V2,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				null,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithFalseEnabledAttributeK2V2 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V2,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.FALSE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithNullCreationTimestampAttributeK1V3 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V3,
-			new KeyAttributes(
-				null,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithNotCoherentCreationTimestampAttributeK2V3 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V3,
-			new KeyAttributes(
-				now + 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithNullExpiredTimestampAttributeK1V4 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V4,
-			new KeyAttributes(
-				now - 300,
-				null,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		expiredVersionK2V4 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V4,
-			new KeyAttributes(
-				now - 300,
-				now - 100,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithNullNotBeforeAttributeK1V5 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V5,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				null,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithUnmetNotBeforeAttributeK2V5 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V5,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now + 100,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithNullKidK1V6 = new BasicKey(
-			null,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithInvalidKidK2V6 = new BasicKey(
-			"",
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithNullDetailsK1V7 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V7,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithExpiredDetailsK2V7 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V7,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithDetailsWithNoRsaKeyTypeK1V8 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V8,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithDetailsWithNullOpsK2V8 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V8,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithDetailsWithoutSignOpK1V9 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V9,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithDetailsWithoutVerifyOpK2V9 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V9,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithDetailsWithoutSignAndVerifyOpK1V10 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V10,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithValidDetailsK2V10 = new BasicKey(
-			keyUrl + K2 + "/" + K2_V10,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithValidDetailsWithGreatestExpirationK1V11 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V11,
-			new KeyAttributes(
-				now - 300,
-				now + 600,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWith500OnGetKeyK1V12 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V12,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWith500OnGetKeyK1V12 = new BasicKey(
-			keyUrl + K1 + "/" + K1_V12,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		versionWithoutDetailsK6V1 = new BasicKey(
-			keyUrl + K6 + "/" + K6_V1,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		/*
-		 * Details returned by getKey.
-		 */
-		expiredDetailsK2V7 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K2 + "/" + K2_V7,
-				"RSA",
-				new String[] {
-					"sign", "verify"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now - 100,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		detailsWithNoRsaKeyTypeK1V8 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K1 + "/" + K1_V8,
-				"non-RSA",
-				new String[] {
-					"sign", "verify"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		detailsWithNullOpsK2V8 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K2 + "/" + K2_V8,
-				"RSA",
-				null,
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		detailsWithoutSignOpK1V9 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K1 + "/" + K1_V9,
-				"RSA",
-				new String[] {
-					"verify"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		detailsWithoutVerifyOpK2V9 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K2 + "/" + K2_V9,
-				"RSA",
-				new String[] {
-					"sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		detailsWithoutSignAndVerifyOpK1V10 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K1 + "/" + K1_V10,
-				"RSA",
-				new String[] {},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		validDetailsK2V10 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K2 + "/" + K2_V10,
-				"RSA",
-				new String[] {
-					"verify", "sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		validDetailsWithGreatestExpirationK1V11 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K1 + "/" + K1_V11,
-				"RSA",
-				new String[] {
-					"verify", "sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 600,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		detailsWithBadKidK2V11 = new DetailedKey(
-			new KeyDetails(
-				"",
-				"RSA",
-				new String[] {
-					"verify", "sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		withoutDetailsK6V1 = new DetailedKey(
-			null,
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
+	void setup() throws NoSuchAlgorithmException {
+		generator = KeyPairGenerator.getInstance("RSA");
+		generator.initialize(KEY_SIZE);
 	}
 
 	/**
-     *
-     */
-    private void mostCommonSetup() {
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {
-                        keyWithKidWithoutName1,
-                        keyWithKidWithoutName2,
-                        keyWithValidKid1,
-                        keyWithValidKid2,
-                        keyWithValidKidWithoutVersions,
-                        keyBelogingToAnotherDomain,
-                        keyWithoutDetails
-                })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K1))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {
-                        nullVersionK1V1,
-                        versionWithNullEnabledAttributeK1V2,
-                        versionWithNullCreationTimestampAttributeK1V3,
-                        versionWithNullExpiredTimestampAttributeK1V4,
-                        versionWithNullNotBeforeAttributeK1V5,
-                        versionWithNullKidK1V6,
-                        versionWithNullDetailsK1V7,
-                        versionWithDetailsWithNoRsaKeyTypeK1V8,
-                        versionWithDetailsWithoutSignOpK1V9,
-                        versionWithDetailsWithoutSignAndVerifyOpK1V10,
-                        versionWithValidDetailsWithGreatestExpirationK1V11
-                })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K2))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {
-                        versionWithNullAttributesK2V1,
-                        versionWithFalseEnabledAttributeK2V2,
-                        versionWithNotCoherentCreationTimestampAttributeK2V3,
-                        expiredVersionK2V4,
-                        versionWithUnmetNotBeforeAttributeK2V5,
-                        versionWithInvalidKidK2V6,
-                        versionWithExpiredDetailsK2V7,
-                        versionWithDetailsWithNullOpsK2V8,
-                        versionWithDetailsWithoutVerifyOpK2V9,
-                        versionWithValidDetailsK2V10
-                })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K3))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] { })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K4))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse((BasicKey[]) null)));
-        
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K6))
-        	.thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {
-        		versionWithoutDetailsK6V1
-        	})));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V7))
-                .thenReturn(Uni.createFrom().item((DetailedKey) null));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V8))
-                .thenReturn(Uni.createFrom().item(detailsWithNoRsaKeyTypeK1V8));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V9))
-                .thenReturn(Uni.createFrom().item(detailsWithoutSignOpK1V9));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V10))
-                .thenReturn(Uni.createFrom().item(detailsWithoutSignAndVerifyOpK1V10));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V11))
-                .thenReturn(Uni.createFrom().item(validDetailsWithGreatestExpirationK1V11));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V7))
-                .thenReturn(Uni.createFrom().item(expiredDetailsK2V7));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V8))
-                .thenReturn(Uni.createFrom().item(detailsWithNullOpsK2V8));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V9))
-                .thenReturn(Uni.createFrom().item(detailsWithoutVerifyOpK2V9));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V10))
-                .thenReturn(Uni.createFrom().item(validDetailsK2V10));
-        
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K6, K6_V1))
-        	.thenReturn(Uni.createFrom().item(withoutDetailsK6V1));
-    }
+	 * 
+	 */
+	@Getter
+	@AllArgsConstructor
+	private class KeyBundle {
+		private KeyVaultKey keyVaultKey;
+		private PublicKey publicKey;
+	}
 
 	/**
-     * On get access token a null token string is returned.
-     */
-    @Test
-    void testFindPublicKeysWithNullAccessToken() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", null)));
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @param extraCryptoPeriod
+	 * @return
+	 */
+	private KeyBundle prepareValidKey(String keyName, String keyVersion, int extraCryptoPeriod) {
+		String kid = keyName + "/" + keyVersion;
 
-        /*
-         * Test.
-         */
-        azureKeyFinder.findPublicKeys()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
+		KeyPair keyPair = generator.generateKeyPair();
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		byte[] e = rsaPublicKey.getPublicExponent().toByteArray();
+		byte[] n = rsaPublicKey.getModulus().toByteArray();
+
+		OffsetDateTime createdOn = OffsetDateTime.now();
+		OffsetDateTime expiresOn = createdOn.plusSeconds(CRYPTO_PERIOD + extraCryptoPeriod);
+		OffsetDateTime notBefore = createdOn;
+
+		JsonWebKey jsonWebKey = new JsonWebKey();
+		jsonWebKey.setId(kid);
+		jsonWebKey.setE(e);
+		jsonWebKey.setN(n);
+		jsonWebKey.setKeyType(com.azure.security.keyvault.keys.models.KeyType.RSA);
+		jsonWebKey.setKeyOps(Arrays.asList(KeyOperation.SIGN, KeyOperation.VERIFY));
+
+		KeyVaultKey keyVaultKey = KeyVaultKeyHelper.createKeyVaultKey(jsonWebKey);
+		KeyProperties properties = keyVaultKey.getProperties();
+		properties.setEnabled(Boolean.TRUE);
+		properties.setExpiresOn(expiresOn);
+		properties.setNotBefore(notBefore);
+		KeyPropertiesHelper.setCreatedOn(properties, createdOn);
+		KeyPropertiesHelper.setName(properties, keyName);
+		KeyPropertiesHelper.setVersion(properties, keyVersion);
+		KeyPropertiesHelper.setId(properties, kid);
+
+		PublicKey publicKey = new PublicKey(e, KeyUse.sig, kid, n, KeyType.RSA, expiresOn.toEpochSecond(), createdOn.toEpochSecond());
+
+		return new KeyBundle(keyVaultKey, publicKey);
+	}
 
 	/**
-     * On get access token a HTTP 401 is returned.
-     */
-    @Test
-    void testFindPublicKeysWith401OnGetAccessToken() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @return
+	 */
+	private KeyVaultKey prepareNotEnabledKey(String keyName, String keyVersion) {
+		String kid = keyName + "/" + keyVersion;
 
-        /*
-         * Test.
-         */
-        azureKeyFinder.findPublicKeys()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
+		KeyPair keyPair = generator.generateKeyPair();
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		byte[] e = rsaPublicKey.getPublicExponent().toByteArray();
+		byte[] n = rsaPublicKey.getModulus().toByteArray();
+
+		OffsetDateTime createdOn = OffsetDateTime.now();
+		OffsetDateTime expiresOn = createdOn.plusSeconds(CRYPTO_PERIOD);
+		OffsetDateTime notBefore = createdOn;
+
+		JsonWebKey jsonWebKey = new JsonWebKey();
+		jsonWebKey.setId(kid);
+		jsonWebKey.setE(e);
+		jsonWebKey.setN(n);
+		jsonWebKey.setKeyType(com.azure.security.keyvault.keys.models.KeyType.RSA);
+		jsonWebKey.setKeyOps(Arrays.asList(KeyOperation.SIGN, KeyOperation.VERIFY));
+
+		KeyVaultKey keyVaultKey = KeyVaultKeyHelper.createKeyVaultKey(jsonWebKey);
+		KeyProperties properties = keyVaultKey.getProperties();
+		properties.setEnabled(Boolean.FALSE);
+		properties.setExpiresOn(expiresOn);
+		properties.setNotBefore(notBefore);
+		KeyPropertiesHelper.setCreatedOn(properties, createdOn);
+		KeyPropertiesHelper.setName(properties, keyName);
+		KeyPropertiesHelper.setVersion(properties, keyVersion);
+		KeyPropertiesHelper.setId(properties, kid);
+
+		return keyVaultKey;
+	}
 
 	/**
-	 *
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @return
+	 */
+	private KeyVaultKey prepareExpiredKey(String keyName, String keyVersion) {
+		String kid = keyName + "/" + keyVersion;
+
+		KeyPair keyPair = generator.generateKeyPair();
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		byte[] e = rsaPublicKey.getPublicExponent().toByteArray();
+		byte[] n = rsaPublicKey.getModulus().toByteArray();
+
+		OffsetDateTime createdOn = OffsetDateTime.now();
+		OffsetDateTime expiresOn = createdOn.minusSeconds(100);
+		OffsetDateTime notBefore = createdOn;
+
+		JsonWebKey jsonWebKey = new JsonWebKey();
+		jsonWebKey.setId(kid);
+		jsonWebKey.setE(e);
+		jsonWebKey.setN(n);
+		jsonWebKey.setKeyType(com.azure.security.keyvault.keys.models.KeyType.RSA);
+		jsonWebKey.setKeyOps(Arrays.asList(KeyOperation.SIGN, KeyOperation.VERIFY));
+
+		KeyVaultKey keyVaultKey = KeyVaultKeyHelper.createKeyVaultKey(jsonWebKey);
+		KeyProperties properties = keyVaultKey.getProperties();
+		properties.setEnabled(Boolean.TRUE);
+		properties.setExpiresOn(expiresOn);
+		properties.setNotBefore(notBefore);
+		KeyPropertiesHelper.setCreatedOn(properties, createdOn);
+		KeyPropertiesHelper.setName(properties, keyName);
+		KeyPropertiesHelper.setVersion(properties, keyVersion);
+		KeyPropertiesHelper.setId(properties, kid);
+
+		return keyVaultKey;
+	}
+
+	/**
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @return
+	 */
+	private KeyVaultKey prepareNotYetEffectiveKey(String keyName, String keyVersion) {
+		String kid = keyName + "/" + keyVersion;
+
+		KeyPair keyPair = generator.generateKeyPair();
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		byte[] e = rsaPublicKey.getPublicExponent().toByteArray();
+		byte[] n = rsaPublicKey.getModulus().toByteArray();
+
+		OffsetDateTime createdOn = OffsetDateTime.now();
+		OffsetDateTime expiresOn = createdOn.plusSeconds(CRYPTO_PERIOD);
+		OffsetDateTime notBefore = createdOn.plusSeconds(100);
+
+		JsonWebKey jsonWebKey = new JsonWebKey();
+		jsonWebKey.setId(kid);
+		jsonWebKey.setE(e);
+		jsonWebKey.setN(n);
+		jsonWebKey.setKeyType(com.azure.security.keyvault.keys.models.KeyType.RSA);
+		jsonWebKey.setKeyOps(Arrays.asList(KeyOperation.SIGN, KeyOperation.VERIFY));
+
+		KeyVaultKey keyVaultKey = KeyVaultKeyHelper.createKeyVaultKey(jsonWebKey);
+		KeyProperties properties = keyVaultKey.getProperties();
+		properties.setEnabled(Boolean.TRUE);
+		properties.setExpiresOn(expiresOn);
+		properties.setNotBefore(notBefore);
+		KeyPropertiesHelper.setCreatedOn(properties, createdOn);
+		KeyPropertiesHelper.setName(properties, keyName);
+		KeyPropertiesHelper.setVersion(properties, keyVersion);
+		KeyPropertiesHelper.setId(properties, kid);
+
+		return keyVaultKey;
+	}
+
+	/**
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @return
+	 */
+	private KeyVaultKey prepareFutureCreatedKey(String keyName, String keyVersion) {
+		String kid = keyName + "/" + keyVersion;
+
+		KeyPair keyPair = generator.generateKeyPair();
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		byte[] e = rsaPublicKey.getPublicExponent().toByteArray();
+		byte[] n = rsaPublicKey.getModulus().toByteArray();
+
+		OffsetDateTime now = OffsetDateTime.now();
+		OffsetDateTime createdOn = now.plusSeconds(100);
+		OffsetDateTime expiresOn = now.plusSeconds(CRYPTO_PERIOD);
+		OffsetDateTime notBefore = now;
+
+		JsonWebKey jsonWebKey = new JsonWebKey();
+		jsonWebKey.setId(kid);
+		jsonWebKey.setE(e);
+		jsonWebKey.setN(n);
+		jsonWebKey.setKeyType(com.azure.security.keyvault.keys.models.KeyType.RSA);
+		jsonWebKey.setKeyOps(Arrays.asList(KeyOperation.SIGN, KeyOperation.VERIFY));
+
+		KeyVaultKey keyVaultKey = KeyVaultKeyHelper.createKeyVaultKey(jsonWebKey);
+		KeyProperties properties = keyVaultKey.getProperties();
+		properties.setEnabled(Boolean.TRUE);
+		properties.setExpiresOn(expiresOn);
+		properties.setNotBefore(notBefore);
+		KeyPropertiesHelper.setCreatedOn(properties, createdOn);
+		KeyPropertiesHelper.setName(properties, keyName);
+		KeyPropertiesHelper.setVersion(properties, keyVersion);
+		KeyPropertiesHelper.setId(properties, kid);
+
+		return keyVaultKey;
+	}
+
+	/**
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @return
+	 */
+	private KeyVaultKey prepareNotRsaKey(String keyName, String keyVersion) {
+		String kid = keyName + "/" + keyVersion;
+
+		KeyPair keyPair = generator.generateKeyPair();
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		byte[] e = rsaPublicKey.getPublicExponent().toByteArray();
+		byte[] n = rsaPublicKey.getModulus().toByteArray();
+
+		OffsetDateTime createdOn = OffsetDateTime.now();
+		OffsetDateTime expiresOn = createdOn.plusSeconds(CRYPTO_PERIOD);
+		OffsetDateTime notBefore = createdOn;
+
+		JsonWebKey jsonWebKey = new JsonWebKey();
+		jsonWebKey.setId(kid);
+		jsonWebKey.setE(e);
+		jsonWebKey.setN(n);
+		jsonWebKey.setKeyType(com.azure.security.keyvault.keys.models.KeyType.EC);
+		jsonWebKey.setKeyOps(Arrays.asList(KeyOperation.SIGN, KeyOperation.VERIFY));
+
+		KeyVaultKey keyVaultKey = KeyVaultKeyHelper.createKeyVaultKey(jsonWebKey);
+		KeyProperties properties = keyVaultKey.getProperties();
+		properties.setEnabled(Boolean.TRUE);
+		properties.setExpiresOn(expiresOn);
+		properties.setNotBefore(notBefore);
+		KeyPropertiesHelper.setCreatedOn(properties, createdOn);
+		KeyPropertiesHelper.setName(properties, keyName);
+		KeyPropertiesHelper.setVersion(properties, keyVersion);
+		KeyPropertiesHelper.setId(properties, kid);
+
+		return keyVaultKey;
+	}
+
+	/**
+	 * 
+	 * @param keyName
+	 * @param keyVersion
+	 * @return
+	 */
+	private KeyVaultKey prepareNotSuitableForSigningKey(String keyName, String keyVersion) {
+		String kid = keyName + "/" + keyVersion;
+
+		KeyPair keyPair = generator.generateKeyPair();
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		byte[] e = rsaPublicKey.getPublicExponent().toByteArray();
+		byte[] n = rsaPublicKey.getModulus().toByteArray();
+
+		OffsetDateTime createdOn = OffsetDateTime.now();
+		OffsetDateTime expiresOn = createdOn.plusSeconds(CRYPTO_PERIOD);
+		OffsetDateTime notBefore = createdOn;
+
+		JsonWebKey jsonWebKey = new JsonWebKey();
+		jsonWebKey.setId(kid);
+		jsonWebKey.setE(e);
+		jsonWebKey.setN(n);
+		jsonWebKey.setKeyType(com.azure.security.keyvault.keys.models.KeyType.RSA);
+		jsonWebKey.setKeyOps(Arrays.asList(KeyOperation.ENCRYPT, KeyOperation.DECRYPT));
+
+		KeyVaultKey keyVaultKey = KeyVaultKeyHelper.createKeyVaultKey(jsonWebKey);
+		KeyProperties properties = keyVaultKey.getProperties();
+		properties.setEnabled(Boolean.TRUE);
+		properties.setExpiresOn(expiresOn);
+		properties.setNotBefore(notBefore);
+		KeyPropertiesHelper.setCreatedOn(properties, createdOn);
+		KeyPropertiesHelper.setName(properties, keyName);
+		KeyPropertiesHelper.setVersion(properties, keyVersion);
+		KeyPropertiesHelper.setId(properties, kid);
+
+		return keyVaultKey;
+	}
+
+	/**
+	 * 
 	 */
 	@Test
-	void testFindPublicKeysWithSomeWrongKeysAndNoHttpErrors() {
+	void givenKid_whenFindPublicKey_thenReturnPublicKey() {
 		/*
-		 * Setup.
+		 * Data preparation.
 		 */
-		mostCommonSetup();
+		KeyBundle keyBundle = prepareValidKey("valid_key_name", "v1", 0);
+		KeyVaultKey keyVaultKey = keyBundle.getKeyVaultKey();
+
+		/*
+		 * Expected value.
+		 */
+		Optional<PublicKey> expected = Optional.of(keyBundle.getPublicKey());
+
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.getKey(keyVaultKey.getProperties().getName(), keyVaultKey.getProperties().getVersion()))
+			.thenReturn(Mono.just(keyVaultKey));
 
 		/*
 		 * Test.
 		 */
-		PublicKey key1 = new PublicKey(
-			validDetailsWithGreatestExpirationK1V11.getDetails().getExponent(),
-			KeyUse.sig,
-			K1 + "/" + K1_V11,
-			validDetailsWithGreatestExpirationK1V11.getDetails().getModulus(),
-			KeyType.RSA,
-			validDetailsWithGreatestExpirationK1V11.getAttributes().getExp(),
-			validDetailsWithGreatestExpirationK1V11.getAttributes().getCreated());
-
-		PublicKey key2 = new PublicKey(
-			validDetailsK2V10.getDetails().getExponent(),
-			KeyUse.sig,
-			K2 + "/" + K2_V10,
-			validDetailsK2V10.getDetails().getModulus(),
-			KeyType.RSA,
-			validDetailsK2V10.getAttributes().getExp(),
-			validDetailsK2V10.getAttributes().getCreated());
-
-		PublicKeys expected = new PublicKeys(List.of(key1, key2));
-
-		azureKeyFinder.findPublicKeys()
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertCompleted()
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey(keyVaultKey.getId())
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
 			.assertItem(expected);
 	}
 
 	/**
-	 *
+	 * 
 	 */
 	@Test
-	void testFindPublicKeysWithHttpError() {
+	void givenInvalidKid_whenFindPublicKey_thenReturnEmpty() {
 		/*
-		 * Setup.
+		 * Test.
 		 */
-		mostCommonSetup();
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, null);
+		keyFinder.findPublicKey("invalid_kid")
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
+			.assertItem(Optional.empty());
+	}
 
-		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, K1))
-			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {
-				nullVersionK1V1,
-				versionWithNullEnabledAttributeK1V2,
-				versionWithNullCreationTimestampAttributeK1V3,
-				versionWithNullExpiredTimestampAttributeK1V4,
-				versionWithNullNotBeforeAttributeK1V5,
-				versionWithNullKidK1V6,
-				versionWithNullDetailsK1V7,
-				versionWithDetailsWithNoRsaKeyTypeK1V8,
-				versionWithDetailsWithoutSignOpK1V9,
-				versionWithDetailsWithoutSignAndVerifyOpK1V10,
-				versionWithValidDetailsWithGreatestExpirationK1V11,
-				versionWith500OnGetKeyK1V12
-			})));
+	/**
+	 * 
+	 */
+	@Test
+	void givenNotExistingKid_whenFindPublicKey_thenReturnEmpty() {
+		/*
+		 * Data preparation.
+		 */
+		String keyName = "not_existing_key";
+		String keyVersion = "v1";
+		String kid = keyName + "/" + keyVersion;
 
-		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V12))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.getKey(keyName, keyVersion))
+			.thenThrow(ResourceNotFoundException.class);
 
 		/*
 		 * Test.
 		 */
-		azureKeyFinder.findPublicKeys()
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey(kid)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
+			.assertItem(Optional.empty());
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void givenHttpError_whenFindPublicKey_thenReturnFailure() {
+		/*
+		 * Data preparation.
+		 */
+		String keyName = "key";
+		String keyVersion = "v1";
+		String kid = keyName + "/" + keyVersion;
+
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.getKey(keyName, keyVersion))
+			.thenThrow(HttpResponseException.class);
+
+		/*
+		 * Test.
+		 */
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey(kid)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
 			.assertFailedWith(AuthError.class);
 	}
 
 	/**
-     *
-     */
-    @Test
-    void testFindPublicKeysWith401OnGetKeys() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
-
-        /*
-         * Test.
-         */
-        azureKeyFinder.findPublicKeys()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
-
-	/**
-	 *
+	 * 
 	 */
 	@Test
-	void testFindValidPublicKeyWithGreatestExpiration() {
+	void givenErrorFromKeyVault_whenFindPublicKey_thenReturnFailure() {
 		/*
-		 * Setup.
+		 * Data preparation.
 		 */
-		mostCommonSetup();
+		String keyName = "key";
+		String keyVersion = "v1";
+		String kid = keyName + "/" + keyVersion;
+
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.getKey(keyName, keyVersion))
+			.thenReturn(Mono.error(new Exception("error from azure")));
 
 		/*
 		 * Test.
 		 */
-		PublicKey expected = new PublicKey(
-			validDetailsWithGreatestExpirationK1V11.getDetails().getExponent(),
-			KeyUse.sig,
-			K1 + "/" + K1_V11,
-			validDetailsWithGreatestExpirationK1V11.getDetails().getModulus(),
-			KeyType.RSA,
-			validDetailsWithGreatestExpirationK1V11.getAttributes().getExp(),
-			validDetailsWithGreatestExpirationK1V11.getAttributes().getCreated());
-
-		PublicKey actual = azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertCompleted()
-			.getItem()
-			.get();
-
-		assertEquals(expected, actual);
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey(kid)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
+			.assertFailedWith(AuthError.class);
 	}
 
 	/**
-	 *
+	 * 
 	 */
 	@Test
-	void testFindValidPublicKeyWithGreatestExpiration2() {
+	void givenInvalidKey_whenFindPublicKey_thenReturnEmpty() {
 		/*
-		 * Setup.
+		 * Data preparation.
 		 */
-		mostCommonSetup();
+		KeyVaultKey keyVaultKey = prepareExpiredKey("expired_key", "v1");
 
-		DetailedKey validDetails1 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K1 + "/" + K1_V11,
-				"RSA",
-				new String[] {
-					"verify", "sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		DetailedKey validDetails2 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K2 + "/" + K2_V10,
-				"RSA",
-				new String[] {
-					"verify", "sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V11))
-			.thenReturn(Uni.createFrom().item(validDetails1));
-
-		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V10))
-			.thenReturn(Uni.createFrom().item(validDetails2));
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.getKey(keyVaultKey.getProperties().getName(), keyVaultKey.getProperties().getVersion()))
+			.thenReturn(Mono.just(keyVaultKey));
 
 		/*
 		 * Test.
 		 */
-		PublicKey expected = new PublicKey(
-			validDetails1.getDetails().getExponent(),
-			KeyUse.sig,
-			K1 + "/" + K1_V11,
-			validDetails1.getDetails().getModulus(),
-			KeyType.RSA,
-			validDetails1.getAttributes().getExp(),
-			validDetails1.getAttributes().getCreated());
-
-		PublicKey actual = azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertCompleted()
-			.getItem()
-			.get();
-
-		assertEquals(expected, actual);
-	}
-
-	/**
-	 *
-	 */
-	@Test
-	void testFindValidPublicKeyWithGreatestExpiration3() {
-		/*
-		 * Setup.
-		 */
-		mostCommonSetup();
-
-		DetailedKey validDetails1 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K1 + "/" + K1_V11,
-				"RSA",
-				new String[] {
-					"verify", "sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 300,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		DetailedKey validDetails2 = new DetailedKey(
-			new KeyDetails(
-				keyUrl + K2 + "/" + K2_V10,
-				"RSA",
-				new String[] {
-					"verify", "sign"
-				},
-				"this_is_the_modulus",
-				"this_is_the_exponent"),
-			new KeyAttributes(
-				now - 300,
-				now + 600,
-				now - 300,
-				now - 300,
-				Boolean.TRUE,
-				"Purgeable",
-				0,
-				Boolean.FALSE));
-
-		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K1, K1_V11))
-			.thenReturn(Uni.createFrom().item(validDetails1));
-
-		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, K2, K2_V10))
-			.thenReturn(Uni.createFrom().item(validDetails2));
-
-		/*
-		 * Test.
-		 */
-		PublicKey expected = new PublicKey(
-			validDetails2.getDetails().getExponent(),
-			KeyUse.sig,
-			K2 + "/" + K2_V10,
-			validDetails2.getDetails().getModulus(),
-			KeyType.RSA,
-			validDetails2.getAttributes().getExp(),
-			validDetails2.getAttributes().getCreated());
-
-		PublicKey actual = azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertCompleted()
-			.getItem()
-			.get();
-
-		assertEquals(expected, actual);
-	}
-
-	/**
-     *
-     */
-    @Test
-    void testFindValidPublicKeyWithGreatestExpirationWithNoKeys() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
-
-        when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().item(validDetailsWithGreatestExpirationK1V11));
-
-        /*
-         * Test.
-         */
-        azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertCompleted();
-    }
-
-	/**
-     *
-     */
-    @Test
-    void testFindValidPublicKeyWithGreatestExpirationWithNoKeysAndExpiredKeyIsCreated() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
-
-        when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().item(expiredDetailsK2V7));
-
-        /*
-         * Test.
-         */
-        azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
-
-	/**
-     *
-     */
-    @Test
-    void testFindValidPublicKeyWithGreatestExpirationWithNoKeysAndNonRsaKeyIsCreated() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
-
-        when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().item(detailsWithNoRsaKeyTypeK1V8));
-
-        /*
-         * Test.
-         */
-        azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
-
-	/**
-     *
-     */
-    @Test
-    void testFindValidPublicKeyWithGreatestExpirationWithNoKeysAndKeyWithBadKidIsCreated() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
-
-        when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().item(detailsWithBadKidK2V11));
-
-        /*
-         * Test.
-         */
-        azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
-
-	/**
-     *
-     */
-    @Test
-    void testFindValidPublicKeyWithGreatestExpirationWithNoKeysAndErrorOnCreation() {
-        /*
-         * Setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().item(new GetAccessTokenResponse("Bearer", now + 3599, "", "", AZURE_ACCESS_TOKEN)));
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
-
-
-        when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
-
-        /*
-         * Test.
-         */
-        azureKeyFinder.findValidPublicKeyWithGreatestExpiration()
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
-
-	/**
-	 *
-	 */
-	@Test
-	void findPublicKeyWithBadKid() {
-		/*
-		 * Test.
-		 */
-		azureKeyFinder.findPublicKey("")
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertCompleted()
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey(keyVaultKey.getId())
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
 			.assertItem(Optional.empty());
 	}
 
 	/**
-	 *
+	 * 
 	 */
 	@Test
-	void findPublicKey() {
+	void givenSetOfKeys_whenFindPublicKeys_thenReturnValidPublicKeys() {
 		/*
-		 * Setup.
+		 * Data preparation.
 		 */
-		mostCommonSetup();
+		KeyBundle validKeyBundle11 = prepareValidKey("valid_key_name_1", "v1", 100);
+		KeyVaultKey validKeyVaultKey11 = validKeyBundle11.getKeyVaultKey();
+		PublicKey validPublicKey11 = validKeyBundle11.getPublicKey();
+
+		KeyBundle validKeyBundle12 = prepareValidKey("valid_key_name_1", "v2", 0);
+		KeyVaultKey validKeyVaultKey12 = validKeyBundle12.getKeyVaultKey();
+		PublicKey validPublicKey12 = validKeyBundle12.getPublicKey();
+
+		KeyVaultKey notEnabledKey1 = prepareNotEnabledKey("not_enabled_key_name", "v1");
+		KeyVaultKey notEnabledKey2 = prepareNotEnabledKey("not_enabled_key_name", "v2");
+		KeyVaultKey expiredKey1 = prepareExpiredKey("expired_key_name", "v1");
+		KeyVaultKey expiredKey2 = prepareExpiredKey("expired_key_name", "v2");
+		KeyVaultKey notYetEffectiveKey1 = prepareNotYetEffectiveKey("not_yet_effective_key_name", "v1");
+		KeyVaultKey notYetEffectiveKey2 = prepareNotYetEffectiveKey("not_yet_effective_key_name", "v2");
+		KeyVaultKey futureCreatedKey1 = prepareFutureCreatedKey("future_created_key_name", "v1");
+		KeyVaultKey futureCreatedKey2 = prepareFutureCreatedKey("future_created_key_name", "v2");
+		KeyVaultKey notRsaKey1 = prepareNotRsaKey("not_rsa_key_name", "v1");
+		KeyVaultKey notRsaKey2 = prepareNotRsaKey("not_rsa_key_name", "v2");
+		KeyVaultKey notSuitableForSigningKey1 = prepareNotSuitableForSigningKey("not_suitable_for_signing_key_name", "v1");
+		KeyVaultKey notSuitableForSigningKey2 = prepareNotSuitableForSigningKey("not_suitable_for_signing_key_name", "v2");
+
+		KeyBundle validKeyBundle21 = prepareValidKey("valid_key_name_2", "v1", 200);
+		KeyVaultKey validKeyVaultKey21 = validKeyBundle21.getKeyVaultKey();
+		PublicKey validPublicKey21 = validKeyBundle21.getPublicKey();
+
+		KeyBundle validKeyBundle22 = prepareValidKey("valid_key_name_2", "v2", 200);
+		KeyVaultKey validKeyVaultKey22 = validKeyBundle22.getKeyVaultKey();
+		PublicKey validPublicKey22 = validKeyBundle22.getPublicKey();
+
+		/*
+		 * Expected value.
+		 */
+		PublicKeys expected = new PublicKeys(List.of(validPublicKey21, validPublicKey22, validPublicKey11, validPublicKey12));
+
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+
+		/*
+		 * Mock of KeyAsyncClient.listPropertiesOfKeys().
+		 */
+		when(keyClient.listPropertiesOfKeys())
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(validKeyVaultKey12, notEnabledKey2, expiredKey2, notYetEffectiveKey2, futureCreatedKey2, notRsaKey2, notSuitableForSigningKey2, validKeyVaultKey22)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		/*
+		 * Mock of KeyAsyncClient.listPropertiesOfKeyVersions(String).
+		 */
+		when(keyClient.listPropertiesOfKeyVersions(validKeyVaultKey12.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(validKeyVaultKey11, validKeyVaultKey12)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		when(keyClient.listPropertiesOfKeyVersions(notEnabledKey2.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(notEnabledKey1, notEnabledKey2)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		when(keyClient.listPropertiesOfKeyVersions(expiredKey2.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(expiredKey1, expiredKey2)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		when(keyClient.listPropertiesOfKeyVersions(notYetEffectiveKey2.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(notYetEffectiveKey1, notYetEffectiveKey2)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		when(keyClient.listPropertiesOfKeyVersions(futureCreatedKey2.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(futureCreatedKey1, futureCreatedKey2)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		when(keyClient.listPropertiesOfKeyVersions(notRsaKey2.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(notRsaKey1, notRsaKey2)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		when(keyClient.listPropertiesOfKeyVersions(notSuitableForSigningKey2.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(notSuitableForSigningKey1, notSuitableForSigningKey2)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		when(keyClient.listPropertiesOfKeyVersions(validKeyVaultKey22.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(validKeyVaultKey21, validKeyVaultKey22)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		/*
+		 * Mock of KeyAsyncClient.getKey(String, String).
+		 */
+		List<KeyVaultKey> keyList = List.of(
+			validKeyVaultKey11,
+			validKeyVaultKey12,
+			notEnabledKey1,
+			notEnabledKey2,
+			expiredKey1,
+			expiredKey2,
+			notYetEffectiveKey1,
+			notYetEffectiveKey2,
+			futureCreatedKey1,
+			futureCreatedKey2,
+			notRsaKey1,
+			notRsaKey2,
+			notSuitableForSigningKey1,
+			notSuitableForSigningKey2,
+			validKeyVaultKey21,
+			validKeyVaultKey22);
+
+		keyList.forEach(key -> {
+			when(keyClient.getKey(key.getName(), key.getProperties().getVersion()))
+				.thenReturn(Mono.just(key));
+		});
 
 		/*
 		 * Test.
 		 */
-		PublicKey expected = new PublicKey(
-			validDetailsWithGreatestExpirationK1V11.getDetails().getExponent(),
-			KeyUse.sig,
-			K1 + "/" + K1_V11,
-			validDetailsWithGreatestExpirationK1V11.getDetails().getModulus(),
-			KeyType.RSA,
-			validDetailsWithGreatestExpirationK1V11.getAttributes().getExp(),
-			validDetailsWithGreatestExpirationK1V11.getAttributes().getCreated());
-
-		azureKeyFinder.findPublicKey(K1 + "/" + K1_V11)
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertCompleted()
-			.assertItem(Optional.of(expected));
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKeys()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
+			.assertItem(expected);
 	}
 
 	/**
-	 *
+	 * 
 	 */
 	@Test
-	void findPublicKeyWithInvalidKey() {
+	void givenErrorFromKeyVault_whenFindPublicKeys_thenReturnFailure() {
 		/*
-		 * Setup.
+		 * Setup mock.
 		 */
-		mostCommonSetup();
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.listPropertiesOfKeys())
+			.thenReturn(FluxUtil.pagedFluxError(new ClientLogger(this.getClass()), new RuntimeException("error from azure")));
 
 		/*
 		 * Test.
 		 */
-		azureKeyFinder.findPublicKey(K2 + "/" + K2_V7)
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertCompleted()
-			.assertItem(Optional.empty());
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKeys()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
+			.assertFailedWith(AuthError.class);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void givenHttpError_whenFindPublicKeys_thenReturnFailure() {
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.listPropertiesOfKeys())
+			.thenThrow(HttpResponseException.class);
+
+		/*
+		 * Test.
+		 */
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKeys()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
+			.assertFailedWith(AuthError.class);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void givenSetOfKeys_whenFindPublicKey_thenReturnValidPublicKey() {
+		/*
+		 * Data preparation.
+		 */
+		KeyVaultKey validKeyVaultKey11 = prepareValidKey("valid_key_name_1", "v1", 0).getKeyVaultKey();
+
+		KeyBundle validKeyBundle12 = prepareValidKey("valid_key_name_1", "v2", 100);
+		KeyVaultKey validKeyVaultKey12 = validKeyBundle12.getKeyVaultKey();
+		PublicKey validPublicKey12 = validKeyBundle12.getPublicKey();
+
+		/*
+		 * Expected value.
+		 */
+		PublicKey expected = validPublicKey12;
+
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+
+		/*
+		 * Mock of KeyAsyncClient.listPropertiesOfKeys().
+		 */
+		when(keyClient.listPropertiesOfKeys())
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(validKeyVaultKey12)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		/*
+		 * Mock of KeyAsyncClient.listPropertiesOfKeyVersions(String).
+		 */
+		when(keyClient.listPropertiesOfKeyVersions(validKeyVaultKey12.getName()))
+			.thenReturn(new PagedFluxGenerator<KeyProperties>()
+				.from(List.of(validKeyVaultKey11, validKeyVaultKey12)
+					.stream()
+					.map(KeyVaultKey::getProperties)
+					.toList()));
+
+		/*
+		 * Mock of KeyAsyncClient.getKey(String, String).
+		 */
+		List<KeyVaultKey> keyList = List.of(
+			validKeyVaultKey11,
+			validKeyVaultKey12);
+
+		keyList.forEach(key -> {
+			when(keyClient.getKey(key.getName(), key.getProperties().getVersion()))
+				.thenReturn(Mono.just(key));
+		});
+
+		/*
+		 * Test.
+		 */
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
+			.assertItem(expected);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void givenNoKeys_whenFindPublicKey_thenReturnNewPublicKey() {
+		/*
+		 * Data preparation.
+		 */
+		KeyBundle validKeyBundle = prepareValidKey("valid_key_name", "v1", 0);
+		KeyVaultKey validKeyVaultKey = validKeyBundle.getKeyVaultKey();
+		PublicKey validPublicKey = validKeyBundle.getPublicKey();
+
+		/*
+		 * Expected value.
+		 */
+		PublicKey expected = validPublicKey;
+
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+
+		/*
+		 * Mock of KeyAsyncClient.listPropertiesOfKeys().
+		 */
+		when(keyClient.listPropertiesOfKeys())
+			.thenReturn(new PagedFluxGenerator<KeyProperties>().from(List.of()));
+
+		/*
+		 * Mock of KeyAsyncClient.createRsaKey(CreateRsaKeyOptions).
+		 */
+		when(keyClient.createRsaKey(any(CreateRsaKeyOptions.class)))
+			.thenReturn(Mono.just(validKeyVaultKey));
+
+		/*
+		 * Test.
+		 */
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
+			.assertItem(expected);
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void givenNoKeysAndErrorFromAzure_whenFindPublicKey_thenReturnFailure() {
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+
+		/*
+		 * Mock of KeyAsyncClient.listPropertiesOfKeys().
+		 */
+		when(keyClient.listPropertiesOfKeys())
+			.thenReturn(new PagedFluxGenerator<KeyProperties>().from(List.of()));
+
+		/*
+		 * Mock of KeyAsyncClient.createRsaKey(CreateRsaKeyOptions).
+		 */
+		when(keyClient.createRsaKey(any(CreateRsaKeyOptions.class)))
+			.thenReturn(Mono.error(new Exception("error from azure")));
+
+		/*
+		 * Test.
+		 */
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
+			.assertFailedWith(AuthError.class);
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void givenNoKeysAndHttError_whenFindPublicKey_thenReturnFailure() {
+		/*
+		 * Setup mock.
+		 */
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+
+		/*
+		 * Mock of KeyAsyncClient.listPropertiesOfKeys().
+		 */
+		when(keyClient.listPropertiesOfKeys())
+			.thenReturn(new PagedFluxGenerator<KeyProperties>().from(List.of()));
+
+		/*
+		 * Mock of KeyAsyncClient.createRsaKey(CreateRsaKeyOptions).
+		 */
+		when(keyClient.createRsaKey(any(CreateRsaKeyOptions.class)))
+			.thenThrow(HttpResponseException.class);
+
+		/*
+		 * Test.
+		 */
+		AzureKeyFinder keyFinder = new AzureKeyFinder(CRYPTO_PERIOD, KEY_SIZE, keyClient);
+		keyFinder.findPublicKey()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
+			.assertFailedWith(AuthError.class);
 	}
 }

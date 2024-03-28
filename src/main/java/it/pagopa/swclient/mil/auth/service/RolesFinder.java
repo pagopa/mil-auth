@@ -30,8 +30,17 @@ public class RolesFinder {
 	/*
 	 * Role repository.
 	 */
+	private AuthDataRepository repository;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param repository
+	 */
 	@Inject
-	AuthDataRepository repository;
+	RolesFinder(AuthDataRepository repository) {
+		this.repository = repository;
+	}
 
 	/**
 	 * @param s

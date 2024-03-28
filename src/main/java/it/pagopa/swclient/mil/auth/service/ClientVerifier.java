@@ -29,9 +29,18 @@ public class ClientVerifier {
 	/*
 	 *
 	 */
-	@Inject
-	AuthDataRepository repository;
+	private AuthDataRepository repository;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param repository
+	 */
+	@Inject
+	ClientVerifier(AuthDataRepository repository) {
+		this.repository = repository;
+	}
+	
 	/**
 	 * Due to caching this method must be public.
 	 *

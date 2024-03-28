@@ -16,8 +16,6 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
-import it.pagopa.swclient.mil.auth.qualifier.Password;
-import it.pagopa.swclient.mil.auth.qualifier.PoyntToken;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
 import it.pagopa.swclient.mil.auth.service.TokenService;
 import it.pagopa.swclient.mil.auth.util.AuthError;
@@ -53,10 +51,6 @@ public class TokenResource {
 	static {
 		qualifiers.put(GrantType.CLIENT_CREDENTIALS, new AnnotationLiteral<ClientCredentials>() {
 		});
-		qualifiers.put(GrantType.PASSWORD, new AnnotationLiteral<Password>() {
-		});
-		qualifiers.put(GrantType.POYNT_TOKEN, new AnnotationLiteral<PoyntToken>() {
-		});
 		qualifiers.put(GrantType.REFRESH_TOKEN, new AnnotationLiteral<RefreshToken>() {
 		});
 	}
@@ -64,9 +58,17 @@ public class TokenResource {
 	/*
 	 *
 	 */
+	private Instance<TokenService> tokenService;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param tokenService
+	 */
 	@Inject
-	@Any
-	Instance<TokenService> tokenService;
+	TokenResource(@Any Instance<TokenService> tokenService) {
+		this.tokenService = tokenService;
+	}
 
 	/**
 	 * Dispatches the request to the right method.

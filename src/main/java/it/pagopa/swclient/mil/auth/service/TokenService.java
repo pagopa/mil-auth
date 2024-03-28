@@ -21,7 +21,6 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
-import jakarta.inject.Inject;
 
 /**
  * This class generates access token string and refresh token string if any and signs them.
@@ -40,13 +39,13 @@ public abstract class TokenService {
 	 */
 	@ConfigProperty(name = "refresh.duration")
 	long refreshDuration;
-	
+
 	/*
 	 * mil-auth base URL.
 	 */
 	@ConfigProperty(name = "base-url", defaultValue = "")
 	String baseUrl;
-	
+
 	/*
 	 * Token audience.
 	 */
@@ -56,20 +55,36 @@ public abstract class TokenService {
 	/*
 	 *
 	 */
-	@Inject
-	ClientVerifier clientVerifier;
+	private ClientVerifier clientVerifier;
 
 	/*
 	 *
 	 */
-	@Inject
-	RolesFinder roleFinder;
+	private RolesFinder rolesFinder;
 
 	/*
 	 *
 	 */
-	@Inject
-	TokenSigner tokenSigner;
+	protected TokenSigner tokenSigner;
+	
+	/**
+	 * Non-private no-args constructor.
+	 */
+	TokenService() {
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param clientVerifier
+	 * @param roleFinder
+	 * @param tokenSigner
+	 */
+	TokenService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner) {
+		this.clientVerifier = clientVerifier;
+		this.rolesFinder = roleFinder;
+		this.tokenSigner = tokenSigner;
+	}
 
 	/**
 	 * @param strings
@@ -151,7 +166,7 @@ public abstract class TokenService {
 	 */
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest request) {
 		return clientVerifier.verify(request.getClientId(), request.getChannel(), request.getClientSecret())
-			.chain(() -> roleFinder.findRoles(request.getAcquirerId(), request.getChannel(), request.getClientId(), request.getMerchantId(), request.getTerminalId()))
+			.chain(() -> rolesFinder.findRoles(request.getAcquirerId(), request.getChannel(), request.getClientId(), request.getMerchantId(), request.getTerminalId()))
 			.chain(roleEntity -> generateToken(request, roleEntity.getRoles()));
 	}
 }

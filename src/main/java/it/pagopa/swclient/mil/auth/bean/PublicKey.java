@@ -22,7 +22,7 @@ public class PublicKey {
 	 * Public exponent
 	 */
 	@JsonProperty(JsonPropertyName.EXPONENT)
-	private String e;
+	private byte[] e;
 
 	/*
 	 * Public key use
@@ -40,7 +40,7 @@ public class PublicKey {
 	 * Modulus
 	 */
 	@JsonProperty(JsonPropertyName.MODULUS)
-	private String n;
+	private byte[] n;
 
 	/*
 	 * Key type

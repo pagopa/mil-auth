@@ -75,22 +75,8 @@ public class GetAccessTokenRequest {
 	 */
 	@FormParam(FormParamName.GRANT_TYPE)
 	@NotNull(message = "[" + AuthErrorCode.GRANT_TYPE_MUST_NOT_BE_NULL + "] grant_type must not be null")
-	@Pattern(regexp = "^" + GrantType.PASSWORD + "|" + GrantType.REFRESH_TOKEN + "|" + GrantType.POYNT_TOKEN + "|" + GrantType.CLIENT_CREDENTIALS + "$", message = "[" + AuthErrorCode.GRANT_TYPE_MUST_MATCH_REGEXP + "] grant_type must match \"{regexp}\"")
+	@Pattern(regexp = "^" + GrantType.REFRESH_TOKEN + "|" + GrantType.CLIENT_CREDENTIALS + "$", message = "[" + AuthErrorCode.GRANT_TYPE_MUST_MATCH_REGEXP + "] grant_type must match \"{regexp}\"")
 	private String grantType;
-
-	/*
-	 * username
-	 */
-	@FormParam(FormParamName.USERNAME)
-	@Pattern(regexp = "^[ -~]{1,64}$", message = "[" + AuthErrorCode.USERNAME_MUST_MATCH_REGEXP + "] username must match \"{regexp}\"")
-	private String username;
-
-	/*
-	 * password
-	 */
-	@FormParam(FormParamName.PASSWORD)
-	@Pattern(regexp = "^[ -~]{1,64}$", message = "[" + AuthErrorCode.PASSWORD_MUST_MATCH_REGEXP + "] password must match \"{regexp}\"")
-	private String password;
 
 	/*
 	 * refresh_token
@@ -98,20 +84,6 @@ public class GetAccessTokenRequest {
 	@FormParam(FormParamName.REFRESH_TOKEN)
 	@Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$", message = "[" + AuthErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP + "] refresh_token must match \"{regexp}\"")
 	private String refreshToken;
-
-	/*
-	 * poynt_token
-	 */
-	@FormParam(FormParamName.EXT_TOKEN)
-	@Pattern(regexp = "^[ -~]{1,4096}$", message = "[" + AuthErrorCode.EXT_TOKEN_MUST_MATCH_REGEXP + "] ext_token must match \"{regexp}\"")
-	private String extToken;
-
-	/*
-	 * add_data
-	 */
-	@FormParam(FormParamName.ADD_DATA)
-	@Pattern(regexp = "^[ -~]{1,4096}$", message = "[" + AuthErrorCode.ADD_DATA_MUST_MATCH_REGEXP + "] add_data must match \"{regexp}\"")
-	private String addData;
 
 	/*
 	 * client_id
