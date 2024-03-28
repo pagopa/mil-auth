@@ -196,6 +196,7 @@ I ruoli sono indicati dall’anagrafica dei terminali (mil-terminal-registry).
 I possibili valori del claim `groups` presente nel payload dell'access token sono:
 * `NoticePayer`
 * `PayWithIDPay`
+* `SlavePos`
 
 ### ATM Layer
 In questo caso il client descriptor contiene l’attributo `channel` valorizzato con `ATM`.

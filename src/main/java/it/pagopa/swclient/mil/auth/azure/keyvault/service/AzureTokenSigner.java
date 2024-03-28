@@ -11,8 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Objects;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.security.keyvault.keys.KeyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.models.SignResult;
@@ -38,16 +36,11 @@ import mutiny.zero.flow.adapters.AdaptersToFlow;
 import reactor.core.publisher.Mono;
 
 /**
- *
+ * 
+ * @author Antonio Tarricone
  */
 @ApplicationScoped
 public class AzureTokenSigner implements TokenSigner {
-	/*
-	 * Azure Key Vault URL.
-	 */
-	@ConfigProperty(name = "azure-key-vault.url")
-	String vaultUrl;
-
 	/*
 	 * Azure Key Vault client.
 	 */
