@@ -11,7 +11,7 @@ package it.pagopa.swclient.mil.auth;
  * @author Antonio Tarricone
  */
 public final class AuthErrorCode {
-	public static final String MODULE_ID = "009";
+	private static final String MODULE_ID = "009";
 
 	public static final String CLIENT_ID_MUST_NOT_BE_NULL = MODULE_ID + "000001";
 	public static final String CLIENT_ID_MUST_MATCH_REGEXP = MODULE_ID + "000002";
@@ -54,10 +54,24 @@ public final class AuthErrorCode {
 	public static final String ERROR_VERIFING_SECRET = MODULE_ID + "000027";
 	public static final String ERROR_STORING_KEY_PAIR = MODULE_ID + "000028";
 	public static final String AZURE_ACCESS_TOKEN_IS_NULL = MODULE_ID + "000029";
-	public static final String ERROR_FROM_AZURE = MODULE_ID + "00002A";
+	private static final String ERROR_FROM_AZURE = MODULE_ID + "02A";
+	public static final String ERROR_FROM_AZURE_POF_000 = ERROR_FROM_AZURE + "000";
+	public static final String ERROR_FROM_AZURE_POF_001 = ERROR_FROM_AZURE + "001";
+	public static final String ERROR_FROM_AZURE_POF_002 = ERROR_FROM_AZURE + "002";
+	public static final String ERROR_FROM_AZURE_POF_003 = ERROR_FROM_AZURE + "003";
+	public static final String ERROR_FROM_AZURE_POF_004 = ERROR_FROM_AZURE + "004";
+	public static final String ERROR_FROM_AZURE_POF_005 = ERROR_FROM_AZURE + "005";
+	public static final String ERROR_FROM_AZURE_POF_006 = ERROR_FROM_AZURE + "006";
+	public static final String ERROR_FROM_AZURE_POF_007 = ERROR_FROM_AZURE + "007";
+	public static final String ERROR_FROM_AZURE_POF_008 = ERROR_FROM_AZURE + "008";
+	public static final String ERROR_FROM_AZURE_POF_009 = ERROR_FROM_AZURE + "009";
+	public static final String ERROR_FROM_AZURE_POF_00A = ERROR_FROM_AZURE + "00A";
+	public static final String ERROR_FROM_AZURE_POF_00B = ERROR_FROM_AZURE + "00B";
+	
 	public static final String FISCAL_CODE_MUST_MATCH_REGEXP = MODULE_ID + "00002B";
 	public static final String INVALID_KID = MODULE_ID + "00002C";
 	public static final String CLIENT_DESERIALIZATION_ERROR = MODULE_ID + "00002D";
+	public static final String JSON_DESERIALIZATION_ERROR = MODULE_ID + "00002E";
 
 	/**
 	 *

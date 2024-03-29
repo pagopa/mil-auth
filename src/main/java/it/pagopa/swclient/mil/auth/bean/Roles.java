@@ -1,5 +1,5 @@
 /*
- * RoleEntity.java
+ * Roles.java
  *
  * 20 mar 2023
  */
@@ -8,16 +8,20 @@ package it.pagopa.swclient.mil.auth.bean;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
  * @author Antonio Tarricone
  */
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @ToString
-public class Role {
+@EqualsAndHashCode
+public class Roles {
 	/*
 	 *
 	 */

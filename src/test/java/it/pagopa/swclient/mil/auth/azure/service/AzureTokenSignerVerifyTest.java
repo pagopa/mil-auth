@@ -1,11 +1,10 @@
 /*
- * AzureTokenSignerTest.java
+ * AzureTokenSignerVerifyTest.java
  *
  * 28 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.service;
+package it.pagopa.swclient.mil.auth.azure.service;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -29,6 +28,7 @@ import com.azure.security.keyvault.keys.KeyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.models.SignResult;
 import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
+import com.azure.security.keyvault.keys.cryptography.models.VerifyResult;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -42,9 +42,9 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.azure.keyvault.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.util.AuthError;
+import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import reactor.core.publisher.Mono;
 
@@ -54,14 +54,14 @@ import reactor.core.publisher.Mono;
  */
 @QuarkusTest
 @TestInstance(Lifecycle.PER_CLASS)
-class AzureTokenSignerTest extends AzureKeyVaultTest {
+class AzureTokenSignerVerifyTest extends AzureKeyVaultTest {
 	/**
 	 * 
 	 * @throws JOSEException
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void givenClaimsSet_whenSign_thenReturnSignedToken() throws JOSEException, NoSuchAlgorithmException {
+	void givenSignedToken_whenVerify_thenReturnVerificationResult() throws JOSEException, NoSuchAlgorithmException {
 		/*
 		 * Data preparation.
 		 */
@@ -96,11 +96,11 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		byte[] digest = messageDigest.digest();
 
 		/*
-		 * Setup mock.
+		 * Setup mocks.
 		 */
 		CryptographyAsyncClient cryptoClient = mock(CryptographyAsyncClient.class);
-		when(cryptoClient.sign(SignatureAlgorithm.RS256, digest))
-			.thenReturn(Mono.just(new SignResult(signature, SignatureAlgorithm.RS256, publicKey.getKid())));
+		when(cryptoClient.verify(SignatureAlgorithm.RS256, digest, signature))
+			.thenReturn(Mono.just(new VerifyResult(Boolean.TRUE, SignatureAlgorithm.RS256, publicKey.getKid())));
 
 		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
 		when(keyClient.getCryptographyAsyncClient(keyVaultKey.getProperties().getName(), keyVaultKey.getProperties().getVersion()))
@@ -116,26 +116,26 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		 * Test.
 		 */
 		AzureTokenSigner tokenSigner = new AzureTokenSigner(keyFinder);
-		tokenSigner.sign(claimsSet)
-			.subscribe()
-			.with(
-				item -> assertArrayEquals(signature, item.getSignature().decode()),
-				failure -> {
-				});
+		tokenSigner.verify(signedJwt)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitItem()
+			.assertItem(null);
 	}
 
 	/**
 	 * 
+	 * @throws JOSEException
 	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void givenErrorFromKeyVault_whenSign_thenReturnFailure() throws NoSuchAlgorithmException {
+	void givenSignedTokenWithWrongSignature_whenVerify_thenReturnFailure() throws JOSEException, NoSuchAlgorithmException {
 		/*
 		 * Data preparation.
 		 */
 		KeyBundle keyBundle = prepareValidKey("valid_key_name", "v1", 0);
 		KeyVaultKey keyVaultKey = keyBundle.getKeyVaultKey();
 		PublicKey publicKey = keyBundle.getPublicKey();
+		RSAPrivateKey rsaPrivateKey = keyBundle.getPrivateKey();
 
 		Date now = new Date();
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -149,6 +149,11 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, publicKey.getKid(), true, null, null);
 		Payload payload = claimsSet.toPayload();
 
+		SignedJWT signedJwt = new SignedJWT(header, claimsSet);
+		JWSSigner signer = new RSASSASigner(rsaPrivateKey);
+		signedJwt.sign(signer);
+		byte[] signature = signedJwt.getSignature().decode();
+
 		String stringToSign = header.toBase64URL().toString() + "." + payload.toBase64URL().toString();
 		byte[] bytesToSign = stringToSign.getBytes(StandardCharsets.UTF_8);
 
@@ -158,10 +163,77 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		byte[] digest = messageDigest.digest();
 
 		/*
-		 * Setup mock.
+		 * Setup mocks.
 		 */
 		CryptographyAsyncClient cryptoClient = mock(CryptographyAsyncClient.class);
-		when(cryptoClient.sign(SignatureAlgorithm.RS256, digest))
+		when(cryptoClient.verify(SignatureAlgorithm.RS256, digest, signature))
+			.thenReturn(Mono.just(new VerifyResult(Boolean.FALSE, SignatureAlgorithm.RS256, publicKey.getKid())));
+
+		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
+		when(keyClient.getCryptographyAsyncClient(keyVaultKey.getProperties().getName(), keyVaultKey.getProperties().getVersion()))
+			.thenReturn(cryptoClient);
+
+		AzureKeyFinder keyFinder = mock(AzureKeyFinder.class);
+		when(keyFinder.findPublicKey())
+			.thenReturn(UniGenerator.item(publicKey));
+		when(keyFinder.getKeyClient())
+			.thenReturn(keyClient);
+
+		/*
+		 * Test.
+		 */
+		AzureTokenSigner tokenSigner = new AzureTokenSigner(keyFinder);
+		tokenSigner.verify(signedJwt)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
+			.assertFailedWith(AuthException.class);
+	}
+
+	/**
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws JOSEException
+	 */
+	@Test
+	void givenErrorFromKeyVault_whenVerify_thenReturnFailure() throws NoSuchAlgorithmException, JOSEException {
+		/*
+		 * Data preparation.
+		 */
+		KeyBundle keyBundle = prepareValidKey("valid_key_name", "v1", 0);
+		KeyVaultKey keyVaultKey = keyBundle.getKeyVaultKey();
+		PublicKey publicKey = keyBundle.getPublicKey();
+		RSAPrivateKey rsaPrivateKey = keyBundle.getPrivateKey();
+
+		Date now = new Date();
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.subject("<subject>")
+			.audience("<audience>")
+			.issuer("<issuer>")
+			.issueTime(now)
+			.expirationTime(new Date(now.getTime() + 5 * 60 * 1000))
+			.build();
+
+		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, publicKey.getKid(), true, null, null);
+		Payload payload = claimsSet.toPayload();
+
+		SignedJWT signedJwt = new SignedJWT(header, claimsSet);
+		JWSSigner signer = new RSASSASigner(rsaPrivateKey);
+		signedJwt.sign(signer);
+		byte[] signature = signedJwt.getSignature().decode();
+
+		String stringToSign = header.toBase64URL().toString() + "." + payload.toBase64URL().toString();
+		byte[] bytesToSign = stringToSign.getBytes(StandardCharsets.UTF_8);
+
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA256");
+		messageDigest.update(bytesToSign);
+
+		byte[] digest = messageDigest.digest();
+
+		/*
+		 * Setup mocks.
+		 */
+		CryptographyAsyncClient cryptoClient = mock(CryptographyAsyncClient.class);
+		when(cryptoClient.verify(SignatureAlgorithm.RS256, digest, signature))
 			.thenReturn(Mono.error(new Exception("error from azure")));
 
 		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
@@ -178,7 +250,7 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		 * Test.
 		 */
 		AzureTokenSigner tokenSigner = new AzureTokenSigner(keyFinder);
-		tokenSigner.sign(claimsSet)
+		tokenSigner.verify(signedJwt)
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.awaitFailure()
 			.assertFailedWith(AuthError.class);
@@ -187,15 +259,17 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 	/**
 	 * 
 	 * @throws NoSuchAlgorithmException
+	 * @throws JOSEException
 	 */
 	@Test
-	void givenExceptionFromKeyVault_whenSign_thenReturnFailure() throws NoSuchAlgorithmException {
+	void givenExceptionFromKeyVault_whenVerify_thenReturnFailure() throws NoSuchAlgorithmException, JOSEException {
 		/*
 		 * Data preparation.
 		 */
 		KeyBundle keyBundle = prepareValidKey("valid_key_name", "v1", 0);
 		KeyVaultKey keyVaultKey = keyBundle.getKeyVaultKey();
 		PublicKey publicKey = keyBundle.getPublicKey();
+		RSAPrivateKey rsaPrivateKey = keyBundle.getPrivateKey();
 
 		Date now = new Date();
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -209,6 +283,11 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, publicKey.getKid(), true, null, null);
 		Payload payload = claimsSet.toPayload();
 
+		SignedJWT signedJwt = new SignedJWT(header, claimsSet);
+		JWSSigner signer = new RSASSASigner(rsaPrivateKey);
+		signedJwt.sign(signer);
+		byte[] signature = signedJwt.getSignature().decode();
+
 		String stringToSign = header.toBase64URL().toString() + "." + payload.toBase64URL().toString();
 		byte[] bytesToSign = stringToSign.getBytes(StandardCharsets.UTF_8);
 
@@ -218,10 +297,10 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		byte[] digest = messageDigest.digest();
 
 		/*
-		 * Setup mock.
+		 * Setup mocks.
 		 */
 		CryptographyAsyncClient cryptoClient = mock(CryptographyAsyncClient.class);
-		when(cryptoClient.sign(SignatureAlgorithm.RS256, digest))
+		when(cryptoClient.verify(SignatureAlgorithm.RS256, digest, signature))
 			.thenThrow(ResourceNotFoundException.class);
 
 		KeyAsyncClient keyClient = mock(KeyAsyncClient.class);
@@ -238,7 +317,7 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		 * Test.
 		 */
 		AzureTokenSigner tokenSigner = new AzureTokenSigner(keyFinder);
-		tokenSigner.sign(claimsSet)
+		tokenSigner.verify(signedJwt)
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.awaitFailure()
 			.assertFailedWith(AuthError.class);
@@ -246,14 +325,16 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 
 	/**
 	 * 
+	 * @throws JOSEException
 	 */
 	@Test
-	void givenInvalidKid_whenSign_thenReturnFailure() {
+	void givenInvalidKid_whenVerify_thenReturnFailure() throws JOSEException {
 		/*
 		 * Data preparation.
 		 */
 		KeyBundle keyBundle = prepareValidKey("valid_key_name/bad", "v1", 0);
 		PublicKey publicKey = keyBundle.getPublicKey();
+		RSAPrivateKey rsaPrivateKey = keyBundle.getPrivateKey();
 
 		Date now = new Date();
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -263,6 +344,12 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 			.issueTime(now)
 			.expirationTime(new Date(now.getTime() + 5 * 60 * 1000))
 			.build();
+
+		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, publicKey.getKid(), true, null, null);
+
+		SignedJWT signedJwt = new SignedJWT(header, claimsSet);
+		JWSSigner signer = new RSASSASigner(rsaPrivateKey);
+		signedJwt.sign(signer);
 
 		/*
 		 * Setup mock.
@@ -275,7 +362,7 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		 * Test.
 		 */
 		AzureTokenSigner tokenSigner = new AzureTokenSigner(keyFinder);
-		tokenSigner.sign(claimsSet)
+		tokenSigner.verify(signedJwt)
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.awaitFailure()
 			.assertFailedWith(AuthError.class);
@@ -283,14 +370,16 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 
 	/**
 	 * 
+	 * @throws JOSEException
 	 */
 	@Test
-	void givenUnsupportedDigestAlgorithm_whenSign_thenReturnFailure() {
+	void givenUnsupportedDigestAlgorithm_whenVerify_thenReturnFailure() throws JOSEException {
 		/*
 		 * Data preparation.
 		 */
 		KeyBundle keyBundle = prepareValidKey("valid_key_name", "v1", 0);
 		PublicKey publicKey = keyBundle.getPublicKey();
+		RSAPrivateKey rsaPrivateKey = keyBundle.getPrivateKey();
 
 		Date now = new Date();
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -301,8 +390,14 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 			.expirationTime(new Date(now.getTime() + 5 * 60 * 1000))
 			.build();
 
+		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, publicKey.getKid(), true, null, null);
+
+		SignedJWT signedJwt = new SignedJWT(header, claimsSet);
+		JWSSigner signer = new RSASSASigner(rsaPrivateKey);
+		signedJwt.sign(signer);
+
 		/*
-		 * Setup mock.
+		 * Setup mocks.
 		 */
 		AzureKeyFinder keyFinder = mock(AzureKeyFinder.class);
 		when(keyFinder.findPublicKey())
@@ -316,7 +411,7 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 			 * Test.
 			 */
 			AzureTokenSigner tokenSigner = new AzureTokenSigner(keyFinder);
-			tokenSigner.sign(claimsSet)
+			tokenSigner.verify(signedJwt)
 				.subscribe().withSubscriber(UniAssertSubscriber.create())
 				.awaitFailure()
 				.assertFailedWith(AuthError.class);
@@ -364,7 +459,7 @@ class AzureTokenSignerTest extends AzureKeyVaultTest {
 		byte[] digest = messageDigest.digest();
 
 		/*
-		 * Setup mock.
+		 * Setup mocks.
 		 */
 		CryptographyAsyncClient cryptoClient = mock(CryptographyAsyncClient.class);
 		when(cryptoClient.sign(SignatureAlgorithm.RS256, digest))

@@ -3,7 +3,7 @@
  *
  * 28 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.service;
+package it.pagopa.swclient.mil.auth.azure.service;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

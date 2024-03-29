@@ -29,7 +29,7 @@ public class ClientVerifier {
 	/*
 	 *
 	 */
-	private AuthDataRepository repository;
+	private ClientsRepository repository;
 
 	/**
 	 * Constructor.
@@ -37,7 +37,7 @@ public class ClientVerifier {
 	 * @param repository
 	 */
 	@Inject
-	ClientVerifier(AuthDataRepository repository) {
+	ClientVerifier(ClientsRepository repository) {
 		this.repository = repository;
 	}
 	

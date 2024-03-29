@@ -3,7 +3,7 @@
  *
  * 4 ago 2023
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.util;
+package it.pagopa.swclient.mil.auth.azure.service;
 
 import java.text.ParseException;
 

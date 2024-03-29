@@ -1,9 +1,9 @@
 /*
- * AzureKeyAsyncClientProduder.java
+ * KeyAsyncClientProduder.java
  *
  * 26 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.service;
+package it.pagopa.swclient.mil.auth.azure.service;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -20,7 +20,7 @@ import jakarta.enterprise.inject.Produces;
  * @author Antonio Tarricone
  */
 @ApplicationScoped
-public class AzureKeyAsyncClientProduder {
+public class KeyAsyncClientProduder {
 	/*
 	 * 
 	 */
@@ -30,7 +30,7 @@ public class AzureKeyAsyncClientProduder {
 	 * 
 	 * @param vaultUrl
 	 */
-	AzureKeyAsyncClientProduder(@ConfigProperty(name = "azure-key-vault.url") String vaultUrl) {
+	KeyAsyncClientProduder(@ConfigProperty(name = "azure-key-vault.url") String vaultUrl) {
 		this.vaultUrl = vaultUrl;
 	}
 

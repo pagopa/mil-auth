@@ -9,7 +9,7 @@ import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.bean.Role;
+import it.pagopa.swclient.mil.auth.bean.Roles;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,7 +30,7 @@ public class RolesFinder {
 	/*
 	 * Role repository.
 	 */
-	private AuthDataRepository repository;
+	private RolesRepository repository;
 	
 	/**
 	 * Constructor.
@@ -38,7 +38,7 @@ public class RolesFinder {
 	 * @param repository
 	 */
 	@Inject
-	RolesFinder(AuthDataRepository repository) {
+	RolesFinder(RolesRepository repository) {
 		this.repository = repository;
 	}
 
@@ -59,7 +59,7 @@ public class RolesFinder {
 	 * @return
 	 */
 	@CacheResult(cacheName = "role-cache")
-	public Uni<Role> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+	public Uni<Roles> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		return repository.getRoles(acquirerId, channel, clientId, merchantId, terminalId);
 	}
 
@@ -71,7 +71,7 @@ public class RolesFinder {
 	 * @param terminalId
 	 * @return
 	 */
-	private Uni<Role> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+	private Uni<Roles> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.debugf("Search (sub) for the roles with acquirerId=[%s], channel=[%s], clientId=[%s], merchantId=[%s], terminalId=[%s].", acquirerId, channel, clientId, merchantId, terminalId);
 		return getRoles(replaceNullWithNa(acquirerId), replaceNullWithNa(channel), clientId, replaceNullWithNa(merchantId), replaceNullWithNa(terminalId))
 			.invoke(role -> Log.debugf("Roles found: [%s]", role))
@@ -106,7 +106,7 @@ public class RolesFinder {
 	 * @param terminalId
 	 * @return
 	 */
-	public Uni<Role> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+	public Uni<Roles> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.debugf("Search (main) for the roles for acquirerId=[%s], channel=[%s], clientId=[%s], merchantId=[%s], terminalId=[%s].", acquirerId, channel, clientId, merchantId, terminalId);
 		return find(acquirerId, channel, clientId, merchantId, terminalId)
 			.onFailure(AuthException.class)

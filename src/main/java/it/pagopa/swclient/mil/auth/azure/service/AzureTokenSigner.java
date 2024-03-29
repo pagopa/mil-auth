@@ -3,7 +3,7 @@
  *
  * 24 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.service;
+package it.pagopa.swclient.mil.auth.azure.service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -25,11 +25,11 @@ import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azure.keyvault.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.service.TokenSigner;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
+import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import mutiny.zero.flow.adapters.AdaptersToFlow;
@@ -50,11 +50,6 @@ public class AzureTokenSigner implements TokenSigner {
 	 * Key finder.
 	 */
 	private AzureKeyFinder keyFinder;
-	
-	/*
-	 * Error message when something went wrong with Azure.
-	 */
-	private static final String ERROR_FROM_AZURE_MSG = String.format("[%s] Error from Azure.", AuthErrorCode.ERROR_FROM_AZURE);
 
 	/**
 	 * Constructor.
@@ -95,16 +90,18 @@ public class AzureTokenSigner implements TokenSigner {
 		try {
 			Mono<byte[]> signature = keyClient.getCryptographyAsyncClient(keyName, keyVersion)
 				.sign(SignatureAlgorithm.RS256, digest)
-				.onErrorMap(t ->  {
-					Log.errorf(t, ERROR_FROM_AZURE_MSG);
-					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+				.onErrorMap(t -> {
+					String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_006);
+					Log.errorf(t, message);
+					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE_POF_006, message);
 				})
 				.map(SignResult::getSignature);
 
 			return Uni.createFrom().publisher(AdaptersToFlow.publisher(signature));
 		} catch (ResourceNotFoundException | NullPointerException | UnsupportedOperationException e) {
-			Log.errorf(e, ERROR_FROM_AZURE_MSG);
-			throw new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+			String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_007);
+			Log.errorf(e, message);
+			return UniGenerator.error(AuthErrorCode.ERROR_FROM_AZURE_POF_007, message);
 		}
 	}
 
@@ -137,12 +134,12 @@ public class AzureTokenSigner implements TokenSigner {
 			} catch (NoSuchAlgorithmException e) {
 				String message = String.format("[%s] Error generating token.", AuthErrorCode.ERROR_GENERATING_TOKEN);
 				Log.errorf(e, message);
-				throw new AuthError(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
+				return UniGenerator.error(AuthErrorCode.ERROR_GENERATING_TOKEN, message);
 			}
 		} else {
 			String message = String.format("Invalid kid [%s].", kid);
 			Log.error(message);
-			throw new AuthError(AuthErrorCode.INVALID_KID, message);
+			return UniGenerator.error(AuthErrorCode.INVALID_KID, message);
 		}
 	}
 
@@ -171,16 +168,18 @@ public class AzureTokenSigner implements TokenSigner {
 		try {
 			Mono<Boolean> isValid = keyClient.getCryptographyAsyncClient(keyName, keyVersion)
 				.verify(SignatureAlgorithm.RS256, digest, signature)
-				.onErrorMap(t ->  {
-					Log.errorf(t, ERROR_FROM_AZURE_MSG);
-					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+				.onErrorMap(t -> {
+					String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_008);
+					Log.errorf(t, message);
+					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE_POF_008, message);
 				})
 				.map(VerifyResult::isValid);
 
 			return Uni.createFrom().publisher(AdaptersToFlow.publisher(isValid));
 		} catch (ResourceNotFoundException | NullPointerException | UnsupportedOperationException e) {
-			Log.errorf(e, ERROR_FROM_AZURE_MSG);
-			throw new AuthError(AuthErrorCode.ERROR_FROM_AZURE, ERROR_FROM_AZURE_MSG);
+			String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_009);
+			Log.errorf(e, message);
+			return UniGenerator.error(AuthErrorCode.ERROR_FROM_AZURE_POF_009, message);
 		}
 	}
 
@@ -216,12 +215,12 @@ public class AzureTokenSigner implements TokenSigner {
 			} catch (NoSuchAlgorithmException | ParseException e) {
 				String message = String.format("[%s] Error verifing signature.", AuthErrorCode.ERROR_VERIFING_SIGNATURE);
 				Log.errorf(e, message);
-				throw new AuthError(AuthErrorCode.ERROR_VERIFING_SIGNATURE, message);
+				return UniGenerator.error(AuthErrorCode.ERROR_VERIFING_SIGNATURE, message);
 			}
 		} else {
 			String message = String.format("[%s] Invalid kid [%s].", AuthErrorCode.INVALID_KID, kid);
 			Log.error(message);
-			throw new AuthError(AuthErrorCode.INVALID_KID, message);
+			return UniGenerator.error(AuthErrorCode.INVALID_KID, message);
 		}
 	}
 }

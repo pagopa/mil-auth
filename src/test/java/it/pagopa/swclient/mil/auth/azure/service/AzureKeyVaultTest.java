@@ -3,7 +3,7 @@
  *
  * 28 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.service;
+package it.pagopa.swclient.mil.auth.azure.service;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -13,7 +13,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 
+import org.jboss.logging.MDC;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 import com.azure.security.keyvault.keys.implementation.KeyPropertiesHelper;
 import com.azure.security.keyvault.keys.implementation.KeyVaultKeyHelper;
@@ -52,6 +55,15 @@ abstract class AzureKeyVaultTest {
 	void setup() throws NoSuchAlgorithmException {
 		generator = KeyPairGenerator.getInstance("RSA");
 		generator.initialize(KEY_SIZE);
+	}
+
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void setRequestId(TestInfo testInfo) {
+		MDC.put("requestId", testInfo.getDisplayName());
 	}
 
 	/**

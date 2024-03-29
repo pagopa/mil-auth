@@ -3,7 +3,7 @@
  *
  * 26 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.service;
+package it.pagopa.swclient.mil.auth.azure.service;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,7 +40,7 @@ public class PagedFluxGenerator<T> {
 					return pageSizeObj.intValue();
 				}
 			}
-			
+
 			@Override
 			public IterableStream<T> getElements() {
 				int pageSize = getPageSize(pageSizeObj);

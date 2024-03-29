@@ -3,7 +3,7 @@
  *
  * 28 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.keyvault.service;
+package it.pagopa.swclient.mil.auth.azure.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -142,7 +142,7 @@ class AzureKeyFinderFindPublicKeyTest extends AzureKeyVaultTest {
 			.awaitItem()
 			.assertItem(expected);
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -174,7 +174,7 @@ class AzureKeyFinderFindPublicKeyTest extends AzureKeyVaultTest {
 			.awaitFailure()
 			.assertFailedWith(AuthError.class);
 	}
-	
+
 	/**
 	 * 
 	 */
