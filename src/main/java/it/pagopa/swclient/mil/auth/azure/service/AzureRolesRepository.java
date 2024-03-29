@@ -26,7 +26,6 @@ public class AzureRolesRepository extends AzureBlobRepository implements RolesRe
 		super(blobClient);
 	}
 
-
 	/**
 	 * 
 	 */

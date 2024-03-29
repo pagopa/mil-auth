@@ -25,7 +25,7 @@ public class BlobContainerAsyncClientProducer {
 	 * 
 	 */
 	private String blobUrl;
-	
+
 	/**
 	 * 
 	 * @param blobUrl

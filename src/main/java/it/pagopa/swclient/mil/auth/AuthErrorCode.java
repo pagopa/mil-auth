@@ -18,7 +18,7 @@ public final class AuthErrorCode {
 	public static final String GRANT_TYPE_MUST_NOT_BE_NULL = MODULE_ID + "000003";
 	public static final String GRANT_TYPE_MUST_MATCH_REGEXP = MODULE_ID + "000004";
 	public static final String USERNAME_MUST_MATCH_REGEXP = MODULE_ID + "000005";
-	public static final String PASSWORD_MUST_MATCH_REGEXP = MODULE_ID + "000006"; //NOSONAR
+	public static final String PASSWORD_MUST_MATCH_REGEXP = MODULE_ID + "000006"; // NOSONAR
 	public static final String SCOPE_MUST_MATCH_REGEXP = MODULE_ID + "000007";
 	public static final String REFRESH_TOKEN_MUST_MATCH_REGEXP = MODULE_ID + "000008";
 	public static final String ERROR_SEARCHING_FOR_CLIENT = MODULE_ID + "000009";
@@ -67,7 +67,7 @@ public final class AuthErrorCode {
 	public static final String ERROR_FROM_AZURE_POF_009 = ERROR_FROM_AZURE + "009";
 	public static final String ERROR_FROM_AZURE_POF_00A = ERROR_FROM_AZURE + "00A";
 	public static final String ERROR_FROM_AZURE_POF_00B = ERROR_FROM_AZURE + "00B";
-	
+
 	public static final String FISCAL_CODE_MUST_MATCH_REGEXP = MODULE_ID + "00002B";
 	public static final String INVALID_KID = MODULE_ID + "00002C";
 	public static final String CLIENT_DESERIALIZATION_ERROR = MODULE_ID + "00002D";

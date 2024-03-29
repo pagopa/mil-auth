@@ -27,7 +27,7 @@ public class AzureClientsRepository extends AzureBlobRepository implements Clien
 	AzureClientsRepository(BlobContainerAsyncClient blobClient) {
 		super(blobClient);
 	}
-	
+
 	/**
 	 * 
 	 */

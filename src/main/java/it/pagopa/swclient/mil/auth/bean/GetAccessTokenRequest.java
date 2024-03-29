@@ -106,7 +106,7 @@ public class GetAccessTokenRequest {
 	@FormParam(FormParamName.CLIENT_SECRET)
 	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + AuthErrorCode.CLIENT_SECRET_MUST_MATCH_REGEXP + "] client_secret must match \"{regexp}\"")
 	private String clientSecret;
-	
+
 	/*
 	 * fiscal_code
 	 */

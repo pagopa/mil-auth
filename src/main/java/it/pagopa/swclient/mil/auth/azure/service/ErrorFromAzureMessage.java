@@ -15,7 +15,7 @@ public class ErrorFromAzureMessage {
 	 */
 	private ErrorFromAzureMessage() {
 	}
-	
+
 	/**
 	 * Error message when something went wrong with Azure.
 	 * 

@@ -33,7 +33,7 @@ import reactor.core.publisher.Mono;
 class AzureClientsRepositoryTest {
 	/**
 	 * 
-	 * @throws JsonProcessingException 
+	 * @throws JsonProcessingException
 	 */
 	@Test
 	void givenClientFile_whenGetClient_thenReturnClient() throws JsonProcessingException {
@@ -55,7 +55,7 @@ class AzureClientsRepositoryTest {
 		BlobContainerAsyncClient blobClient = mock(BlobContainerAsyncClient.class);
 		when(blobClient.getBlobAsyncClient(fileName))
 			.thenReturn(blobAsyncClient);
-		
+
 		/*
 		 * Test.
 		 */
@@ -65,7 +65,7 @@ class AzureClientsRepositoryTest {
 			.awaitItem()
 			.assertItem(client);
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -87,7 +87,7 @@ class AzureClientsRepositoryTest {
 		BlobContainerAsyncClient blobClient = mock(BlobContainerAsyncClient.class);
 		when(blobClient.getBlobAsyncClient(fileName))
 			.thenReturn(blobAsyncClient);
-		
+
 		/*
 		 * Test.
 		 */
@@ -97,10 +97,10 @@ class AzureClientsRepositoryTest {
 			.awaitFailure()
 			.assertFailedWith(AuthError.class);
 	}
-	
+
 	/**
 	 * 
-	 * @throws JsonProcessingException 
+	 * @throws JsonProcessingException
 	 */
 	@Test
 	void givenInvalidClientFile_whenGetClient_thenReturnFailure() throws JsonProcessingException {
@@ -121,14 +121,14 @@ class AzureClientsRepositoryTest {
 		BlobContainerAsyncClient blobClient = mock(BlobContainerAsyncClient.class);
 		when(blobClient.getBlobAsyncClient(fileName))
 			.thenReturn(blobAsyncClient);
-		
+
 		/*
 		 * Test.
 		 */
 		AzureClientsRepository repository = new AzureClientsRepository(blobClient);
 		repository.getClient(clientId)
-		.subscribe().withSubscriber(UniAssertSubscriber.create())
-		.awaitFailure()
-		.assertFailedWith(AuthError.class);
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.awaitFailure()
+			.assertFailedWith(AuthError.class);
 	}
 }

@@ -25,7 +25,7 @@ public class AzureBlobRepository {
 	 * Azure Storage Containter BLOB client.
 	 */
 	private BlobContainerAsyncClient blobClient;
-	
+
 	/*
 	 * JSON -> Object
 	 */
@@ -40,13 +40,13 @@ public class AzureBlobRepository {
 		this.blobClient = blobClient;
 		objMapper = new ObjectMapper();
 	}
-	
+
 	/**
 	 * 
 	 */
 	AzureBlobRepository() {
 	}
-	
+
 	/**
 	 * 
 	 * @param <T>

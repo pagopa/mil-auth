@@ -37,7 +37,7 @@ public class RefreshTokensService extends TokenService {
 	RefreshTokensService() {
 		super();
 	}
-	
+
 	/**
 	 * Constructor.
 	 * 

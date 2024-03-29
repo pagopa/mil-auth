@@ -41,7 +41,7 @@ public class JwksResource {
 	 *
 	 */
 	private KeyFinder keyFinder;
-	
+
 	/**
 	 * Constructor.
 	 * 

@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 class AzureRolesRepositoryTest {
 	/**
 	 * 
-	 * @throws JsonProcessingException 
+	 * @throws JsonProcessingException
 	 */
 	@Test
 	void givenRoleFile_whenGetClient_thenReturnRole() throws JsonProcessingException {
@@ -61,7 +61,7 @@ class AzureRolesRepositoryTest {
 		BlobContainerAsyncClient blobClient = mock(BlobContainerAsyncClient.class);
 		when(blobClient.getBlobAsyncClient(fileName))
 			.thenReturn(blobAsyncClient);
-		
+
 		/*
 		 * Test.
 		 */

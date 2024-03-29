@@ -25,7 +25,7 @@ public class KeyAsyncClientProduder {
 	 * 
 	 */
 	private String vaultUrl;
-	
+
 	/**
 	 * 
 	 * @param vaultUrl

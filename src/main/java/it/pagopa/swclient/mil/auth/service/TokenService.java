@@ -66,7 +66,7 @@ public abstract class TokenService {
 	 *
 	 */
 	protected TokenSigner tokenSigner;
-	
+
 	/**
 	 * Non-private no-args constructor.
 	 */

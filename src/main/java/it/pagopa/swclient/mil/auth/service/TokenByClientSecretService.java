@@ -25,7 +25,7 @@ public class TokenByClientSecretService extends TokenService {
 	TokenByClientSecretService() {
 		super();
 	}
-	
+
 	/**
 	 * Constructor.
 	 * 

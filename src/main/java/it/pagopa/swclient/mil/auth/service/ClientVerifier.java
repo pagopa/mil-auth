@@ -40,7 +40,7 @@ public class ClientVerifier {
 	ClientVerifier(ClientsRepository repository) {
 		this.repository = repository;
 	}
-	
+
 	/**
 	 * Due to caching this method must be public.
 	 *

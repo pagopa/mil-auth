@@ -26,12 +26,12 @@ public class RolesFinder {
 	 *
 	 */
 	private static final String NA = "NA";
-	
+
 	/*
 	 * Role repository.
 	 */
 	private RolesRepository repository;
-	
+
 	/**
 	 * Constructor.
 	 * 
