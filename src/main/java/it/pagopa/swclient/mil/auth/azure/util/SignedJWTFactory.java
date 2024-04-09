@@ -3,7 +3,7 @@
  *
  * 4 ago 2023
  */
-package it.pagopa.swclient.mil.auth.azure.service;
+package it.pagopa.swclient.mil.auth.azure.util;
 
 import java.text.ParseException;
 
@@ -24,6 +24,7 @@ public class SignedJWTFactory {
 	}
 
 	/**
+	 * 
 	 * @param header
 	 * @param payload
 	 * @param signature

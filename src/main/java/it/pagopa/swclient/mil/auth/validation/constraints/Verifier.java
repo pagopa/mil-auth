@@ -8,140 +8,139 @@ package it.pagopa.swclient.mil.auth.validation.constraints;
 import java.util.function.Predicate;
 
 import io.quarkus.logging.Log;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenRequest;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
-public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
+public abstract class Verifier implements Predicate<AccessTokenRequest> {
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean acquirerIdMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getAcquirerId() == null;
+	protected boolean bankIdMustBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getBankId() == null;
 		if (!check) {
-			Log.warn("AcquirerId must be null.");
+			Log.warn(AccessTokenRequest.BANK_ID + " must be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean acquirerIdMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getAcquirerId() != null;
+	protected boolean bankIdMustNotBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getBankId() != null;
 		if (!check) {
-			Log.warn("AcquirerId must not be null.");
+			Log.warn(AccessTokenRequest.BANK_ID + " must not be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean merchantIdMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getMerchantId() == null;
+	protected boolean clientSecretMustBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getClientSecret() == null;
 		if (!check) {
-			Log.warn("MerchantId must be null.");
+			Log.warn(AccessTokenRequest.CLIENT_SECRET + " must be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean merchantIdMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getMerchantId() != null;
+	protected boolean clientSecretMustNotBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getClientSecret() != null;
 		if (!check) {
-			Log.warn("MerchantId must not be null.");
+			Log.warn(AccessTokenRequest.CLIENT_SECRET + " must not be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean terminalIdMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getTerminalId() == null;
+	protected boolean deviceCodeMustBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getDeviceCode() == null;
 		if (!check) {
-			Log.warn("TerminalId must be null.");
+			Log.warn(AccessTokenRequest.DEVICE_CODE + " must be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean terminalIdMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getTerminalId() != null;
+	protected boolean deviceCodeMustNotBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getDeviceCode() != null;
 		if (!check) {
-			Log.warn("TerminalId must not be null.");
+			Log.warn(AccessTokenRequest.DEVICE_CODE + " must not be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean clientSecretMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getClientSecret() == null;
+	protected boolean refreshTokenMustBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getRefreshToken() == null;
 		if (!check) {
-			Log.warn("client_secret must be null.");
+			Log.warn(AccessTokenRequest.REFRESH_TOKEN + " must be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean clientSecretMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getClientSecret() != null;
+	protected boolean refreshTokenMustNotBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getRefreshToken() != null;
 		if (!check) {
-			Log.warn("client_secret must not be null.");
+			Log.warn(AccessTokenRequest.REFRESH_TOKEN + " must not be null");
+		}
+		return check;
+	}
+	
+	/**
+	 * 
+	 * @param accessTokenRequest
+	 * @return
+	 */
+	protected boolean terminalIdMustBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getTerminalId() == null;
+		if (!check) {
+			Log.warn(AccessTokenRequest.TERMINAL_ID + " must be null");
 		}
 		return check;
 	}
 
 	/**
-	 * @param getAccessToken
+	 * 
+	 * @param accessTokenRequest
 	 * @return
 	 */
-	protected boolean refreshTokenMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() == null;
+	protected boolean terminalIdMustNotBeNull(AccessTokenRequest accessTokenRequest) {
+		boolean check = accessTokenRequest.getTerminalId() != null;
 		if (!check) {
-			Log.warn("refresh_token must be null.");
-		}
-		return check;
-	}
-
-	/**
-	 * @param getAccessToken
-	 * @return
-	 */
-	protected boolean refreshTokenMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() != null;
-		if (!check) {
-			Log.warn("refresh_token must not be null.");
-		}
-		return check;
-	}
-
-	/**
-	 * @param getAccessToken
-	 * @return
-	 */
-	protected boolean scopeMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getScope() == null;
-		if (!check) {
-			Log.warn("scope must be null.");
+			Log.warn(AccessTokenRequest.TERMINAL_ID + " must not be null");
 		}
 		return check;
 	}

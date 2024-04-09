@@ -24,12 +24,12 @@ import com.azure.security.keyvault.keys.models.KeyVaultKey;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.bean.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
 import it.pagopa.swclient.mil.auth.bean.KeyUse;
 import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.bean.PublicKeys;
-import it.pagopa.swclient.mil.auth.service.KeyFinder;
+import it.pagopa.swclient.mil.auth.service.crypto.KeyFinder;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -38,6 +38,7 @@ import mutiny.zero.flow.adapters.AdaptersToFlow;
 import reactor.core.publisher.Mono;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @ApplicationScoped
@@ -94,9 +95,9 @@ public class AzureKeyFinder implements KeyFinder {
 			&& key.getKeyType().equals(com.azure.security.keyvault.keys.models.KeyType.RSA)
 			&& key.getKeyOperations().containsAll(Arrays.asList(KeyOperation.SIGN, KeyOperation.VERIFY));
 		if (isValid) {
-			Log.debugf("Key [%s/%s] is valid.", key.getName(), props.getVersion());
+			Log.debugf("Key [%s/%s] is valid", key.getName(), props.getVersion());
 		} else {
-			Log.warnf("Key [%s/%s] is not valid.", key.getName(), props.getVersion());
+			Log.warnf("Key [%s/%s] is not valid", key.getName(), props.getVersion());
 		}
 		return isValid;
 	}
@@ -112,7 +113,7 @@ public class AzureKeyFinder implements KeyFinder {
 		KeyProperties props = key.getProperties();
 		return new PublicKey(
 			jwk.getE(),
-			KeyUse.sig,
+			KeyUse.SIG,
 			props.getName() + "/" + props.getVersion(),
 			jwk.getN(),
 			KeyType.RSA,
@@ -127,22 +128,21 @@ public class AzureKeyFinder implements KeyFinder {
 	 */
 	@Override
 	public Uni<PublicKeys> findPublicKeys() {
-		Log.debug("Search for valid keys.");
+		Log.debug("Search for valid keys");
 
 		try {
 			Mono<PublicKeys> publicKeys = keyClient.listPropertiesOfKeys()
 				.flatMap(keyProperties -> {
-					Log.debugf("Search for versions of key [%s].", keyProperties.getName());
+					Log.debugf("Search for versions of key [%s]", keyProperties.getName());
 					return keyClient.listPropertiesOfKeyVersions(keyProperties.getName());
 				})
 				.flatMap(keyProperties -> {
-					Log.debugf("Search for details of key [%s/%s].", keyProperties.getName(), keyProperties.getVersion());
+					Log.debugf("Search for details of key [%s/%s]", keyProperties.getName(), keyProperties.getVersion());
 					return keyClient.getKey(keyProperties.getName(), keyProperties.getVersion());
 				})
 				.onErrorMap(t -> {
-					String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_000);
-					Log.errorf(t, message);
-					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE_POF_000, message);
+					Log.errorf(t, AuthErrorCode.ERROR_RETRIEVING_KEYS_DATA_MSG);
+					return new AuthError(AuthErrorCode.ERROR_RETRIEVING_KEYS_DATA, AuthErrorCode.ERROR_RETRIEVING_KEYS_DATA_MSG);
 				})
 				.filter(this::isValid)
 				.map(this::toPublicKey)
@@ -159,9 +159,8 @@ public class AzureKeyFinder implements KeyFinder {
 
 			return Uni.createFrom().publisher(AdaptersToFlow.publisher(publicKeys));
 		} catch (HttpResponseException e) {
-			String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_001);
-			Log.errorf(e, message);
-			return UniGenerator.error(AuthErrorCode.ERROR_FROM_AZURE_POF_001, message);
+			Log.errorf(e, AuthErrorCode.EXCEPTION_RETRIEVING_KEYS_DATA_MSG);
+			return UniGenerator.error(AuthErrorCode.EXCEPTION_RETRIEVING_KEYS_DATA, AuthErrorCode.EXCEPTION_RETRIEVING_KEYS_DATA_MSG);
 		}
 	}
 
@@ -172,7 +171,7 @@ public class AzureKeyFinder implements KeyFinder {
 	 */
 	private Uni<PublicKey> createKey() {
 		String keyName = UUID.randomUUID().toString().replace("-", "");
-		Log.debugf("Create new key [%s].", keyName);
+		Log.debugf("Create new key [%s]", keyName);
 
 		OffsetDateTime now = OffsetDateTime.now();
 
@@ -187,17 +186,15 @@ public class AzureKeyFinder implements KeyFinder {
 		try {
 			Mono<PublicKey> publicKey = keyClient.createRsaKey(createRsaKeyOptions)
 				.onErrorMap(t -> {
-					String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_002);
-					Log.errorf(t, message);
-					return new AuthError(AuthErrorCode.ERROR_FROM_AZURE_POF_002, message);
+					Log.errorf(t, AuthErrorCode.ERROR_CREATING_RSA_KEY_MSG);
+					return new AuthError(AuthErrorCode.ERROR_CREATING_RSA_KEY, AuthErrorCode.ERROR_CREATING_RSA_KEY_MSG);
 				})
 				.map(this::toPublicKey);
 
 			return Uni.createFrom().publisher(AdaptersToFlow.publisher(publicKey));
 		} catch (HttpResponseException | NullPointerException e) {
-			String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_003);
-			Log.errorf(e, message);
-			return UniGenerator.error(AuthErrorCode.ERROR_FROM_AZURE_POF_003, message);
+			Log.errorf(e, AuthErrorCode.EXCEPTION_CREATING_RSA_KEY_MSG);
+			return UniGenerator.error(AuthErrorCode.EXCEPTION_CREATING_RSA_KEY, AuthErrorCode.EXCEPTION_CREATING_RSA_KEY_MSG);
 		}
 	}
 
@@ -208,7 +205,7 @@ public class AzureKeyFinder implements KeyFinder {
 	 * @return
 	 */
 	Uni<PublicKey> findPublicKey() {
-		Log.debug("Search for valid key with greatest expiration.");
+		Log.debug("Search for valid key with greatest expiration");
 		return findPublicKeys()
 			.chain(publicKeys -> {
 				List<PublicKey> keys = publicKeys.getKeys();
@@ -216,14 +213,14 @@ public class AzureKeyFinder implements KeyFinder {
 					/*
 					 * There are no valid key.
 					 */
-					Log.debug("There are no valid key.");
+					Log.debug("There are no valid key");
 					return createKey();
 				} else {
 					/*
 					 * If there are valid keys, return the first (the list is desc sorted).
 					 */
 					PublicKey key = keys.get(0);
-					Log.debugf("Valid key found [%s].", key.getKid());
+					Log.infof("Valid key found [%s]", key.getKid());
 					return UniGenerator.item(key);
 				}
 			});
@@ -237,38 +234,36 @@ public class AzureKeyFinder implements KeyFinder {
 	 */
 	@Override
 	public Uni<Optional<PublicKey>> findPublicKey(String kid) {
-		Log.debugf("Search for the public key [%s].", kid);
+		Log.debugf("Search for the public key [%s]", kid);
 		String[] kidParts = kid.split("/");
 
 		if (kidParts.length == 2) {
 			try {
 				Mono<Optional<PublicKey>> publicKey = keyClient.getKey(kidParts[0], kidParts[1])
 					.onErrorMap(t -> {
-						String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_004);
-						Log.errorf(t, message);
-						return new AuthError(AuthErrorCode.ERROR_FROM_AZURE_POF_005, message);
+						Log.errorf(t, AuthErrorCode.ERROR_RETRIEVING_KEY_MSG);
+						return new AuthError(AuthErrorCode.ERROR_RETRIEVING_KEY, AuthErrorCode.ERROR_RETRIEVING_KEY_MSG);
 					})
 					.map(key -> {
 						if (isValid(key)) {
-							Log.debug("Key found.");
+							Log.debug("Key found");
 							return Optional.of(toPublicKey(key));
 						} else {
-							Log.warnf("Key found but not valid [%s].", kid);
+							Log.warnf("Key found but not valid [%s]", kid);
 							return Optional.empty();
 						}
 					});
 
 				return Uni.createFrom().publisher(AdaptersToFlow.publisher(publicKey));
 			} catch (ResourceNotFoundException e) {
-				Log.warnf(e, "Key not found [%s].", kid);
+				Log.warnf(e, "Key not found [%s]", kid);
 				return UniGenerator.item(Optional.empty());
 			} catch (HttpResponseException e) {
-				String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_005);
-				Log.errorf(e, message);
-				return UniGenerator.error(AuthErrorCode.ERROR_FROM_AZURE_POF_005, message);
+				Log.errorf(e, AuthErrorCode.EXCEPTION_RETRIEVING_KEY_MSG);
+				return UniGenerator.error(AuthErrorCode.EXCEPTION_RETRIEVING_KEY, AuthErrorCode.EXCEPTION_RETRIEVING_KEY_MSG);
 			}
 		} else {
-			Log.warnf("Invalid kid [%s].", kid);
+			Log.warnf("Invalid kid [%s]", kid);
 			return UniGenerator.item(Optional.empty());
 		}
 	}

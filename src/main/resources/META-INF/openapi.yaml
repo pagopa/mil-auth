@@ -511,7 +511,7 @@ components:
       description: User tax code (a.k.a. fiscal code)
       type: string
       pattern: "^(([A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z])|(\\d{11}))$"
-      minLength: 16
+      minLength: 11
       maxLength: 16
       example: "RSSMRA85T10A562S"
 
@@ -672,16 +672,16 @@ components:
       type: object
       additionalProperties: false
       properties:
-        errorCode:
+        code:
           $ref: '#/components/schemas/ErrorCode'
-        errorDescription:
+        description:
           $ref: '#/components/schemas/ErrorDescription'
       required:
-        - errorCode
-        - errorDescription
+        - code
+        - description
       example:
-        errorCode: "001000001"
-        errorDescription: "Generic error"
+        code: "009000001"
+        description: "Generic error"
 
     Errors:
       description: Errors list
@@ -698,10 +698,10 @@ components:
         - errors
       example:
         errors:
-          - errorCode: "00000000A"
-            errorDescription: "Generic error"
-          - errorCode: "001000001"
-            errorDescription: "Unexpected error from server"
+          - code: "00000000A"
+            description: "Generic error"
+          - code: "001000001"
+            description: "Unexpected error from server"
 
     Keys:
       description: Keys

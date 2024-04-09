@@ -14,8 +14,8 @@ import org.jboss.logging.MDC;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.service.KeyFinder;
+import it.pagopa.swclient.mil.auth.bean.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.service.crypto.KeyFinder;
 import it.pagopa.swclient.mil.bean.Errors;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;

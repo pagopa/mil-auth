@@ -7,9 +7,11 @@ package it.pagopa.swclient.mil.auth.service;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenResponse;
+import it.pagopa.swclient.mil.auth.qualifier.grant.ClientCredentials;
+import it.pagopa.swclient.mil.auth.service.crypto.TokenSigner;
+import it.pagopa.swclient.mil.auth.service.role.RolesFinder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -43,7 +45,7 @@ public class TokenByClientSecretService extends TokenService {
 	 * @return
 	 */
 	@Override
-	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
+	public Uni<AccessTokenResponse> process(AccessTokenRequest getAccessToken) {
 		Log.debugf("Generation of the token by client secret.");
 		return super.process(getAccessToken);
 	}

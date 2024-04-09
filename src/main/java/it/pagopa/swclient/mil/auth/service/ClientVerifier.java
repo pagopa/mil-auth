@@ -11,8 +11,9 @@ import java.util.Objects;
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.bean.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.Client;
+import it.pagopa.swclient.mil.auth.service.client.ClientsRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
@@ -130,7 +131,7 @@ public class ClientVerifier {
 	 * @return
 	 */
 	public Uni<Client> verify(String clientId, String channel, String secret) {
-		return findClient(clientId)
+		return getClient(clientId)
 			.map(e -> verifyChannel(e, channel))
 			.map(e -> verifySecret(e, secret));
 	}

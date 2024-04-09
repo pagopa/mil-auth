@@ -1,9 +1,9 @@
 /*
- * RefreshToken.java
+ * ClientCredentials.java
  *
  * 16 mag 2023
  */
-package it.pagopa.swclient.mil.auth.qualifier;
+package it.pagopa.swclient.mil.auth.qualifier.grant;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,5 +22,5 @@ import jakarta.inject.Qualifier;
 @Target({
 	ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER
 })
-public @interface RefreshToken {
+public @interface ClientCredentials {
 }

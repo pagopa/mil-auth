@@ -11,12 +11,12 @@ import java.util.Map;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
-import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
+import it.pagopa.swclient.mil.auth.qualifier.grant.ClientCredentials;
+import it.pagopa.swclient.mil.auth.qualifier.grant.RefreshToken;
 import it.pagopa.swclient.mil.auth.service.TokenService;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
@@ -79,7 +79,7 @@ public class TokenResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<GetAccessTokenResponse> createOrRefreshToken(@Valid @BeanParam GetAccessTokenRequest getAccessToken) {
+	public Uni<AccessTokenResponse> createOrRefreshToken(@Valid @BeanParam AccessTokenRequest getAccessToken) {
 		/*
 		 * If the flow reaches this point, the input is validated!
 		 */

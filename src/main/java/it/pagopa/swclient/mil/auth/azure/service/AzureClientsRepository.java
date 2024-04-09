@@ -1,14 +1,17 @@
 /*
+ * AzureClientsRepository.java
  * 
- * 
+ * 29 mar 2024
  */
 package it.pagopa.swclient.mil.auth.azure.service;
 
-import com.azure.storage.blob.BlobContainerAsyncClient;
-
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheResult;
+import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
-import it.pagopa.swclient.mil.auth.service.ClientsRepository;
+import it.pagopa.swclient.mil.auth.service.client.ClientsRepository;
+import it.pagopa.swclient.mil.auth.util.AuthException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -17,23 +20,32 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @ApplicationScoped
-public class AzureClientsRepository extends AzureBlobRepository implements ClientsRepository {
+public class AzureClientsRepository implements ClientsRepository {
+	/*
+	 * 
+	 */
+	private AzureBlobRepository repository;
+
 	/**
 	 * Constructor.
 	 * 
-	 * @param blobClient
+	 * @param repository
 	 */
 	@Inject
-	AzureClientsRepository(BlobContainerAsyncClient blobClient) {
-		super(blobClient);
+	AzureClientsRepository(AzureBlobRepository repository) {
+		this.repository = repository;
 	}
 
 	/**
-	 * 
+	 * @see it.pagopa.swclient.mil.auth.service.client.ClientsRepository#getClient(String)
 	 */
 	@Override
-	public Uni<Client> getClient(String clientId) {
+	@CacheResult(cacheName = "clients-cache")
+	public Uni<Client> getClient(@CacheKey String clientId) {
 		String fileName = String.format("clients/%s.json", clientId);
-		return getFile(fileName, Client.class);
+		return repository.getFile(fileName, Client.class)
+			.onItem().invoke(client -> Log.infof("Client [%s] found: [%s]", clientId, client))
+			.onFailure(AuthException.class).invoke(t -> Log.warnf(t, "Exception searching for client [%s]", clientId))
+			.onFailure(t -> !(t instanceof AuthException)).invoke(t -> Log.errorf(t, "Error searching for client [%s]", clientId));
 	}
 }

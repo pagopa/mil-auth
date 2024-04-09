@@ -5,72 +5,57 @@
  */
 package it.pagopa.swclient.mil.auth.validation.constraints;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import io.quarkus.logging.Log;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
-public class Validator implements ConstraintValidator<ValidationTarget, GetAccessTokenRequest> {
+public class Validator implements ConstraintValidator<ValidationTarget, AccessTokenRequest> {
 	/*
 	 *
 	 */
-	private static final Map<String, Verifier> VALIDATORS = new HashMap<>();
+	private static final Map<GrantType, Verifier> VALIDATORS = new EnumMap<>(GrantType.class);
 
 	static {
-		VALIDATORS.put(GrantType.REFRESH_TOKEN + "/" + Channel.POS, new Verifier() {
+		VALIDATORS.put(GrantType.REFRESH_TOKEN, new Verifier() {
 			@Override
-			public boolean test(GetAccessTokenRequest getAccessToken) {
-				return acquirerIdMustNotBeNull(getAccessToken)
-					&& merchantIdMustNotBeNull(getAccessToken)
-					&& terminalIdMustNotBeNull(getAccessToken)
-					&& clientSecretMustBeNull(getAccessToken)
-					&& refreshTokenMustNotBeNull(getAccessToken)
-					&& scopeMustBeNull(getAccessToken);
+			public boolean test(AccessTokenRequest accessTokenRequest) {
+				return bankIdMustBeNull(accessTokenRequest)
+					&& clientSecretMustBeNull(accessTokenRequest)
+					&& deviceCodeMustBeNull(accessTokenRequest)
+					&& refreshTokenMustNotBeNull(accessTokenRequest)
+					&& terminalIdMustBeNull(accessTokenRequest);
 			}
 
 		});
 
-		VALIDATORS.put(GrantType.CLIENT_CREDENTIALS + "/" + Channel.ATM, new Verifier() {
+		VALIDATORS.put(GrantType.DEVICE_CODE, new Verifier() {
 			@Override
-			public boolean test(GetAccessTokenRequest getAccessToken) {
-				return acquirerIdMustNotBeNull(getAccessToken)
-					&& merchantIdMustBeNull(getAccessToken)
-					&& terminalIdMustNotBeNull(getAccessToken)
-					&& clientSecretMustNotBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
-					&& scopeMustBeNull(getAccessToken);
+			public boolean test(AccessTokenRequest accessTokenRequest) {
+				return bankIdMustBeNull(accessTokenRequest)
+					&& clientSecretMustBeNull(accessTokenRequest)
+					&& deviceCodeMustNotBeNull(accessTokenRequest)
+					&& refreshTokenMustBeNull(accessTokenRequest)
+					&& terminalIdMustBeNull(accessTokenRequest);
 			}
 		});
 
-		VALIDATORS.put(GrantType.CLIENT_CREDENTIALS + "/" + Channel.POS, new Verifier() {
+		VALIDATORS.put(GrantType.CLIENT_CREDENTIALS, new Verifier() {
 			@Override
-			public boolean test(GetAccessTokenRequest getAccessToken) {
-				return acquirerIdMustNotBeNull(getAccessToken)
-					&& merchantIdMustNotBeNull(getAccessToken)
-					&& terminalIdMustNotBeNull(getAccessToken)
-					&& clientSecretMustNotBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
-					&& scopeMustBeNull(getAccessToken);
-			}
-		});
-
-		VALIDATORS.put(GrantType.CLIENT_CREDENTIALS + "/null", new Verifier() {
-			@Override
-			public boolean test(GetAccessTokenRequest getAccessToken) {
-				return acquirerIdMustBeNull(getAccessToken)
-					&& merchantIdMustBeNull(getAccessToken)
-					&& terminalIdMustBeNull(getAccessToken)
-					&& clientSecretMustNotBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
-					&& scopeMustBeNull(getAccessToken);
+			public boolean test(AccessTokenRequest accessTokenRequest) {
+				return clientSecretMustNotBeNull(accessTokenRequest)
+					&& deviceCodeMustBeNull(accessTokenRequest)
+					&& refreshTokenMustBeNull(accessTokenRequest)
+					&& ((bankIdMustBeNull(accessTokenRequest) && terminalIdMustBeNull(accessTokenRequest))
+						|| (bankIdMustNotBeNull(accessTokenRequest) && terminalIdMustNotBeNull(accessTokenRequest)));
 			}
 		});
 	}
@@ -79,13 +64,13 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 	 * @see jakarta.validation.ConstraintValidator#isValid(Object, ConstraintValidatorContext)
 	 */
 	@Override
-	public boolean isValid(GetAccessTokenRequest getAccessToken, ConstraintValidatorContext context) {
-		return VALIDATORS.getOrDefault(getAccessToken.getGrantType() + "/" + getAccessToken.getChannel(), new Verifier() {
+	public boolean isValid(AccessTokenRequest accessTokenRequest, ConstraintValidatorContext context) {
+		return VALIDATORS.getOrDefault(accessTokenRequest.getGrantType(), new Verifier() {
 			@Override
-			public boolean test(GetAccessTokenRequest t) {
-				Log.warn("Default validator in use.");
+			public boolean test(AccessTokenRequest t) {
+				Log.warn("Default validator in use");
 				return false;
 			}
-		}).test(getAccessToken);
+		}).test(accessTokenRequest);
 	}
 }

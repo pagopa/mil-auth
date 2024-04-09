@@ -3,7 +3,7 @@
  *
  * 26 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.service;
+package it.pagopa.swclient.mil.auth.azure.producer;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -11,6 +11,8 @@ import com.azure.identity.ManagedIdentityCredentialBuilder;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 
+import io.quarkus.arc.DefaultBean;
+import io.quarkus.arc.profile.IfBuildProfile;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 
@@ -39,7 +41,21 @@ public class BlobContainerAsyncClientProducer {
 	 * @return
 	 */
 	@Produces
+	@DefaultBean
 	public BlobContainerAsyncClient createInstance() {
+		return new BlobContainerClientBuilder()
+			.endpoint(blobUrl)
+			.credential(new ManagedIdentityCredentialBuilder().build())
+			.buildAsyncClient();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	@Produces
+	@IfBuildProfile("dev")
+	public BlobContainerAsyncClient createInstanceForDev() {
 		return new BlobContainerClientBuilder()
 			.endpoint(blobUrl)
 			.credential(new ManagedIdentityCredentialBuilder().build())

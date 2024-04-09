@@ -13,28 +13,36 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class OpenIdConf {
+	/*
+	 * 
+	 */
+	public static final String ISSUER = "issuer";
+	public static final String TOKEN_ENDPOINT = "token_endpoint";
+	public static final String JWKS_URI = "jwks_uri";
+	
 	/*
 	 * issuer
 	 */
-	@JsonProperty(JsonPropertyName.ISSUER)
+	@JsonProperty(ISSUER)
 	private String issuer;
 
 	/*
 	 * token_endpoint
 	 */
-	@JsonProperty(JsonPropertyName.TOKEN_ENDPOINT)
+	@JsonProperty(TOKEN_ENDPOINT)
 	private String tokenEndpoint;
 
 	/*
 	 * jwks_uri
 	 */
-	@JsonProperty(JsonPropertyName.JWKS_URI)
+	@JsonProperty(JWKS_URI)
 	private String jwksUri;
 }

@@ -3,7 +3,7 @@
  *
  * 26 mar 2024
  */
-package it.pagopa.swclient.mil.auth.azure.service;
+package it.pagopa.swclient.mil.auth.azure.producer;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -11,6 +11,8 @@ import com.azure.identity.ManagedIdentityCredentialBuilder;
 import com.azure.security.keyvault.keys.KeyAsyncClient;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
 
+import io.quarkus.arc.DefaultBean;
+import io.quarkus.arc.profile.IfBuildProfile;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 
@@ -39,7 +41,21 @@ public class KeyAsyncClientProduder {
 	 * @return
 	 */
 	@Produces
+	@DefaultBean
 	public KeyAsyncClient createInstance() {
+		return new KeyClientBuilder()
+			.vaultUrl(vaultUrl)
+			.credential(new ManagedIdentityCredentialBuilder().build())
+			.buildAsyncClient();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	@Produces
+	@IfBuildProfile("dev")
+	public KeyAsyncClient createInstanceForDev() {
 		return new KeyClientBuilder()
 			.vaultUrl(vaultUrl)
 			.credential(new ManagedIdentityCredentialBuilder().build())

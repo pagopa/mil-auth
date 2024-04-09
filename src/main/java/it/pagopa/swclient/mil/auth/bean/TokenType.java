@@ -6,6 +6,7 @@
 package it.pagopa.swclient.mil.auth.bean;
 
 /**
+ * 
  * @author antonio.tarricone
  */
 public class TokenType {

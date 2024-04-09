@@ -42,6 +42,7 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
+import it.pagopa.swclient.mil.auth.azure.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;

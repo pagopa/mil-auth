@@ -1,18 +1,23 @@
 /*
+ * AzureBlobRepository.java
  * 
- * 
+ * 29 mar 2024
  */
 package it.pagopa.swclient.mil.auth.azure.service;
 
 import com.azure.core.util.BinaryData;
+import com.azure.storage.blob.BlobAsyncClient;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.bean.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.util.AuthError;
+import it.pagopa.swclient.mil.auth.util.AuthException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import mutiny.zero.flow.adapters.AdaptersToFlow;
 import reactor.core.publisher.Mono;
 
@@ -20,11 +25,12 @@ import reactor.core.publisher.Mono;
  * 
  * @author Antonio Tarricone
  */
+@ApplicationScoped
 public class AzureBlobRepository {
 	/*
 	 * Azure Storage Containter BLOB client.
 	 */
-	private BlobContainerAsyncClient blobClient;
+	private BlobContainerAsyncClient blobContainerClient;
 
 	/*
 	 * JSON -> Object
@@ -34,17 +40,12 @@ public class AzureBlobRepository {
 	/**
 	 * Constructor.
 	 * 
-	 * @param blobClient
+	 * @param blobContainerClient
 	 */
-	AzureBlobRepository(BlobContainerAsyncClient blobClient) {
-		this.blobClient = blobClient;
+	@Inject
+	AzureBlobRepository(BlobContainerAsyncClient blobContainerClient) {
+		this.blobContainerClient = blobContainerClient;
 		objMapper = new ObjectMapper();
-	}
-
-	/**
-	 * 
-	 */
-	AzureBlobRepository() {
 	}
 
 	/**
@@ -54,22 +55,30 @@ public class AzureBlobRepository {
 	 * @param clazz
 	 * @return
 	 */
-	protected <T> Uni<T> getFile(String fileName, Class<T> clazz) {
-		Mono<T> obj = blobClient.getBlobAsyncClient(fileName)
-			.downloadContent()
-			.onErrorMap(t -> {
-				String message = ErrorFromAzureMessage.get(AuthErrorCode.ERROR_FROM_AZURE_POF_00A);
-				Log.errorf(t, message);
-				return new AuthError(AuthErrorCode.ERROR_FROM_AZURE_POF_00A, message);
-			})
-			.map(BinaryData::toString)
-			.map(json -> {
-				try {
-					return objMapper.readValue(json, clazz);
-				} catch (JsonProcessingException e) {
-					String message = String.format("[%s] JSON deserialization error.", AuthErrorCode.CLIENT_DESERIALIZATION_ERROR);
-					Log.errorf(e, message);
-					throw new AuthError(AuthErrorCode.JSON_DESERIALIZATION_ERROR, message);
+	<T> Uni<T> getFile(String fileName, Class<T> clazz) {
+		Log.debugf("Get [%s]", fileName);
+		BlobAsyncClient blobClient = blobContainerClient.getBlobAsyncClient(fileName);
+		Mono<T> obj = blobClient.exists()
+			.flatMap(isExistent -> {
+				if (isExistent.equals(Boolean.FALSE)) {
+					Log.warnf(AuthErrorCode.ROLES_NOT_FOUND_MSG + " [%s]", fileName);
+					throw new AuthException(AuthErrorCode.ROLES_NOT_FOUND, AuthErrorCode.ROLES_NOT_FOUND_MSG);
+				} else {
+					return blobClient.downloadContent()
+						.onErrorMap(t -> {
+							Log.errorf(t, AuthErrorCode.ERROR_CREATING_BLOB_ASYNC_CLIENT_MSG);
+							return new AuthError(AuthErrorCode.ERROR_CREATING_BLOB_ASYNC_CLIENT, AuthErrorCode.ERROR_CREATING_BLOB_ASYNC_CLIENT_MSG);
+						})
+						.map(BinaryData::toString)
+						.map(json -> {
+							try {
+								Log.infof("Retrieved [%s]", fileName);
+								return objMapper.readValue(json, clazz);
+							} catch (JsonProcessingException e) {
+								Log.errorf(e, AuthErrorCode.JSON_DESERIALIZATION_ERROR_MSG);
+								throw new AuthError(AuthErrorCode.JSON_DESERIALIZATION_ERROR, AuthErrorCode.JSON_DESERIALIZATION_ERROR_MSG);
+							}
+						});
 				}
 			});
 

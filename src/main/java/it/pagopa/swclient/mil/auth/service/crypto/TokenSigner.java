@@ -3,7 +3,7 @@
  *
  * 7 ago 2023
  */
-package it.pagopa.swclient.mil.auth.service;
+package it.pagopa.swclient.mil.auth.service.crypto;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;

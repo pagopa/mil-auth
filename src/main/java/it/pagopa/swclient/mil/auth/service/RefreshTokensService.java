@@ -15,12 +15,14 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenResponse;
+import it.pagopa.swclient.mil.auth.bean.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.bean.Scope;
-import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
+import it.pagopa.swclient.mil.auth.dto.Scope;
+import it.pagopa.swclient.mil.auth.qualifier.grant.RefreshToken;
+import it.pagopa.swclient.mil.auth.service.crypto.TokenSigner;
+import it.pagopa.swclient.mil.auth.service.role.RolesFinder;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -173,7 +175,7 @@ public class RefreshTokensService extends TokenService {
 	 * @return
 	 */
 	@Override
-	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
+	public Uni<AccessTokenResponse> process(AccessTokenRequest getAccessToken) {
 		Log.debug("Tokens refreshing.");
 		return verify(getAccessToken.getRefreshToken())
 			.chain(() -> super.process(getAccessToken));

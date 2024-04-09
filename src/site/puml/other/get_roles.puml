@@ -8,13 +8,29 @@ group get roles
 	end note
 	
 	alt //<channel>// == POS_SERVICE_PROVIDER
+		note left mil_auth
+			//<service provider id>// = //<subject id>//
+		end note
+		
 		mil_auth -> azure_st ++ : GET //<storage account base url>///pos_service_providers///<service provider id>//.json
 	else //<channel>// == PUBLIC_ADMINISTRATION
+		note left mil_auth
+			//<payee code>// = //<subject id>//
+		end note
+		
 		mil_auth -> azure_st : GET //<storage account base url>///public_administrations///<payee code>//.json
 	else //<channel>// == MIL
+		note left mil_auth
+			//<microservice>// = //<subject id>//
+		end note
+		
 		mil_auth -> azure_st : GET //<storage account base url>///mil_services///<microservice>//.json
 	else //<channel>// == SERVER
-		mil_auth -> azure_st : GET //<storage account base url>///servers/<client id>.json
+		note left mil_auth
+			//<client id>// = //<subject id>//
+		end note
+		
+		mil_auth -> azure_st : GET //<storage account base url>///servers///<client id>//.json
 	end
 
 	azure_st --> mil_auth -- : HTTP 200 (ok)

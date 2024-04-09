@@ -1,9 +1,9 @@
 /*
- * AuthClientsRepository.java
+ * ClientsRepository.java
  *
  * 29 mar 2023
  */
-package it.pagopa.swclient.mil.auth.service;
+package it.pagopa.swclient.mil.auth.service.client;
 
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;

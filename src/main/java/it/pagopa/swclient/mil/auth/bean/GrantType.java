@@ -5,13 +5,19 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
+ * 
  * @author Antonio Tarricone
  */
-public class GrantType {
-	public static final String REFRESH_TOKEN = "refresh_token";
-	public static final String CLIENT_CREDENTIALS = "client_credentials";
+public enum GrantType {
+	@JsonProperty("refresh_token")
+	REFRESH_TOKEN,
 
-	private GrantType() {
-	}
+	@JsonProperty("client_credentials")
+	CLIENT_CREDENTIALS,
+
+	@JsonProperty("device_code")
+	DEVICE_CODE
 }

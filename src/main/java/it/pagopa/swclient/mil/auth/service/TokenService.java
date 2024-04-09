@@ -16,11 +16,13 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenRequest;
+import it.pagopa.swclient.mil.auth.bean.AccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.bean.Scope;
+import it.pagopa.swclient.mil.auth.dto.Scope;
+import it.pagopa.swclient.mil.auth.service.crypto.TokenSigner;
+import it.pagopa.swclient.mil.auth.service.role.RolesFinder;
 
 /**
  * This class generates access token string and refresh token string if any and signs them.
@@ -109,7 +111,7 @@ public abstract class TokenService {
 	 * @param scopes
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes) {
+	private Uni<String> generate(AccessTokenRequest request, long duration, List<String> roles, List<String> scopes) {
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
 			.subject(request.getClientId())
@@ -137,7 +139,7 @@ public abstract class TokenService {
 	 * @param roles
 	 * @return
 	 */
-	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest request, List<String> roles) {
+	private Uni<AccessTokenResponse> generateToken(AccessTokenRequest request, List<String> roles) {
 		Log.debug("Access token generation.");
 		if (Objects.equals(request.getScope(), Scope.OFFLINE_ACCESS) || request.getGrantType().equals(GrantType.REFRESH_TOKEN)) {
 			/*
@@ -147,14 +149,14 @@ public abstract class TokenService {
 				.chain(accessToken -> {
 					Log.debug("Refresh token generation.");
 					return generate(request, refreshDuration, null, List.of(Scope.OFFLINE_ACCESS))
-						.map(refreshToken -> new GetAccessTokenResponse(accessToken, refreshToken, accessDuration));
+						.map(refreshToken -> new AccessTokenResponse(accessToken, refreshToken, accessDuration));
 				});
 		} else {
 			/*
 			 * Without refresh token.
 			 */
 			return generate(request, accessDuration, roles, null)
-				.map(accessToken -> new GetAccessTokenResponse(accessToken, null, accessDuration));
+				.map(accessToken -> new AccessTokenResponse(accessToken, null, accessDuration));
 		}
 	}
 
@@ -164,7 +166,7 @@ public abstract class TokenService {
 	 * @param request
 	 * @return
 	 */
-	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest request) {
+	public Uni<AccessTokenResponse> process(AccessTokenRequest request) {
 		return clientVerifier.verify(request.getClientId(), request.getChannel(), request.getClientSecret())
 			.chain(() -> rolesFinder.findRoles(request.getAcquirerId(), request.getChannel(), request.getClientId(), request.getMerchantId(), request.getTerminalId()))
 			.chain(roleEntity -> generateToken(request, roleEntity.getRoles()));
