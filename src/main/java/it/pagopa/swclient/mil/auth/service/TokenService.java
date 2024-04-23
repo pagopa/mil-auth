@@ -149,7 +149,7 @@ public abstract class TokenService {
 				.chain(accessToken -> {
 					Log.debug("Refresh token generation.");
 					return generate(request, refreshDuration, null, List.of(Scope.OFFLINE_ACCESS))
-						.map(refreshToken -> new AccessTokenResponse(accessToken, refreshToken, accessDuration));
+						.map(refreshToken -> new AccessToken(accessToken, refreshToken, accessDuration));
 				});
 		} else {
 			/*

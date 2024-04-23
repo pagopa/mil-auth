@@ -188,7 +188,7 @@ public class ClientCredentialsGrantFlow {
 	private Uni<String> generateAccessToken(Client client, Roles roles, AccessTokenRequest accessTokenRequest) {
 		Date now = new Date();
 		Channel channel = client.getChannel();
-		
+
 		JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
 			.issueTime(now)
 			.issuer(baseUrl)
@@ -196,45 +196,112 @@ public class ClientCredentialsGrantFlow {
 			.expirationTime(new Date(now.getTime() + duration * 1000))
 			.claim(ClaimName.CHANNEL, client.getChannel())
 			.claim(ClaimName.GROUPS, roles.getListOfRoles());
-			
-		String subject = null;	
+
+		String subject = null;
 		if (channel.equals(Channel.ATM)) {
-				String bankId = accessTokenRequest.getBankId();
-				String terminalId = accessTokenRequest.getTerminalId();
-				subject = bankId+terminalId;
-				builder.claim(ClaimName.BANK_ID, bankId);
-				builder.claim(ClaimName.TERMINAL_ID, terminalId);
-				// TODO: builder.claim(ClaimName.USER_CODE_TOKEN, userCodeToken);
-			} else {
-				subject = client.getSub();
-			}
+			String bankId = accessTokenRequest.getBankId();
+			String terminalId = accessTokenRequest.getTerminalId();
+			subject = bankId + terminalId;
+			builder.claim(ClaimName.BANK_ID, bankId);
+			builder.claim(ClaimName.TERMINAL_ID, terminalId);
+			// TODO: builder.claim(ClaimName.USER_CODE_TOKEN, userCodeToken);
+		} else {
+			subject = client.getSub();
+		}
 		builder.subject(subject);
-			
-		JWTClaimsSet payload= builder.build();
+
+		JWTClaimsSet payload = builder.build();
 		Log.debug("Token signing.");
 		return tokenSigner.sign(payload).map(SignedJWT::serialize);
 	}
 
+/**
+ * 
+ * @param clientId
+ * @return
+ */
+	protected Uni<Client> retrieveClient(String clientId) {
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param client
+	 * @throws AuthException
+	 */
+	protected void verifyClientExpiration(Client client) throws AuthException, AuthError {
+
+	}
+
+	/**
+	 * 
+	 * @param accessTokenRequest
+	 * @param client
+	 * @throws AuthException
+	 */
+	protected void verifyRequestConsistency(AccessTokenRequest accessTokenRequest, Client client) throws AuthException, AuthError {
+
+	}
+	
+	/**
+	 * 
+	 * @param accessTokenRequest
+	 * @param client
+	 * @throws AuthException
+	 * @throws AuthError
+	 */
+	protected void verifySecret(AccessTokenRequest accessTokenRequest, Client client) throws AuthException, AuthError {
+		
+	}
+	
+	protected void generateTokenPayload() {
+		Date now = new Date();
+		return new JWTClaimsSet.Builder()
+			.issueTime(now)
+			.issuer(baseUrl)
+			.audience(audience)
+			.expirationTime(new Date(now.getTime() + duration * 1000))
+			.claim(ClaimName.CHANNEL, client.getChannel())
+			.claim(ClaimName.GROUPS, roles.getListOfRoles());
+	}
+	
+	/**
+	 * 
+	 * @param accessTokenRequest
+	 * @return
+	 * @throws AuthException
+	 * @throws AuthError
+	 */
+	protected Uni<Roles> retrieveRoles(AccessTokenRequest accessTokenRequest, Client client) {
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param accessTokenRequest
+	 * @return
+	 */
+	protected Uni<String> protectUserTaxCode(AccessTokenRequest accessTokenRequest) {
+		return null;
+	}
+	
 	public void process(AccessTokenRequest accessTokenRequest) {
-		AccessTokenBundle bundle = new AccessTokenBundle()
-			.setAccessTokenRequest(accessTokenRequest);
-		
-		
-		retrieveClient()
-			.map(this::verifyClientExpiration)
-			.map(this::verifyRequestConsistency)
-			.map(this::verifySecret)
-			.map(this::retrieveRoles)
-			.map(this::generateTokenPayload)
-			.map(this::retrieveKey)
-			.map(this::signToken)
-			.map(AccessTokenBundle::getAccessTokenResponse);
-			
-		
+		final String clientKey = "client";
+		final String rolesKey = "roles";
 		Context ctx = Context.of();
-		verifyClient(accessTokenRequest.getClientId(), accessTokenRequest.getClientSecret())
-			.invoke(client -> ctx.put("client", client))
-			.chain(client -> rolesFinder.getRoles(client, accessTokenRequest));
+		retrieveClient(accessTokenRequest.getClientId())
+			.invoke(this::verifyClientExpiration)
+			.invoke(client -> verifyRequestConsistency(accessTokenRequest, client))
+			.invoke(client -> verifySecret(accessTokenRequest, client))
+			.invoke(client -> ctx.put(clientKey, client))
+			.chain(client -> retrieveRoles(accessTokenRequest, client))
+			.invoke(roles -> ctx.put(rolesKey, roles))
+			.chain(() -> protectUserTaxCode(accessTokenRequest))
+			.map(this::generateTokenPayload)
+			
+			.map(this::retrieveKey)
+			.map(this::signToken);
+
 
 	}
 
