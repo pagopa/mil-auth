@@ -264,3 +264,19 @@ jobs:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
             az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}
+      
+      - name: Update OpenAPI 
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          API_DATA=$(az apim api show --resource-group mil-d-integration-rg --service-name mil-d-apim --api-id mil-d-terminal-registry --query "{path:path, serviceUrl:serviceUrl}")
+          API_PATH=$(echo $API_DATA | jq -r '.path')
+          API_SERVICE_URL=$(echo $API_DATA | jq -r '.serviceUrl') 
+
+          az apim api import \
+              --resource-group mil-d-integration-rg \
+              --service-name mil-d-apim \
+              --api-id mil-d-terminal-registry \
+              --specification-format OpenApi \
+              --specification-url https://raw.githubusercontent.com/pagopa/mil-terminal-registry/main/src/main/resources/META-INF/openapi.yaml \
+              --path $API_PATH \
+              --service-url $API_SERVICE_URL
