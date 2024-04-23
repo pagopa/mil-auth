@@ -268,14 +268,14 @@ jobs:
       - name: Update OpenAPI 
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
-          API_DATA=$(az apim api show --resource-group mil-d-integration-rg --service-name mil-d-apim --api-id mil-d-terminal-registry --query "{path:path, serviceUrl:serviceUrl}")
+          API_DATA=$(az apim api show --resource-group mil-d-integration-rg --service-name mil-d-apim --api-id mil-d-auth --query "{path:path, serviceUrl:serviceUrl}")
           API_PATH=$(echo $API_DATA | jq -r '.path')
           API_SERVICE_URL=$(echo $API_DATA | jq -r '.serviceUrl') 
 
           az apim api import \
               --resource-group mil-d-integration-rg \
               --service-name mil-d-apim \
-              --api-id mil-d-terminal-registry \
+              --api-id mil-d-auth \
               --specification-format OpenApi \
               --specification-url https://raw.githubusercontent.com/pagopa/mil-terminal-registry/main/src/main/resources/META-INF/openapi.yaml \
               --path $API_PATH \
