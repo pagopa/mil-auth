@@ -97,19 +97,18 @@ class RefreshTokensResourceTest {
 	 */
 	private static final long AZURE_TOKEN_DURATION = 3599;
 	private static final String AZURE_TOKEN = "this_is_the_token";
-	private static final String AUTHORIZATION_HDR_VALUE = TokenType.BEARER + " " + AZURE_TOKEN;
 
 	/*
 	 *
 	 */
 	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
 	String vaultBaseUrl;
-	
+
 	/*
 	 * 
 	 */
 	private String keyUrl;
-	
+
 	/*
 	 * 
 	 */
@@ -154,104 +153,104 @@ class RefreshTokensResourceTest {
 	void setup() {
 		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
 	}
-	
+
 	@Test
-    void testOk() throws InvalidKeySpecException, NoSuchAlgorithmException, JOSEException {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
+	void testOk() throws InvalidKeySpecException, NoSuchAlgorithmException, JOSEException {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-        
-        /*
-         * Azure key vault setup.
-         */
-        long now = Instant.now().getEpochSecond();
-        KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME, keyAttributes)
-                })));
+		/*
+		 * Azure key vault setup.
+		 */
+		long now = Instant.now().getEpochSecond();
+		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
 
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
-                })));
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+			})));
 
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+			})));
 
-        when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
-                .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
 
-        when(keyVaultClient.verifySignature(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(VerifySignatureRequest.class)))
-                .thenReturn(UniGenerator.item(new VerifySignatureResponse(Boolean.TRUE)));
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
 
-        /*
-         * Refresh token.
-         */
-        JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, KID, true, null, null);
+		when(keyVaultClient.verifySignature(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(VerifySignatureRequest.class)))
+			.thenReturn(UniGenerator.item(new VerifySignatureResponse(Boolean.TRUE)));
 
-        JWTClaimsSet payload = new JWTClaimsSet.Builder()
-                .subject(CLIENT_ID)
-                .issueTime(new Date(now * 1000))
-                .expirationTime(new Date((now + 15 * 60) * 1000))
-                .claim(ClaimName.ACQUIRER_ID, ACQUIRER_ID)
-                .claim(ClaimName.CHANNEL, Channel.POS)
-                .claim(ClaimName.MERCHANT_ID, MERCHANT_ID)
-                .claim(ClaimName.CLIENT_ID, CLIENT_ID)
-                .claim(ClaimName.TERMINAL_ID, TERMINAL_ID)
-                .claim(ClaimName.SCOPE, Scope.OFFLINE_ACCESS)
-                .claim(ClaimName.GROUPS, ROLES)
-                .build();
+		/*
+		 * Refresh token.
+		 */
+		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, KID, true, null, null);
 
-        SignedJWT refreshToken = new SignedJWT(header, payload);
+		JWTClaimsSet payload = new JWTClaimsSet.Builder()
+			.subject(CLIENT_ID)
+			.issueTime(new Date(now * 1000))
+			.expirationTime(new Date((now + 15 * 60) * 1000))
+			.claim(ClaimName.ACQUIRER_ID, ACQUIRER_ID)
+			.claim(ClaimName.CHANNEL, Channel.POS)
+			.claim(ClaimName.MERCHANT_ID, MERCHANT_ID)
+			.claim(ClaimName.CLIENT_ID, CLIENT_ID)
+			.claim(ClaimName.TERMINAL_ID, TERMINAL_ID)
+			.claim(ClaimName.SCOPE, Scope.OFFLINE_ACCESS)
+			.claim(ClaimName.GROUPS, ROLES)
+			.build();
 
-        PrivateKey privateKey = KeyFactory.getInstance("RSA")
-                .generatePrivate(new RSAPrivateKeySpec(
-                        new BigInteger(1, Base64.getUrlDecoder().decode(MODULUS)),
-                        new BigInteger(1, Base64.getUrlDecoder().decode(PRIVATE_EXPONENT))));
+		SignedJWT refreshToken = new SignedJWT(header, payload);
 
-        JWSSigner signer = new RSASSASigner(privateKey);
-        refreshToken.sign(signer);
-        String refreshTokenStr = refreshToken.serialize();
+		PrivateKey privateKey = KeyFactory.getInstance("RSA")
+			.generatePrivate(new RSAPrivateKeySpec(
+				new BigInteger(1, Base64.getUrlDecoder().decode(MODULUS)),
+				new BigInteger(1, Base64.getUrlDecoder().decode(PRIVATE_EXPONENT))));
 
-        /*
-         * Test
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-300000000000")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
-                .formParam(FormParamName.REFRESH_TOKEN, refreshTokenStr)
-                .when()
-                .post()
-                .then()
-                .statusCode(200)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
-                .body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
-                .body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-                .body(JsonPropertyName.REFRESH_TOKEN, notNullValue());
-    }
+		JWSSigner signer = new RSASSASigner(privateKey);
+		refreshToken.sign(signer);
+		String refreshTokenStr = refreshToken.serialize();
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-300000000000")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
+			.formParam(FormParamName.REFRESH_TOKEN, refreshTokenStr)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, notNullValue());
+	}
 
 	@Test
 	void testExceptionParsingRefreshToken() throws NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {

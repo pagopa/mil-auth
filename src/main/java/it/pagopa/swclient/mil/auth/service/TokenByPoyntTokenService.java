@@ -5,6 +5,7 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
@@ -19,6 +20,7 @@ import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
@@ -31,8 +33,39 @@ public class TokenByPoyntTokenService extends TokenService {
 	/*
 	 *
 	 */
-	@RestClient
-	PoyntClient poyntClient;
+	private PoyntClient poyntClient;
+
+	/**
+	 * 
+	 */
+	TokenByPoyntTokenService() {
+		super();
+	}
+	
+	/**
+	 * 
+	 * @param accessDuration
+	 * @param refreshDuration
+	 * @param baseUrl
+	 * @param audience
+	 * @param clientVerifier
+	 * @param roleFinder
+	 * @param tokenSigner
+	 * @param poyntClient
+	 */
+	@Inject
+	TokenByPoyntTokenService(
+		@ConfigProperty(name = "access.duration") long accessDuration,
+		@ConfigProperty(name = "refresh.duration") long refreshDuration,
+		@ConfigProperty(name = "base-url", defaultValue = "") String baseUrl,
+		@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it") String audience,
+		ClientVerifier clientVerifier,
+		RolesFinder roleFinder,
+		TokenSigner tokenSigner,
+		@RestClient PoyntClient poyntClient) {
+		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner);
+		this.poyntClient = poyntClient;
+	}
 
 	/**
 	 * This method verifies Poynt token.

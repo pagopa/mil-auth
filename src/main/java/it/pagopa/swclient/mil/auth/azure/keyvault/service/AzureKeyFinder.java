@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Context;
@@ -29,6 +30,7 @@ import it.pagopa.swclient.mil.auth.azure.keyvault.bean.GetKeysResponse;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyAttributes;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyDetails;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyNameAndVersion;
+import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.azure.keyvault.util.KidUtil;
 import it.pagopa.swclient.mil.auth.bean.KeyType;
 import it.pagopa.swclient.mil.auth.bean.KeyUse;
@@ -78,32 +80,49 @@ public class AzureKeyFinder implements KeyFinder {
 	/*
 	 *
 	 */
-	@Inject
-	AzureAuthService authService;
+	private AzureAuthService authService;
 
 	/*
 	 *
 	 */
-	@Inject
-	AzureKeyVaultService keyVaultService;
+	private AzureKeyVaultClient keyVaultService;
 
 	/*
 	 *
 	 */
-	@Inject
-	KidUtil kidUtil;
+	private KidUtil kidUtil;
 
 	/*
 	 * Cryptoperiod of RSA keys in seconds.
 	 */
-	@ConfigProperty(name = "cryptoperiod", defaultValue = "86400")
-	long cryptoperiod;
+	private long cryptoperiod;
 
 	/*
 	 * Key size (modulus) of RSA keys in bits.
 	 */
-	@ConfigProperty(name = "keysize", defaultValue = "4096")
-	int keysize;
+	private int keysize;
+
+	/**
+	 * 
+	 * @param cryptoperiod
+	 * @param keysize
+	 * @param keyVaultService
+	 * @param authService
+	 * @param kidUtil
+	 */
+	@Inject
+	AzureKeyFinder(
+		@ConfigProperty(name = "cryptoperiod", defaultValue = "86400") long cryptoperiod,
+		@ConfigProperty(name = "keysize", defaultValue = "4096") int keysize,
+		@RestClient AzureKeyVaultClient keyVaultService,
+		AzureAuthService authService,
+		KidUtil kidUtil) {
+		this.cryptoperiod = cryptoperiod;
+		this.keysize = keysize;
+		this.keyVaultService = keyVaultService;
+		this.authService = authService;
+		this.kidUtil = kidUtil;
+	}
 
 	/**
 	 * @param kid
@@ -335,7 +354,7 @@ public class AzureKeyFinder implements KeyFinder {
 			.asList() // Converting the events in an event that is the list of the collected internal public key objects.
 			.invoke(x -> Log.debugf("Found [%d] valid key/s.", x.size()))
 			.map(PublicKeys::new)
-			.invoke(x -> Log.debug(x))
+			.invoke(x -> Log.debug(x)) // NOSONAR
 			.map(p -> new ItemWithContext<>(context, p))
 			.onFailure(t -> !(t instanceof AuthError))
 			.transform(t -> {
