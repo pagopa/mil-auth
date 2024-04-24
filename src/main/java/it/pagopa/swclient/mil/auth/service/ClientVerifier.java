@@ -29,8 +29,16 @@ public class ClientVerifier {
 	/*
 	 *
 	 */
+	private AuthDataRepository repository;
+	
+	/**
+	 * 
+	 * @param repository
+	 */
 	@Inject
-	AuthDataRepository repository;
+	ClientVerifier(AuthDataRepository repository) {
+		this.repository = repository;
+	}
 
 	/**
 	 * Due to caching this method must be public.
@@ -44,6 +52,7 @@ public class ClientVerifier {
 	}
 
 	/**
+	 * 
 	 * @param clientId
 	 * @return
 	 */
@@ -72,6 +81,7 @@ public class ClientVerifier {
 	}
 
 	/**
+	 * 
 	 * @param clientEntity
 	 * @param expectedChannel
 	 */
@@ -89,6 +99,7 @@ public class ClientVerifier {
 	}
 
 	/**
+	 * 
 	 * @param clientEntity
 	 * @param expectedSecret
 	 */
@@ -115,6 +126,7 @@ public class ClientVerifier {
 	}
 
 	/**
+	 * 
 	 * @param clientId
 	 * @param channel
 	 * @param secret

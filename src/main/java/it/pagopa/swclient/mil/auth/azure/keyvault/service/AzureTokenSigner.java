@@ -12,6 +12,8 @@ import java.text.ParseException;
 import java.util.Base64;
 import java.util.Objects;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.util.Base64URL;
@@ -24,6 +26,7 @@ import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.azure.auth.service.AzureAuthService;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignRequest;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.VerifySignatureRequest;
+import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.azure.keyvault.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.service.TokenSigner;
 import it.pagopa.swclient.mil.auth.util.AuthError;
@@ -39,20 +42,33 @@ public class AzureTokenSigner implements TokenSigner {
 	/*
 	 *
 	 */
-	@Inject
-	AzureKeyFinder keyFinder;
+	private AzureKeyFinder keyFinder;
 
 	/*
 	 *
 	 */
-	@Inject
-	AzureKeyVaultService keyVaultService;
+	private AzureKeyVaultClient keyVaultService;
 
 	/*
 	 *
 	 */
+	private AzureAuthService authService;
+
+	/**
+	 * 
+	 * @param keyVaultService
+	 * @param keyFinder
+	 * @param authService
+	 */
 	@Inject
-	AzureAuthService authService;
+	AzureTokenSigner(
+		@RestClient AzureKeyVaultClient keyVaultService,
+		AzureKeyFinder keyFinder,
+		AzureAuthService authService) {
+		this.keyVaultService = keyVaultService;
+		this.keyFinder = keyFinder;
+		this.authService = authService;
+	}
 
 	/**
 	 * @param header
@@ -132,7 +148,7 @@ public class AzureTokenSigner implements TokenSigner {
 		String keyVersion = components[components.length - 1];
 
 		return authService.getAccessToken()
-			.invoke(x -> Log.debug(x))
+			.invoke(x -> Log.debug(x)) // NOSONAR
 			.map(x -> {
 				String t = x.getToken();
 				if (t != null) {

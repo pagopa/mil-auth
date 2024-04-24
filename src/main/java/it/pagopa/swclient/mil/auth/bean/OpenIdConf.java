@@ -25,13 +25,13 @@ public class OpenIdConf {
 	 */
 	@JsonProperty(JsonPropertyName.ISSUER)
 	private String issuer;
-	
+
 	/*
 	 * token_endpoint
 	 */
 	@JsonProperty(JsonPropertyName.TOKEN_ENDPOINT)
 	private String tokenEndpoint;
-	
+
 	/*
 	 * jwks_uri
 	 */

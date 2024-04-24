@@ -27,12 +27,12 @@ import jakarta.ws.rs.core.MediaType;
 class OpenIdConfResourceTest {
 	@ConfigProperty(name = "base-url")
 	String baseUrl;
-	
+
 	@Test
 	void test() {
 		String issuer = baseUrl.replaceAll("\\/$", "") + "/";
 		OpenIdConf expected = new OpenIdConf(issuer, issuer + "token", issuer + ".well-known/jwks.json");
-		
+
 		OpenIdConf actual = given()
 			.when()
 			.get()

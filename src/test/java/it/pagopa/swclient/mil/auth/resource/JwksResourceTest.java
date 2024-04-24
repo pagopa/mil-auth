@@ -158,7 +158,7 @@ class JwksResourceTest {
 			.log()
 			.everything()
 			.statusCode(500)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_KEYS));
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_KEYS));
 	}
 }

@@ -8,12 +8,14 @@ package it.pagopa.swclient.mil.auth.azure.storage.client;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+import io.quarkus.rest.client.reactive.NotBody;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.User;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 
@@ -23,17 +25,19 @@ import jakarta.ws.rs.PathParam;
 @RegisterRestClient(configKey = "auth-data-repository")
 public interface AzureAuthDataRepositoryClient {
 	/**
-	 * @param authorization
+	 * @param accessToken
 	 * @param clientId
 	 * @return
 	 */
+	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("clients/{clientId}.json")
 	@GET
 	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
-	Uni<Client> getClient(@HeaderParam("Authorization") String authorization, @PathParam("clientId") String clientId);
+	@ClientHeaderParam(name = "Authorization", value = "Bearer {accessToken}")
+	Uni<Client> getClient(@NotBody String accessToken, @PathParam("clientId") String clientId);
 
 	/**
-	 * @param authorization
+	 * @param accessToken
 	 * @param acquirerId
 	 * @param channel
 	 * @param merchantId
@@ -41,11 +45,13 @@ public interface AzureAuthDataRepositoryClient {
 	 * @param terminalId
 	 * @return
 	 */
+	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("roles/{acquirerId}/{channel}/{clientId}/{merchantId}/{terminalId}/roles.json")
 	@GET
 	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
+	@ClientHeaderParam(name = "Authorization", value = "Bearer {accessToken}")
 	Uni<Role> getRoles(
-		@HeaderParam("Authorization") String authorization,
+		@NotBody String accessToken,
 		@PathParam("acquirerId") String acquirerId,
 		@PathParam("channel") String channel,
 		@PathParam("clientId") String clientId,
@@ -53,12 +59,14 @@ public interface AzureAuthDataRepositoryClient {
 		@PathParam("terminalId") String terminalId);
 
 	/**
-	 * @param authorization
+	 * @param accessToken
 	 * @param userHash
 	 * @return
 	 */
+	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("users/{userHash}.json")
 	@GET
 	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
-	Uni<User> getUser(@HeaderParam("Authorization") String authorization, @PathParam("userHash") String userHash);
+	@ClientHeaderParam(name = "Authorization", value = "Bearer {accessToken}")
+	Uni<User> getUser(@NotBody String accessToken, @PathParam("userHash") String userHash);
 }

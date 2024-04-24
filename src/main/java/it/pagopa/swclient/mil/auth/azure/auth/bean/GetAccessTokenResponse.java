@@ -43,7 +43,7 @@ public class GetAccessTokenResponse {
 	 */
 	@JsonProperty("client_id")
 	private String clientId;
-	
+
 	/*
 	 *
 	 */

@@ -69,76 +69,76 @@ class RolesFinderTest {
 	}
 
 	/**
-     * Test method for
-     * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
-     */
-    @Test
-    void testFindRolesNotFound() {
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
+	 */
+	@Test
+	void testFindRolesNotFound() {
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthException.class);
-    }
-
-	/**
-     * Test method for
-     * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
-     */
-    @Test
-    void testFindRolesNotFoundWithUnknownTerminal() {
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
-
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
-
-        finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthException.class);
-    }
+		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthException.class);
+	}
 
 	/**
-     * Test method for
-     * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
-     */
-    @Test
-    void testFindRolesNotFoundWithUnknownMerchant() {
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
+	 */
+	@Test
+	void testFindRolesNotFoundWithUnknownTerminal() {
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthException.class);
-    }
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+
+		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthException.class);
+	}
 
 	/**
-     * Test method for
-     * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
-     */
-    @Test
-    void testFindRolesNotFoundWithUnknownMerchantAndKnownTerminal() {
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", TERMINAL_ID))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
+	 */
+	@Test
+	void testFindRolesNotFoundWithUnknownMerchant() {
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthException.class);
+	}
 
-        finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, TERMINAL_ID)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthException.class);
-    }
+	/**
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
+	 */
+	@Test
+	void testFindRolesNotFoundWithUnknownMerchantAndKnownTerminal() {
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+
+		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, TERMINAL_ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthException.class);
+	}
 
 	/**
 	 * Test method for
@@ -207,32 +207,32 @@ class RolesFinderTest {
 	}
 
 	/**
-     * Test method for
-     * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
-     */
-    @Test
-    void testFindRolesWithError1() {
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
+	 */
+	@Test
+	void testFindRolesWithError1() {
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
-        finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
+		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
+	}
 
 	/**
-     * Test method for
-     * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
-     */
-    @Test
-    void testFindRolesWithError2() {
-        when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(Uni.createFrom().failure(new Exception()));
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.RolesFinder#findRoles(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
+	 */
+	@Test
+	void testFindRolesWithError2() {
+		when(repository.getRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new Exception()));
 
-        finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
+		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
+	}
 }

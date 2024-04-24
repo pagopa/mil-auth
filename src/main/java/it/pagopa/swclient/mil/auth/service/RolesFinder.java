@@ -26,12 +26,20 @@ public class RolesFinder {
 	 *
 	 */
 	private static final String NA = "NA";
-	
+
 	/*
 	 * Role repository.
 	 */
+	private AuthDataRepository repository;
+	
+	/**
+	 * 
+	 * @param repository
+	 */
 	@Inject
-	AuthDataRepository repository;
+	RolesFinder(AuthDataRepository repository) {
+		this.repository = repository;
+	}
 
 	/**
 	 * @param s

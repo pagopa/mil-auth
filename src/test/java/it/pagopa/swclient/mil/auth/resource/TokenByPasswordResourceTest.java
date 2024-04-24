@@ -89,19 +89,18 @@ class TokenByPasswordResourceTest {
 	 */
 	private static final long AZURE_TOKEN_DURATION = 3599;
 	private static final String AZURE_TOKEN = "this_is_the_token";
-	private static final String AUTHORIZATION_HDR_VALUE = TokenType.BEARER + " " + AZURE_TOKEN;
 
 	/*
 	 *
 	 */
 	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
 	String vaultBaseUrl;
-	
+
 	/*
 	 *
 	 */
 	private String keyUrl;
-	
+
 	/*
 	 * 
 	 */
@@ -157,7 +156,7 @@ class TokenByPasswordResourceTest {
 	void setup() {
 		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
 	}
-	
+
 	@Test
 	void testOk() throws NoSuchAlgorithmException {
 		/*
@@ -169,26 +168,26 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_ID)));
 
 		/*
 		 * Client repository setup.
 		 */
-		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
 			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
 
 		/*
 		 * Roles repository setup.
 		 */
-		when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
 			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
 		/*
 		 * Azure auth. client setup.
 		 */
 		when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
 		/*
 		 * Azure key vault setup.
@@ -196,20 +195,20 @@ class TokenByPasswordResourceTest {
 		long now = Instant.now().getEpochSecond();
 		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
 
-		when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
 			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
 				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
 			})));
 
-		when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
 			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
 				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
 			})));
 
-		when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
 			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
 
-		when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
 			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
 
 		/*
@@ -247,15 +246,15 @@ class TokenByPasswordResourceTest {
 			MessageDigest.getInstance("SHA256").digest(
 				USERNAME.getBytes(StandardCharsets.UTF_8)));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
 		/*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-		
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
 		/*
 		 * Test
 		 */
@@ -288,15 +287,15 @@ class TokenByPasswordResourceTest {
 			MessageDigest.getInstance("SHA256").digest(
 				USERNAME.getBytes(StandardCharsets.UTF_8)));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
 		/*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-		
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
 		/*
 		 * Test
 		 */
@@ -329,15 +328,15 @@ class TokenByPasswordResourceTest {
 			MessageDigest.getInstance("SHA256").digest(
 				USERNAME.getBytes(StandardCharsets.UTF_8)));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
 		/*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-        
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
 		/*
 		 * Test
 		 */
@@ -376,15 +375,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_2_ID, Channel.POS, MERCHANT_ID)));
 
 		/*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-		
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
 		/*
 		 * Test
 		 */
@@ -419,15 +418,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.ATM, MERCHANT_ID)));
 
 		/*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-		
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
 		/*
 		 * Test
 		 */
@@ -462,15 +461,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD, SALT));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_2_ID)));
 
 		/*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-		
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
 		/*
 		 * Test
 		 */
@@ -505,15 +504,15 @@ class TokenByPasswordResourceTest {
 
 		String passwordHash = Base64.getEncoder().encodeToString(PasswordVerifier.hashBytes(PASSWORD_2, SALT));
 
-		when(repository.getUser(AUTHORIZATION_HDR_VALUE, userHash))
+		when(repository.getUser(AZURE_TOKEN, userHash))
 			.thenReturn(UniGenerator.item(new User(USERNAME, SALT, passwordHash, ACQUIRER_ID, Channel.POS, MERCHANT_ID)));
 
 		/*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-		
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
 		/*
 		 * Test
 		 */

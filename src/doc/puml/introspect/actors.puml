@@ -1,7 +1,0 @@
-participant "Other Server\nApp" as other
-
-participant "mil-auth" as mil_auth
-
-participant "Azure Active\nDirectory" as azure_ad
-participant "Azure Key\nVault" as azure_kv
-participant "Personal Data\nVault" as pdv
