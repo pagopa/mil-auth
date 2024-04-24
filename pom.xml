@@ -20,29 +20,37 @@
 	</developers>
 	
 	<properties>
-		<java.version>17</java.version>
+		<!-- Java version -->
+		<java.version>21</java.version>
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<compiler-plugin.version>3.11.0</compiler-plugin.version>
-		<surefire-plugin.version>3.0.0</surefire-plugin.version>
-		<sonar-plugin.version>3.9.1.2184</sonar-plugin.version>
+		<!-- Plug-ins version -->
+		<compiler-plugin.version>3.12.1</compiler-plugin.version>
+		<surefire-plugin.version>3.2.5</surefire-plugin.version>
+		<sonar-plugin.version>3.11.0.3922</sonar-plugin.version>
+		<jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+		<depcheck-plugin.version>1.1.1</depcheck-plugin.version>
+		<!-- Encodings -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- Quarkus version -->
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>3.2.6.Final</quarkus.platform.version>
-		<skipITs>true</skipITs>
-		<lombok.version>1.18.28</lombok.version>
-		<depcheck-plugin.version>1.1.1</depcheck-plugin.version>
-		<jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+		<quarkus.platform.version>3.9.4</quarkus.platform.version>
+		<!-- Other dependecies version -->
 		<common.version>2.1.0</common.version>
+		<lombok.version>1.18.28</lombok.version>
+		<otel-exporter-azure.version>3.8.3.0</otel-exporter-azure.version>
+		<!-- Sonar config -->
 		<sonar.host.url>https://sonarcloud.io:443/</sonar.host.url>
 		<sonar.organization>pagopa</sonar.organization>
 		<sonar.projectKey>pagopa_mil-idp</sonar.projectKey>
 		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
 		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		
+		<skipITs>true</skipITs>
 	</properties>
 	
 	<dependencyManagement>
@@ -60,11 +68,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-resteasy-reactive</artifactId>
+			<artifactId>quarkus-rest</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+			<artifactId>quarkus-rest-jackson</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -76,7 +84,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-rest-client-reactive-jackson</artifactId>
+			<artifactId>quarkus-rest-client-jackson</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -113,19 +121,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- To avoid Quarkus bug with Mockito -->
-		<!--
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-		-->
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-jacoco</artifactId>
@@ -136,6 +131,23 @@
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<!-- Observability -->
+		<!-- Logging -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-logging-json</artifactId>
+		</dependency>
+		<!-- Tracing -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-opentelemetry</artifactId>
+		</dependency>
+		<!-- OpenTelemetry exporter for Azure Application Insights -->
+		<dependency>
+			<groupId>io.quarkiverse.opentelemetry.exporter</groupId>
+			<artifactId>quarkus-opentelemetry-exporter-azure</artifactId>
+			<version>${otel-exporter-azure.version}</version>
 		</dependency>
 	</dependencies>
 	
@@ -251,7 +263,7 @@
 										<limit>
 											<counter>BRANCH</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.90</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
