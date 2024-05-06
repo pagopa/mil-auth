@@ -57,48 +57,50 @@ class ClientVerifierTest {
 	ClientVerifier verifier;
 
 	/**
-     * Test method for {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
-     */
-    @Test
-    void testFindClientWithNotFound() {
-        when(repository.getClient(anyString()))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 */
+	@Test
+	void testFindClientWithNotFound() {
+		when(repository.getClient(anyString()))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        verifier.findClient(ID)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthException.class);
+		verifier.findClient(ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthException.class);
 
-    }
-
-	/**
-     * Test method for {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
-     */
-    @Test
-    void testFindClientWithError1() {
-        when(repository.getClient(anyString()))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
-
-        verifier.findClient(ID)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
+	}
 
 	/**
-     * Test method for
-     * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
-     */
-    @Test
-    void testFindClientWithError2() {
-        when(repository.getClient(anyString()))
-                .thenReturn(Uni.createFrom().failure(new Exception()));
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 */
+	@Test
+	void testFindClientWithError1() {
+		when(repository.getClient(anyString()))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
-        verifier.findClient(ID)
-                .subscribe()
-                .withSubscriber(UniAssertSubscriber.create())
-                .assertFailedWith(AuthError.class);
-    }
+		verifier.findClient(ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
+	}
+
+	/**
+	 * Test method for
+	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 */
+	@Test
+	void testFindClientWithError2() {
+		when(repository.getClient(anyString()))
+			.thenReturn(Uni.createFrom().failure(new Exception()));
+
+		verifier.findClient(ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
+	}
 
 	/**
 	 * Test method for

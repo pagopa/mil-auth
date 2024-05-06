@@ -26,19 +26,25 @@ public class AzureAuthDataRepository implements AuthDataRepository {
 	/*
 	 *
 	 */
-	private static final String BEARER = "Bearer ";
-	
+	private AzureAuthService authService;
+
 	/*
 	 *
+	 */
+	private AzureAuthDataRepositoryClient dataRepo;
+
+	/**
+	 * 
+	 * @param dataRepo
+	 * @param authService
 	 */
 	@Inject
-	AzureAuthService authService;
-	
-	/*
-	 *
-	 */
-	@RestClient
-	AzureAuthDataRepositoryClient dataRepo;
+	AzureAuthDataRepository(
+		@RestClient AzureAuthDataRepositoryClient dataRepo,
+		AzureAuthService authService) {
+		this.dataRepo = dataRepo;
+		this.authService = authService;
+	}
 
 	/**
 	 * Returns the authorization header value, invoking identity endpoint.
@@ -51,7 +57,7 @@ public class AzureAuthDataRepository implements AuthDataRepository {
 				String t = x.getToken();
 				if (t != null) {
 					Log.debug("Successfully authenticated.");
-					return BEARER + t;
+					return t;
 				} else {
 					String message = String.format("[%s] Azure access token not valid.", AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL);
 					Log.error(message);
@@ -59,7 +65,7 @@ public class AzureAuthDataRepository implements AuthDataRepository {
 				}
 			});
 	}
-	
+
 	/**
 	 * 
 	 */

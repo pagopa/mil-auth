@@ -83,19 +83,18 @@ class TokenByClientSecretResourceTest {
 	 */
 	private static final long AZURE_TOKEN_DURATION = 3599;
 	private static final String AZURE_TOKEN = "this_is_the_token";
-	private static final String AUTHORIZATION_HDR_VALUE = TokenType.BEARER + " " + AZURE_TOKEN;
 
 	/*
 	 *
 	 */
 	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
 	String vaultBaseUrl;
-	
+
 	/*
 	 *
 	 */
 	private String keyUrl;
-	
+
 	/*
 	 * 
 	 */
@@ -139,787 +138,781 @@ class TokenByClientSecretResourceTest {
 	void setup() {
 		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
 	}
-	
-	@Test
-    void testOk() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
-
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
-
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-
-        /*
-         * Azure key vault setup.
-         */
-        long now = Instant.now().getEpochSecond();
-        KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-            .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
-                        new BasicKey(keyUrl + KEY_NAME, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
-
-        when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
-                .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
-
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000000")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(200)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
-                .body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
-                .body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-                .body(JsonPropertyName.REFRESH_TOKEN, nullValue());
-    }
 
 	@Test
-    void testOkForAtm() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
+	void testOk() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.ATM, CLIENT_ID, "NA", TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.ATM, CLIENT_ID, "NA", TERMINAL_ID, ROLES)));
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-                .thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-
-        /*
-         * Azure key vault setup.
-         */
-        long now = Instant.now().getEpochSecond();
-        KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
-
-        when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
-                .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
-
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000C")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.ATM)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(200)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
-                .body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
-                .body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-                .body(JsonPropertyName.REFRESH_TOKEN, nullValue());
-    }
-
-	@Test
-    void testOkForPortal() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, null, SALT, HASH, DESCRIPTION)));
-
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, "NA", "NA", CLIENT_ID, "NA", "NA"))
-                .thenReturn(UniGenerator.item(new Role("NA", "NA", CLIENT_ID, "NA", "NA", ROLES)));
-
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-
-        /*
-         * Azure key vault setup.
-         */
-        long now = Instant.now().getEpochSecond();
-        KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
-
-        when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
-                .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
-
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000D")
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(200)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
-                .body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
-                .body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-                .body(JsonPropertyName.REFRESH_TOKEN, nullValue());
-    }
-
-	@Test
-    void testClientNotFound() {
-        when(repository.getClient(anyString(), anyString()))
-            .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
-        
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-    
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000001")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(401)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.CLIENT_NOT_FOUND));
-    }
-
-	@Test
-    void testWebApplicationExceptionSerchingClient() {
-        when(repository.getClient(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
-
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000002")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT));
-    }
-
-	@Test
-    void testExceptionSearchingClient() {
-        when(repository.getClient(anyString(), anyString()))
-            .thenReturn(Uni.createFrom().failure(new Exception()));
-
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
 			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-        
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000003")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT));
-    }
+
+		/*
+		 * Azure key vault setup.
+		 */
+		long now = Instant.now().getEpochSecond();
+		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000000")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
+	}
 
 	@Test
-    void testClientHasWrongChannel() {
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-            .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
-        
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-    
+	void testOkForAtm() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
 
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000004")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(401)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_CHANNEL));
-    }
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.ATM, CLIENT_ID, "NA", TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.ATM, CLIENT_ID, "NA", TERMINAL_ID, ROLES)));
+
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
+		/*
+		 * Azure key vault setup.
+		 */
+		long now = Instant.now().getEpochSecond();
+		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000C")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.ATM)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
+	}
 
 	@Test
-    void testWrongSecret() {
+	void testOkForPortal() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, null, SALT, HASH, DESCRIPTION)));
+
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, "NA", "NA", CLIENT_ID, "NA", "NA"))
+			.thenReturn(UniGenerator.item(new Role("NA", "NA", CLIENT_ID, "NA", "NA", ROLES)));
+
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
+		/*
+		 * Azure key vault setup.
+		 */
+		long now = Instant.now().getEpochSecond();
+		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000D")
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
+	}
+
+	@Test
+	void testClientNotFound() {
+		when(repository.getClient(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+
 		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-    
-		
-		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000005")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, WRONG_SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(401)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_SECRET));
-    }
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000001")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.CLIENT_NOT_FOUND));
+	}
 
 	@Test
-    void testWrongSecretWithNullExpected() {
+	void testWebApplicationExceptionSerchingClient() {
+		when(repository.getClient(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
+
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000002")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT));
+	}
+
+	@Test
+	void testExceptionSearchingClient() {
+		when(repository.getClient(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().failure(new Exception()));
+
 		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-    
-		
-		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000006")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(401)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_SECRET));
-    }
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000003")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT));
+	}
 
 	@Test
-    void testRolesNotFound() {
+	void testClientHasWrongChannel() {
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.ATM, SALT, HASH, DESCRIPTION)));
+
 		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-    
-		
-		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
-
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
-
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, "NA", "NA"))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
-
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000007")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(401)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ROLES_NOT_FOUND));
-    }
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000004")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_CHANNEL));
+	}
 
 	@Test
-    void testWebApplicationExceptionSearchingRoles() {
+	void testWrongSecret() {
 		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-    
-		
-		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000008")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES));
-    }
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000005")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, WRONG_SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_SECRET));
+	}
 
 	@Test
-    void testExceptionSearchingRoles() {
+	void testWrongSecretWithNullExpected() {
 		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-				.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-    
-		
-		when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(Uni.createFrom().failure(new Exception()));
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
 
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000009")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES));
-    }
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000006")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.WRONG_SECRET));
+	}
 
 	@Test
-    void test401OnGetAccessToken() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+	void testRolesNotFound() {
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
-        
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_FROM_AZURE));
-    }
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, "NA", "NA"))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000007")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ROLES_NOT_FOUND));
+	}
 
 	@Test
-    void test401OnGetKeys() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+	void testWebApplicationExceptionSearchingRoles() {
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
-        /*
-         * Azure key vault setup.
-         */
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-            .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
-
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001A")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_FROM_AZURE));
-    }
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000008")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES));
+	}
 
 	@Test
-    void test401WithNullAccessToken() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+	void testExceptionSearchingRoles() {
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
-       		.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", null)));
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(Uni.createFrom().failure(new Exception()));
 
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-    		.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-        
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000002A")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL));
-    }
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000009")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES));
+	}
 
 	@Test
-    void testExpiredKeyOnKeyCreation() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+	void test401OnGetAccessToken() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
 
-        /*
-         * Azure key vault setup.
-         */
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        long now = Instant.now().getEpochSecond();
-        when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), new KeyAttributes(now - 300, now - 100, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE))));
-
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000003A")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_GENERATING_KEY_PAIR));
-    }
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_FROM_AZURE));
+	}
 
 	@Test
-    void testErrorOnKeyCreation() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+	void test401OnGetKeys() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        /*
-         * Azure key vault setup.
-         */
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[]{})));
+		/*
+		 * Azure key vault setup.
+		 */
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
 
-        when(keyVaultClient.createKey(eq(AUTHORIZATION_HDR_VALUE), anyString(), any(CreateKeyRequest.class)))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000001A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_FROM_AZURE));
+	}
 
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000B")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_GENERATING_KEY_PAIR));
-    }
-	
 	@Test
-    void test401WithNullStorageAccessToken() {
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(AUTHORIZATION_HDR_VALUE, CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+	void test401WithNullAccessToken() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(AUTHORIZATION_HDR_VALUE, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-        
-        when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", null)));
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", null)));
 
-        /*
-         * Azure key vault setup.
-         */
-        long now = Instant.now().getEpochSecond();
-        KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-            .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
-                        new BasicKey(keyUrl + KEY_NAME, keyAttributes)
-                })));
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000002A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL));
+	}
 
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
-                })));
+	@Test
+	void testExpiredKeyOnKeyCreation() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
 
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
 
-        when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
-                .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
 
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000004A")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL));
-    }
+		/*
+		 * Azure key vault setup.
+		 */
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {})));
+
+		long now = Instant.now().getEpochSecond();
+		when(keyVaultClient.createKey(eq(AZURE_TOKEN), anyString(), any(CreateKeyRequest.class)))
+			.thenReturn(Uni.createFrom().item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), new KeyAttributes(now - 300, now - 100, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE))));
+
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000003A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_GENERATING_KEY_PAIR));
+	}
+
+	@Test
+	void testErrorOnKeyCreation() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
+		/*
+		 * Azure key vault setup.
+		 */
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(Uni.createFrom().item(new GetKeysResponse(new BasicKey[] {})));
+
+		when(keyVaultClient.createKey(eq(AZURE_TOKEN), anyString(), any(CreateKeyRequest.class)))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build())));
+
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000000B")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_GENERATING_KEY_PAIR));
+	}
+
+	@Test
+	void test401WithNullStorageAccessToken() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.VAULT)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
+		when(authClient.getAccessToken(anyString(), eq(AzureAuthService.STORAGE)))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", null)));
+
+		/*
+		 * Azure key vault setup.
+		 */
+		long now = Instant.now().getEpochSecond();
+		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-00000000004A")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.AZURE_ACCESS_TOKEN_IS_NULL));
+	}
 }

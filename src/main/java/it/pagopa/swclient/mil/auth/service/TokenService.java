@@ -9,8 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -21,7 +19,6 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
-import jakarta.inject.Inject;
 
 /**
  * This class generates access token string and refresh token string if any and signs them.
@@ -32,44 +29,70 @@ public abstract class TokenService {
 	/*
 	 * Access token duration.
 	 */
-	@ConfigProperty(name = "access.duration")
-	long accessDuration;
+	private long accessDuration;
 
 	/*
 	 * Duration of refresh tokens in seconds.
 	 */
-	@ConfigProperty(name = "refresh.duration")
-	long refreshDuration;
-	
+	private long refreshDuration;
+
 	/*
 	 * mil-auth base URL.
 	 */
-	@ConfigProperty(name = "base-url", defaultValue = "")
-	String baseUrl;
-	
+	private String baseUrl;
+
 	/*
 	 * Token audience.
 	 */
-	@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it")
-	String audience;
+	private String audience;
 
 	/*
 	 *
 	 */
-	@Inject
-	ClientVerifier clientVerifier;
+	private ClientVerifier clientVerifier;
 
 	/*
 	 *
 	 */
-	@Inject
-	RolesFinder roleFinder;
+	private RolesFinder roleFinder;
 
 	/*
 	 *
 	 */
-	@Inject
-	TokenSigner tokenSigner;
+	protected TokenSigner tokenSigner;
+	
+	/**
+	 * 
+	 */
+	TokenService() {
+	}
+
+	/**
+	 * 
+	 * @param accessDuration
+	 * @param refreshDuration
+	 * @param baseUrl
+	 * @param audience
+	 * @param clientVerifier
+	 * @param roleFinder
+	 * @param tokenSigner
+	 */
+	TokenService(
+		long accessDuration,
+		long refreshDuration,
+		String baseUrl,
+		String audience,
+		ClientVerifier clientVerifier,
+		RolesFinder roleFinder,
+		TokenSigner tokenSigner) {
+		this.accessDuration = accessDuration;
+		this.refreshDuration = refreshDuration;
+		this.baseUrl = baseUrl;
+		this.audience = audience;
+		this.clientVerifier = clientVerifier;
+		this.roleFinder = roleFinder;
+		this.tokenSigner = tokenSigner;
+	}
 
 	/**
 	 * @param strings

@@ -50,33 +50,33 @@ class TokenByClientSecretResourceUnexpectedErrorTest {
 	ClientVerifier clientVerifier;
 
 	@Test
-    void testUnexpectedError() {
-        /*
-         * Client repository setup.
-         */
-        when(clientVerifier.verify(anyString(), anyString(), anyString()))
-        	.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
+	void testUnexpectedError() {
+		/*
+		 * Client repository setup.
+		 */
+		when(clientVerifier.verify(anyString(), anyString(), anyString()))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
-        /*
-         * Test.
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-600000000000")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-                .formParam(FormParamName.CLIENT_SECRET, SECRET)
-                .when()
-                .post()
-                .then()
-                .log()
-                .everything()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.UNEXPECTED_ERROR));
-    }
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-600000000000")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.UNEXPECTED_ERROR));
+	}
 }

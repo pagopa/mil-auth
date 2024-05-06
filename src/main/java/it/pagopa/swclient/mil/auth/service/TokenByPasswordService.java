@@ -11,6 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Objects;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -42,8 +44,38 @@ public class TokenByPasswordService extends TokenService {
 	/*
 	 *
 	 */
+	private AuthDataRepository repository;
+	
+	/**
+	 * 
+	 */
+	TokenByPasswordService() {
+		super();
+	}
+	
+	/**
+	 * 
+	 * @param accessDuration
+	 * @param refreshDuration
+	 * @param baseUrl
+	 * @param audience
+	 * @param clientVerifier
+	 * @param roleFinder
+	 * @param tokenSigner
+	 * @param repository
+	 */
 	@Inject
-	AuthDataRepository repository;
+	TokenByPasswordService(@ConfigProperty(name = "access.duration") long accessDuration,
+		@ConfigProperty(name = "refresh.duration") long refreshDuration,
+		@ConfigProperty(name = "base-url", defaultValue = "") String baseUrl,
+		@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it") String audience,
+		ClientVerifier clientVerifier,
+		RolesFinder roleFinder,
+		TokenSigner tokenSigner,
+		AuthDataRepository repository) {
+		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner);
+		this.repository = repository;
+	}
 
 	/**
 	 * @param userHash

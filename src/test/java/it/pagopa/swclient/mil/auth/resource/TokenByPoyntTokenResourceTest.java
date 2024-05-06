@@ -46,8 +46,8 @@ import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
-import it.pagopa.swclient.mil.auth.service.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
+import it.pagopa.swclient.mil.auth.service.AuthDataRepository;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.ws.rs.WebApplicationException;
@@ -79,19 +79,18 @@ class TokenByPoyntTokenResourceTest {
 	 */
 	private static final long AZURE_TOKEN_DURATION = 3599;
 	private static final String AZURE_TOKEN = "this_is_the_token";
-	private static final String AUTHORIZATION_HDR_VALUE = TokenType.BEARER + " " + AZURE_TOKEN;
 
 	/*
 	 *
 	 */
 	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
 	String vaultBaseUrl;
-	
+
 	/*
 	 *
 	 */
 	private String keyUrl;
-	
+
 	/*
 	 * 
 	 */
@@ -141,173 +140,173 @@ class TokenByPoyntTokenResourceTest {
 	void setup() {
 		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
 	}
-	
-	@Test
-    void testOk() {
-        /*
-         * Poynt client setup.
-         */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
-                .thenReturn(UniGenerator.item(Response.ok().build()));
-
-        /*
-         * Client repository setup.
-         */
-        when(repository.getClient(CLIENT_ID))
-                .thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
-
-        /*
-         * Roles repository setup.
-         */
-        when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-                .thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
-
-        /*
-         * Azure auth. client setup.
-         */
-        when(authClient.getAccessToken(anyString(), anyString()))
-        	.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-
-        /*
-         * Azure key vault setup.
-         */
-        long now = Instant.now().getEpochSecond();
-        KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
-
-        when(keyVaultClient.getKeys(AUTHORIZATION_HDR_VALUE))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKeyVersions(AUTHORIZATION_HDR_VALUE, KEY_NAME))
-                .thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[]{
-                        new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
-                })));
-
-        when(keyVaultClient.getKey(AUTHORIZATION_HDR_VALUE, KEY_NAME, KEY_VERSION))
-                .thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
-
-        when(keyVaultClient.sign(eq(AUTHORIZATION_HDR_VALUE), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
-                .thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
-
-        /*
-         * Test
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000000")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
-                .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
-                .when()
-                .post()
-                .then()
-                .statusCode(200)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
-                .body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
-                .body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-                .body(JsonPropertyName.REFRESH_TOKEN, notNullValue());
-    }
 
 	@Test
-    void testWebApplicationExceptionGettingBusinessObject() {
-        /*
-         * Poynt client setup.
-         */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
+	void testOk() {
+		/*
+		 * Poynt client setup.
+		 */
+		when(poyntClient.getBusinessObject(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(Response.ok().build()));
 
-        /*
-         * Test
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000001")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
-                .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
-                .when()
-                .post()
-                .then()
-                .statusCode(401)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.EXT_TOKEN_NOT_VALID));
-    }
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, null, null, DESCRIPTION)));
+
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(JsonPropertyName.TOKEN_TYPE, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+
+		/*
+		 * Azure key vault setup.
+		 */
+		long now = Instant.now().getEpochSecond();
+		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000000")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, notNullValue());
+	}
 
 	@Test
-    void testExceptionGettingBusinessObject() {
-        /*
-         * Poynt client setup.
-         */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
-                .thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
+	void testWebApplicationExceptionGettingBusinessObject() {
+		/*
+		 * Poynt client setup.
+		 */
+		when(poyntClient.getBusinessObject(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Status.UNAUTHORIZED).build())));
 
-        /*
-         * Test
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000002")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
-                .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
-                .when()
-                .post()
-                .then()
-                .statusCode(500)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN));
-    }
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000001")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.EXT_TOKEN_NOT_VALID));
+	}
 
 	@Test
-    void test401GettingBusinessObject() {
-        /*
-         * Poynt client setup.
-         */
-        when(poyntClient.getBusinessObject(anyString(), anyString()))
-                .thenReturn(UniGenerator.item(Response.status(Status.UNAUTHORIZED).build()));
+	void testExceptionGettingBusinessObject() {
+		/*
+		 * Poynt client setup.
+		 */
+		when(poyntClient.getBusinessObject(anyString(), anyString()))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
-        /*
-         * Test
-         */
-        given()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000003")
-                .header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
-                .header(HeaderParamName.CHANNEL, Channel.POS)
-                .header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
-                .header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-                .formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-                .formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
-                .formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
-                .formParam(FormParamName.ADD_DATA, ADD_DATA)
-                .formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
-                .when()
-                .post()
-                .then()
-                .statusCode(401)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.EXT_TOKEN_NOT_VALID));
-    }
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000002")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
+			.when()
+			.post()
+			.then()
+			.statusCode(500)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN));
+	}
+
+	@Test
+	void test401GettingBusinessObject() {
+		/*
+		 * Poynt client setup.
+		 */
+		when(poyntClient.getBusinessObject(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(Response.status(Status.UNAUTHORIZED).build()));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-200000000003")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.POYNT_TOKEN)
+			.formParam(FormParamName.EXT_TOKEN, EXT_TOKEN)
+			.formParam(FormParamName.ADD_DATA, ADD_DATA)
+			.formParam(FormParamName.SCOPE, Scope.OFFLINE_ACCESS)
+			.when()
+			.post()
+			.then()
+			.statusCode(401)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.EXT_TOKEN_NOT_VALID));
+	}
 
 	// @Test
 	// void testErrorFromSuper() {
