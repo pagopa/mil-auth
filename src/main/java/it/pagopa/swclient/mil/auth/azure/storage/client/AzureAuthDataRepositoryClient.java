@@ -8,8 +8,6 @@ package it.pagopa.swclient.mil.auth.azure.storage.client;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.rest.client.reactive.NotBody;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.Client;
@@ -29,7 +27,6 @@ public interface AzureAuthDataRepositoryClient {
 	 * @param clientId
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("clients/{clientId}.json")
 	@GET
 	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
@@ -45,7 +42,6 @@ public interface AzureAuthDataRepositoryClient {
 	 * @param terminalId
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("roles/{acquirerId}/{channel}/{clientId}/{merchantId}/{terminalId}/roles.json")
 	@GET
 	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
@@ -63,7 +59,6 @@ public interface AzureAuthDataRepositoryClient {
 	 * @param userHash
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("users/{userHash}.json")
 	@GET
 	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
