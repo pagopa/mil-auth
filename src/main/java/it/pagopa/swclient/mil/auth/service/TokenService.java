@@ -102,12 +102,7 @@ public abstract class TokenService {
 		if (strings == null) {
 			return null;
 		}
-		StringBuilder buffer = new StringBuilder();
-		strings.forEach(x -> {
-			buffer.append(x);
-			buffer.append(" ");
-		});
-		return buffer.toString().trim();
+		return String.join(" ", strings);
 	}
 
 	/**

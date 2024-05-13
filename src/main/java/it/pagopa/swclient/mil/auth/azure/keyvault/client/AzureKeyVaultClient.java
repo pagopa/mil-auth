@@ -8,8 +8,6 @@ package it.pagopa.swclient.mil.auth.azure.keyvault.client;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.rest.client.reactive.ClientQueryParam;
 import io.quarkus.rest.client.reactive.NotBody;
 import io.smallrye.mutiny.Uni;
@@ -40,7 +38,6 @@ public interface AzureKeyVaultClient {
 	 * @param createKeyRequest
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("/keys/{keyName}/create")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -57,7 +54,6 @@ public interface AzureKeyVaultClient {
 	 * @param accessToken
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("/keys")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -73,7 +69,6 @@ public interface AzureKeyVaultClient {
 	 * @param keyVersion
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("/keys/{keyName}/{keyVersion}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -90,7 +85,6 @@ public interface AzureKeyVaultClient {
 	 * @param keyName
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("/keys/{keyName}/versions")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -108,7 +102,6 @@ public interface AzureKeyVaultClient {
 	 * @param signRequest
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("/keys/{keyName}/{keyVersion}/sign")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -129,7 +122,6 @@ public interface AzureKeyVaultClient {
 	 * @param verifySignatureRequest
 	 * @return
 	 */
-	@WithSpan(kind = SpanKind.CLIENT)
 	@Path("/keys/{keyName}/{keyVersion}/verify")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
