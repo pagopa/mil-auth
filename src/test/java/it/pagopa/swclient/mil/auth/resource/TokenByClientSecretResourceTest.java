@@ -51,6 +51,9 @@ import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
+import it.pagopa.swclient.mil.pdv.bean.PersonalData;
+import it.pagopa.swclient.mil.pdv.bean.Token;
+import it.pagopa.swclient.mil.pdv.client.Tokenizer;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -130,6 +133,13 @@ class TokenByClientSecretResourceTest {
 	@InjectMock
 	@RestClient
 	AzureAuthClient authClient;
+	
+	/*
+	 *
+	 */
+	@InjectMock
+	@RestClient
+	Tokenizer tokenizer;
 
 	/**
 	 *
@@ -194,6 +204,81 @@ class TokenByClientSecretResourceTest {
 			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
 			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
 			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
+	}
+	
+	@Test
+	void testOkWithFiscalCode() {
+		/*
+		 * Client repository setup.
+		 */
+		when(repository.getClient(AZURE_TOKEN, CLIENT_ID))
+			.thenReturn(UniGenerator.item(new Client(CLIENT_ID, Channel.POS, SALT, HASH, DESCRIPTION)));
+
+		/*
+		 * Roles repository setup.
+		 */
+		when(repository.getRoles(AZURE_TOKEN, ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
+			.thenReturn(UniGenerator.item(new Role(ACQUIRER_ID, Channel.POS, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES)));
+
+		/*
+		 * Azure auth. client setup.
+		 */
+		when(authClient.getAccessToken(anyString(), anyString()))
+			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
+		
+		/*
+		 * PDV tokenizer.
+		 */
+		when(tokenizer.tokenize(any(PersonalData.class)))
+			.thenReturn(UniGenerator.item(new Token("4b39a715-672b-4bf2-a7b1-76de90133334")));
+
+		/*
+		 * Azure key vault setup.
+		 */
+		long now = Instant.now().getEpochSecond();
+		KeyAttributes keyAttributes = new KeyAttributes(now - 300, now + 600, now - 300, now - 300, Boolean.TRUE, KEY_RECOVERY_LEVEL, 0, Boolean.FALSE);
+
+		when(keyVaultClient.getKeys(AZURE_TOKEN))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKeyVersions(AZURE_TOKEN, KEY_NAME))
+			.thenReturn(UniGenerator.item(new GetKeysResponse(new BasicKey[] {
+				new BasicKey(keyUrl + KEY_NAME + "/" + KEY_VERSION, keyAttributes)
+			})));
+
+		when(keyVaultClient.getKey(AZURE_TOKEN, KEY_NAME, KEY_VERSION))
+			.thenReturn(UniGenerator.item(new DetailedKey(new KeyDetails(keyUrl + KEY_NAME + "/" + KEY_VERSION, KEY_TYPE, KEY_OPS, MODULUS, PUBLIC_EXPONENT), keyAttributes)));
+
+		when(keyVaultClient.sign(eq(AZURE_TOKEN), eq(KEY_NAME), eq(KEY_VERSION), any(SignRequest.class)))
+			.thenReturn(UniGenerator.item(new SignResponse(KID, EXPECTED_SIGNATURE)));
+
+		/*
+		 * Test.
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000000")
+			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
+			.header(HeaderParamName.CHANNEL, Channel.POS)
+			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
+			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
+			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(FormParamName.CLIENT_SECRET, SECRET)
+			.formParam(FormParamName.FISCAL_CODE, "CHCZLN73D08A662B")
 			.when()
 			.post()
 			.then()

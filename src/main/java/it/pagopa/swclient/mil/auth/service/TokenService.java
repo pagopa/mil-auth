@@ -19,6 +19,9 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
+import it.pagopa.swclient.mil.pdv.bean.PersonalData;
+import it.pagopa.swclient.mil.pdv.bean.Token;
+import it.pagopa.swclient.mil.pdv.client.Tokenizer;
 
 /**
  * This class generates access token string and refresh token string if any and signs them.
@@ -61,6 +64,11 @@ public abstract class TokenService {
 	 */
 	protected TokenSigner tokenSigner;
 	
+	/*
+	 * 
+	 */
+	private Tokenizer tokenizer;
+	
 	/**
 	 * 
 	 */
@@ -76,6 +84,7 @@ public abstract class TokenService {
 	 * @param clientVerifier
 	 * @param roleFinder
 	 * @param tokenSigner
+	 * @param tokenizer
 	 */
 	TokenService(
 		long accessDuration,
@@ -84,7 +93,8 @@ public abstract class TokenService {
 		String audience,
 		ClientVerifier clientVerifier,
 		RolesFinder roleFinder,
-		TokenSigner tokenSigner) {
+		TokenSigner tokenSigner,
+		Tokenizer tokenizer) {
 		this.accessDuration = accessDuration;
 		this.refreshDuration = refreshDuration;
 		this.baseUrl = baseUrl;
@@ -92,6 +102,7 @@ public abstract class TokenService {
 		this.clientVerifier = clientVerifier;
 		this.roleFinder = roleFinder;
 		this.tokenSigner = tokenSigner;
+		this.tokenizer = tokenizer;
 	}
 
 	/**
@@ -104,8 +115,9 @@ public abstract class TokenService {
 		}
 		return String.join(" ", strings);
 	}
-
+	
 	/**
+	 * 
 	 * @param request
 	 * @param duration
 	 * @param roles
@@ -113,6 +125,26 @@ public abstract class TokenService {
 	 * @return
 	 */
 	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes) {
+		String fiscalCode = request.getFiscalCode();
+		if (fiscalCode == null) {
+			return generate(request, duration, roles, scopes, null);
+		} else {
+			return tokenizer.tokenize(new PersonalData(fiscalCode))
+				.map(Token::getValue)
+				.chain(fiscalCodeToken -> generate(request, duration, roles, scopes, fiscalCodeToken));
+		}
+	}
+	
+	/**
+	 * 
+	 * @param request
+	 * @param duration
+	 * @param roles
+	 * @param scopes
+	 * @param fiscalCodeToken
+	 * @return
+	 */
+	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes, String fiscalCodeToken) {
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
 			.subject(request.getClientId())
@@ -125,7 +157,7 @@ public abstract class TokenService {
 			.claim(ClaimName.TERMINAL_ID, request.getTerminalId())
 			.claim(ClaimName.SCOPE, concat(scopes))
 			.claim(ClaimName.GROUPS, roles)
-			.claim(ClaimName.FISCAL_CODE, request.getFiscalCode())
+			.claim(ClaimName.FISCAL_CODE, fiscalCodeToken)
 			.issuer(baseUrl)
 			.audience(audience)
 			.build();

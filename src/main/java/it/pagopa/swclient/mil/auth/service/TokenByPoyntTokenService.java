@@ -19,6 +19,7 @@ import it.pagopa.swclient.mil.auth.qualifier.PoyntToken;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.pdv.client.Tokenizer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -52,6 +53,7 @@ public class TokenByPoyntTokenService extends TokenService {
 	 * @param roleFinder
 	 * @param tokenSigner
 	 * @param poyntClient
+	 * @param tokenizer
 	 */
 	@Inject
 	TokenByPoyntTokenService(
@@ -62,8 +64,9 @@ public class TokenByPoyntTokenService extends TokenService {
 		ClientVerifier clientVerifier,
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
-		@RestClient PoyntClient poyntClient) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner);
+		@RestClient PoyntClient poyntClient,
+		@RestClient Tokenizer tokenizer) {
+		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer);
 		this.poyntClient = poyntClient;
 	}
 
