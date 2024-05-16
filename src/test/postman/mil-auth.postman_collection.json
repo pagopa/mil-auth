@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "538cca45-14a8-4ae3-a660-19dbac765116",
+		"_postman_id": "0250942b-784a-4514-9105-48b4f71bba36",
 		"name": "mil-auth",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23394429"
@@ -51,8 +51,87 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000006",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000006"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{correctClientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForClientCredentials}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "client_credentials - ok w/ fiscal code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000006"
 					}
 				],
 				"body": {
@@ -132,28 +211,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-00000000000b",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-00000000000b"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -208,8 +282,7 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000007",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000007"
 					}
 				],
 				"body": {
@@ -264,8 +337,7 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000008",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000008"
 					}
 				],
 				"body": {
@@ -345,28 +417,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000001",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000001"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -459,28 +526,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000002",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000002"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -545,28 +607,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000003",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000003"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -626,28 +683,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000004",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000004"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -707,28 +759,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000005",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000005"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -826,28 +873,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000009",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000009"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -902,28 +944,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-00000000000a",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-00000000000a"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -1161,6 +1198,11 @@
 		{
 			"key": "correctClientSecretForVasLayer",
 			"value": "5ceef788-4115-43a7-a704-b1bcc9a47c86",
+			"type": "string"
+		},
+		{
+			"key": "fiscalCode",
+			"value": "CHCZLN73D08A662B",
 			"type": "string"
 		}
 	]

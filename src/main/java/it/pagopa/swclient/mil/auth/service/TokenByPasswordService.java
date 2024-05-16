@@ -12,6 +12,7 @@ import java.util.Base64;
 import java.util.Objects;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
@@ -25,6 +26,7 @@ import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.pdv.client.Tokenizer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -63,6 +65,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param roleFinder
 	 * @param tokenSigner
 	 * @param repository
+	 * @param tokenizer
 	 */
 	@Inject
 	TokenByPasswordService(@ConfigProperty(name = "access.duration") long accessDuration,
@@ -72,8 +75,9 @@ public class TokenByPasswordService extends TokenService {
 		ClientVerifier clientVerifier,
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
-		AuthDataRepository repository) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner);
+		AuthDataRepository repository,
+		@RestClient Tokenizer tokenizer) {
+		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer);
 		this.repository = repository;
 	}
 
