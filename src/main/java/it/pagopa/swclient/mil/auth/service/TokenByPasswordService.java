@@ -66,6 +66,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param tokenSigner
 	 * @param repository
 	 * @param tokenizer
+	 * @param protectFiscalCode
 	 */
 	@Inject
 	TokenByPasswordService(@ConfigProperty(name = "access.duration") long accessDuration,
@@ -76,8 +77,9 @@ public class TokenByPasswordService extends TokenService {
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
 		AuthDataRepository repository,
-		@RestClient Tokenizer tokenizer) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer);
+		@RestClient Tokenizer tokenizer,
+		@ConfigProperty(name = "protect-fiscal-code", defaultValue = "false") boolean protectFiscalCode) {
+		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer, protectFiscalCode);
 		this.repository = repository;
 	}
 

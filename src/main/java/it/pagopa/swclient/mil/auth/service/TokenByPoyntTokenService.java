@@ -54,6 +54,7 @@ public class TokenByPoyntTokenService extends TokenService {
 	 * @param tokenSigner
 	 * @param poyntClient
 	 * @param tokenizer
+	 * @param protectFiscalCode
 	 */
 	@Inject
 	TokenByPoyntTokenService(
@@ -65,8 +66,9 @@ public class TokenByPoyntTokenService extends TokenService {
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
 		@RestClient PoyntClient poyntClient,
-		@RestClient Tokenizer tokenizer) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer);
+		@RestClient Tokenizer tokenizer,
+		@ConfigProperty(name = "protect-fiscal-code", defaultValue = "false") boolean protectFiscalCode) {
+		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer, protectFiscalCode);
 		this.poyntClient = poyntClient;
 	}
 
