@@ -63,12 +63,17 @@ public abstract class TokenService {
 	 *
 	 */
 	protected TokenSigner tokenSigner;
-	
+
 	/*
 	 * 
 	 */
 	private Tokenizer tokenizer;
-	
+
+	/*
+	 * 
+	 */
+	private boolean protectFiscalCode;
+
 	/**
 	 * 
 	 */
@@ -85,6 +90,7 @@ public abstract class TokenService {
 	 * @param roleFinder
 	 * @param tokenSigner
 	 * @param tokenizer
+	 * @param protectFiscalCode
 	 */
 	TokenService(
 		long accessDuration,
@@ -94,7 +100,8 @@ public abstract class TokenService {
 		ClientVerifier clientVerifier,
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
-		Tokenizer tokenizer) {
+		Tokenizer tokenizer,
+		boolean protectFiscalCode) {
 		this.accessDuration = accessDuration;
 		this.refreshDuration = refreshDuration;
 		this.baseUrl = baseUrl;
@@ -103,6 +110,7 @@ public abstract class TokenService {
 		this.roleFinder = roleFinder;
 		this.tokenSigner = tokenSigner;
 		this.tokenizer = tokenizer;
+		this.protectFiscalCode = protectFiscalCode;
 	}
 
 	/**
@@ -115,7 +123,7 @@ public abstract class TokenService {
 		}
 		return String.join(" ", strings);
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -129,12 +137,16 @@ public abstract class TokenService {
 		if (fiscalCode == null) {
 			return generate(request, duration, roles, scopes, null);
 		} else {
-			return tokenizer.tokenize(new PersonalData(fiscalCode))
-				.map(Token::getValue)
-				.chain(fiscalCodeToken -> generate(request, duration, roles, scopes, fiscalCodeToken));
+			if (protectFiscalCode) {
+				return tokenizer.tokenize(new PersonalData(fiscalCode))
+					.map(Token::getValue)
+					.chain(fiscalCodeToken -> generate(request, duration, roles, scopes, fiscalCodeToken));
+			} else {
+				return generate(request, duration, roles, scopes, fiscalCode);
+			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param request

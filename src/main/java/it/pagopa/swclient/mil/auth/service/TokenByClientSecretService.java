@@ -40,6 +40,7 @@ public class TokenByClientSecretService extends TokenService {
 	 * @param roleFinder
 	 * @param tokenSigner
 	 * @param tokenizer
+	 * @param protectFiscalCode
 	 */
 	@Inject
 	TokenByClientSecretService(@ConfigProperty(name = "access.duration") long accessDuration,
@@ -49,8 +50,9 @@ public class TokenByClientSecretService extends TokenService {
 		ClientVerifier clientVerifier,
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
-		@RestClient Tokenizer tokenizer) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer);
+		@RestClient Tokenizer tokenizer,
+		@ConfigProperty(name = "protect-fiscal-code", defaultValue = "false") boolean protectFiscalCode) {
+		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer, protectFiscalCode);
 	}
 
 	/**
