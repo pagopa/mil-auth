@@ -1,12 +1,14 @@
 name: Generate PlantUML Diagrams
 
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - main
-      - v2
+#  pull_request:
+#    types:
+#      - closed
+#    branches:
+#      - main
+#      - v2
+  push:
+    branches: [ MCIL-115-automate-diagrams-creation-with-plantuml ]
 
 jobs:
   generate_diagrams:
