@@ -28,8 +28,7 @@ jobs:
 
       - name: Install Graphviz
         run: |
-          apt-get update -q
-          apt-get install -y graphviz wget
+          sudo apt-get update && sudo apt-get install -y graphviz wget
 
       - name: Download PlantUML
         run: |
