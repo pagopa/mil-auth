@@ -75,7 +75,7 @@ public class AzureKeyFinder implements KeyFinder {
 	/*
 	 * 
 	 */
-	private static final String KEY_NAME_PREFIX = "auth";
+	public static final String KEY_NAME_PREFIX = "auth";
 
 	/*
 	 *
@@ -375,15 +375,22 @@ public class AzureKeyFinder implements KeyFinder {
 	}
 
 	/**
+	 * 
+	 * @return
+	 */
+	public static String generateKeyName() {
+		return KEY_NAME_PREFIX + UUID.randomUUID().toString().replace("-", "");
+	}
+
+	/**
 	 * @param accessToken
 	 * @return
 	 */
 	private Uni<PublicKey> createKey(String accessToken) {
-		String keyName = KEY_NAME_PREFIX + UUID.randomUUID().toString().replace("-", "");
 		long now = Instant.now().getEpochSecond();
 		KeyAttributes attributes = new KeyAttributes(now, now + cryptoperiod, now, now, true, PURGEABLE, null, false);
 		CreateKeyRequest createKeyRequest = new CreateKeyRequest(RSA, keysize, OPS, attributes);
-		return keyVaultService.createKey(accessToken, keyName, createKeyRequest)
+		return keyVaultService.createKey(accessToken, generateKeyName(), createKeyRequest)
 			.map(resp -> {
 				if (isKeyValid(resp)) {
 					KeyDetails key = resp.getDetails();
