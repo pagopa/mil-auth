@@ -37,9 +37,10 @@
 		<!-- Quarkus version -->
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>3.10.1</quarkus.platform.version>
+		<quarkus.platform.version>3.10.2</quarkus.platform.version>
 		<!-- Other dependecies version -->
 		<common.version>2.3.0</common.version>
+		<azure-services.version>1.0.0</azure-services.version>
 		<lombok.version>1.18.32</lombok.version>
 		<otel-exporter-azure.version>3.8.3.0</otel-exporter-azure.version>
 		<!-- Sonar config -->
@@ -94,6 +95,11 @@
 			<groupId>it.pagopa.swclient.mil</groupId>
 			<artifactId>common</artifactId>
 			<version>${common.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>it.pagopa.swclient.mil</groupId>
+			<artifactId>azure-services</artifactId>
+			<version>${azure-services.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.nimbusds</groupId>
@@ -155,6 +161,10 @@
 		<repository>
 			<id>github</id>
 			<url>https://maven.pkg.github.com/pagopa/mil-common</url>
+		</repository>
+		<repository>
+			<id>github-mil-azure-services</id>
+			<url>https://maven.pkg.github.com/pagopa/mil-azure-services</url>
 		</repository>
 	</repositories>
 	
