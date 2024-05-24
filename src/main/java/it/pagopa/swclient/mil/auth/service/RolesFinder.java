@@ -31,7 +31,7 @@ public class RolesFinder {
 	 * Role repository.
 	 */
 	private AuthDataRepository repository;
-	
+
 	/**
 	 * 
 	 * @param repository

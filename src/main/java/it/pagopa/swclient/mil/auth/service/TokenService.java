@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -19,9 +21,7 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
-import it.pagopa.swclient.mil.pdv.bean.PersonalData;
-import it.pagopa.swclient.mil.pdv.bean.Token;
-import it.pagopa.swclient.mil.pdv.client.Tokenizer;
+import it.pagopa.swclient.mil.auth.util.EncryptedClaim;
 
 /**
  * This class generates access token string and refresh token string if any and signs them.
@@ -32,22 +32,26 @@ public abstract class TokenService {
 	/*
 	 * Access token duration.
 	 */
-	private long accessDuration;
+	@ConfigProperty(name = "access.duration")
+	long accessDuration;
 
 	/*
 	 * Duration of refresh tokens in seconds.
 	 */
-	private long refreshDuration;
+	@ConfigProperty(name = "refresh.duration")
+	long refreshDuration;
 
 	/*
 	 * mil-auth base URL.
 	 */
-	private String baseUrl;
+	@ConfigProperty(name = "base-url", defaultValue = "")
+	String baseUrl;
 
 	/*
 	 * Token audience.
 	 */
-	private String audience;
+	@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it")
+	String audience;
 
 	/*
 	 *
@@ -67,12 +71,7 @@ public abstract class TokenService {
 	/*
 	 * 
 	 */
-	private Tokenizer tokenizer;
-
-	/*
-	 * 
-	 */
-	private boolean protectFiscalCode;
+	private ClaimEncryptor claimEncryptor;
 
 	/**
 	 * 
@@ -82,35 +81,16 @@ public abstract class TokenService {
 
 	/**
 	 * 
-	 * @param accessDuration
-	 * @param refreshDuration
-	 * @param baseUrl
-	 * @param audience
 	 * @param clientVerifier
 	 * @param roleFinder
 	 * @param tokenSigner
-	 * @param tokenizer
-	 * @param protectFiscalCode
+	 * @param claimEncryptor
 	 */
-	TokenService(
-		long accessDuration,
-		long refreshDuration,
-		String baseUrl,
-		String audience,
-		ClientVerifier clientVerifier,
-		RolesFinder roleFinder,
-		TokenSigner tokenSigner,
-		Tokenizer tokenizer,
-		boolean protectFiscalCode) {
-		this.accessDuration = accessDuration;
-		this.refreshDuration = refreshDuration;
-		this.baseUrl = baseUrl;
-		this.audience = audience;
+	TokenService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner, ClaimEncryptor claimEncryptor) {
 		this.clientVerifier = clientVerifier;
 		this.roleFinder = roleFinder;
 		this.tokenSigner = tokenSigner;
-		this.tokenizer = tokenizer;
-		this.protectFiscalCode = protectFiscalCode;
+		this.claimEncryptor = claimEncryptor;
 	}
 
 	/**
@@ -137,13 +117,8 @@ public abstract class TokenService {
 		if (fiscalCode == null) {
 			return generate(request, duration, roles, scopes, null);
 		} else {
-			if (protectFiscalCode) {
-				return tokenizer.tokenize(new PersonalData(fiscalCode))
-					.map(Token::getValue)
-					.chain(fiscalCodeToken -> generate(request, duration, roles, scopes, fiscalCodeToken));
-			} else {
-				return generate(request, duration, roles, scopes, fiscalCode);
-			}
+			return claimEncryptor.encrypt(fiscalCode)
+				.chain(encFiscalCode -> generate(request, duration, roles, scopes, encFiscalCode));
 		}
 	}
 
@@ -156,7 +131,7 @@ public abstract class TokenService {
 	 * @param fiscalCodeToken
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes, String fiscalCodeToken) {
+	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes, EncryptedClaim fiscalCode) {
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
 			.subject(request.getClientId())
@@ -169,7 +144,7 @@ public abstract class TokenService {
 			.claim(ClaimName.TERMINAL_ID, request.getTerminalId())
 			.claim(ClaimName.SCOPE, concat(scopes))
 			.claim(ClaimName.GROUPS, roles)
-			.claim(ClaimName.FISCAL_CODE, fiscalCodeToken)
+			.claim(ClaimName.FISCAL_CODE, fiscalCode)
 			.issuer(baseUrl)
 			.audience(audience)
 			.build();

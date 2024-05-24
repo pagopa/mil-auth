@@ -49,7 +49,10 @@ import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
 import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
+import it.pagopa.swclient.mil.auth.service.ClaimEncryptor;
+import it.pagopa.swclient.mil.auth.util.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
 import it.pagopa.swclient.mil.bean.Channel;
 import it.pagopa.swclient.mil.pdv.bean.PersonalData;
 import it.pagopa.swclient.mil.pdv.bean.Token;
@@ -133,13 +136,12 @@ class TokenByClientSecretResourceTest {
 	@InjectMock
 	@RestClient
 	AzureAuthClient authClient;
-	
+
 	/*
 	 *
 	 */
 	@InjectMock
-	@RestClient
-	Tokenizer tokenizer;
+	ClaimEncryptor claimEncryptor;
 
 	/**
 	 *
@@ -216,7 +218,7 @@ class TokenByClientSecretResourceTest {
 			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
 			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
-	
+
 	@Test
 	void testOkWithFiscalCode() {
 		/*
@@ -236,12 +238,15 @@ class TokenByClientSecretResourceTest {
 		 */
 		when(authClient.getAccessToken(anyString(), anyString()))
 			.thenReturn(UniGenerator.item(new GetAccessTokenResponse(TokenType.BEARER, Instant.now().getEpochSecond() + AZURE_TOKEN_DURATION, "", "", AZURE_TOKEN)));
-		
+
 		/*
-		 * PDV tokenizer.
+		 * ClaimEncryptor.
 		 */
-		when(tokenizer.tokenize(any(PersonalData.class)))
-			.thenReturn(UniGenerator.item(new Token("4b39a715-672b-4bf2-a7b1-76de90133334")));
+		when(claimEncryptor.encrypt(anyString()))
+			.thenReturn(UniGenerator.item(new EncryptedClaim()
+				.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
+				.setKid("kid")
+				.setValue(new byte[0])));
 
 		/*
 		 * Azure key vault setup.

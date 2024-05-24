@@ -9,9 +9,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Objects;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -25,7 +22,6 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
-import it.pagopa.swclient.mil.pdv.client.Tokenizer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -41,29 +37,21 @@ public class RefreshTokensService extends TokenService {
 	RefreshTokensService() {
 		super();
 	}
+
 	/**
 	 * 
-	 * @param accessDuration
-	 * @param refreshDuration
-	 * @param baseUrl
-	 * @param audience
 	 * @param clientVerifier
 	 * @param roleFinder
 	 * @param tokenSigner
-	 * @paran tokenizer
-	 * @param protectFiscalCode
+	 * @param claimEncryptor
 	 */
 	@Inject
-	RefreshTokensService(@ConfigProperty(name = "access.duration") long accessDuration,
-		@ConfigProperty(name = "refresh.duration") long refreshDuration,
-		@ConfigProperty(name = "base-url", defaultValue = "") String baseUrl,
-		@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it") String audience,
+	RefreshTokensService(
 		ClientVerifier clientVerifier,
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
-		@RestClient Tokenizer tokenizer,
-		@ConfigProperty(name = "protect-fiscal-code", defaultValue = "false") boolean protectFiscalCode) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer, protectFiscalCode);
+		ClaimEncryptor claimEncryptor) {
+		super(clientVerifier, roleFinder, tokenSigner, claimEncryptor);
 	}
 
 	/**
