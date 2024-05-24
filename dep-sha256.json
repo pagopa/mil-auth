@@ -645,13 +645,6 @@
       "sha256": "hWJWmgAdRuhOojgCJX4zyPaLJOtHweDv0TOgNyxRKVk="
     },
     {
-      "id": "net.bytebuddy:byte-buddy:jar:1.14.11",
-      "artifactId": "byte-buddy",
-      "groupId": "net.bytebuddy",
-      "version": "1.14.11",
-      "sha256": "Yq4oGH7SsGKBPaap1We_7nM8NBWCaZti3ZgCMHKaAxM="
-    },
-    {
       "id": "io.quarkus:quarkus-rest-client:jar:3.10.2",
       "artifactId": "quarkus-rest-client",
       "groupId": "io.quarkus",
@@ -1539,6 +1532,20 @@
       "groupId": "org.apache.commons",
       "version": "3.14.0",
       "sha256": "e5a_PuaJSau1vEZVWawnDgVRWW-jRSP934kOxBjd4Tw="
+    },
+    {
+      "id": "org.assertj:assertj-core:jar:3.25.3",
+      "artifactId": "assertj-core",
+      "groupId": "org.assertj",
+      "version": "3.25.3",
+      "sha256": "f73_oZltQ8wI4lduAQCLB-V7utK0dBqmw6tzzoUREw4="
+    },
+    {
+      "id": "net.bytebuddy:byte-buddy:jar:1.14.11",
+      "artifactId": "byte-buddy",
+      "groupId": "net.bytebuddy",
+      "version": "1.14.11",
+      "sha256": "Yq4oGH7SsGKBPaap1We_7nM8NBWCaZti3ZgCMHKaAxM="
     },
     {
       "id": "io.quarkus:quarkus-junit5-mockito:jar:3.10.2",
