@@ -168,6 +168,7 @@ public class RefreshTokensService extends TokenService {
 		} catch (ParseException e) {
 			String message = String.format("[%s] Error parsing token.", AuthErrorCode.ERROR_PARSING_TOKEN);
 			Log.errorf(e, message);
+			Log.errorf("Offending token: %s", tokenStr);
 			return UniGenerator.error(AuthErrorCode.ERROR_PARSING_TOKEN, message);
 		}
 	}

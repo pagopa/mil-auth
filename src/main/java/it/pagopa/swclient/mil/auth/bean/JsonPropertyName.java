@@ -29,6 +29,8 @@ public class JsonPropertyName {
 	public static final String TOKEN_ENDPOINT = "token_endpoint";
 	public static final String JWKS_URI = "jwks_uri";
 
+	public static final String FISCAL_CODE = "fiscalCode";
+
 	private JsonPropertyName() {
 	}
 }

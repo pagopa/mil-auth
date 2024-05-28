@@ -9,7 +9,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -49,6 +51,18 @@ class RolesFinderTest {
 	 */
 	@Inject
 	RolesFinder finder;
+
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
+	}
 
 	/**
 	 * Test method for

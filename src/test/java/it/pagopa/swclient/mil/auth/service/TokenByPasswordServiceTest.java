@@ -10,7 +10,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.mockito.MockedStatic;
@@ -63,6 +65,18 @@ class TokenByPasswordServiceTest {
 	 */
 	@InjectMock
 	AuthDataRepository repository;
+
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
+	}
 
 	/*
 	 * 

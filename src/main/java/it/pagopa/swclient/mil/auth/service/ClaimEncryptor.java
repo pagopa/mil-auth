@@ -13,20 +13,22 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyNameAndVersion;
 import it.pagopa.swclient.mil.auth.azure.keyvault.service.AzureKeyFinder;
-import it.pagopa.swclient.mil.auth.util.EncryptedClaim;
+import it.pagopa.swclient.mil.auth.azure.keyvault.util.KidUtil;
+import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
+import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyCreateParameters;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyItem;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyOperationParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyOperationResult;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysExtReactiveService;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysReactiveService;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -58,15 +60,22 @@ public class ClaimEncryptor {
 	 */
 	private AzureKeyVaultKeysReactiveService keysService;
 
+	/*
+	 * 
+	 */
+	private KidUtil kidUtil;
+
 	/**
 	 * 
 	 * @param keysExtService
 	 * @param keysService
+	 * @param kidUtil
 	 */
 	@Inject
-	ClaimEncryptor(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
+	ClaimEncryptor(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService, KidUtil kidUtil) {
 		this.keysExtService = keysExtService;
 		this.keysService = keysService;
+		this.kidUtil = kidUtil;
 	}
 
 	/**
@@ -104,12 +113,12 @@ public class ClaimEncryptor {
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA))
 			.chain(keyBundle -> {
-				if (keyBundle == null) {
+				if (keyBundle.isEmpty()) {
 					Log.debug("No suitable key found");
 					return createKey();
 				} else {
 					Log.trace("Suitable key found");
-					return UniGenerator.item(keyBundle.getKey().getKid());
+					return UniGenerator.item(keyBundle.get().getKey().getKid());
 				}
 			});
 	}
@@ -122,11 +131,11 @@ public class ClaimEncryptor {
 	 * @return
 	 */
 	private Uni<KeyOperationResult> encrypt(String kid, String value) {
-		Log.trace("Encrypt");
-		String[] keyNameAndVersion = KeyUtils.getKeyNameVersion(new KeyItem().setKid(kid));
+		Log.tracef("Encrypt with kid = %s", kid);
+		KeyNameAndVersion keyNameAndVersion = kidUtil.getNameAndVersionFromAzureKid(kid);
 		return keysService.encrypt(
-			keyNameAndVersion[0],
-			keyNameAndVersion[1],
+			keyNameAndVersion.getName(),
+			keyNameAndVersion.getVersion(),
 			new KeyOperationParameters()
 				.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
 				.setValue(value.getBytes(StandardCharsets.UTF_8)));
@@ -141,12 +150,38 @@ public class ClaimEncryptor {
 		return retrieveKey()
 			.chain(kid -> encrypt(kid, value))
 			.map(keyOperationResult -> {
-				String[] keyNameAndVersion = KeyUtils.getKeyNameVersion(new KeyItem().setKid(keyOperationResult.getKid()));
-				String kid = keyNameAndVersion[0] + "/" + keyNameAndVersion[1];
+				String kid = kidUtil.getMyKidFromAzureOne(keyOperationResult.getKid());
 				return new EncryptedClaim()
 					.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
 					.setValue(keyOperationResult.getValue())
 					.setKid(kid);
+			})
+			.onFailure()
+			.transform(t -> {
+				Log.errorf(t, "Error encrypting the claim [%s]", t, value);
+				return new AuthError(AuthErrorCode.ERROR_ENCRYPTING_CLAIM, "Error encrypting claim");
+			});
+	}
+
+	/**
+	 * 
+	 * @param encryptedClaim
+	 * @return
+	 */
+	public Uni<String> decrypt(EncryptedClaim encryptedClaim) {
+		Log.trace("Decrypt");
+		KeyNameAndVersion keyNameAndVersion = kidUtil.getNameAndVersionFromMyKid(encryptedClaim.getKid());
+		return keysService.decrypt(
+			keyNameAndVersion.getName(),
+			keyNameAndVersion.getVersion(),
+			new KeyOperationParameters()
+				.setAlg(encryptedClaim.getAlg())
+				.setValue(encryptedClaim.getValue()))
+			.map(keyOperationResult -> new String(keyOperationResult.getValue(), StandardCharsets.UTF_8))
+			.onFailure()
+			.transform(t -> {
+				Log.errorf(t, "Error decrypting claim", t);
+				return new AuthError(AuthErrorCode.ERROR_DECRYPTING_CLAIM, "Error decrypting claim");
 			});
 	}
 }

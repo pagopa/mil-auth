@@ -18,7 +18,9 @@ import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
@@ -817,6 +819,18 @@ class AzureKeyFinderTest {
 
 		when(keyVaultClient.getKey(AZURE_ACCESS_TOKEN, K6, K6_V1))
 			.thenReturn(Uni.createFrom().item(withoutDetailsK6V1));
+	}
+
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
 	}
 
 	/**

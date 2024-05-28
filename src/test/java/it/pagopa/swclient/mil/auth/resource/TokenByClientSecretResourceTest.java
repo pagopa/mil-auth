@@ -21,7 +21,9 @@ import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 
 import io.quarkus.test.InjectMock;
@@ -43,6 +45,7 @@ import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignResponse;
 import it.pagopa.swclient.mil.auth.azure.keyvault.client.AzureKeyVaultClient;
 import it.pagopa.swclient.mil.auth.azure.storage.client.AzureAuthDataRepositoryClient;
 import it.pagopa.swclient.mil.auth.bean.Client;
+import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.bean.FormParamName;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
@@ -50,13 +53,9 @@ import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
 import it.pagopa.swclient.mil.auth.service.ClaimEncryptor;
-import it.pagopa.swclient.mil.auth.util.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
 import it.pagopa.swclient.mil.bean.Channel;
-import it.pagopa.swclient.mil.pdv.bean.PersonalData;
-import it.pagopa.swclient.mil.pdv.bean.Token;
-import it.pagopa.swclient.mil.pdv.client.Tokenizer;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -149,6 +148,18 @@ class TokenByClientSecretResourceTest {
 	@BeforeAll
 	void setup() {
 		keyUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
+	}
+
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
 	}
 
 	@Test
@@ -246,7 +257,9 @@ class TokenByClientSecretResourceTest {
 			.thenReturn(UniGenerator.item(new EncryptedClaim()
 				.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
 				.setKid("kid")
-				.setValue(new byte[0])));
+				.setValue(new byte[] {
+					0, 1, 2, 3
+				})));
 
 		/*
 		 * Azure key vault setup.
@@ -275,7 +288,7 @@ class TokenByClientSecretResourceTest {
 		 */
 		given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-000000000000")
+			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-800000000000")
 			.header(HeaderParamName.ACQUIRER_ID, ACQUIRER_ID)
 			.header(HeaderParamName.CHANNEL, Channel.POS)
 			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)

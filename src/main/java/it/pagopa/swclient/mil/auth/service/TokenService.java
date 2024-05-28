@@ -17,11 +17,11 @@ import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
+import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
-import it.pagopa.swclient.mil.auth.util.EncryptedClaim;
 
 /**
  * This class generates access token string and refresh token string if any and signs them.
@@ -115,8 +115,10 @@ public abstract class TokenService {
 	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes) {
 		String fiscalCode = request.getFiscalCode();
 		if (fiscalCode == null) {
+			Log.trace("Fiscal code not present");
 			return generate(request, duration, roles, scopes, null);
 		} else {
+			Log.trace("Fiscal code present");
 			return claimEncryptor.encrypt(fiscalCode)
 				.chain(encFiscalCode -> generate(request, duration, roles, scopes, encFiscalCode));
 		}
@@ -128,10 +130,11 @@ public abstract class TokenService {
 	 * @param duration
 	 * @param roles
 	 * @param scopes
-	 * @param fiscalCodeToken
+	 * @param encFiscalCode
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes, EncryptedClaim fiscalCode) {
+	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes, EncryptedClaim encFiscalCode) {
+		Log.tracef("Encrypted fiscal code: %s", encFiscalCode);
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
 			.subject(request.getClientId())
@@ -144,7 +147,7 @@ public abstract class TokenService {
 			.claim(ClaimName.TERMINAL_ID, request.getTerminalId())
 			.claim(ClaimName.SCOPE, concat(scopes))
 			.claim(ClaimName.GROUPS, roles)
-			.claim(ClaimName.FISCAL_CODE, fiscalCode)
+			.claim(ClaimName.FISCAL_CODE, encFiscalCode != null ? encFiscalCode.toMap() : null)
 			.issuer(baseUrl)
 			.audience(audience)
 			.build();

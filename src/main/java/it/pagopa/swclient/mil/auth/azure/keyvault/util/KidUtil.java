@@ -68,6 +68,19 @@ public class KidUtil {
 	}
 
 	/**
+	 * 
+	 * @param azureKid
+	 * @return
+	 */
+	public String getMyKidFromAzureOne(String azureKid) {
+		Matcher m = patternForAzureKidWithNameAndVersion.matcher(azureKid);
+		if (m.find()) {
+			return m.group("name") + "/" + m.group("version");
+		}
+		return null;
+	}
+
+	/**
 	 * @param kid
 	 * @return
 	 */

@@ -8,7 +8,9 @@ package it.pagopa.swclient.mil.auth.azure.keyvault.bean;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -17,6 +19,18 @@ import io.quarkus.test.junit.QuarkusTest;
  */
 @QuarkusTest
 class KeyNameAndVersionTest {
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
+	}
+
 	@Test
 	void testIsValid1() {
 		assertFalse(new KeyNameAndVersion(null, null).isValid());
