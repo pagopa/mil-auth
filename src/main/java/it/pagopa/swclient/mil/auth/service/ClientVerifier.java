@@ -30,7 +30,7 @@ public class ClientVerifier {
 	 *
 	 */
 	private AuthDataRepository repository;
-	
+
 	/**
 	 * 
 	 * @param repository

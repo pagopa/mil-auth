@@ -50,6 +50,42 @@ paths:
         default:
           description: Unexpected error
 
+  /token_info:
+    post:
+      operationId: introspect
+      description: Introspects a given access token returning the clear value of user tax code (if any)
+      tags: [ info ]
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        $ref: '#/components/requestBodies/TokenInfo'
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/TokenInfo'
+        "204":
+          description: No content
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Wrong credentials
+        "403":
+          description: Forbidden
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "415":
+          description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+        "429":
+          description: Too many request
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
   /.well-known/jwks.json:
     get:
       operationId: getJwks
@@ -478,6 +514,30 @@ components:
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
         refresh_token: "eyJraWQiOiIxN2YwNWViZC1hMWMzLTRjNWMtODM4Ny1jOWZlNjU4MDRiMDEiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21pbC1kLWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtaWRwIiwiYXVkIjoiaHR0cHM6Ly9taWwtZC1hcGltLmF6dXJlLWFwaS5uZXQvbWlsLWlkcCIsImV4cCI6MTY3ODg4MTA1NSwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyJ9.Bu-BXKRMoE8fdBfuoPAa70WQYUWVH3BK3VFMw-9mr7hGlKBSONXQY8vcrFuh4OLm6vHX2hUagYuJ3yS_Anm5AHU8Kpay0dGm30fyPxFAyv5s_Yn_ET3VExPZBedBSlHl0Rzt0JQ_9X07X0JkCwWacxWMueKNoVndAh3QxswbkwtEANAKvQcvAtdLjh-93eDYFq0vvS8qNRReTZf46fldIL9H5-0MMqjfVi5A6y8YCzx7_kOHKq8wCy7u75QtKhPRzYnY0JcBVMALZgQovpCYpnlPkP3JV3cgdmlDGWmGHbKQz9iQ5bY1071e3vhxqR2iEqFJwn7nohYq9sxkMQGxNxz2BI-w3v_SQ3zS3mI1qK_qm1c7yzyF3c_lB920T5hBup9RozIXVb2OkX38pW6JKORETgSLlhnqLc8Rr1_HaQ2qN_JYcn7Urv_0mSJh-i8zS39F1glY3ejHHiVbl8cSJsPPw-ehpKAozf6h0_JiZBe0TuBtyTNULQH1iri19C9z_XBgBnfC1DtrnQn-UIgGbJq1TnIgtVmtTnReJqDpcf6_MGDLqCL-x192UQszb8GgWjD8tRusJ9X5HG1RHUAVyQ5gfOCegHmymyB7Dx7e5fCOghDUTT0t2dvVKbIXZGilrddKBg70iBGDA5j5-01lvnl2aaxBv51Y_zr-3IZdAyA"
 
+    TokenInfoRequest:
+      description: Request to introspect an access token
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          $ref: '#/components/schemas/Token'
+      required:
+        - token
+      example:
+        token: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLXUtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwiZ3JvdXBzIjpbIk5vdGljZVBheWVyIiwiU2xhdmVQb3MiLCJQYXlXaXRoSURQYXkiXSwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzEwNzYwMDc0LCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTcxMDc1OTE3NH0.DwdwI-kYMf9OWY5PjBUw9zrSZGXGaqWlj1FwygAKv_AMvZ41_Uu8fnL7LOpYTYS0qNouxOVsRmpOnjfvt1zfx8t8MZP07O7KpO4cJpBfqm2kXI5_A2gimFrF4m_4LM-exNM0fW5gaGC8TVfMm0dkrJh0tFnZ3j-xw9bGi1ZqubIth0H7M8JkvzZ1o6CMOyfEVTYbiJb9lhsP6qrmduhhv9uRAo7SyIVFVudjsNyrw-MFDwQhpGdhrKa_2q6ZpkjzRcK1t_NynFI1IFbWuy5wYS1DllA9uJxU9Rc1zPHQk1UR_Cfrek3D7rfg9tJY0XqDerG8gUMg7wlizMZSkmWfhNKz5yH9seV4_ktVU2rBVsN-OIwMfOiD3kwjIxw4NcX5Uza9cMCQPSZqbDCG4jeFQjJ1WxBkKAfFJLc_Vb59CS2UttwCJA8A9OsCJ2kQQ9fg_Ez1tzNdsCsMXQo7XAFPKGTe0MpL2UPiErPATEjdfdzHnwyZsx-DubAEwKUREHjAevAQb6i6b6aI_3Ti51ArLor1jW_1EHwt2fRyhbDdTyvKSI7trqtx8DkNgd42dOBYrIqYUs2xfaFdKLGDmH5dFX7n8l--xqaNDU983Z1neNX-lsRWe-22eT0ykfRW_GI84v_uRA2My5RL2mmJ9vjRQ3LTlaOairNYkYplyXcydSQ"
+
+    TokenInfoResponse:
+      description: Response to the request to introspect an access token
+      type: object
+      additionalProperties: false
+      properties:
+        fiscalCode:
+          $ref: '#/components/schemas/FiscalCode'
+      required:
+        - fiscalCode
+      example:
+        userCode: "RSSMRA85T10A562S"
+
   # ========================================================
   # Request bodies
   # ========================================================
@@ -492,6 +552,13 @@ components:
               - $ref: '#/components/schemas/RefreshAccessToken'
               - $ref: '#/components/schemas/GetAccessTokenByExternalToken'
               - $ref: '#/components/schemas/GetAccessTokenByClientCredentials'
+
+    TokenInfo:
+      description: Request to introspect an access token
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/TokenInfoRequest'
 
   # ========================================================
   # Parameters
@@ -586,3 +653,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/OpenIdConf'
+  
+    TokenInfo:
+      description: Response to the request to introspect an access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenInfoResponse'
+  
+  # ----------------------------------------------------------------------------------
+  # Security schemes
+  # ----------------------------------------------------------------------------------
+  securitySchemes:
+    BearerAuth:
+      description: A bearer token in the format of a JWS and conforms to the specifications included in RFC8725
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

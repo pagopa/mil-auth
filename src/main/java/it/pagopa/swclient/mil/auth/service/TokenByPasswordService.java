@@ -11,9 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Objects;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -26,7 +23,6 @@ import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
-import it.pagopa.swclient.mil.pdv.client.Tokenizer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -47,39 +43,25 @@ public class TokenByPasswordService extends TokenService {
 	 *
 	 */
 	private AuthDataRepository repository;
-	
+
 	/**
 	 * 
 	 */
 	TokenByPasswordService() {
 		super();
 	}
-	
+
 	/**
 	 * 
-	 * @param accessDuration
-	 * @param refreshDuration
-	 * @param baseUrl
-	 * @param audience
 	 * @param clientVerifier
 	 * @param roleFinder
 	 * @param tokenSigner
+	 * @param claimEncryptor
 	 * @param repository
-	 * @param tokenizer
-	 * @param protectFiscalCode
 	 */
 	@Inject
-	TokenByPasswordService(@ConfigProperty(name = "access.duration") long accessDuration,
-		@ConfigProperty(name = "refresh.duration") long refreshDuration,
-		@ConfigProperty(name = "base-url", defaultValue = "") String baseUrl,
-		@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it") String audience,
-		ClientVerifier clientVerifier,
-		RolesFinder roleFinder,
-		TokenSigner tokenSigner,
-		AuthDataRepository repository,
-		@RestClient Tokenizer tokenizer,
-		@ConfigProperty(name = "protect-fiscal-code", defaultValue = "false") boolean protectFiscalCode) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner, tokenizer, protectFiscalCode);
+	TokenByPasswordService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner, ClaimEncryptor claimEncryptor, AuthDataRepository repository) {
+		super(clientVerifier, roleFinder, tokenSigner, claimEncryptor);
 		this.repository = repository;
 	}
 

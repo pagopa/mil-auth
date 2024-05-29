@@ -8,7 +8,9 @@ package it.pagopa.swclient.mil.auth.resource;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.notNullValue;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -41,6 +43,18 @@ class RequestValidationTest {
 	private static final String PASSWORD = "dF@dkj$S73j#fjd7X!";
 	private static final String CLIENT_SECRET = "3674f0e7-d717-44cc-a3bc-5f8f41771fea";
 	private static final String REFRESH_TOKEN = "eyJraWQiOiI2YmY3YWE2OC04MWJkLTQ0MmItYjY2Zi0xYmM1ZmNjZTViMmIiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsInRlcm1pbmFsSWQiOiIwMTIzNDU2NyIsImV4cCI6MTY4NDQ4OTg0MiwiYWNxdWlyZXJJZCI6IjQ1ODU2MjUiLCJpYXQiOjE2ODQ0ODYyNDJ9.nzT6-WgTLoaogCKs83y1CWC8Xkivin9iB9mqigxNqqeNtzRqTQ3JkP5bHLHPscXSAGaiPzS9OVULQnBSxhMq5UFRdKpLulOZ0anfV67-GmF1D68tm2Uqc0RyQYeUO9I_4nfVyL1qRNHed-rcZUwV1m9J-paf9uZbWQCfHOthEcOyCVCyD07X5_yiQfcFSjxKYtxy-3sZyxCjTIHnKhwY-0OZnvfmQECCK39UF9cFBAr0nRW1Z_Ox8Sj5Kd9A-c7LFQDy27eiWQWfo3Ycgp9wvr7a9GPMGvAECDSKaTkMHmKQ946BSXz7zkvK0kpxu3jnKgC8-WRrtTLNroABbU4SAGxFFhwCBP4wk8aTPRJuphldzguU4z-SeGwLitKg9-h7i7_fXo6s0BWKaftk0WBvdcNrNK5XJf0cTCYkqYekJbl4q5A7P4r9dFh9CjggsM3BgG56Bn4jGAzxmJpbQf3u2xAbM5MQGJ4ahxnhB5hzCRz6mqOSbdrSIpV0Pra7aBVi0vqe_UbxslUZQwL-W9kzCPdE0FBKOIV_E33HES98LbH7VqrrmLPJaqj6ggP3txyM9DYm2E_qgbQl0-efawIYjazPbi3PV9XliiEVIvUOcTl1EXPu7vfkyOsUuckKcUKh6xoqn6oRpVb-nIdLfPql3PSEPpKa6G3VnAMBo74Mn7I";
+
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
+	}
 
 	/**
 	 * acquirerIdMustBeNull(getAccessToken)
