@@ -17,6 +17,7 @@ import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.bean.Errors;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.InternalServerErrorException;
@@ -31,6 +32,7 @@ import jakarta.ws.rs.core.Response.Status;
  * @author Antonio Tarricone
  */
 @Path("/.well-known/jwks.json")
+@PermitAll
 public class JwksResource {
 	/*
 	 *

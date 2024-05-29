@@ -23,6 +23,7 @@ import it.pagopa.swclient.mil.auth.service.TokenService;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.bean.Errors;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.util.AnnotationLiteral;
@@ -44,6 +45,7 @@ import jakarta.ws.rs.core.Response.Status;
  */
 @SuppressWarnings("serial")
 @Path("/token")
+@PermitAll
 public class TokenResource {
 	/*
 	 *
