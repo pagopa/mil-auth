@@ -142,7 +142,14 @@ jobs:
       #
       - name: RELEASE CANDIDATE - Build Docker image
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC -t ghcr.io/${{ github.repository }}:${{ github.sha }}-RC .
+        run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC .
+
+      #
+      # RELEASE CANDICATE - Get sha256 of Docker image.
+      #
+      - name: RELEASE CANDIDATE - Get sha256 of Docker image
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: echo "image_sha256_rc=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       #
       # RELEASE CANDIDATE - Push Docker image.
@@ -152,13 +159,6 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
-
-      #
-      # RELEASE CANDICATE - Get sha256 of Docker image.
-      #
-      - name: RELEASE CANDIDATE - Get sha256 of Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256=$(docker image inspect -f '{{ .Id }}' ghcr.io/${{ github.repository }}:${{ github.sha }}-RC | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       #
       # Login to Azure.
@@ -180,7 +180,7 @@ jobs:
         with:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC@sha256:${{ env.image_sha256 }}
+            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ${{ env.image_sha256_rc }}
             API_DATA=$(az apim api show --resource-group ${{ secrets.AZURE_APIM_RESOURCE_GROUP }} --service-name ${{ secrets.AZURE_APIM_NAME }} --api-id ${{ secrets.AZURE_APIM_API_ID }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --query "{path:path, serviceUrl:serviceUrl}")
             API_PATH=$(echo $API_DATA | jq -r '.path')
             API_SERVICE_URL=$(echo $API_DATA | jq -r '.serviceUrl')
@@ -258,7 +258,14 @@ jobs:
       #
       - name: STABLE - Build Docker image
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
+        run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} .
+
+      #
+      # STABLE - Get sha256 of Docker image.
+      #
+      - name: STABLE - Get sha256 of Docker image
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       #
       # STABLE - Push Docker image.
@@ -270,13 +277,6 @@ jobs:
           docker push -a ghcr.io/${{ github.repository }}
 
       #
-      # STABLE - Get sha256 of Docker image.
-      #
-      - name: STABLE - Get sha256 of Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256=$(docker image inspect -f '{{ .Id }}' ghcr.io/${{ github.repository }}:${{ github.sha }} | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
-
-      #
       # STABLE - Update Container App.
       #
       - name: STABLE - Update Container App
@@ -285,4 +285,4 @@ jobs:
         with:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}@sha256:${{ env.image_sha256 }}
+            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ${{ env.image_sha256 }}
