@@ -9,6 +9,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.OpenIdConf;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -20,6 +21,7 @@ import jakarta.ws.rs.core.Response.Status;
  * @author Antonio Tarricone
  */
 @Path("/.well-known/openid-configuration")
+@PermitAll
 public class OpenIdConfResource {
 	/*
 	 * mil-auth base URL.
