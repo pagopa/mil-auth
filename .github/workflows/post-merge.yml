@@ -154,11 +154,11 @@ jobs:
           docker push -a ghcr.io/${{ github.repository }}
 
       #
-      # RELEASE CANDICATE - Get sha256 of Docker image.
+      # RELEASE CANDICATE - Get Docker image with sha256.
       #
-      - name: RELEASE CANDIDATE - Get sha256 of Docker image
+      - name: RELEASE CANDIDATE - Get Docker image with sha256
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256_rc=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
+        run: echo "image_sha256_rc=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC)" >> "$GITHUB_ENV"
 
       #
       # Login to Azure.
@@ -270,11 +270,11 @@ jobs:
           docker push -a ghcr.io/${{ github.repository }}
 
       #
-      # STABLE - Get sha256 of Docker image.
+      # STABLE - Get Docker image with sha256.
       #
-      - name: STABLE - Get sha256 of Docker image
+      - name: STABLE - Get Docker image with sha256
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
+        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }})" >> "$GITHUB_ENV"
 
       #
       # STABLE - Update Container App.
