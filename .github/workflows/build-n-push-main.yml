@@ -114,6 +114,12 @@ jobs:
           docker push -a ghcr.io/${{ github.repository }}
 
       #
+      # Get sha256 of Docker image.
+      #
+      - name: Get sha256 of Docker image
+        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:$BRANCH_NAME | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      #
       # Login to Azure.
       #
       - name: Login to Azure
@@ -131,5 +137,4 @@ jobs:
         with:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -image ghcr.io/${{ github.repository }}:$BRANCH_NAME
-
+            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ${{ env.image_sha256 }}
