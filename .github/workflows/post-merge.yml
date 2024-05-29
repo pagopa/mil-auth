@@ -161,13 +161,6 @@ jobs:
           docker push -a ghcr.io/${{ github.repository }}
 
       #
-      # RELEASE CANDICATE - Get sha256 of Docker image.
-      #
-      - name: RELEASE CANDIDATE - Get sha256 of Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256=$(docker image inspect -f '{{ .Id }}' ghcr.io/${{ github.repository }}:${{ github.sha }}-RC | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
-
-      #
       # Login to Azure.
       #
       - name: Login to Azure
@@ -282,13 +275,6 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
-
-      #
-      # STABLE - Get sha256 of Docker image.
-      #
-      - name: STABLE - Get sha256 of Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256=$(docker image inspect -f '{{ .Id }}' ghcr.io/${{ github.repository }}:${{ github.sha }} | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       #
       # STABLE - Update Container App.
