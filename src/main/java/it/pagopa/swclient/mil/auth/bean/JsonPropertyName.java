@@ -31,6 +31,8 @@ public class JsonPropertyName {
 
 	public static final String FISCAL_CODE = "fiscalCode";
 
+	public static final String TOKEN = "token";
+
 	private JsonPropertyName() {
 	}
 }

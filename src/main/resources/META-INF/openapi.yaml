@@ -53,7 +53,7 @@ paths:
   /token_info:
     post:
       operationId: introspect
-      description: Introspects a given access token returning the clear value of user tax code (if any)
+      description: Introspects a given access token returning the clear value of user tax (fiscal) code (if any)
       tags: [ info ]
       security:
         - BearerAuth: [ ]
@@ -556,7 +556,7 @@ components:
     TokenInfo:
       description: Request to introspect an access token
       content:
-        application/x-www-form-urlencoded:
+        application/json:
           schema:
             $ref: '#/components/schemas/TokenInfoRequest'
 
