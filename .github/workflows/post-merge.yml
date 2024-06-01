@@ -215,7 +215,13 @@ jobs:
       #
       - name: Run Postman collection
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: newman run src/test/postman/mil-auth.postman_collection.json -e src/test/postman/dev.postman_environment.json
+        run: |
+          newman run src/test/postman/mil-auth.postman_collection.json \
+            -e src/test/postman/dev.postman_environment.json \
+            --env-var "correctPassword=${{ secrets.NEWMAN_IT__CORRECTPASSWORD }}" \
+            --env-var "correctClientSecret=${{ secrets.NEWMAN_IT__CORRECTCLIENTSECRET }}" \
+            --env-var "correctClientSecretForVasLayer=${{ secrets.NEWMAN_IT__CORRECTCLIENTSECRETFORVASLAYER }}" \
+            --env-var "clientSecretForMilDebtPosition=${{ secrets.NEWMAN_IT__CLIENTSECRETFORMILDEBTPOSITION }}"
         
       #
       # STABLE - Update of pom.xml with the new version.

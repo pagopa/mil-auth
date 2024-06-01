@@ -120,9 +120,23 @@
 							"",
 							"pm.test('Schema is valid', function () {",
 							"    pm.response.to.have.jsonSchema(schema);",
-							"});"
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"accessTokenWithFiscalCode\", jsonData.access_token);"
 						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
@@ -151,6 +165,11 @@
 							"key": "grant_type",
 							"value": "client_credentials",
 							"type": "text"
+						},
+						{
+							"key": "fiscal_code",
+							"value": "{{fiscalCode}}",
+							"type": "text"
 						}
 					]
 				},
@@ -161,6 +180,145 @@
 					],
 					"path": [
 						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "client_credentials - mil-debt-position",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"accessTokenForMilDebtPosition\", jsonData.access_token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000006"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{clientSecretForMilDebtPosition}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForMilDebtPosition}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "token_info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessTokenForMilDebtPosition}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000099"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"token\":\"{{accessTokenWithFiscalCode}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/token_info",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token_info"
 					]
 				}
 			},
@@ -1128,8 +1286,8 @@
 		},
 		{
 			"key": "correctPassword",
-			"value": "antonio",
-			"type": "string"
+			"value": "",
+			"type": "secret"
 		},
 		{
 			"key": "clientIdForPassword",
@@ -1173,8 +1331,8 @@
 		},
 		{
 			"key": "correctClientSecret",
-			"value": "be81144b-e8ec-487d-a440-ea8d144343f7",
-			"type": "string"
+			"value": "",
+			"type": "secret"
 		},
 		{
 			"key": "wrongClientSecret",
@@ -1197,13 +1355,31 @@
 		},
 		{
 			"key": "correctClientSecretForVasLayer",
-			"value": "5ceef788-4115-43a7-a704-b1bcc9a47c86",
-			"type": "string"
+			"value": "",
+			"type": "secret"
 		},
 		{
 			"key": "fiscalCode",
 			"value": "CHCZLN73D08A662B",
 			"type": "string"
+		},
+		{
+			"key": "accessTokenWithFiscalCode",
+			"value": ""
+		},
+		{
+			"key": "clientIdForMilDebtPosition",
+			"value": "6010064c-ec73-4fa5-9ed5-5446af8920cf",
+			"type": "string"
+		},
+		{
+			"key": "clientSecretForMilDebtPosition",
+			"value": "",
+			"type": "secret"
+		},
+		{
+			"key": "accessTokenForMilDebtPosition",
+			"value": ""
 		}
 	]
 }
