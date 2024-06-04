@@ -5,7 +5,6 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
@@ -57,22 +56,9 @@ public class RolesFinder {
 	 * @param terminalId
 	 * @return
 	 */
-	@CacheResult(cacheName = "role-cache")
-	public Uni<Role> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
-		return repository.getRoles(acquirerId, channel, clientId, merchantId, terminalId);
-	}
-
-	/**
-	 * @param acquirerId
-	 * @param channel
-	 * @param clientId
-	 * @param merchantId
-	 * @param terminalId
-	 * @return
-	 */
 	private Uni<Role> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.debugf("Search (sub) for the roles with acquirerId=[%s], channel=[%s], clientId=[%s], merchantId=[%s], terminalId=[%s].", acquirerId, channel, clientId, merchantId, terminalId);
-		return getRoles(replaceNullWithNa(acquirerId), replaceNullWithNa(channel), clientId, replaceNullWithNa(merchantId), replaceNullWithNa(terminalId))
+		return repository.getRoles(replaceNullWithNa(acquirerId), replaceNullWithNa(channel), clientId, replaceNullWithNa(merchantId), replaceNullWithNa(terminalId))
 			.invoke(role -> Log.debugf("Roles found: [%s]", role))
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {

@@ -5,30 +5,39 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.AllArgsConstructor;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.util.ByteArrayDeserializer;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.util.ByteArraySerializer;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @author Antonio Tarricone
  */
 @RegisterForReflection
 @Data
-@AllArgsConstructor
+@Accessors(chain = true)
+@JsonInclude(value = Include.NON_NULL)
 public class PublicKey {
 	/*
 	 * Public exponent
 	 */
 	@JsonProperty(JsonPropertyName.EXPONENT)
-	private String e;
+	@JsonSerialize(using = ByteArraySerializer.class)
+	@JsonDeserialize(using = ByteArrayDeserializer.class)
+	private byte[] e;
 
 	/*
 	 * Public key use
 	 */
 	@JsonProperty(JsonPropertyName.USE)
-	private KeyUse use;
+	private String use;
 
 	/*
 	 * Key ID
@@ -40,13 +49,15 @@ public class PublicKey {
 	 * Modulus
 	 */
 	@JsonProperty(JsonPropertyName.MODULUS)
-	private String n;
+	@JsonSerialize(using = ByteArraySerializer.class)
+	@JsonDeserialize(using = ByteArrayDeserializer.class)
+	private byte[] n;
 
 	/*
 	 * Key type
 	 */
 	@JsonProperty(JsonPropertyName.TYPE)
-	private KeyType kty;
+	private String kty;
 
 	/*
 	 * Expiration time

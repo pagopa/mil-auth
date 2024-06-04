@@ -27,9 +27,9 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.azure.keyvault.service.AzureKeyFinder;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.util.AuthError;
+import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
@@ -108,7 +108,7 @@ class ClaimEncryptorTest {
 		 * 
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			AzureKeyFinder.KEY_NAME_PREFIX,
+			KeyUtils.KEY_NAME_PREFIX,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
@@ -151,7 +151,7 @@ class ClaimEncryptorTest {
 		 * 
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			AzureKeyFinder.KEY_NAME_PREFIX,
+			KeyUtils.KEY_NAME_PREFIX,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(Uni.createFrom().item(Optional.empty()));

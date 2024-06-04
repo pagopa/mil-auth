@@ -8,7 +8,6 @@ package it.pagopa.swclient.mil.auth.service;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
-import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
@@ -41,24 +40,13 @@ public class ClientVerifier {
 	}
 
 	/**
-	 * Due to caching this method must be public.
-	 *
-	 * @param clientId
-	 * @return
-	 */
-	@CacheResult(cacheName = "client-role")
-	public Uni<Client> getClient(String clientId) {
-		return repository.getClient(clientId);
-	}
-
-	/**
 	 * 
 	 * @param clientId
 	 * @return
 	 */
 	public Uni<Client> findClient(String clientId) {
 		Log.debugf("Search for the client [%s].", clientId);
-		return getClient(clientId)
+		return repository.getClient(clientId)
 			.onFailure(t -> !(t instanceof AuthError)).transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();

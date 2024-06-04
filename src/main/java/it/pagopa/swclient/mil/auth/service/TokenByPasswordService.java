@@ -11,7 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Objects;
 
-import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
@@ -66,15 +65,6 @@ public class TokenByPasswordService extends TokenService {
 	}
 
 	/**
-	 * @param userHash
-	 * @return
-	 */
-	@CacheResult(cacheName = "client-role")
-	public Uni<User> getUser(String userHash) {
-		return repository.getUser(userHash);
-	}
-
-	/**
 	 * This method finds for resource owner credentials.
 	 *
 	 * @param getAccessToken
@@ -94,7 +84,7 @@ public class TokenByPasswordService extends TokenService {
 			return UniGenerator.error(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS, message);
 		}
 
-		return getUser(userHash)
+		return repository.getUser(userHash)
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();

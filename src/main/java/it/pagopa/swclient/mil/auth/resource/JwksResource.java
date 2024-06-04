@@ -15,7 +15,11 @@ import org.jboss.logging.MDC;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.service.KeyFinder;
+import it.pagopa.swclient.mil.auth.bean.PublicKeys;
+import it.pagopa.swclient.mil.auth.util.KeyUtils;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysExtReactiveService;
 import it.pagopa.swclient.mil.bean.Errors;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
@@ -42,8 +46,16 @@ public class JwksResource {
 	/*
 	 *
 	 */
+	private AzureKeyVaultKeysExtReactiveService keyExtService;
+
+	/**
+	 * 
+	 * @param keyExtService
+	 */
 	@Inject
-	KeyFinder keyFinder;
+	JwksResource(AzureKeyVaultKeysExtReactiveService keyExtService) {
+		this.keyExtService = keyExtService;
+	}
 
 	/**
 	 * @param t
@@ -67,13 +79,18 @@ public class JwksResource {
 		String correlationId = UUID.randomUUID().toString();
 		MDC.put("requestId", correlationId);
 		Log.debug("get - Input parameters: n/a");
-		return keyFinder.findPublicKeys() // Retrieve keys.
-			.invoke(l -> Log.debugf("get - Output parameters: [%s]", l.toString()))
+		return keyExtService.getKeys(
+			KeyUtils.KEY_NAME_PREFIX,
+			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
+			List.of(JsonWebKeyType.RSA))
+			.map(KeyUtils::keyBundle2PublicKey)
+			.collect()
+			.asList()
 			.map(l -> {
 				/*
 				 * Search the key that expires first to set Cache-Control/max-age
 				 */
-				OptionalLong minExp = l.getKeys().stream()
+				OptionalLong minExp = l.stream()
 					.map(k -> k.getExp())
 					.mapToLong(e -> e)
 					.min();
@@ -97,7 +114,7 @@ public class JwksResource {
 					.status(Status.OK)
 					.cacheControl(cacheControl)
 					.header("CorrelationId", correlationId)
-					.entity(l)
+					.entity(new PublicKeys(l))
 					.build();
 			})
 			.onFailure().transform(this::errorOnRetrievingKeys); // Error while retrieving keys.

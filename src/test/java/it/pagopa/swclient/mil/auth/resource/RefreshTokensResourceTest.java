@@ -50,7 +50,6 @@ import it.pagopa.swclient.mil.auth.azure.auth.client.AzureAuthClient;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.BasicKey;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.DetailedKey;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.GetKeysResponse;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyAttributes;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyDetails;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignRequest;
 import it.pagopa.swclient.mil.auth.azure.keyvault.bean.SignResponse;
@@ -68,6 +67,7 @@ import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.ws.rs.core.MediaType;
 
