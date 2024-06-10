@@ -57,24 +57,24 @@ public class RolesFinder {
 	 * @return
 	 */
 	private Uni<Role> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
-		Log.debugf("Search (sub) for the roles with acquirerId=[%s], channel=[%s], clientId=[%s], merchantId=[%s], terminalId=[%s].", acquirerId, channel, clientId, merchantId, terminalId);
+		Log.tracef("Search (sub) for the roles with acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s", acquirerId, channel, clientId, merchantId, terminalId);
 		return repository.getRoles(replaceNullWithNa(acquirerId), replaceNullWithNa(channel), clientId, replaceNullWithNa(merchantId), replaceNullWithNa(terminalId))
-			.invoke(role -> Log.debugf("Roles found: [%s]", role))
+			.invoke(role -> Log.debugf("Roles found: %s", role))
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
 					if (r.getStatus() == 404) {
-						String message = String.format("[%s] Roles not found.", AuthErrorCode.ROLES_NOT_FOUND);
+						String message = String.format("[%s] Roles not found", AuthErrorCode.ROLES_NOT_FOUND);
 						Log.warn(message);
 						return new AuthException(AuthErrorCode.ROLES_NOT_FOUND, message);
 					} else {
-						String message = String.format("[%s] Error searching for the roles.", AuthErrorCode.ERROR_SEARCHING_FOR_ROLES);
+						String message = String.format("[%s] Error searching for the roles", AuthErrorCode.ERROR_SEARCHING_FOR_ROLES);
 						Log.errorf(t, message);
 						return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES, message);
 					}
 				} else {
-					String message = String.format("[%s] Error searching for the roles.", AuthErrorCode.ERROR_SEARCHING_FOR_ROLES);
+					String message = String.format("[%s] Error searching for the roles", AuthErrorCode.ERROR_SEARCHING_FOR_ROLES);
 					Log.errorf(t, message);
 					return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES, message);
 				}
@@ -92,7 +92,7 @@ public class RolesFinder {
 	 * @return
 	 */
 	public Uni<Role> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
-		Log.debugf("Search (main) for the roles for acquirerId=[%s], channel=[%s], clientId=[%s], merchantId=[%s], terminalId=[%s].", acquirerId, channel, clientId, merchantId, terminalId);
+		Log.tracef("Search (main) for the roles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s", acquirerId, channel, clientId, merchantId, terminalId);
 		return find(acquirerId, channel, clientId, merchantId, terminalId)
 			.onFailure(AuthException.class)
 			.recoverWithUni(t -> {

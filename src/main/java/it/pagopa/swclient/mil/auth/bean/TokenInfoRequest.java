@@ -12,9 +12,9 @@ import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -24,8 +24,7 @@ import lombok.experimental.Accessors;
 @RegisterForReflection
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class TokenInfoRequest {
 	/*
@@ -34,5 +33,6 @@ public class TokenInfoRequest {
 	@JsonProperty(JsonPropertyName.TOKEN)
 	@NotNull(message = "[" + AuthErrorCode.TOKEN_MUST_NOT_BE_NULL + "] " + FormParamName.TOKEN + " must not be null")
 	@Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$", message = "[" + AuthErrorCode.TOKEN_MUST_MATCH_REGEXP + "] " + FormParamName.TOKEN + " must match \"{regexp}\"")
+	@ToString.Exclude
 	private String token;
 }

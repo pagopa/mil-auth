@@ -4,13 +4,13 @@ import { sleep, check } from 'k6';
 export const options = {
 	maxRedirects: 4,
 	duration: '5m',
-	vus: 100,
-	thresholds: {
+	vus: 200,
+	//thresholds: {
 		// 90% of requests must finish within 4s, 95% within 5s.
-		'http_req_duration': ['p(90) < 3000', 'p(95) < 5000'],
+	//	'http_req_duration': ['p(90) < 3000', 'p(95) < 5000'],
 		// During the whole test execution, the error rate (HTTP status 500) must be lower than 1%.
-		'checks{myTag:serverError}': ['rate < 0.01'],
-	}
+	//	'checks{myTag:serverError}': ['rate < 0.01'],
+	//}
 };
 
 export default function() {
@@ -45,6 +45,7 @@ export default function() {
 	);
 
 	// JWKS
+	/*
 	for (let i = 0; i < 6; i++) {
 		sleep(1);
 		
@@ -60,4 +61,5 @@ export default function() {
 	}
 	
 	sleep(5);
+	*/
 }

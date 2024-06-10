@@ -183,7 +183,7 @@ public class TokenSigner {
 		} catch (NoSuchAlgorithmException e) {
 			String message = String.format("[%s] Error signing token", AuthErrorCode.ERROR_SIGNING_TOKEN);
 			Log.errorf(e, message);
-			throw new AuthError(AuthErrorCode.ERROR_SIGNING_TOKEN, message);
+			return UniGenerator.error(AuthErrorCode.ERROR_SIGNING_TOKEN, message);
 		}
 	}
 
@@ -194,7 +194,7 @@ public class TokenSigner {
 	 * @return
 	 */
 	public Uni<SignedJWT> sign(JWTClaimsSet claimsSet) {
-		Log.debug("Token signature generation");
+		Log.trace("Token signature generation");
 		return retrieveKey()
 			.chain(azureKid -> sign(azureKid, claimsSet))
 			.onFailure(t -> !(t instanceof AuthError))
@@ -213,7 +213,7 @@ public class TokenSigner {
 	 * @return
 	 */
 	public Uni<Void> verify(SignedJWT token) {
-		Log.debug("Signature verification");
+		Log.trace("Signature verification");
 
 		String myKid = token.getHeader().getKeyID();
 		String[] keyNameVersion = KeyUtils.myKid2KeyNameVersion(myKid);
@@ -230,10 +230,10 @@ public class TokenSigner {
 					.setValue(signature))
 				.map(keyVerifyResult -> {
 					if (Objects.equals(keyVerifyResult.getValue(), Boolean.TRUE)) {
-						Log.debug("Signature has been successfully verified.");
+						Log.debug("Signature has been successfully verified");
 						return null;
 					} else {
-						String message = String.format("[%s] Wrong signature.", AuthErrorCode.WRONG_SIGNATURE);
+						String message = String.format("[%s] Wrong signature", AuthErrorCode.WRONG_SIGNATURE);
 						Log.warn(message);
 						throw new AuthException(AuthErrorCode.WRONG_SIGNATURE, message);
 					}
@@ -241,7 +241,7 @@ public class TokenSigner {
 		} catch (NoSuchAlgorithmException | ParseException e) {
 			String message = String.format("[%s] Error verifing signature", AuthErrorCode.ERROR_VERIFING_SIGNATURE);
 			Log.errorf(e, message);
-			throw new AuthError(AuthErrorCode.ERROR_VERIFING_SIGNATURE, message);
+			return UniGenerator.error(AuthErrorCode.ERROR_VERIFING_SIGNATURE, message);
 		}
 	}
 }

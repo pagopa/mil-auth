@@ -6,6 +6,7 @@
 package it.pagopa.swclient.mil.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -138,8 +139,7 @@ class ClaimEncryptorTest {
 							.setKid("key_name/key_version")
 							.setValue(new byte[0]));
 				},
-				f -> {
-				});
+				f -> fail(f));
 	}
 
 	/**
@@ -183,6 +183,29 @@ class ClaimEncryptorTest {
 				.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
 				.setKid("key_name/key_version")
 				.setValue(new byte[0]));
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void given_claimToEncrypt_when_keyRetrievingGoesWrong_then_getFailure() {
+		/*
+		 * 
+		 */
+		when(keysExtService.getKeyWithLongestExp(
+			KeyUtils.KEY_NAME_PREFIX,
+			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
+			List.of(JsonWebKeyType.RSA)))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic_exception")));
+
+		/*
+		 * 
+		 */
+		claimEncryptor.encrypt("this is a test")
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
 	}
 
 	/**

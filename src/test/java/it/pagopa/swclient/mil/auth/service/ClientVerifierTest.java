@@ -30,6 +30,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @QuarkusTest
@@ -71,13 +72,13 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testFindClientWithNotFound() {
+	void given_inexistentClientId_when_invokeFindClient_then_getFailure() {
 		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+			.thenReturn(Uni.createFrom()
+				.failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
 
 		verifier.findClient(ID)
 			.subscribe()
@@ -87,13 +88,13 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testFindClientWithError1() {
+	void given_errorFindingClient_when_invokeFindClient_then_getFailure() {
 		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
+			.thenReturn(Uni.createFrom()
+				.failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
 		verifier.findClient(ID)
 			.subscribe()
@@ -102,11 +103,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testFindClientWithError2() {
+	void given_unhandledErrorFindingClient_when_invokeFindClient_then_getFailure() {
 		when(repository.getClient(anyString()))
 			.thenReturn(Uni.createFrom().failure(new Exception()));
 
@@ -117,11 +117,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testFindClientOk() {
+	void given_clientData_when_invokeFindClient_then_getIt() {
 		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
 
 		when(repository.getClient(ID))
@@ -135,11 +134,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithWrongChannel() {
+	void given_clientDataWithBadChannel_when_invokeVerify_then_getFailure() {
 		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
 
 		when(repository.getClient(ID))
@@ -152,11 +150,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithWrongSecret() {
+	void given_clientDataWithBadSecret_when_invokeVerify_then_getFailure() {
 		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
 
 		when(repository.getClient(ID))
@@ -169,11 +166,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithNullSecretExpectedButNonNullValueFound() {
+	void give_clientDataWithUnexpectedSecret_when_invokeVerify_then_getFailure() {
 		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
 
 		when(repository.getClient(ID))
@@ -186,11 +182,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithNonNullSecretExpectedButNullValueFound() {
+	void given_clientDataWithUnexpectedNullSecret_when_invokeVerify_then_getFailure() {
 		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION);
 
 		when(repository.getClient(ID))
@@ -203,11 +198,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithErrorVerifingSecret() {
+	void given_errorVerifingSecret_when_invokeVerify_then_getFailure() {
 		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
 
 		when(repository.getClient(ID))
@@ -216,6 +210,7 @@ class ClientVerifierTest {
 		try (MockedStatic<PasswordVerifier> digest = Mockito.mockStatic(PasswordVerifier.class)) {
 			digest.when(() -> PasswordVerifier.verify(anyString(), anyString(), anyString()))
 				.thenThrow(NoSuchAlgorithmException.class);
+
 			verifier.verify(ID, CHANNEL, SECRET)
 				.subscribe()
 				.withSubscriber(UniAssertSubscriber.create())
@@ -224,11 +219,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyOk() {
+	void given_okScenario_when_invokeVerify_then_getOk() {
 		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
 
 		when(repository.getClient(ID))
@@ -242,11 +236,10 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithoutSecret() {
+	void given_okScenarioWithoutSecret_when_invokeVerify_then_getOk() {
 		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION);
 
 		when(repository.getClient(ID))

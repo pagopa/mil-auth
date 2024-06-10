@@ -36,7 +36,7 @@ public class TokenByPasswordService extends TokenService {
 	/*
 	 * 
 	 */
-	private static final String ERROR_SEARCHING_FOR_CREDENTIALS_MSG = "[%s] Error searching for the credentials.";
+	private static final String ERROR_SEARCHING_FOR_CREDENTIALS_MSG = "[%s] Error searching for the credentials";
 
 	/*
 	 *
@@ -71,7 +71,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @return
 	 */
 	private Uni<User> findCredentials(GetAccessTokenRequest getAccessToken) {
-		Log.debug("Search for the credentials.");
+		Log.trace("Search for the credentials");
 
 		String userHash;
 		try {
@@ -90,8 +90,8 @@ public class TokenByPasswordService extends TokenService {
 					Response r = e.getResponse();
 					// r cannot be null
 					if (r.getStatus() == 404) {
-						Log.warnf("[%s] Credentials not found.", AuthErrorCode.WRONG_CREDENTIALS);
-						return new AuthException(AuthErrorCode.WRONG_CREDENTIALS, String.format("[%s] Wrong credentials.", AuthErrorCode.WRONG_CREDENTIALS)); // It's better not to give details...
+						Log.warnf("[%s] Credentials not found", AuthErrorCode.WRONG_CREDENTIALS);
+						return new AuthException(AuthErrorCode.WRONG_CREDENTIALS, String.format("[%s] Wrong credentials", AuthErrorCode.WRONG_CREDENTIALS)); // It's better not to give details...
 					} else {
 						String message = String.format(ERROR_SEARCHING_FOR_CREDENTIALS_MSG, AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
 						Log.errorf(t, message);
@@ -116,7 +116,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @return
 	 */
 	private Uni<User> verifyConsistency(User credentialsEntity, GetAccessTokenRequest getAccessToken) {
-		Log.debug("Acquirer/channel/merchant consistency verification.");
+		Log.trace("Acquirer/channel/merchant consistency verification");
 
 		String foundAcquirerId = credentialsEntity.getAcquirerId();
 		String foundChannel = credentialsEntity.getChannel();
@@ -131,11 +131,11 @@ public class TokenByPasswordService extends TokenService {
 			&& Objects.equals(foundMerchantId, expectedMerchantId);
 
 		if (consistency) {
-			Log.debug("Acquirer/channel/merchant consistency has been successufully verified.");
+			Log.debug("Acquirer/channel/merchant consistency has been successufully verified");
 			return UniGenerator.item(credentialsEntity);
 		} else {
-			Log.warnf("[%s] Acquirer/channel/merchant isn't consistent. Expected [%s/%s/%s], found [%s/%s/%s].", AuthErrorCode.INCONSISTENT_CREDENTIALS, expectedAcquirerId, expectedChannel, expectedMerchantId, foundAcquirerId, foundChannel, foundMerchantId);
-			return UniGenerator.exception(AuthErrorCode.INCONSISTENT_CREDENTIALS, String.format("[%s] Inconsistent credentials.", AuthErrorCode.INCONSISTENT_CREDENTIALS)); // It's better not to give details...
+			Log.warnf("[%s] Acquirer/channel/merchant isn't consistent. Expected %s/%s/%s, found %s/%s/%s", AuthErrorCode.INCONSISTENT_CREDENTIALS, expectedAcquirerId, expectedChannel, expectedMerchantId, foundAcquirerId, foundChannel, foundMerchantId);
+			return UniGenerator.exception(AuthErrorCode.INCONSISTENT_CREDENTIALS, String.format("[%s] Inconsistent credentials", AuthErrorCode.INCONSISTENT_CREDENTIALS)); // It's better not to give details...
 		}
 	}
 
@@ -150,18 +150,18 @@ public class TokenByPasswordService extends TokenService {
 	 * @return
 	 */
 	private Uni<Void> verifyPassword(User credentialsEntity, GetAccessTokenRequest getAccessToken) {
-		Log.debug("Password verification.");
+		Log.trace("Password verification");
 		try {
 			if (PasswordVerifier.verify(getAccessToken.getPassword(), credentialsEntity.getSalt(), credentialsEntity.getPasswordHash())) {
-				Log.debug("Password has been successfully verified.");
+				Log.debug("Password has been successfully verified");
 				return UniGenerator.voidItem();
 			} else {
-				String message = String.format("[%s] Wrong credentials.", AuthErrorCode.WRONG_CREDENTIALS);
+				String message = String.format("[%s] Wrong credentials", AuthErrorCode.WRONG_CREDENTIALS);
 				Log.warn(message);
 				return UniGenerator.exception(AuthErrorCode.WRONG_CREDENTIALS, message);
 			}
 		} catch (NoSuchAlgorithmException e) {
-			String message = String.format("[%s] Error verifing credentials.", AuthErrorCode.ERROR_VERIFING_CREDENTIALS);
+			String message = String.format("[%s] Error verifing credentials", AuthErrorCode.ERROR_VERIFING_CREDENTIALS);
 			Log.errorf(e, message);
 			return UniGenerator.error(AuthErrorCode.ERROR_VERIFING_CREDENTIALS, message);
 		}
@@ -186,7 +186,7 @@ public class TokenByPasswordService extends TokenService {
 	 */
 	@Override
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
-		Log.debugf("Generation of the token/s by password.");
+		Log.trace("Generation of the token/s by password");
 		return verifyCredentials(getAccessToken)
 			.chain(() -> super.process(getAccessToken));
 	}

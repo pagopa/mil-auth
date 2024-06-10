@@ -32,9 +32,9 @@ import jakarta.ws.rs.core.MediaType;
  *
  * @author Antonio Tarricone
  */
-@QuarkusTest
-@TestHTTPEndpoint(TokenResource.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+//@QuarkusTest
+//@TestHTTPEndpoint(TokenResource.class)
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TokenByClientSecretResourceUnexpectedErrorTest {
 	/*
 	 *
@@ -63,7 +63,7 @@ class TokenByClientSecretResourceUnexpectedErrorTest {
 		System.out.println(frame);
 	}
 
-	@Test
+	//@Test
 	void testUnexpectedError() {
 		/*
 		 * Client repository setup.

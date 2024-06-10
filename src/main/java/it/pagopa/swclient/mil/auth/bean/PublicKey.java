@@ -14,13 +14,17 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.util.ByteArrayDeserializer;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.util.ByteArraySerializer;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
  * @author Antonio Tarricone
  */
 @RegisterForReflection
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Accessors(chain = true)
 @JsonInclude(value = Include.NON_NULL)

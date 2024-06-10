@@ -15,8 +15,10 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.HeaderParam;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 /**
  * @author Antonio Tarricone
@@ -25,7 +27,8 @@ import lombok.NoArgsConstructor;
 @ValidationTarget(message = "[" + AuthErrorCode.INCONSISTENT_REQUEST + "] Inconsistent request.")
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
+@Data
+@Accessors(chain = true)
 public class GetAccessTokenRequest {
 	/*
 	 * Request ID
@@ -83,6 +86,7 @@ public class GetAccessTokenRequest {
 	 */
 	@FormParam(FormParamName.USERNAME)
 	@Pattern(regexp = "^[ -~]{1,64}$", message = "[" + AuthErrorCode.USERNAME_MUST_MATCH_REGEXP + "] username must match \"{regexp}\"")
+	@ToString.Exclude
 	private String username;
 
 	/*
@@ -90,6 +94,7 @@ public class GetAccessTokenRequest {
 	 */
 	@FormParam(FormParamName.PASSWORD)
 	@Pattern(regexp = "^[ -~]{1,64}$", message = "[" + AuthErrorCode.PASSWORD_MUST_MATCH_REGEXP + "] password must match \"{regexp}\"")
+	@ToString.Exclude
 	private String password;
 
 	/*
@@ -97,6 +102,7 @@ public class GetAccessTokenRequest {
 	 */
 	@FormParam(FormParamName.REFRESH_TOKEN)
 	@Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$", message = "[" + AuthErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP + "] refresh_token must match \"{regexp}\"")
+	@ToString.Exclude
 	private String refreshToken;
 
 	/*
@@ -104,6 +110,7 @@ public class GetAccessTokenRequest {
 	 */
 	@FormParam(FormParamName.EXT_TOKEN)
 	@Pattern(regexp = "^[ -~]{1,4096}$", message = "[" + AuthErrorCode.EXT_TOKEN_MUST_MATCH_REGEXP + "] ext_token must match \"{regexp}\"")
+	@ToString.Exclude
 	private String extToken;
 
 	/*
@@ -133,6 +140,7 @@ public class GetAccessTokenRequest {
 	 */
 	@FormParam(FormParamName.CLIENT_SECRET)
 	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + AuthErrorCode.CLIENT_SECRET_MUST_MATCH_REGEXP + "] client_secret must match \"{regexp}\"")
+	@ToString.Exclude
 	private String clientSecret;
 
 	/*
@@ -140,5 +148,6 @@ public class GetAccessTokenRequest {
 	 */
 	@FormParam(FormParamName.FISCAL_CODE)
 	@Pattern(regexp = "^(([A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z])|(\\d{11}))$", message = "[" + AuthErrorCode.FISCAL_CODE_MUST_MATCH_REGEXP + "] fiscal_code must match \"{regexp}\"")
+	@ToString.Exclude
 	private String fiscalCode;
 }

@@ -10,22 +10,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
  * 
  * @author Antonio Tarricone
  */
-@Getter
-@Setter
+@RegisterForReflection
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Accessors(chain = true)
-@ToString
-@EqualsAndHashCode
 public class EncryptedClaim {
 	/**
 	 * Kid of the key used to encrypt.

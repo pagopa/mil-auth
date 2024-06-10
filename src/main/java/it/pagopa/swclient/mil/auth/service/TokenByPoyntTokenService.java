@@ -61,28 +61,28 @@ public class TokenByPoyntTokenService extends TokenService {
 	 * @return
 	 */
 	public Uni<Void> verifyPoyntToken(GetAccessTokenRequest getAccessToken) {
-		Log.debug("Poynt token verification.");
+		Log.trace("Poynt token verification");
 		return poyntClient.getBusinessObject(TokenType.BEARER + " " + getAccessToken.getExtToken(), getAccessToken.getAddData())
 			.onFailure().transform(t -> {
 				if (t instanceof WebApplicationException e) {
 					Response r = e.getResponse();
 					// r cannot be null
-					String message = String.format("[%s] Poynt Token not valid. Status: [%s]", AuthErrorCode.EXT_TOKEN_NOT_VALID, r.getStatus());
+					String message = String.format("[%s] Poynt Token not valid: %s", AuthErrorCode.EXT_TOKEN_NOT_VALID, r.getStatus());
 					Log.warnf(e, message);
 					return new AuthException(AuthErrorCode.EXT_TOKEN_NOT_VALID, message);
 				} else {
-					String message = String.format("[%s] Error validating Poynt token.", AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN);
+					String message = String.format("[%s] Error validating Poynt token", AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN);
 					Log.errorf(t, message);
 					return new AuthError(AuthErrorCode.ERROR_VALIDATING_EXT_TOKEN, message);
 				}
 			})
 			.chain(r -> {
 				if (r.getStatus() != 200) {
-					String message = String.format("[%s] Poynt Token not valid. Status: %s", AuthErrorCode.EXT_TOKEN_NOT_VALID, r.getStatus());
+					String message = String.format("[%s] Poynt Token not valid: %s", AuthErrorCode.EXT_TOKEN_NOT_VALID, r.getStatus());
 					Log.warn(message);
 					return UniGenerator.exception(AuthErrorCode.EXT_TOKEN_NOT_VALID, message);
 				} else {
-					Log.debug("Poynt token has been successfully verified.");
+					Log.debug("Poynt token has been successfully verified");
 					return UniGenerator.voidItem();
 				}
 			});
@@ -94,7 +94,7 @@ public class TokenByPoyntTokenService extends TokenService {
 	 */
 	@Override
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
-		Log.debugf("Generation of the token/s by Poynt token.");
+		Log.trace("Generation of the token/s by Poynt token");
 		return verifyPoyntToken(getAccessToken)
 			.chain(() -> super.process(getAccessToken));
 	}

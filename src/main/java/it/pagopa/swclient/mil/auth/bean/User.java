@@ -6,15 +6,17 @@
 package it.pagopa.swclient.mil.auth.bean;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * @author Antonio Tarricone
  */
+@NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@ToString
+@Data
+@Accessors(chain = true)
 public class User {
 	/*
 	 *

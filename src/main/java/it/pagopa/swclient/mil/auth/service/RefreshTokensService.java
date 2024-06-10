@@ -64,13 +64,13 @@ public class RefreshTokensService extends TokenService {
 	 * @return
 	 */
 	private Uni<Void> verifyAlgorithm(SignedJWT token) {
-		Log.debug("Algorithm verification.");
+		Log.trace("Algorithm verification");
 		JWSAlgorithm algorithm = token.getHeader().getAlgorithm();
 		if (Objects.equals(algorithm, JWSAlgorithm.RS256)) {
-			Log.debug("Algorithm has been successfully verified.");
+			Log.debug("Algorithm has been successfully verified");
 			return UniGenerator.voidItem();
 		} else {
-			String message = String.format("[%s] Wrong algorithm. Expected [%s], found [%s].", AuthErrorCode.WRONG_ALGORITHM, JWSAlgorithm.RS256, algorithm);
+			String message = String.format("[%s] Wrong algorithm: expected %s, found %s", AuthErrorCode.WRONG_ALGORITHM, JWSAlgorithm.RS256, algorithm);
 			Log.warn(message);
 			return UniGenerator.exception(AuthErrorCode.WRONG_ALGORITHM, message);
 		}
@@ -83,21 +83,21 @@ public class RefreshTokensService extends TokenService {
 	 * specific error code.
 	 */
 	private Uni<Void> verifyIssueTime(JWTClaimsSet claimsSet) {
-		Log.debug("Issue time verification.");
+		Log.trace("Issue time verification");
 		Date issueTime = claimsSet.getIssueTime();
 		if (issueTime == null) {
-			String message = String.format("[%s] Issue time must not be null.", AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL);
+			String message = String.format("[%s] Issue time must not be null", AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL);
 			Log.warn(message);
 			return UniGenerator.exception(AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL, message);
 		} else {
 			long issueEpoch = issueTime.getTime();
 			long now = new Date().getTime();
 			if (issueEpoch > now) {
-				String message = String.format("[%s] Wrong issue time. Found [%d] but now is [%d].", AuthErrorCode.WRONG_ISSUE_TIME, issueEpoch, now);
+				String message = String.format("[%s] Wrong issue time: found %d but now is %d", AuthErrorCode.WRONG_ISSUE_TIME, issueEpoch, now);
 				Log.warn(message);
 				return UniGenerator.exception(AuthErrorCode.WRONG_ISSUE_TIME, message);
 			} else {
-				Log.debug("Issue time has been successfully verified.");
+				Log.debug("Issue time has been successfully verified");
 				return UniGenerator.voidItem();
 			}
 		}
@@ -113,18 +113,18 @@ public class RefreshTokensService extends TokenService {
 	 * @return
 	 */
 	private Uni<Void> verifyExpirationTime(JWTClaimsSet claimsSet) {
-		Log.debug("Expiration time verification.");
+		Log.trace("Expiration time verification");
 		Date expirationTime = claimsSet.getExpirationTime();
 		if (expirationTime == null) {
-			String message = String.format("[%s] Expiration time must not be null.", AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL);
+			String message = String.format("[%s] Expiration time must not be null", AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL);
 			Log.warn(message);
 			return UniGenerator.exception(AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL, message);
 		} else if (expirationTime.before(new Date())) {
-			String message = String.format("[%s] Token expired.", AuthErrorCode.TOKEN_EXPIRED);
+			String message = String.format("[%s] Token expired", AuthErrorCode.TOKEN_EXPIRED);
 			Log.warn(message);
 			return UniGenerator.exception(AuthErrorCode.TOKEN_EXPIRED, message);
 		} else {
-			Log.debug("Expiration time has been successfully verified.");
+			Log.debug("Expiration time has been successfully verified");
 			return UniGenerator.voidItem();
 		}
 	}
@@ -140,13 +140,13 @@ public class RefreshTokensService extends TokenService {
 	 * @return
 	 */
 	private Uni<Void> verifyScope(JWTClaimsSet claimsSet, String expectedScope) {
-		Log.debug("Scope verification.");
+		Log.trace("Scope verification");
 		Object foundScope = claimsSet.getClaim(ClaimName.SCOPE);
 		if (Objects.equals(foundScope, expectedScope)) {
-			Log.debug("Scope has been successfully verified.");
+			Log.debug("Scope has been successfully verified");
 			return UniGenerator.voidItem();
 		} else {
-			String message = String.format("[%s] Wrong scope. Expected [%s], found [%s].", AuthErrorCode.WRONG_SCOPE, expectedScope, foundScope);
+			String message = String.format("[%s] Wrong scope: expected %s, found %s", AuthErrorCode.WRONG_SCOPE, expectedScope, foundScope);
 			Log.warn(message);
 			return UniGenerator.exception(AuthErrorCode.WRONG_SCOPE, message);
 		}
@@ -166,7 +166,7 @@ public class RefreshTokensService extends TokenService {
 				.chain(() -> verifyScope(claimsSet, Scope.OFFLINE_ACCESS))
 				.chain(() -> tokenSigner.verify(token));
 		} catch (ParseException e) {
-			String message = String.format("[%s] Error parsing token.", AuthErrorCode.ERROR_PARSING_TOKEN);
+			String message = String.format("[%s] Error parsing token", AuthErrorCode.ERROR_PARSING_TOKEN);
 			Log.errorf(e, message);
 			Log.errorf("Offending token: %s", tokenStr);
 			return UniGenerator.error(AuthErrorCode.ERROR_PARSING_TOKEN, message);
@@ -179,7 +179,7 @@ public class RefreshTokensService extends TokenService {
 	 */
 	@Override
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
-		Log.debug("Tokens refreshing.");
+		Log.trace("Tokens refreshing");
 		return verify(getAccessToken.getRefreshToken())
 			.chain(() -> super.process(getAccessToken));
 	}
