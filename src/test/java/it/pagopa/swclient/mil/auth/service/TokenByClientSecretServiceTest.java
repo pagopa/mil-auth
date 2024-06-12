@@ -5,12 +5,13 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,15 +20,11 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
@@ -35,7 +32,6 @@ import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
-import it.pagopa.swclient.mil.auth.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.inject.Inject;
 
@@ -90,8 +86,8 @@ class TokenByClientSecretServiceTest {
 	}
 
 	/**
-	 * @throws ParseException
 	 * 
+	 * @throws ParseException
 	 */
 	@Test
 	void given_clientCredentials_when_allGoesOk_then_getAccessToken() throws ParseException {

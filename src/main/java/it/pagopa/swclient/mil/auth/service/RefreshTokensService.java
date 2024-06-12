@@ -21,11 +21,13 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
+import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @ApplicationScoped
@@ -82,23 +84,23 @@ public class RefreshTokensService extends TokenService {
 	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
 	 * specific error code.
 	 */
-	private Uni<Void> verifyIssueTime(JWTClaimsSet claimsSet) {
+	private Void verifyIssueTime(JWTClaimsSet claimsSet) {
 		Log.trace("Issue time verification");
 		Date issueTime = claimsSet.getIssueTime();
 		if (issueTime == null) {
 			String message = String.format("[%s] Issue time must not be null", AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL);
 			Log.warn(message);
-			return UniGenerator.exception(AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL, message);
+			throw new AuthException(AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL, message);
 		} else {
 			long issueEpoch = issueTime.getTime();
 			long now = new Date().getTime();
 			if (issueEpoch > now) {
 				String message = String.format("[%s] Wrong issue time: found %d but now is %d", AuthErrorCode.WRONG_ISSUE_TIME, issueEpoch, now);
 				Log.warn(message);
-				return UniGenerator.exception(AuthErrorCode.WRONG_ISSUE_TIME, message);
+				throw new AuthException(AuthErrorCode.WRONG_ISSUE_TIME, message);
 			} else {
 				Log.debug("Issue time has been successfully verified");
-				return UniGenerator.voidItem();
+				return null;
 			}
 		}
 	}
@@ -112,20 +114,20 @@ public class RefreshTokensService extends TokenService {
 	 * @param claimsSet
 	 * @return
 	 */
-	private Uni<Void> verifyExpirationTime(JWTClaimsSet claimsSet) {
+	private Void verifyExpirationTime(JWTClaimsSet claimsSet) {
 		Log.trace("Expiration time verification");
 		Date expirationTime = claimsSet.getExpirationTime();
 		if (expirationTime == null) {
 			String message = String.format("[%s] Expiration time must not be null", AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL);
 			Log.warn(message);
-			return UniGenerator.exception(AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL, message);
+			throw new AuthException(AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL, message);
 		} else if (expirationTime.before(new Date())) {
 			String message = String.format("[%s] Token expired", AuthErrorCode.TOKEN_EXPIRED);
 			Log.warn(message);
-			return UniGenerator.exception(AuthErrorCode.TOKEN_EXPIRED, message);
+			throw new AuthException(AuthErrorCode.TOKEN_EXPIRED, message);
 		} else {
 			Log.debug("Expiration time has been successfully verified");
-			return UniGenerator.voidItem();
+			return null;
 		}
 	}
 
@@ -139,16 +141,16 @@ public class RefreshTokensService extends TokenService {
 	 * @param expectedScope
 	 * @return
 	 */
-	private Uni<Void> verifyScope(JWTClaimsSet claimsSet, String expectedScope) {
+	private Void verifyScope(JWTClaimsSet claimsSet, String expectedScope) {
 		Log.trace("Scope verification");
 		Object foundScope = claimsSet.getClaim(ClaimName.SCOPE);
 		if (Objects.equals(foundScope, expectedScope)) {
 			Log.debug("Scope has been successfully verified");
-			return UniGenerator.voidItem();
+			return null;
 		} else {
 			String message = String.format("[%s] Wrong scope: expected %s, found %s", AuthErrorCode.WRONG_SCOPE, expectedScope, foundScope);
 			Log.warn(message);
-			return UniGenerator.exception(AuthErrorCode.WRONG_SCOPE, message);
+			throw new AuthException(AuthErrorCode.WRONG_SCOPE, message);
 		}
 	}
 
@@ -161,9 +163,9 @@ public class RefreshTokensService extends TokenService {
 			SignedJWT token = SignedJWT.parse(tokenStr);
 			JWTClaimsSet claimsSet = token.getJWTClaimsSet();
 			return verifyAlgorithm(token)
-				.chain(() -> verifyIssueTime(claimsSet))
-				.chain(() -> verifyExpirationTime(claimsSet))
-				.chain(() -> verifyScope(claimsSet, Scope.OFFLINE_ACCESS))
+				.map(x -> verifyIssueTime(claimsSet))
+				.map(x -> verifyExpirationTime(claimsSet))
+				.map(x -> verifyScope(claimsSet, Scope.OFFLINE_ACCESS))
 				.chain(() -> tokenSigner.verify(token));
 		} catch (ParseException e) {
 			String message = String.format("[%s] Error parsing token", AuthErrorCode.ERROR_PARSING_TOKEN);

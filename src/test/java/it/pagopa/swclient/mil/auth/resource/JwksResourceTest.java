@@ -30,6 +30,12 @@ import it.pagopa.swclient.mil.auth.bean.KeyUse;
 import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.bean.PublicKeys;
 import it.pagopa.swclient.mil.auth.service.KeyFinder;
+import it.pagopa.swclient.mil.auth.util.KeyUtils;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyBundle;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysExtReactiveService;
 import jakarta.ws.rs.core.MediaType;
 
 /**
@@ -44,7 +50,7 @@ class JwksResourceTest {
 	 * 
 	 */
 	@InjectMock
-	KeyFinder keyFinder;
+	private AzureKeyVaultKeysExtReactiveService keyExtService;
 
 	/**
 	 * 
@@ -63,16 +69,18 @@ class JwksResourceTest {
 		/*
 		 * Setup.
 		 */
-		long now = Instant.now().getEpochSecond();
-		long exp = now + 900;
-		PublicKey publicKey1 = new PublicKey("exp1", KeyUse.sig, "kid1", "mod1", KeyType.RSA, exp, now);
-		PublicKey publicKey2 = new PublicKey("exp2", KeyUse.sig, "kid2", "mod2", KeyType.RSA, exp + 10, now + 10);
-
-		PublicKeys publicKeys = new PublicKeys(List.of(publicKey1, publicKey2));
-
-		when(keyFinder.findPublicKeys())
-			.thenReturn(Uni.createFrom().item(publicKeys));
-
+		KeyBundle keyBundle1 = new KeyBundle() 
+			.setAttributes(new KeyAttributes()
+				.set)
+			.setKey(null)
+			.setTags(null);
+		
+		when(keyExtService.getKeys(KeyUtils.KEY_NAME_PREFIX,
+			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
+			List.of(JsonWebKeyType.RSA)))
+		.thenReturn(null)
+		
+		
 		/*
 		 * Test.
 		 */
