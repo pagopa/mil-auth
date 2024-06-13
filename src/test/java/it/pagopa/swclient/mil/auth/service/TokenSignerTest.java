@@ -83,7 +83,7 @@ class TokenSignerTest {
 	/*
 	 *
 	 */
-	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-api.url")
+	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-keys.url")
 	String vaultBaseUrl;
 
 	/*
