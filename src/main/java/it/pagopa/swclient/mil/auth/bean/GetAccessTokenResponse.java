@@ -10,25 +10,34 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 /**
  * @author Antonio Tarricone
  */
 @RegisterForReflection
 @JsonInclude(Include.NON_NULL)
-@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Accessors(chain = true)
 public class GetAccessTokenResponse {
 	/*
 	 * access_token
 	 */
 	@JsonProperty(JsonPropertyName.ACCESS_TOKEN)
+	@ToString.Exclude
 	private String accessToken;
 
 	/*
 	 * refresh_token
 	 */
 	@JsonProperty(JsonPropertyName.REFRESH_TOKEN)
+	@ToString.Exclude
 	private String refreshToken;
 
 	/*

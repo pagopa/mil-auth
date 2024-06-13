@@ -6,6 +6,7 @@
 package it.pagopa.swclient.mil.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -27,9 +28,9 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.azure.keyvault.service.AzureKeyFinder;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.util.AuthError;
+import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
@@ -108,7 +109,7 @@ class ClaimEncryptorTest {
 		 * 
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			AzureKeyFinder.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
@@ -138,8 +139,7 @@ class ClaimEncryptorTest {
 							.setKid("key_name/key_version")
 							.setValue(new byte[0]));
 				},
-				f -> {
-				});
+				f -> fail(f));
 	}
 
 	/**
@@ -151,7 +151,7 @@ class ClaimEncryptorTest {
 		 * 
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			AzureKeyFinder.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(Uni.createFrom().item(Optional.empty()));
@@ -183,6 +183,29 @@ class ClaimEncryptorTest {
 				.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
 				.setKid("key_name/key_version")
 				.setValue(new byte[0]));
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void given_claimToEncrypt_when_keyRetrievingGoesWrong_then_getFailure() {
+		/*
+		 * 
+		 */
+		when(keysExtService.getKeyWithLongestExp(
+			KeyUtils.KEY_DOMAIN,
+			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
+			List.of(JsonWebKeyType.RSA)))
+			.thenReturn(Uni.createFrom().failure(new Exception("synthetic_exception")));
+
+		/*
+		 * 
+		 */
+		claimEncryptor.encrypt("this is a test")
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
 	}
 
 	/**

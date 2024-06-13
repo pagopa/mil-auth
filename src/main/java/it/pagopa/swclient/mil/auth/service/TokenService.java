@@ -151,7 +151,7 @@ public abstract class TokenService {
 			.issuer(baseUrl)
 			.audience(audience)
 			.build();
-		Log.debug("Token signing.");
+		Log.trace("Token signing");
 		return tokenSigner.sign(payload).map(SignedJWT::serialize);
 	}
 
@@ -163,14 +163,14 @@ public abstract class TokenService {
 	 * @return
 	 */
 	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest request, List<String> roles) {
-		Log.debug("Access token generation.");
+		Log.trace("Access token generation");
 		if (Objects.equals(request.getScope(), Scope.OFFLINE_ACCESS) || request.getGrantType().equals(GrantType.REFRESH_TOKEN)) {
 			/*
 			 * With refresh token.
 			 */
 			return generate(request, accessDuration, roles, null)
 				.chain(accessToken -> {
-					Log.debug("Refresh token generation.");
+					Log.trace("Refresh token generation");
 					return generate(request, refreshDuration, null, List.of(Scope.OFFLINE_ACCESS))
 						.map(refreshToken -> new GetAccessTokenResponse(accessToken, refreshToken, accessDuration));
 				});

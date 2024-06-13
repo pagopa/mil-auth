@@ -116,7 +116,7 @@ public class TokenInfoResource {
 			}
 		} catch (ParseException e) {
 			/*
-			 * 400
+			 * 400 TODO INCLUDERE IL BODY JSON CON L'ERRORE
 			 */
 			Log.errorf(e, "Error parsing token. Offending token: %s", request.getToken());
 			return Uni.createFrom().failure(new BadRequestException("[" + AuthErrorCode.ERROR_PARSING_TOKEN + "] error parsing token"));

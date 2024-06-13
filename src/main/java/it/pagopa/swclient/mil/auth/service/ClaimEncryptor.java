@@ -14,11 +14,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.azure.keyvault.bean.KeyNameAndVersion;
-import it.pagopa.swclient.mil.auth.azure.keyvault.service.AzureKeyFinder;
-import it.pagopa.swclient.mil.auth.azure.keyvault.util.KidUtil;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.util.AuthError;
+import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
@@ -60,22 +58,15 @@ public class ClaimEncryptor {
 	 */
 	private AzureKeyVaultKeysReactiveService keysService;
 
-	/*
-	 * 
-	 */
-	private KidUtil kidUtil;
-
 	/**
 	 * 
 	 * @param keysExtService
 	 * @param keysService
-	 * @param kidUtil
 	 */
 	@Inject
-	ClaimEncryptor(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService, KidUtil kidUtil) {
+	ClaimEncryptor(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
 		this.keysExtService = keysExtService;
 		this.keysService = keysService;
-		this.kidUtil = kidUtil;
 	}
 
 	/**
@@ -87,7 +78,7 @@ public class ClaimEncryptor {
 		Log.trace("Create e new key");
 		long now = Instant.now().getEpochSecond();
 		return keysService.createKey(
-			AzureKeyFinder.generateKeyName(),
+			KeyUtils.generateKeyName(),
 			new KeyCreateParameters()
 				.setAttributes(new KeyAttributes()
 					.setCreated(now)
@@ -109,7 +100,7 @@ public class ClaimEncryptor {
 	private Uni<String> retrieveKey() {
 		Log.trace("Retrieve key");
 		return keysExtService.getKeyWithLongestExp(
-			AzureKeyFinder.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA))
 			.chain(keyBundle -> {
@@ -126,16 +117,16 @@ public class ClaimEncryptor {
 	/**
 	 * Encrypt UTF-8 encoding of a string.
 	 * 
-	 * @param kid
+	 * @param azureKid
 	 * @param value
 	 * @return
 	 */
-	private Uni<KeyOperationResult> encrypt(String kid, String value) {
-		Log.tracef("Encrypt with kid = %s", kid);
-		KeyNameAndVersion keyNameAndVersion = kidUtil.getNameAndVersionFromAzureKid(kid);
+	private Uni<KeyOperationResult> encrypt(String azureKid, String value) {
+		Log.tracef("Encrypt with kid = %s", azureKid);
+		String[] keyNameAndVersion = KeyUtils.azureKid2KeyNameVersion(azureKid);
 		return keysService.encrypt(
-			keyNameAndVersion.getName(),
-			keyNameAndVersion.getVersion(),
+			keyNameAndVersion[0],
+			keyNameAndVersion[1],
 			new KeyOperationParameters()
 				.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
 				.setValue(value.getBytes(StandardCharsets.UTF_8)));
@@ -148,18 +139,19 @@ public class ClaimEncryptor {
 	 */
 	public Uni<EncryptedClaim> encrypt(String value) {
 		return retrieveKey()
-			.chain(kid -> encrypt(kid, value))
+			.chain(azureKid -> encrypt(azureKid, value))
 			.map(keyOperationResult -> {
-				String kid = kidUtil.getMyKidFromAzureOne(keyOperationResult.getKid());
+				String myKid = KeyUtils.azureKid2MyKid(keyOperationResult.getKid());
 				return new EncryptedClaim()
 					.setAlg(JsonWebKeyEncryptionAlgorithm.RSAOAEP256)
 					.setValue(keyOperationResult.getValue())
-					.setKid(kid);
+					.setKid(myKid);
 			})
 			.onFailure()
 			.transform(t -> {
-				Log.errorf(t, "Error encrypting the claim [%s]", t, value);
-				return new AuthError(AuthErrorCode.ERROR_ENCRYPTING_CLAIM, "Error encrypting claim");
+				String message = String.format("[%s] Error encrypting claim", AuthErrorCode.ERROR_ENCRYPTING_CLAIM);
+				Log.errorf(t, message);
+				return new AuthError(AuthErrorCode.ERROR_ENCRYPTING_CLAIM, message);
 			});
 	}
 
@@ -170,18 +162,19 @@ public class ClaimEncryptor {
 	 */
 	public Uni<String> decrypt(EncryptedClaim encryptedClaim) {
 		Log.trace("Decrypt");
-		KeyNameAndVersion keyNameAndVersion = kidUtil.getNameAndVersionFromMyKid(encryptedClaim.getKid());
+		String[] keyNameAndVersion = KeyUtils.myKid2KeyNameVersion(encryptedClaim.getKid());
 		return keysService.decrypt(
-			keyNameAndVersion.getName(),
-			keyNameAndVersion.getVersion(),
+			keyNameAndVersion[0],
+			keyNameAndVersion[1],
 			new KeyOperationParameters()
 				.setAlg(encryptedClaim.getAlg())
 				.setValue(encryptedClaim.getValue()))
 			.map(keyOperationResult -> new String(keyOperationResult.getValue(), StandardCharsets.UTF_8))
 			.onFailure()
 			.transform(t -> {
-				Log.errorf(t, "Error decrypting claim", t);
-				return new AuthError(AuthErrorCode.ERROR_DECRYPTING_CLAIM, "Error decrypting claim");
+				String message = String.format("[%s] Error decrypting claim", AuthErrorCode.ERROR_DECRYPTING_CLAIM);
+				Log.errorf(t, message);
+				return new AuthError(AuthErrorCode.ERROR_DECRYPTING_CLAIM, message);
 			});
 	}
 }

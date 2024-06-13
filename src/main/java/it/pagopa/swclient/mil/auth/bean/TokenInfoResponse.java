@@ -10,9 +10,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -21,14 +22,15 @@ import lombok.experimental.Accessors;
  */
 @RegisterForReflection
 @JsonInclude(Include.NON_NULL)
-@Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Accessors(chain = true)
-@EqualsAndHashCode
 public class TokenInfoResponse {
 	/*
 	 * Fiscal code
 	 */
 	@JsonProperty(JsonPropertyName.FISCAL_CODE)
+	@ToString.Exclude
 	private String fiscalCode;
 }

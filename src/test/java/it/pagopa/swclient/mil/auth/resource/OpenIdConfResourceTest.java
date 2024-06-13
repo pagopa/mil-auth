@@ -27,6 +27,9 @@ import jakarta.ws.rs.core.MediaType;
 @TestHTTPEndpoint(OpenIdConfResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenIdConfResourceTest {
+	/*
+	 * 
+	 */
 	@ConfigProperty(name = "base-url")
 	String baseUrl;
 
