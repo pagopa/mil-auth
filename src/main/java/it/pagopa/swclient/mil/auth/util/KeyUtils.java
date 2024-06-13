@@ -22,7 +22,13 @@ public class KeyUtils {
 	/*
 	 * 
 	 */
-	public static final String KEY_NAME_PREFIX = "auth";
+	public static final String KEY_DOMAIN = "auth";
+
+	/**
+	 * 
+	 */
+	private KeyUtils() {
+	}
 
 	/**
 	 * 
@@ -64,7 +70,7 @@ public class KeyUtils {
 	 * @return
 	 */
 	public static String generateKeyName() {
-		return KEY_NAME_PREFIX + UUID.randomUUID().toString().replace("-", "");
+		return KEY_DOMAIN + UUID.randomUUID().toString().replace("-", "");
 	}
 
 	/**

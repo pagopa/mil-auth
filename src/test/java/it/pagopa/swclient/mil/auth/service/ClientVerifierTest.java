@@ -120,6 +120,20 @@ class ClientVerifierTest {
 	 * 
 	 */
 	@Test
+	void given_handledErrorFindingClient_when_invokeFindClient_then_getFailure() {
+		when(repository.getClient(anyString()))
+			.thenReturn(UniGenerator.error("code", "string"));
+
+		verifier.findClient(ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
 	void given_clientData_when_invokeFindClient_then_getIt() {
 		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
 

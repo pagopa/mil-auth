@@ -39,7 +39,7 @@ import jakarta.ws.rs.core.Response.Status;
 @PermitAll
 public class JwksResource {
 	/*
-	 *
+	 * Skew in seconds.
 	 */
 	private static final long SKEW = 5 * 60L;
 
@@ -80,7 +80,7 @@ public class JwksResource {
 		MDC.put("requestId", correlationId);
 		Log.debug("get - Input parameters: n/a");
 		return keyExtService.getKeys(
-			KeyUtils.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA))
 			.map(KeyUtils::keyBundle2PublicKey)

@@ -6,13 +6,15 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,15 +24,11 @@ import org.junit.jupiter.api.TestInstance;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import io.smallrye.mutiny.Multi;
 import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
-import it.pagopa.swclient.mil.auth.bean.KeyType;
-import it.pagopa.swclient.mil.auth.bean.KeyUse;
-import it.pagopa.swclient.mil.auth.bean.PublicKey;
 import it.pagopa.swclient.mil.auth.bean.PublicKeys;
-import it.pagopa.swclient.mil.auth.service.KeyFinder;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
@@ -64,27 +62,66 @@ class JwksResourceTest {
 		System.out.println(frame);
 	}
 
+	/**
+	 * 
+	 */
 	@Test
-	void testOk() {
+	void given_setOfKeys_when_theEndPointIsInvoked_then_getListOfPublicKeys() {
 		/*
-		 * Setup.
+		 * Setup
 		 */
-		KeyBundle keyBundle1 = new KeyBundle() 
+		long iat1 = Instant.now().minus(1, ChronoUnit.MINUTES).getEpochSecond();
+		long exp1 = Instant.now().plus(9, ChronoUnit.MINUTES).getEpochSecond();
+
+		KeyBundle keyBundle1 = new KeyBundle()
 			.setAttributes(new KeyAttributes()
-				.set)
-			.setKey(null)
-			.setTags(null);
-		
-		when(keyExtService.getKeys(KeyUtils.KEY_NAME_PREFIX,
+				.setCreated(iat1)
+				.setEnabled(true)
+				.setExp(exp1)
+				.setNbf(iat1))
+			.setKey(new JsonWebKey()
+				.setKty(JsonWebKeyType.RSA)
+				.setE(new byte[0])
+				.setN(new byte[0])
+				.setKeyOps(List.of(
+					JsonWebKeyOperation.SIGN,
+					JsonWebKeyOperation.VERIFY))
+				.setKid("https://keyvault/keys/key_name_1/key_version_1"))
+			.setTags(Map.of(
+				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
+				KeyUtils.KEY_DOMAIN));
+
+		long iat2 = Instant.now().getEpochSecond();
+		long exp2 = Instant.now().plus(10, ChronoUnit.MINUTES).getEpochSecond();
+
+		KeyBundle keyBundle2 = new KeyBundle()
+			.setAttributes(new KeyAttributes()
+				.setCreated(iat2)
+				.setEnabled(true)
+				.setExp(exp2)
+				.setNbf(iat2))
+			.setKey(new JsonWebKey()
+				.setKty(JsonWebKeyType.RSA)
+				.setE(new byte[0])
+				.setN(new byte[0])
+				.setKeyOps(List.of(
+					JsonWebKeyOperation.SIGN,
+					JsonWebKeyOperation.VERIFY))
+				.setKid("https://keyvault/keys/key_name_2/key_version_2"))
+			.setTags(Map.of(
+				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
+				KeyUtils.KEY_DOMAIN));
+
+		when(keyExtService.getKeys(
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
-		.thenReturn(null)
-		
-		
+			.thenReturn(Multi.createFrom().items(keyBundle1, keyBundle2));
+
 		/*
-		 * Test.
+		 * Test
 		 */
-		PublicKeys response = given()
+		PublicKeys actual = given()
 			.when()
 			.get()
 			.then()
@@ -97,27 +134,30 @@ class JwksResourceTest {
 			.response()
 			.as(PublicKeys.class);
 
-		assertEquals(publicKeys, response);
+		assertThat(actual.getKeys())
+			.containsExactlyInAnyOrder(
+				KeyUtils.keyBundle2PublicKey(keyBundle1),
+				KeyUtils.keyBundle2PublicKey(keyBundle2));
 	}
 
+	/**
+	 * 
+	 */
 	@Test
-	void testWithExpirationInAWhileOk() {
+	void given_noKey_when_theEndPointIsInvoked_then_getEmptyListOfPublicKeys() {
 		/*
-		 * Setup.
+		 * Setup
 		 */
-		long now = Instant.now().getEpochSecond();
-		long exp = now + 5 * 60;
-		PublicKey publicKey1 = new PublicKey("exp1", KeyUse.sig, "kid1", "mod1", KeyType.RSA, exp, now);
-
-		PublicKeys publicKeys = new PublicKeys(List.of(publicKey1));
-
-		when(keyFinder.findPublicKeys())
-			.thenReturn(Uni.createFrom().item(publicKeys));
+		when(keyExtService.getKeys(
+			KeyUtils.KEY_DOMAIN,
+			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
+			List.of(JsonWebKeyType.RSA)))
+			.thenReturn(Multi.createFrom().items());
 
 		/*
-		 * Test.
+		 * Test
 		 */
-		PublicKeys response = given()
+		PublicKeys actual = given()
 			.when()
 			.get()
 			.then()
@@ -130,48 +170,26 @@ class JwksResourceTest {
 			.response()
 			.as(PublicKeys.class);
 
-		assertEquals(publicKeys, response);
+		assertThat(actual.getKeys())
+			.isEmpty();
 	}
 
+	/**
+	 * 
+	 */
 	@Test
-	void testWithoutKeys() {
+	void given_errorSearchingKeys_when_theEndPointIsInvoked_then_getFailure() {
 		/*
-		 * Setup.
+		 * Setup
 		 */
-		PublicKeys publicKeys = new PublicKeys(List.of());
-
-		when(keyFinder.findPublicKeys())
-			.thenReturn(Uni.createFrom().item(publicKeys));
-
-		/*
-		 * Test.
-		 */
-		PublicKeys response = given()
-			.when()
-			.get()
-			.then()
-			.log()
-			.everything()
-			.statusCode(200)
-			.contentType(MediaType.APPLICATION_JSON)
-			.header("Cache-Control", containsString("no-cache"))
-			.extract()
-			.response()
-			.as(PublicKeys.class);
-
-		assertEquals(publicKeys, response);
-	}
-
-	@Test
-	void testWithError() {
-		/*
-		 * Setup.
-		 */
-		when(keyFinder.findPublicKeys())
-			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
+		when(keyExtService.getKeys(
+			KeyUtils.KEY_DOMAIN,
+			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
+			List.of(JsonWebKeyType.RSA)))
+			.thenReturn(Multi.createFrom().failure(new Exception("synthetic_exception")));
 
 		/*
-		 * Test.
+		 * Test
 		 */
 		given()
 			.when()
@@ -181,6 +199,6 @@ class JwksResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(JsonPropertyName.ERRORS, hasItem(AuthErrorCode.ERROR_SEARCHING_FOR_KEYS));
+			.body(JsonPropertyName.ERRORS, notNullValue());
 	}
 }

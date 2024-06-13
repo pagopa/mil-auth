@@ -1,4 +1,4 @@
-/**
+/*
  * 
  */
 package it.pagopa.swclient.mil.auth.service;

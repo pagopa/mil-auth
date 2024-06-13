@@ -120,7 +120,7 @@ class TokenSignerTest {
 		 * Setup
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
@@ -174,7 +174,7 @@ class TokenSignerTest {
 		 * Setup
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
@@ -232,7 +232,7 @@ class TokenSignerTest {
 		 * Setup
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
@@ -291,7 +291,7 @@ class TokenSignerTest {
 		 * Setup
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
@@ -347,7 +347,7 @@ class TokenSignerTest {
 		 * Setup
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.exception("code_string", "message_string"));

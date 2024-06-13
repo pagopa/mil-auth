@@ -100,7 +100,7 @@ public class ClaimEncryptor {
 	private Uni<String> retrieveKey() {
 		Log.trace("Retrieve key");
 		return keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_NAME_PREFIX,
+			KeyUtils.KEY_DOMAIN,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA))
 			.chain(keyBundle -> {

@@ -5,7 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.validation.constraints;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -241,7 +242,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_acquirerIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -260,7 +261,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_merchantIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -279,7 +280,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_terminalIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -298,7 +299,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_clientSecretIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -317,7 +318,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_extTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -336,7 +337,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_addDataIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -355,7 +356,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_refreshTokenIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -374,7 +375,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_usernameIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -393,7 +394,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_passwordIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -412,7 +413,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelPos_when_scopeIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -452,7 +453,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_acquirerIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -470,7 +471,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_merchantIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -488,7 +489,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_terminalIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -506,7 +507,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_clientSecretIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -524,7 +525,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_extTokenIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -542,7 +543,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_addDataIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -560,7 +561,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_refreshTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -578,7 +579,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_usernameIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -596,7 +597,7 @@ class ValidatorTest {
 				.setPassword(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypePoyntTokenAndChannelPos_when_passwordIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -636,7 +637,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_acquirerIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -655,7 +656,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_merchantIdIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -674,7 +675,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_terminalIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -693,7 +694,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_clientSecretIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -712,7 +713,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_extTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -731,7 +732,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_addDataIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -750,7 +751,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_refreshTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -769,7 +770,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_usernameIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -788,7 +789,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_passwordIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -807,7 +808,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelAtm_when_scopeIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -848,7 +849,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_acquirerIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -867,7 +868,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_merchantIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -886,7 +887,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_terminalIdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -905,7 +906,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_clientSecretdIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -924,7 +925,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_extTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -943,7 +944,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_addDataIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -962,7 +963,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_refreshTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -981,7 +982,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_usernameIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1000,7 +1001,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_passwordIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1019,7 +1020,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelPos_when_scopeIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1060,7 +1061,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_acquirerIdIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1079,7 +1080,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_merchantIdIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1098,7 +1099,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_terminalIdIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1117,7 +1118,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_clientSecretIsNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1136,7 +1137,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_extTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1155,7 +1156,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_addDataIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1174,7 +1175,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_refreshTokenIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1193,7 +1194,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_usernameIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1212,7 +1213,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_passwordIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1231,7 +1232,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_scopeIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()

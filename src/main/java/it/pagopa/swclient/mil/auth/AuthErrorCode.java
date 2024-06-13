@@ -63,7 +63,7 @@ public final class AuthErrorCode {
 	public static final String ERROR_SIGNING_TOKEN = MODULE_ID + "000030";
 	public static final String ERROR_SEARCHING_FOR_USER = MODULE_ID + "000031";
 	public static final String USER_NOT_FOUND = MODULE_ID + "000032";
-	
+
 	/**
 	 *
 	 */
