@@ -8,6 +8,7 @@ package it.pagopa.swclient.mil.auth.service;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -86,6 +87,7 @@ public class ClaimEncryptor {
 					.setExp(now + cryptoperiod)
 					.setExportable(Boolean.FALSE)
 					.setNbf(now))
+				.setTags(Map.of(it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY, KeyUtils.DOMAIN_VALUE))
 				.setKeyOps(List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT))
 				.setKeySize(keysize)
 				.setKty(JsonWebKeyType.RSA))
@@ -100,7 +102,7 @@ public class ClaimEncryptor {
 	private Uni<String> retrieveKey() {
 		Log.trace("Retrieve key");
 		return keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA))
 			.chain(keyBundle -> {

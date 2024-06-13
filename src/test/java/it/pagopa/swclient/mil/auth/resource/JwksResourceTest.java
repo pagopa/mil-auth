@@ -89,7 +89,7 @@ class JwksResourceTest {
 				.setKid("https://keyvault/keys/key_name_1/key_version_1"))
 			.setTags(Map.of(
 				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
-				KeyUtils.KEY_DOMAIN));
+				KeyUtils.DOMAIN_VALUE));
 
 		long iat2 = Instant.now().getEpochSecond();
 		long exp2 = Instant.now().plus(10, ChronoUnit.MINUTES).getEpochSecond();
@@ -110,10 +110,10 @@ class JwksResourceTest {
 				.setKid("https://keyvault/keys/key_name_2/key_version_2"))
 			.setTags(Map.of(
 				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
-				KeyUtils.KEY_DOMAIN));
+				KeyUtils.DOMAIN_VALUE));
 
 		when(keyExtService.getKeys(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(Multi.createFrom().items(keyBundle1, keyBundle2));
@@ -149,7 +149,7 @@ class JwksResourceTest {
 		 * Setup
 		 */
 		when(keyExtService.getKeys(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(Multi.createFrom().items());
@@ -183,7 +183,7 @@ class JwksResourceTest {
 		 * Setup
 		 */
 		when(keyExtService.getKeys(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(Multi.createFrom().failure(new Exception("synthetic_exception")));

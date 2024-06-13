@@ -80,7 +80,7 @@ public class JwksResource {
 		MDC.put("requestId", correlationId);
 		Log.debug("get - Input parameters: n/a");
 		return keyExtService.getKeys(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
 			List.of(JsonWebKeyType.RSA))
 			.map(KeyUtils::keyBundle2PublicKey)
