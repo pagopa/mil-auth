@@ -22,7 +22,7 @@ public class KeyUtils {
 	/*
 	 * 
 	 */
-	public static final String KEY_DOMAIN = "auth";
+	public static final String DOMAIN_VALUE = "auth";
 
 	/**
 	 * 
@@ -70,7 +70,7 @@ public class KeyUtils {
 	 * @return
 	 */
 	public static String generateKeyName() {
-		return KEY_DOMAIN + UUID.randomUUID().toString().replace("-", "");
+		return DOMAIN_VALUE + UUID.randomUUID().toString().replace("-", "");
 	}
 
 	/**

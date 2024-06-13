@@ -69,7 +69,7 @@ class KeyUtilsTest {
 				.setKid("https://keyvault/keys/key_name/key_version"))
 			.setTags(Map.of(
 				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
-				KeyUtils.KEY_DOMAIN));
+				KeyUtils.DOMAIN_VALUE));
 		
 		assertEquals("sig", KeyUtils.keyBundle2PublicKey(keyBundle).getUse());
 	}
@@ -97,7 +97,7 @@ class KeyUtilsTest {
 				.setKid("https://keyvault/keys/key_name/key_version"))
 			.setTags(Map.of(
 				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
-				KeyUtils.KEY_DOMAIN));
+				KeyUtils.DOMAIN_VALUE));
 		
 		assertNull(KeyUtils.keyBundle2PublicKey(keyBundle).getUse());
 	}
@@ -125,7 +125,7 @@ class KeyUtilsTest {
 				.setKid("https://keyvault/keys/key_name/key_version"))
 			.setTags(Map.of(
 				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
-				KeyUtils.KEY_DOMAIN));
+				KeyUtils.DOMAIN_VALUE));
 		
 		assertNull(KeyUtils.keyBundle2PublicKey(keyBundle).getUse());
 	}
@@ -153,7 +153,7 @@ class KeyUtilsTest {
 				.setKid("https://keyvault/keys/key_name/key_version"))
 			.setTags(Map.of(
 				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
-				KeyUtils.KEY_DOMAIN));
+				KeyUtils.DOMAIN_VALUE));
 		
 		assertNull(KeyUtils.keyBundle2PublicKey(keyBundle).getUse());
 	}

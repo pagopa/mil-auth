@@ -109,7 +109,7 @@ class ClaimEncryptorTest {
 		 * 
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
@@ -151,7 +151,7 @@ class ClaimEncryptorTest {
 		 * 
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(Uni.createFrom().item(Optional.empty()));
@@ -194,7 +194,7 @@ class ClaimEncryptorTest {
 		 * 
 		 */
 		when(keysExtService.getKeyWithLongestExp(
-			KeyUtils.KEY_DOMAIN,
+			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic_exception")));
