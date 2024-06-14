@@ -9,12 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -25,7 +21,6 @@ import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.bean.KeyIdCache;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
@@ -33,9 +28,6 @@ import it.pagopa.swclient.mil.auth.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeySignatureAlgorithm;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyCreateParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeySignParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyVerifyParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysExtReactiveService;
@@ -47,34 +39,14 @@ import jakarta.inject.Inject;
  *
  */
 @ApplicationScoped
-public class TokenSigner {
-	/*
+public class TokenSigner extends KeyManCapabilities {
+	/**
 	 * 
 	 */
-	@ConfigProperty(name = "cryptoperiod", defaultValue = "86400")
-	long cryptoperiod;
-
-	/*
-	 * 
-	 */
-	@ConfigProperty(name = "keysize", defaultValue = "4096")
-	int keysize;
-
-	/*
-	 * 
-	 */
-	private AzureKeyVaultKeysExtReactiveService keysExtService;
-
-	/*
-	 * 
-	 */
-	private AzureKeyVaultKeysReactiveService keysService;
-
-	/*
-	 * 
-	 */
-	private KeyIdCache keyIdCache;
-
+	TokenSigner() {
+		super();
+	}
+	
 	/**
 	 * 
 	 * @param keysExtService
@@ -82,68 +54,7 @@ public class TokenSigner {
 	 */
 	@Inject
 	TokenSigner(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
-		this.keysExtService = keysExtService;
-		this.keysService = keysService;
-		keyIdCache = new KeyIdCache();
-	}
-
-	/**
-	 * Creates a new key.
-	 * 
-	 * @return key id (kid)
-	 */
-	private Uni<String> createKey() {
-		Log.trace("Create e new key");
-		long now = Instant.now().getEpochSecond();
-		return keysService.createKey(
-			KeyUtils.generateKeyName(),
-			new KeyCreateParameters()
-				.setAttributes(new KeyAttributes()
-					.setCreated(now)
-					.setEnabled(Boolean.TRUE)
-					.setExp(now + cryptoperiod)
-					.setExportable(Boolean.FALSE)
-					.setNbf(now))
-				.setTags(Map.of(it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY, KeyUtils.DOMAIN_VALUE))
-				.setKeyOps(List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY))
-				.setKeySize(keysize)
-				.setKty(JsonWebKeyType.RSA))
-			.map(keyBundle -> {
-				String kid = keyBundle.getKey().getKid();
-				Log.trace("Cache the key ID");
-				keyIdCache.setKid(kid)
-					.setExp(keyBundle.getAttributes().getExp())
-					.setStoredAt(Instant.now().getEpochSecond());
-				return kid;
-			});
-	}
-
-	/**
-	 * Gets a key and if doesn't find it, creates a new one.
-	 * 
-	 * @return key id (kid)
-	 */
-	private Uni<String> retrieveKey() {
-		Log.trace("Retrieve key");
-
-		if (keyIdCache.isValid(0)) {
-			Log.trace("Returned cached kid");
-			return UniGenerator.item(keyIdCache.getKid());
-		}
-
-		return keysExtService.getKeyWithLongestExp(
-			KeyUtils.DOMAIN_VALUE,
-			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
-			List.of(JsonWebKeyType.RSA))
-			.chain(keyBundle -> {
-				if (keyBundle.isEmpty()) {
-					Log.debug("No suitable key found");
-					return createKey();
-				} else {
-					Log.trace("Suitable key found");
-					return UniGenerator.item(keyBundle.get().getKey().getKid());
-				}
-			});
+		super(keysExtService, keysService);
 	}
 
 	/**
@@ -217,7 +128,7 @@ public class TokenSigner {
 	 */
 	public Uni<SignedJWT> sign(JWTClaimsSet claimsSet) {
 		Log.trace("Token signature generation");
-		return retrieveKey()
+		return retrieveKey(List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY))
 			.chain(azureKid -> sign(azureKid, claimsSet))
 			.onFailure(t -> !(t instanceof AuthError))
 			.transform(t -> {
