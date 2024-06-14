@@ -40,6 +40,11 @@ import jakarta.inject.Inject;
  */
 @ApplicationScoped
 public class TokenSigner extends KeyManCapabilities {
+	/*
+	 * 
+	 */
+	private static final String ERROR_MSG_TEMPL = "[%s] Error signing token";
+	
 	/**
 	 * 
 	 */
@@ -108,13 +113,13 @@ public class TokenSigner extends KeyManCapabilities {
 							payload,
 							Base64URL.encode(keyOperationResult.getValue()));
 					} catch (ParseException e) {
-						String message = String.format("[%s] Error signing token", AuthErrorCode.ERROR_SIGNING_TOKEN);
+						String message = String.format(ERROR_MSG_TEMPL, AuthErrorCode.ERROR_SIGNING_TOKEN);
 						Log.errorf(e, message);
 						throw new AuthError(AuthErrorCode.ERROR_SIGNING_TOKEN, message);
 					}
 				});
 		} catch (NoSuchAlgorithmException e) {
-			String message = String.format("[%s] Error signing token", AuthErrorCode.ERROR_SIGNING_TOKEN);
+			String message = String.format(ERROR_MSG_TEMPL, AuthErrorCode.ERROR_SIGNING_TOKEN);
 			Log.errorf(e, message);
 			return UniGenerator.error(AuthErrorCode.ERROR_SIGNING_TOKEN, message);
 		}
@@ -132,7 +137,7 @@ public class TokenSigner extends KeyManCapabilities {
 			.chain(azureKid -> sign(azureKid, claimsSet))
 			.onFailure(t -> !(t instanceof AuthError))
 			.transform(t -> {
-				String message = String.format("[%s] Error signing token", AuthErrorCode.ERROR_ENCRYPTING_CLAIM);
+				String message = String.format(ERROR_MSG_TEMPL, AuthErrorCode.ERROR_ENCRYPTING_CLAIM);
 				Log.errorf(t, message);
 				return new AuthError(AuthErrorCode.ERROR_ENCRYPTING_CLAIM, message);
 			});
