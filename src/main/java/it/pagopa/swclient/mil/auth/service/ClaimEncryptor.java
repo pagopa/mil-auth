@@ -6,11 +6,7 @@
 package it.pagopa.swclient.mil.auth.service;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -18,12 +14,8 @@ import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
-import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
-import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyCreateParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyOperationParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyOperationResult;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysExtReactiveService;
@@ -36,29 +28,14 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @ApplicationScoped
-public class ClaimEncryptor {
-	/*
+public class ClaimEncryptor extends KeyManCapabilities {
+	/**
 	 * 
 	 */
-	@ConfigProperty(name = "cryptoperiod", defaultValue = "86400")
-	long cryptoperiod;
-
-	/*
-	 * 
-	 */
-	@ConfigProperty(name = "keysize", defaultValue = "4096")
-	int keysize;
-
-	/*
-	 * 
-	 */
-	private AzureKeyVaultKeysExtReactiveService keysExtService;
-
-	/*
-	 * 
-	 */
-	private AzureKeyVaultKeysReactiveService keysService;
-
+	ClaimEncryptor() {
+		super();
+	}
+	
 	/**
 	 * 
 	 * @param keysExtService
@@ -66,54 +43,7 @@ public class ClaimEncryptor {
 	 */
 	@Inject
 	ClaimEncryptor(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
-		this.keysExtService = keysExtService;
-		this.keysService = keysService;
-	}
-
-	/**
-	 * Creates a new key.
-	 * 
-	 * @return key id (kid)
-	 */
-	private Uni<String> createKey() {
-		Log.trace("Create e new key");
-		long now = Instant.now().getEpochSecond();
-		return keysService.createKey(
-			KeyUtils.generateKeyName(),
-			new KeyCreateParameters()
-				.setAttributes(new KeyAttributes()
-					.setCreated(now)
-					.setEnabled(Boolean.TRUE)
-					.setExp(now + cryptoperiod)
-					.setExportable(Boolean.FALSE)
-					.setNbf(now))
-				.setTags(Map.of(it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY, KeyUtils.DOMAIN_VALUE))
-				.setKeyOps(List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT))
-				.setKeySize(keysize)
-				.setKty(JsonWebKeyType.RSA))
-			.map(keyBundle -> keyBundle.getKey().getKid());
-	}
-
-	/**
-	 * Gets a key and if doesn't find it, creates a new one.
-	 * 
-	 * @return key id (kid)
-	 */
-	private Uni<String> retrieveKey() {
-		Log.trace("Retrieve key");
-		return keysExtService.getKeyWithLongestExp(
-			KeyUtils.DOMAIN_VALUE,
-			List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT),
-			List.of(JsonWebKeyType.RSA))
-			.chain(keyBundle -> {
-				if (keyBundle.isEmpty()) {
-					Log.debug("No suitable key found");
-					return createKey();
-				} else {
-					Log.trace("Suitable key found");
-					return UniGenerator.item(keyBundle.get().getKey().getKid());
-				}
-			});
+		super(keysExtService, keysService);
 	}
 
 	/**
@@ -140,7 +70,7 @@ public class ClaimEncryptor {
 	 * @return
 	 */
 	public Uni<EncryptedClaim> encrypt(String value) {
-		return retrieveKey()
+		return retrieveKey(List.of(JsonWebKeyOperation.ENCRYPT, JsonWebKeyOperation.DECRYPT))
 			.chain(azureKid -> encrypt(azureKid, value))
 			.map(keyOperationResult -> {
 				String myKid = KeyUtils.azureKid2MyKid(keyOperationResult.getKid());

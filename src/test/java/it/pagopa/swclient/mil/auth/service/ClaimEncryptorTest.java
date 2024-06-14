@@ -13,16 +13,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -36,6 +35,7 @@ import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyEncryptionAlgorithm;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyBundle;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyCreateParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyOperationParameters;
@@ -49,7 +49,6 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-@TestInstance(Lifecycle.PER_CLASS)
 class ClaimEncryptorTest {
 	/*
 	 * 
@@ -81,14 +80,6 @@ class ClaimEncryptorTest {
 	private String keyBaseUrl;
 
 	/**
-	 *
-	 */
-	@BeforeAll
-	void setup() {
-		keyBaseUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
-	}
-
-	/**
 	 * 
 	 * @param testInfo
 	 */
@@ -98,6 +89,7 @@ class ClaimEncryptorTest {
 		System.out.println(frame);
 		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
 		System.out.println(frame);
+		keyBaseUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
 	}
 
 	/**
@@ -161,6 +153,8 @@ class ClaimEncryptorTest {
 			any(KeyCreateParameters.class)))
 			.thenReturn(UniGenerator.item(
 				new KeyBundle()
+					.setAttributes(new KeyAttributes()
+						.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond()))
 					.setKey(new JsonWebKey()
 						.setKid(keyBaseUrl + "key_name/key_version"))));
 

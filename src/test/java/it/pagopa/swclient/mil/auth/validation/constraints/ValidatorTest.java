@@ -11,8 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
@@ -24,7 +22,6 @@ import it.pagopa.swclient.mil.bean.Channel;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-@TestInstance(Lifecycle.PER_CLASS)
 class ValidatorTest {
 	/**
 	 * 
