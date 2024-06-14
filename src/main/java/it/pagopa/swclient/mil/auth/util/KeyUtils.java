@@ -70,7 +70,7 @@ public class KeyUtils {
 	 * @return
 	 */
 	public static String generateKeyName() {
-		return DOMAIN_VALUE + UUID.randomUUID().toString().replace("-", "");
+		return UUID.randomUUID().toString().replace("-", "");
 	}
 
 	/**
