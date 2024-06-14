@@ -18,8 +18,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -49,7 +47,6 @@ import jakarta.ws.rs.core.Response;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-@TestInstance(Lifecycle.PER_CLASS)
 class TokenByPasswordServiceTest {
 	/*
 	 * 

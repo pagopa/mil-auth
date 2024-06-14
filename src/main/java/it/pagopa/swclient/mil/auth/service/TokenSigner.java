@@ -25,6 +25,7 @@ import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.bean.KeyIdCache;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
@@ -69,6 +70,11 @@ public class TokenSigner {
 	 */
 	private AzureKeyVaultKeysReactiveService keysService;
 
+	/*
+	 * 
+	 */
+	private KeyIdCache keyIdCache;
+
 	/**
 	 * 
 	 * @param keysExtService
@@ -78,6 +84,7 @@ public class TokenSigner {
 	TokenSigner(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
 		this.keysExtService = keysExtService;
 		this.keysService = keysService;
+		keyIdCache = new KeyIdCache();
 	}
 
 	/**
@@ -101,7 +108,14 @@ public class TokenSigner {
 				.setKeyOps(List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY))
 				.setKeySize(keysize)
 				.setKty(JsonWebKeyType.RSA))
-			.map(keyBundle -> keyBundle.getKey().getKid());
+			.map(keyBundle -> {
+				String kid = keyBundle.getKey().getKid();
+				Log.trace("Cache the key ID");
+				keyIdCache.setKid(kid)
+					.setExp(keyBundle.getAttributes().getExp())
+					.setStoredAt(Instant.now().getEpochSecond());
+				return kid;
+			});
 	}
 
 	/**
@@ -111,6 +125,12 @@ public class TokenSigner {
 	 */
 	private Uni<String> retrieveKey() {
 		Log.trace("Retrieve key");
+
+		if (keyIdCache.isValid(0)) {
+			Log.trace("Returned cached kid");
+			return UniGenerator.item(keyIdCache.getKid());
+		}
+
 		return keysExtService.getKeyWithLongestExp(
 			KeyUtils.DOMAIN_VALUE,
 			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),

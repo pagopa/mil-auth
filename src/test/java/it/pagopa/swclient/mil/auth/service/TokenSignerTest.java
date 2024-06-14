@@ -15,17 +15,16 @@ import static org.mockito.Mockito.when;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -45,6 +44,7 @@ import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyBundle;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyCreateParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyOperationResult;
@@ -60,7 +60,6 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-@TestInstance(Lifecycle.PER_CLASS)
 class TokenSignerTest {
 	/*
 	 * 
@@ -92,14 +91,6 @@ class TokenSignerTest {
 	private String keyBaseUrl;
 
 	/**
-	 *
-	 */
-	@BeforeAll
-	void setup() {
-		keyBaseUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
-	}
-
-	/**
 	 * 
 	 * @param testInfo
 	 */
@@ -109,6 +100,7 @@ class TokenSignerTest {
 		System.out.println(frame);
 		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
 		System.out.println(frame);
+		keyBaseUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
 	}
 
 	/**
@@ -169,6 +161,67 @@ class TokenSignerTest {
 	 * 
 	 */
 	@Test
+	void given_claimsSetToSign_when_suitableKeyIsCached_then_getSignedJwt() {
+		/*
+		 * Setup
+		 */
+		when(keysExtService.getKeyWithLongestExp(
+			KeyUtils.DOMAIN_VALUE,
+			List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY),
+			List.of(JsonWebKeyType.RSA)))
+			.thenReturn(UniGenerator.item(
+				Optional.of(new KeyBundle()
+					.setAttributes(new KeyAttributes()
+						.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond()))
+					.setKey(new JsonWebKey()
+						.setKid(keyBaseUrl + "key_name/key_version")))));
+
+		when(keysService.sign(
+			eq("key_name"),
+			eq("key_version"),
+			any(KeySignParameters.class)))
+			.thenReturn(UniGenerator.item(
+				new KeyOperationResult()
+					.setKid(keyBaseUrl + "key_name/key_version")
+					.setValue(new byte[1])));
+
+		/*
+		 * Test
+		 */
+		JWTClaimsSet payload = new JWTClaimsSet.Builder()
+			.subject("client_id")
+			.issueTime(new Date(1717592477))
+			.expirationTime(new Date(1717592477 + 60000))
+			.claim(ClaimName.ACQUIRER_ID, "acquirer_id")
+			.claim(ClaimName.CHANNEL, "channel")
+			.claim(ClaimName.MERCHANT_ID, "merchant_id")
+			.claim(ClaimName.CLIENT_ID, "client_id")
+			.claim(ClaimName.TERMINAL_ID, "terminal_id")
+			.claim(ClaimName.SCOPE, "scope")
+			.claim(ClaimName.GROUPS, "role")
+			.claim(ClaimName.FISCAL_CODE, "enc_fiscal_code")
+			.issuer("https://mil-auth")
+			.audience("https://mil")
+			.build();
+
+		/*
+		 * Invocation to cache kid.
+		 */
+		tokenSigner.sign(payload).subscribe().with(System.out::println, System.err::println);
+
+		String expected = "eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA";
+
+		tokenSigner.sign(payload)
+			.subscribe()
+			.with(
+				actual -> assertEquals(expected, actual.serialize()),
+				f -> fail(f));
+	}
+
+	/**
+	 * 
+	 */
+	@Test
 	void given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAndGetSignedJwt() {
 		/*
 		 * Setup
@@ -183,6 +236,8 @@ class TokenSignerTest {
 		when(keysService.createKey(anyString(), any(KeyCreateParameters.class)))
 			.thenReturn(UniGenerator.item(
 				new KeyBundle()
+					.setAttributes(new KeyAttributes()
+						.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond()))
 					.setKey(new JsonWebKey()
 						.setKid(keyBaseUrl + "key_name/key_version"))));
 

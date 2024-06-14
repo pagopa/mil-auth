@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
 
 import com.azure.core.http.ContentType;
 
@@ -35,7 +34,6 @@ import jakarta.ws.rs.core.MediaType;
  */
 @QuarkusTest
 @TestHTTPEndpoint(TokenInfoResource.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TokenInfoResourceTest {
 	/*
 	 * 

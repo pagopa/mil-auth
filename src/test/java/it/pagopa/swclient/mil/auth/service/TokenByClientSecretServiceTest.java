@@ -17,8 +17,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -40,7 +38,6 @@ import jakarta.inject.Inject;
  * @author Antonio Tarricone
  */
 @QuarkusTest
-@TestInstance(Lifecycle.PER_CLASS)
 class TokenByClientSecretServiceTest {
 	/*
 	 * 

@@ -12,7 +12,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -25,7 +24,6 @@ import jakarta.ws.rs.core.MediaType;
  */
 @QuarkusTest
 @TestHTTPEndpoint(OpenIdConfResource.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenIdConfResourceTest {
 	/*
 	 * 
