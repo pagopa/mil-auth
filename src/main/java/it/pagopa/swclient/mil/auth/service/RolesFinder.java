@@ -5,6 +5,7 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
@@ -91,6 +92,7 @@ public class RolesFinder {
 	 * @param terminalId
 	 * @return
 	 */
+	@CacheResult(cacheName = "client-role")
 	public Uni<Role> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.tracef("Search (main) for the roles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s", acquirerId, channel, clientId, merchantId, terminalId);
 		return find(acquirerId, channel, clientId, merchantId, terminalId)

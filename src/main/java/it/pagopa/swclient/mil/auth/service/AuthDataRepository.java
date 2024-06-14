@@ -108,7 +108,6 @@ public class AuthDataRepository {
 	 * @param terminalId
 	 * @return
 	 */
-	@CacheResult(cacheName = "client-role")
 	public Uni<Role> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		return blobService.getBlob("roles", acquirerId, channel, clientId, merchantId, terminalId, "roles.json")
 			.map(this::response2Role);
