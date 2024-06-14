@@ -159,7 +159,7 @@ class AuthDataRepositoryTest {
 		repository.getClient("client_id")
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
-			.assertFailedWith(AuthError.class);
+			.assertFailedWith(Exception.class);
 	}
 
 	/**
@@ -263,7 +263,7 @@ class AuthDataRepositoryTest {
 		repository.getRoles("acquirerId", "channel", "clientId", "merchantId", "terminalId")
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
-			.assertFailedWith(AuthError.class);
+			.assertFailedWith(Exception.class);
 	}
 
 	/**
@@ -364,6 +364,6 @@ class AuthDataRepositoryTest {
 		repository.getUser("user_hash")
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
-			.assertFailedWith(AuthError.class);
+			.assertFailedWith(Exception.class);
 	}
 }

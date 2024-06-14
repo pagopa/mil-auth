@@ -75,13 +75,7 @@ public class AuthDataRepository {
 	public Uni<Client> getClient(String clientId) {
 		Log.tracef("Search client %s", clientId);
 		return blobService.getBlob("clients", clientId + ".json")
-			.map(this::response2Client)
-			.onFailure(t -> !(t instanceof AuthError))
-			.transform(t -> {
-				String message = String.format("[%s] Error searching for client", AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT);
-				Log.errorf(t, message);
-				throw new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT, message);
-			});
+			.map(this::response2Client);
 	}
 
 	/**
@@ -117,13 +111,7 @@ public class AuthDataRepository {
 	@CacheResult(cacheName = "client-role")
 	public Uni<Role> getRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		return blobService.getBlob("roles", acquirerId, channel, clientId, merchantId, terminalId, "roles.json")
-			.map(this::response2Role)
-			.onFailure(t -> !(t instanceof AuthError))
-			.transform(t -> {
-				String message = String.format("[%s] Error searching for roles", AuthErrorCode.ERROR_SEARCHING_FOR_ROLES);
-				Log.errorf(t, message);
-				throw new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES, message);
-			});
+			.map(this::response2Role);
 	}
 
 	/**
@@ -155,12 +143,6 @@ public class AuthDataRepository {
 	@CacheResult(cacheName = "client-role")
 	public Uni<User> getUser(String userHash) {
 		return blobService.getBlob("users", userHash + ".json")
-			.map(this::response2User)
-			.onFailure(t -> !(t instanceof AuthError))
-			.transform(t -> {
-				String message = String.format("[%s] Error searching for user", AuthErrorCode.ERROR_SEARCHING_FOR_USER);
-				Log.errorf(t, message);
-				throw new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_USER, message);
-			});
+			.map(this::response2User);
 	}
 }
