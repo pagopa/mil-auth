@@ -57,6 +57,7 @@ public class EncryptedClaim {
 			try {
 				value = Base64.getUrlDecoder().decode(valueObj.toString());
 			} catch (IllegalArgumentException e) {
+				// Nothing to do!
 			}
 		}
 
