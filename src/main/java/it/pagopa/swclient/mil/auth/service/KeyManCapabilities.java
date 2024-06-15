@@ -95,7 +95,7 @@ abstract class KeyManCapabilities {
 				.setKty(JsonWebKeyType.RSA))
 			.map(keyBundle -> {
 				String kid = keyBundle.getKey().getKid();
-				Log.trace("Cache the key ID");
+				Log.debug("Cache the key ID");
 				keyIdCache.setKid(kid)
 					.setExp(keyBundle.getAttributes().getExp())
 					.setStoredAt(Instant.now().getEpochSecond());
@@ -113,7 +113,7 @@ abstract class KeyManCapabilities {
 		Log.trace("Retrieve key");
 
 		if (keyIdCache.isValid(0)) {
-			Log.trace("Returned cached kid");
+			Log.debug("Returned cached kid");
 			return UniGenerator.item(keyIdCache.getKid());
 		}
 
