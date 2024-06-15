@@ -8,7 +8,6 @@ package it.pagopa.swclient.mil.auth.bean;
 import java.time.Instant;
 
 import io.quarkus.logging.Log;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -21,13 +20,6 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class KeyIdCache {
-	/*
-	 * 
-	 */
-	@Getter(AccessLevel.NONE)
-	@Setter(AccessLevel.NONE)
-	private int expireAfterWrite;
-
 	/*
 	 * 
 	 */
@@ -45,19 +37,11 @@ public class KeyIdCache {
 
 	/**
 	 * 
-	 * @param expireAfterWrite
-	 */
-	public KeyIdCache(int expireAfterWrite) {
-		Log.tracef("expireAfterWrite = %d", expireAfterWrite);
-		this.expireAfterWrite = expireAfterWrite;
-	}
-
-	/**
-	 * 
 	 * @param remainingLife
+	 * @param expireAfterWrite
 	 * @return
 	 */
-	public boolean isValid(long remainingLife) {
+	public boolean isValid(long remainingLife, long expireAfterWrite) {
 		if (kid == null) {
 			Log.debug("kid is null");
 			return false;

@@ -44,14 +44,14 @@ public class TokenSigner extends KeyManCapabilities {
 	 * 
 	 */
 	private static final String ERROR_MSG_TEMPL = "[%s] Error signing token";
-	
+
 	/**
 	 * 
 	 */
 	TokenSigner() {
 		super();
 	}
-	
+
 	/**
 	 * 
 	 * @param keysExtService
