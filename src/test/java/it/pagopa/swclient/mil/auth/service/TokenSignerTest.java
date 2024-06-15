@@ -101,6 +101,7 @@ class TokenSignerTest {
 		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
 		System.out.println(frame);
 		keyBaseUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
+		tokenSigner.cleanCache();
 	}
 
 	/**
@@ -117,6 +118,8 @@ class TokenSignerTest {
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
 				Optional.of(new KeyBundle()
+					.setAttributes(new KeyAttributes()
+						.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond()))
 					.setKey(new JsonWebKey()
 						.setKid(keyBaseUrl + "key_name/key_version")))));
 
@@ -292,6 +295,8 @@ class TokenSignerTest {
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
 				Optional.of(new KeyBundle()
+					.setAttributes(new KeyAttributes()
+						.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond()))
 					.setKey(new JsonWebKey()
 						.setKid(keyBaseUrl + "key_name/key_version")))));
 
@@ -351,6 +356,8 @@ class TokenSignerTest {
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
 				Optional.of(new KeyBundle()
+					.setAttributes(new KeyAttributes()
+						.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond()))
 					.setKey(new JsonWebKey()
 						.setKid(keyBaseUrl + "key_name/key_version")))));
 

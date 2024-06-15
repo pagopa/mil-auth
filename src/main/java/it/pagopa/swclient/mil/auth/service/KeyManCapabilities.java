@@ -18,6 +18,7 @@ import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyAttributes;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyBundle;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.KeyCreateParameters;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysExtReactiveService;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysReactiveService;
@@ -53,13 +54,14 @@ abstract class KeyManCapabilities {
 	 * 
 	 */
 	private KeyIdCache keyIdCache;
-	
+
 	/**
 	 * 
 	 */
 	KeyManCapabilities() {
+		keyIdCache = new KeyIdCache();
 	}
-	
+
 	/**
 	 * 
 	 * @param keysExtService
@@ -70,14 +72,25 @@ abstract class KeyManCapabilities {
 		this.keysService = keysService;
 		keyIdCache = new KeyIdCache();
 	}
-	
+
+	/**
+	 * 
+	 * @param keyBundle
+	 */
+	private void cacheKid(KeyBundle keyBundle) {
+		Log.debug("Cache the key ID");
+		keyIdCache.setKid(keyBundle.getKey().getKid())
+			.setExp(keyBundle.getAttributes().getExp())
+			.setStoredAt(Instant.now().getEpochSecond());
+	}
+
 	/**
 	 * Creates a new key.
 	 * 
 	 * @param keyOps
-	 * @return key id (kid)
+	 * @return
 	 */
-	protected Uni<String> createKey(List<String> keyOps) {
+	protected Uni<KeyBundle> createKey(List<String> keyOps) {
 		Log.trace("Create e new key");
 		long now = Instant.now().getEpochSecond();
 		return keysService.createKey(
@@ -92,17 +105,9 @@ abstract class KeyManCapabilities {
 				.setTags(Map.of(it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY, KeyUtils.DOMAIN_VALUE))
 				.setKeyOps(keyOps)
 				.setKeySize(keysize)
-				.setKty(JsonWebKeyType.RSA))
-			.map(keyBundle -> {
-				String kid = keyBundle.getKey().getKid();
-				Log.debug("Cache the key ID");
-				keyIdCache.setKid(kid)
-					.setExp(keyBundle.getAttributes().getExp())
-					.setStoredAt(Instant.now().getEpochSecond());
-				return kid;
-			});
+				.setKty(JsonWebKeyType.RSA));
 	}
-	
+
 	/**
 	 * Gets a key and if doesn't find it, creates a new one.
 	 * 
@@ -127,8 +132,19 @@ abstract class KeyManCapabilities {
 					return createKey(keyOps);
 				} else {
 					Log.trace("Suitable key found");
-					return UniGenerator.item(keyBundle.get().getKey().getKid());
+					return UniGenerator.item(keyBundle.get());
 				}
+			})
+			.map(keyBundle -> {
+				cacheKid(keyBundle);
+				return keyBundle.getKey().getKid();
 			});
+	}
+	
+	/**
+	 * 
+	 */
+	public void cleanCache() {
+		keyIdCache.clean();
 	}
 }

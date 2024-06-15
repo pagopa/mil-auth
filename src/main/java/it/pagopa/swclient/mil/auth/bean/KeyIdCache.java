@@ -52,21 +52,30 @@ public class KeyIdCache {
 	 */
 	public boolean isValid(long remainingLife) {
 		if (kid == null) {
-			Log.debug("kid is null");
+			Log.trace("kid is null");
 			return false;
 		}
 
 		long now = Instant.now().getEpochSecond();
 		if ((exp - now) < remainingLife) {
-			Log.debug("Key is expired");
+			Log.trace("Key is expired");
 			return false;
 		}
 
 		if ((now - storedAt) > expireAfterWrite) {
-			Log.debug("Cache is expired");
+			Log.trace("Cache is expired");
 			return false;
 		}
 
 		return true;
+	}
+	
+	/**
+	 * 
+	 */
+	public void clean() {
+		kid = null;
+		exp = 0;
+		storedAt = 0;
 	}
 }
