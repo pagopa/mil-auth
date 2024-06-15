@@ -69,4 +69,13 @@ public class KeyIdCache {
 
 		return true;
 	}
+	
+	/**
+	 * 
+	 */
+	public void clean() {
+		kid = null;
+		exp = 0;
+		storedAt = 0;
+	}
 }
