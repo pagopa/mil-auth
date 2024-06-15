@@ -39,6 +39,12 @@ abstract class KeyManCapabilities {
 	 */
 	@ConfigProperty(name = "keysize", defaultValue = "4096")
 	int keysize;
+	
+	/*
+	 * 
+	 */
+	@ConfigProperty(name = "keyid-cache.expire-after-write", defaultValue = "3600")
+	int keyidCacheExpireAfterWrite;
 
 	/*
 	 * 
@@ -59,7 +65,7 @@ abstract class KeyManCapabilities {
 	 * 
 	 */
 	KeyManCapabilities() {
-		keyIdCache = new KeyIdCache();
+		keyIdCache = new KeyIdCache(keyidCacheExpireAfterWrite);
 	}
 
 	/**
@@ -70,7 +76,7 @@ abstract class KeyManCapabilities {
 	KeyManCapabilities(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
 		this.keysExtService = keysExtService;
 		this.keysService = keysService;
-		keyIdCache = new KeyIdCache();
+		keyIdCache = new KeyIdCache(keyidCacheExpireAfterWrite);
 	}
 
 	/**

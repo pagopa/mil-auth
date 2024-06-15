@@ -7,27 +7,22 @@ package it.pagopa.swclient.mil.auth.bean;
 
 import java.time.Instant;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import io.quarkus.logging.Log;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
  * 
  * @author Antonio Tarricone
  */
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
 public class KeyIdCache {
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "keyid-cache.expire-after-write", defaultValue = "3600")
 	int expireAfterWrite;
 
 	/*
@@ -44,6 +39,14 @@ public class KeyIdCache {
 	 * 
 	 */
 	private long storedAt;
+
+	/**
+	 * 
+	 * @param expireAfterWrite
+	 */
+	public KeyIdCache(int expireAfterWrite) {
+		this.expireAfterWrite = expireAfterWrite;
+	}
 
 	/**
 	 * 
@@ -69,7 +72,7 @@ public class KeyIdCache {
 
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 */

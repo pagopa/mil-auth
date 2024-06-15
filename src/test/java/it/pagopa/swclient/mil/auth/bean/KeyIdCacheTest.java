@@ -40,8 +40,7 @@ class KeyIdCacheTest {
 	 */
 	@Test
 	void given_nullKid_when_isValidIsInvoked_then_getFalse() {
-		assertFalse(new KeyIdCache()
-			.setExpireAfterWrite(60)
+		assertFalse(new KeyIdCache(60)
 			.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).toEpochMilli())
 			.setKid(null)
 			.setStoredAt(Instant.now().toEpochMilli())
@@ -53,8 +52,7 @@ class KeyIdCacheTest {
 	 */
 	@Test
 	void given_expiredKey_when_isValidIsInvoked_then_getFalse() {
-		assertFalse(new KeyIdCache()
-			.setExpireAfterWrite(60)
+		assertFalse(new KeyIdCache(60)
 			.setExp(Instant.now().minus(15, ChronoUnit.MINUTES).getEpochSecond())
 			.setKid("kid")
 			.setStoredAt(Instant.now().getEpochSecond())
@@ -66,8 +64,7 @@ class KeyIdCacheTest {
 	 */
 	@Test
 	void given_expiredCache_when_isValidIsInvoked_then_getFalse() {
-		assertFalse(new KeyIdCache()
-			.setExpireAfterWrite(60)
+		assertFalse(new KeyIdCache(60)
 			.setExp(Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond())
 			.setKid("kid")
 			.setStoredAt(Instant.now().minus(5, ChronoUnit.MINUTES).getEpochSecond())
