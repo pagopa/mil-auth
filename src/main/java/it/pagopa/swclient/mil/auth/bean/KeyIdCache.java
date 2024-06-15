@@ -58,12 +58,12 @@ public class KeyIdCache {
 
 		long now = Instant.now().getEpochSecond();
 		if ((exp - now) < remainingLife) {
-			Log.debug("Key is expired");
+			Log.debugf("Key is expired: exp = %d, now = %d, remainingLife = %d", exp, now, remainingLife);
 			return false;
 		}
 
 		if ((now - storedAt) > expireAfterWrite) {
-			Log.debug("Cache is expired");
+			Log.debugf("Cache is expired: now = %d, storedAt = %d, expireAfterWrite = %d", now, storedAt, expireAfterWrite);
 			return false;
 		}
 
