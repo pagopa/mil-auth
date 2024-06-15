@@ -48,6 +48,7 @@ public class KeyIdCache {
 	 * @param expireAfterWrite
 	 */
 	public KeyIdCache(int expireAfterWrite) {
+		Log.tracef("expireAfterWrite = %d", expireAfterWrite);
 		this.expireAfterWrite = expireAfterWrite;
 	}
 
