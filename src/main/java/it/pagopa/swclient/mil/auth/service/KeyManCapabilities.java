@@ -152,5 +152,6 @@ abstract class KeyManCapabilities {
 	 */
 	public void cleanCache() {
 		keyIdCache.clean();
+		Log.trace("Key ID cache cleaned");
 	}
 }
