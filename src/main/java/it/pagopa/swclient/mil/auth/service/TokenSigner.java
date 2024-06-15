@@ -135,6 +135,7 @@ public class TokenSigner extends KeyManCapabilities {
 		Log.trace("Token signature generation");
 		return retrieveKey(List.of(JsonWebKeyOperation.SIGN, JsonWebKeyOperation.VERIFY))
 			.chain(azureKid -> sign(azureKid, claimsSet))
+			.onFailure().invoke(this::cleanCache)
 			.onFailure(t -> !(t instanceof AuthError))
 			.transform(t -> {
 				String message = String.format(ERROR_MSG_TEMPL, AuthErrorCode.ERROR_ENCRYPTING_CLAIM);

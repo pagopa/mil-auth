@@ -83,6 +83,7 @@ public class ClaimEncryptor extends KeyManCapabilities {
 			.transform(t -> {
 				String message = String.format("[%s] Error encrypting claim", AuthErrorCode.ERROR_ENCRYPTING_CLAIM);
 				Log.errorf(t, message);
+				cleanCache();
 				return new AuthError(AuthErrorCode.ERROR_ENCRYPTING_CLAIM, message);
 			});
 	}
