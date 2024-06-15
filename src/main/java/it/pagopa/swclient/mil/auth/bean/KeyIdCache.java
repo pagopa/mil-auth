@@ -27,7 +27,7 @@ public class KeyIdCache {
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "expire-after-write")
+	@ConfigProperty(name = "keyid-cache.expire-after-write", defaultValue = "3600")
 	int expireAfterWrite;
 
 	/*
