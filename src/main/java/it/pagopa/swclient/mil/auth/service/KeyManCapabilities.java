@@ -27,7 +27,7 @@ import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultK
  * 
  * @author Antonio Tarricone
  */
-abstract class KeyManCapabilities {
+public abstract class KeyManCapabilities {
 	/*
 	 * 
 	 */
