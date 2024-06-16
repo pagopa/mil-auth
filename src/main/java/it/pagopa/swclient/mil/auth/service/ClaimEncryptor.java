@@ -35,7 +35,7 @@ public class ClaimEncryptor extends KeyManCapabilities {
 	ClaimEncryptor() {
 		super();
 	}
-	
+
 	/**
 	 * 
 	 * @param keysExtService

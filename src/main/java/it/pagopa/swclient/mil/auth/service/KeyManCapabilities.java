@@ -27,7 +27,7 @@ import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultK
  * 
  * @author Antonio Tarricone
  */
-abstract class KeyManCapabilities {
+public abstract class KeyManCapabilities {
 	/*
 	 * 
 	 */
@@ -39,12 +39,12 @@ abstract class KeyManCapabilities {
 	 */
 	@ConfigProperty(name = "keysize", defaultValue = "4096")
 	int keysize;
-	
+
 	/*
 	 * 
 	 */
 	@ConfigProperty(name = "keyid-cache.expire-after-write", defaultValue = "3600")
-	int keyidCacheExpireAfterWrite;
+	long keyidCacheExpireAfterWrite;
 
 	/*
 	 * 
@@ -65,7 +65,7 @@ abstract class KeyManCapabilities {
 	 * 
 	 */
 	KeyManCapabilities() {
-		keyIdCache = new KeyIdCache(keyidCacheExpireAfterWrite);
+		keyIdCache = new KeyIdCache();
 	}
 
 	/**
@@ -76,7 +76,7 @@ abstract class KeyManCapabilities {
 	KeyManCapabilities(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
 		this.keysExtService = keysExtService;
 		this.keysService = keysService;
-		keyIdCache = new KeyIdCache(keyidCacheExpireAfterWrite);
+		keyIdCache = new KeyIdCache();
 	}
 
 	/**
@@ -123,7 +123,7 @@ abstract class KeyManCapabilities {
 	protected Uni<String> retrieveKey(List<String> keyOps) {
 		Log.trace("Retrieve key");
 
-		if (keyIdCache.isValid(0)) {
+		if (keyIdCache.isValid(0, keyidCacheExpireAfterWrite)) {
 			Log.debug("Returned cached kid");
 			return UniGenerator.item(keyIdCache.getKid());
 		}
@@ -146,7 +146,7 @@ abstract class KeyManCapabilities {
 				return keyBundle.getKey().getKid();
 			});
 	}
-	
+
 	/**
 	 * 
 	 */
