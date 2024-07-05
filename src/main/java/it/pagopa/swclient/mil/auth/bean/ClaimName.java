@@ -17,6 +17,7 @@ public class ClaimName {
 	public static final String SCOPE = "scope";
 	public static final String GROUPS = "groups";
 	public static final String FISCAL_CODE = "fiscalCode";
+	public static final String SUBJECT_TYPE = "subjectType";
 
 	private ClaimName() {
 	}

@@ -44,4 +44,14 @@ public class Client {
 	 *
 	 */
 	private String description;
+	
+	/*
+	 * 
+	 */
+	private String subject;
+	
+	/*
+	 * 
+	 */
+	private String subjectType;
 }

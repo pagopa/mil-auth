@@ -12,6 +12,7 @@ activate clt
 
 !include_many fiscal_code_protection.puml
 
+!$channel = "atm"
 !include_many creation_of_access_token.puml
 
 !include_many access_token_response.puml

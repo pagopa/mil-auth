@@ -7,7 +7,9 @@ note right
 		"channel": "$var("stored channel")",
 		"salt": "$var("salt")",
 		"secretHash": "$var("secret hash")",
-		"description": "$var("description")"
+		"description": "$var("description")",
+		"subject": "$var("subject")",
+		"subjectType": "$var("subject type")"
 	}
 end note
 @enduml

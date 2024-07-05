@@ -2,7 +2,12 @@
 !include_many init.puml
 group creation of access token
 	auth -> auth : generate $var("access token payload")
-	!include_many access_token_payload.puml
+	
+	!if ($channel == "atm")
+		!include_many access_token_payload__atm.puml
+	!else
+		!include_many access_token_payload__generic_server.puml
+	!endif
 
 	!include_many retrieve_key__sign_verify.puml
 

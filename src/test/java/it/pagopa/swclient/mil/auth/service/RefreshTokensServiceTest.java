@@ -116,7 +116,7 @@ class RefreshTokensServiceTest {
 		when(tokenSigner.verify(any(SignedJWT.class)))
 			.thenReturn(UniGenerator.item(null));
 
-		when(clientVerifier.verify("client_id", "channel", "client_secret"))
+		when(clientVerifier.verify("client_id", "channel", null))
 			.thenReturn(UniGenerator.item(new Client()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))

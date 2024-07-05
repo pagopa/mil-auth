@@ -135,7 +135,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void given_clientData_when_invokeFindClient_then_getIt() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
@@ -152,7 +152,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void given_clientDataWithBadChannel_when_invokeVerify_then_getFailure() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
@@ -168,7 +168,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void given_clientDataWithBadSecret_when_invokeVerify_then_getFailure() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
@@ -184,7 +184,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void give_clientDataWithUnexpectedSecret_when_invokeVerify_then_getFailure() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
@@ -200,7 +200,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void given_clientDataWithUnexpectedNullSecret_when_invokeVerify_then_getFailure() {
-		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
@@ -216,7 +216,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void given_errorVerifingSecret_when_invokeVerify_then_getFailure() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
@@ -237,7 +237,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void given_okScenario_when_invokeVerify_then_getOk() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
@@ -254,7 +254,7 @@ class ClientVerifierTest {
 	 */
 	@Test
 	void given_okScenarioWithoutSecret_when_invokeVerify_then_getOk() {
-		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION);
+		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION, null, null);
 
 		when(repository.getClient(ID))
 			.thenReturn(UniGenerator.item(client));
