@@ -1,0 +1,11 @@
+@startuml
+!include_many init.puml
+note over auth
+	__ $var("encrypted claim") __
+	{
+		"kid": "$var("enc/dec key my id")",
+		"alg": "RSA-OAEP-256",
+		"value": "$var("enc fiscal code")"
+	}
+end note
+@enduml

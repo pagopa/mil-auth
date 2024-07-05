@@ -1,0 +1,20 @@
+@startuml
+!include_many init.puml
+autonumber "<font color='blue'><b><u>##</u></b></font>"
+
+activate clt
+
+!include_many access_token_request__generic_server.puml
+
+!include_many client_credentials_validation__generic_server.puml
+
+!include_many search_for_roles__generic_server.puml
+
+!include_many fiscal_code_protection.puml
+
+!include_many creation_of_access_token.puml
+
+!include_many access_token_response.puml
+
+deactivate clt	
+@enduml

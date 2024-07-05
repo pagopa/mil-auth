@@ -1,0 +1,48 @@
+@startuml
+!include_many init.puml
+group creation of access token
+	auth -> auth : generate $var("access token payload")
+	!include_many access_token_payload.puml
+
+	!include_many retrieve_key__sign_verify.puml
+
+	auth -> auth : generate $var("sign/verify key my id") from $var("sign/verify key azure id")
+
+	auth -> auth : generate $var("access token header")
+	!include_many access_token_header.puml
+
+	auth -> auth : extract $var("sign/verify key name") and $var("sign/verify key version") from $var("sign/verify key azure id")
+
+	auth -> auth : generate $var("access token hash")
+		note over auth
+			__ $var("access token hash") __
+			sha-256(
+				utf-8(
+					base64-urlsafe(utf-8($var("access token header"))) +
+					"." +
+					base64-urlsafe(utf-8($var("access token payload")))
+				)
+			)
+		end note
+	
+	note over auth #Orange
+		On any error, return 500 with specific error body
+	end note
+	
+	auth -> auth : generate $var("key sign parameters")
+	!include_many key_sign_parameters.puml
+
+	auth -> serv ++ : sign($var("sign/verify key name"), $var("sign/verify key version"), $var("key sign parameters"))
+
+	!include_many key_vault_usage.puml
+
+	serv --> auth -- : $var("key operation result for signature")
+	!include_many key_operation_result__sign.puml
+
+	note over auth #Orange
+		On any error, return 500 with specific error body
+	end note
+
+	auth -> auth : $var("access token") = base64-urlsafe(utf-8($var("access token header"))) + "." + base64-urlsafe(utf-8($var("access token payload"))) + "." + base64-urlsafe($var("signature"))
+end
+@enduml

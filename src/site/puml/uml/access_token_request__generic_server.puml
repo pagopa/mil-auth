@@ -1,0 +1,17 @@
+@startuml
+!include_many init.puml
+clt -> auth ++ : POST /token
+	note left #LightPink
+		__header__
+		RequestId: $var("request id")
+		Version: $var("api version")
+		FiscalCode: $var("fiscal code")
+		Content-Type: application/x-www-form-urlencoded
+		__body__
+		grant_type=client_credentials&
+		client_id=$var("client id")&
+		client_secret=$var("client secret")
+		__notes__
+		$var("fiscal code") is optional
+	end note
+@enduml

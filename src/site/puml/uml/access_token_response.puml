@@ -1,0 +1,12 @@
+@startuml
+!include_many init.puml
+auth --> clt -- : HTTP 200 (ok)
+	note right
+		__body__
+		{
+			"access_token": "$var("access token")",
+			"token_type": "Bearer",
+			"expires_in": $var("access token duration")
+		}
+	end note
+@enduml
