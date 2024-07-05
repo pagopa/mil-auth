@@ -88,7 +88,7 @@ class AuthDataRepositoryTest {
 				actual -> {
 					assertThat(actual)
 						.usingRecursiveComparison()
-						.isEqualTo(new Client("id", "channel", "salt", "secretHash", "description"));
+						.isEqualTo(new Client("id", "channel", "salt", "secretHash", "description", "subject", "subjectType"));
 				},
 				f -> fail(f));
 	}

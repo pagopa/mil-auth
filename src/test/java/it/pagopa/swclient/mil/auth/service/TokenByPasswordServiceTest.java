@@ -38,6 +38,7 @@ import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -123,16 +124,16 @@ class TokenByPasswordServiceTest {
 		when(repository.getUser(userHash))
 			.thenReturn(UniGenerator.item(new User()
 				.setAcquirerId("acquirer_id")
-				.setChannel("channel")
+				.setChannel(Channel.POS)
 				.setMerchantId("merchant_id")
 				.setPasswordHash(passwordHash)
 				.setSalt(salt)
 				.setUsername(username)));
 
-		when(clientVerifier.verify("client_id", "channel", null))
+		when(clientVerifier.verify("client_id", Channel.POS, null))
 			.thenReturn(UniGenerator.item(new Client()));
 
-		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
+		when(roleFinder.findRoles("acquirer_id", Channel.POS, "client_id", "merchant_id", "terminal_id"))
 			.thenReturn(UniGenerator.item(new Role()
 				.setRoles(List.of("role"))));
 
@@ -146,7 +147,7 @@ class TokenByPasswordServiceTest {
 		 */
 		GetAccessTokenRequest request = new GetAccessTokenRequest()
 			.setAcquirerId("acquirer_id")
-			.setChannel("channel")
+			.setChannel(Channel.POS)
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")

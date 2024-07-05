@@ -15,13 +15,16 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
+import io.smallrye.mutiny.Context;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
+import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
+import it.pagopa.swclient.mil.bean.Channel;
 
 /**
  * This class generates access token string and refresh token string if any and signs them.
@@ -73,6 +76,11 @@ public abstract class TokenService {
 	 */
 	private ClaimEncryptor claimEncryptor;
 
+	/*
+	 * 
+	 */
+	private static final String CLIENT_CTX_KEY = "client";
+
 	/**
 	 * 
 	 */
@@ -108,19 +116,43 @@ public abstract class TokenService {
 	 * 
 	 * @param request
 	 * @param duration
+	 * @param client
 	 * @param roles
 	 * @param scopes
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes) {
+	private Uni<String> generate(GetAccessTokenRequest request, long duration, Client client, List<String> roles, List<String> scopes) {
 		String fiscalCode = request.getFiscalCode();
 		if (fiscalCode == null) {
 			Log.trace("Fiscal code not present");
-			return generate(request, duration, roles, scopes, null);
+			return generate(request, duration, client, roles, scopes, null);
 		} else {
 			Log.trace("Fiscal code present");
 			return claimEncryptor.encrypt(fiscalCode)
-				.chain(encFiscalCode -> generate(request, duration, roles, scopes, encFiscalCode));
+				.chain(encFiscalCode -> generate(request, duration, client, roles, scopes, encFiscalCode));
+		}
+	}
+
+	/**
+	 * 
+	 * @param request
+	 * @param client
+	 * @return
+	 */
+	private String subject(GetAccessTokenRequest request, Client client) {
+		switch (request.getChannel()) {
+		case Channel.ATM: {
+			return request.getAcquirerId() + "/" + request.getTerminalId();
+		}
+		case Channel.POS: {
+			return request.getAcquirerId() + "/" + request.getMerchantId() + "/" + request.getTerminalId();
+		}
+		default:
+			String subject = client.getSubject();
+			if (subject == null) {
+				return request.getClientId();
+			}
+			return subject;
 		}
 	}
 
@@ -128,16 +160,17 @@ public abstract class TokenService {
 	 * 
 	 * @param request
 	 * @param duration
+	 * @param client
 	 * @param roles
 	 * @param scopes
 	 * @param encFiscalCode
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, List<String> roles, List<String> scopes, EncryptedClaim encFiscalCode) {
+	private Uni<String> generate(GetAccessTokenRequest request, long duration, Client client, List<String> roles, List<String> scopes, EncryptedClaim encFiscalCode) {
 		Log.tracef("Encrypted fiscal code: %s", encFiscalCode);
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
-			.subject(request.getClientId())
+			.subject(subject(request, client))
 			.issueTime(now)
 			.expirationTime(new Date(now.getTime() + duration * 1000))
 			.claim(ClaimName.ACQUIRER_ID, request.getAcquirerId())
@@ -148,6 +181,7 @@ public abstract class TokenService {
 			.claim(ClaimName.SCOPE, concat(scopes))
 			.claim(ClaimName.GROUPS, roles)
 			.claim(ClaimName.FISCAL_CODE, encFiscalCode != null ? encFiscalCode.toMap() : null)
+			.claim(ClaimName.SUBJECT_TYPE, client.getSubjectType())
 			.issuer(baseUrl)
 			.audience(audience)
 			.build();
@@ -159,26 +193,27 @@ public abstract class TokenService {
 	 * This method generates access token string and refresh token string if any and signs them.
 	 *
 	 * @param request
+	 * @param client
 	 * @param roles
 	 * @return
 	 */
-	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest request, List<String> roles) {
+	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest request, Client client, List<String> roles) {
 		Log.trace("Access token generation");
 		if (Objects.equals(request.getScope(), Scope.OFFLINE_ACCESS) || request.getGrantType().equals(GrantType.REFRESH_TOKEN)) {
 			/*
 			 * With refresh token.
 			 */
-			return generate(request, accessDuration, roles, null)
+			return generate(request, accessDuration, client, roles, null)
 				.chain(accessToken -> {
 					Log.trace("Refresh token generation");
-					return generate(request, refreshDuration, null, List.of(Scope.OFFLINE_ACCESS))
+					return generate(request, refreshDuration, client, null, List.of(Scope.OFFLINE_ACCESS))
 						.map(refreshToken -> new GetAccessTokenResponse(accessToken, refreshToken, accessDuration));
 				});
 		} else {
 			/*
 			 * Without refresh token.
 			 */
-			return generate(request, accessDuration, roles, null)
+			return generate(request, accessDuration, client, roles, null)
 				.map(accessToken -> new GetAccessTokenResponse(accessToken, null, accessDuration));
 		}
 	}
@@ -190,8 +225,10 @@ public abstract class TokenService {
 	 * @return
 	 */
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest request) {
+		Context ctx = Context.of();
 		return clientVerifier.verify(request.getClientId(), request.getChannel(), request.getClientSecret())
+			.invoke(client -> ctx.put(CLIENT_CTX_KEY, client))
 			.chain(() -> roleFinder.findRoles(request.getAcquirerId(), request.getChannel(), request.getClientId(), request.getMerchantId(), request.getTerminalId()))
-			.chain(roleEntity -> generateToken(request, roleEntity.getRoles()));
+			.chain(roleEntity -> generateToken(request, ctx.get(CLIENT_CTX_KEY), roleEntity.getRoles()));
 	}
 }
