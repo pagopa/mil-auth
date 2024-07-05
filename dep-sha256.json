@@ -922,7 +922,7 @@
       "artifactId": "azure-services",
       "groupId": "it.pagopa.swclient.mil",
       "version": "5.0.1",
-      "sha256": "P2Mmus9DANUAFHg8IUACVB96ikwNpnriP4lN7I-6JuA="
+      "sha256": "-hnHUxuX_I8KV3ZQhrxo2q-FMKzrs8m-Mkn9-MneBu8="
     },
     {
       "id": "com.nimbusds:nimbus-jose-jwt:jar:9.40",
