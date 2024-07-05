@@ -1,0 +1,28 @@
+@startuml
+!include_many init.puml
+note right
+	__ $var("enc/dec key bundle") __
+	{
+		"attributes": {
+			"created": $var("enc/dec key creation unix epoch"),
+			"enabled": true,
+			"exp": $var("enc/dec key expiration unix epoch"),
+			"exportable": false,
+			"nbf": $var("enc/dec key creation unix epoch")
+		},
+		"key": {
+			"e": "$var("enc/dec key public exponent")",
+			"key_ops": [
+				"encrypt",
+				"decrypt"
+			],
+			"kid": "$var("enc/dec key azure id")",
+			"kty": "RSA",
+			"n": "$var("enc/dec key modulus")"
+		},
+		"tags": {
+			"domain": "auth"
+		}
+	}
+end note
+@enduml

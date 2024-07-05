@@ -1,0 +1,15 @@
+@startuml
+!include_many init.puml
+
+activate id
+hnote over serv, id #Azure
+	...
+end note
+deactivate id
+
+activate blob
+hnote over serv, blob #Azure
+	...
+end note
+deactivate blob
+@enduml

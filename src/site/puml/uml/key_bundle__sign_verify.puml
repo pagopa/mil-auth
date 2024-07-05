@@ -1,0 +1,28 @@
+@startuml
+!include_many init.puml
+note right
+	__ $var("sign/verify key bundle") __
+	{
+		"attributes": {
+			"created": $var("sign/verify key creation unix epoch"),
+			"enabled": true,
+			"exp": $var("sign/verify key expiration unix epoch"),
+			"exportable": false,
+			"nbf": $var("sign/verify key creation unix epoch")
+		},
+		"key": {
+			"e": "$var("sign/verify key public exponent")",
+			"key_ops": [
+				"sign",
+				"verify"
+			],
+			"kid": "$var("sign/verify key azure id")",
+			"kty": "RSA",
+			"n": "$var("sign/verify key modulus")"
+		},
+		"tags": {
+			"domain": "auth"
+		}
+	}
+end note
+@enduml

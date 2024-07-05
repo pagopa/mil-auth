@@ -1,0 +1,40 @@
+@startuml
+!include_many init.puml
+
+group retrieve sign/verify key
+	opt there isn't a suitable $var("sign/verify key azure id") stored in the local cache
+		auth -> serv ++ : getKeyWithLongestExp("auth", ["sign", "verify"], ["RSA"])
+
+		!include_many key_vault_usage.puml
+
+		alt suitable key found
+			serv --> auth : $var("sign/verify key bundle")
+			!include_many key_bundle__sign_verify.puml
+		else suitable key not found
+			serv --> auth -- : //not found//
+
+			auth -> auth : generate $var("sign/verify key name")
+
+			auth -> auth : generate $var("sign/verify key create parameters")
+			!include_many key_create_parameters__sign_verify.puml
+
+			auth -> serv ++ : createKey($var("sign/verify key name"), $var("sign/verify key create parameters"))
+
+			!include_many key_vault_usage.puml
+
+			serv --> auth -- : $var("sign/verify key bundle")
+				!include_many key_bundle__sign_verify.puml
+		end
+
+		auth -> auth : extract $var("sign/verify key azure id") and $var("sign/verify key expiration unix epoch") from $var("sign/verify key bundle") and store them in the local cache
+	end
+
+	note over auth #Orange
+		On any error, return 500 with specific error body
+	end note
+
+	note over auth #LightGreen
+		Here $var("sign/verify key azure id") has been retrieved
+	end note
+end
+@enduml
