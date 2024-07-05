@@ -46,5 +46,7 @@
 | `<signature>`                             | Firma dell'access token.                                                                                                                              |
 | `<stored channel>`                        | Canale assegnato al client.                                                                                                                           |
 | `<stored client id>`                      | ID del client recuperato dal repository.                                                                                                              |
+| `<subject>`                               | Se il servizio richiedente è una generica applicazione server, indica opzionalmente il subject id da inserire nei token.                              |
+| `<subject type>`                          | Se il servizio richiedente è una generica applicazione server, indica opzionalmente il tipo subject da inserire nei token.                            |
 | `<terminal id>`                           | ID dell'ATM.                                                                                                                                          |
 | `<token to introspect>`                   | Access token da cui estrarre il codice fiscale.                                                                                                       |
