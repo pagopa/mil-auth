@@ -5,7 +5,6 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 import io.quarkus.logging.Log;
@@ -14,7 +13,7 @@ import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
-import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
+import it.pagopa.swclient.mil.auth.util.SecretVerifier;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -94,22 +93,16 @@ public class ClientVerifier {
 	private Client verifySecret(Client clientEntity, String expectedSecret) {
 		Log.trace("Secret verification");
 		String foundSecret = clientEntity.getSecretHash();
-		try {
-			if (foundSecret == null && expectedSecret == null) {
-				Log.debug("Secret is not used");
-				return clientEntity;
-			} else if (foundSecret != null && expectedSecret != null && PasswordVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
-				Log.debug("Secret is ok");
-				return clientEntity;
-			} else {
-				String message = String.format("[%s] Wrong secret", AuthErrorCode.WRONG_SECRET);
-				Log.warn(message);
-				throw new AuthException(AuthErrorCode.WRONG_SECRET, message);
-			}
-		} catch (NoSuchAlgorithmException e) {
-			String message = String.format("[%s] Error verifing secret", AuthErrorCode.ERROR_VERIFING_SECRET);
-			Log.error(message);
-			throw new AuthError(AuthErrorCode.ERROR_VERIFING_SECRET, message);
+		if (foundSecret == null && expectedSecret == null) {
+			Log.debug("Secret is not used");
+			return clientEntity;
+		} else if (foundSecret != null && expectedSecret != null && SecretVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
+			Log.debug("Secret is ok");
+			return clientEntity;
+		} else {
+			String message = String.format("[%s] Wrong secret", AuthErrorCode.WRONG_SECRET);
+			Log.warn(message);
+			throw new AuthException(AuthErrorCode.WRONG_SECRET, message);
 		}
 	}
 

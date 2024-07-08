@@ -932,6 +932,27 @@
       "sha256": "dxKO1TdWQhv1nS_H8xVU2inqgcrYpTRZdyda23xSVMg="
     },
     {
+      "id": "org.bouncycastle:bcpkix-lts8on:jar:2.73.6",
+      "artifactId": "bcpkix-lts8on",
+      "groupId": "org.bouncycastle",
+      "version": "2.73.6",
+      "sha256": "FMrvWW0y7TivX17Z6GwQQRvxGxhgrJVo439OiN2eKwo="
+    },
+    {
+      "id": "org.bouncycastle:bcutil-lts8on:jar:2.73.6",
+      "artifactId": "bcutil-lts8on",
+      "groupId": "org.bouncycastle",
+      "version": "2.73.6",
+      "sha256": "W0jYbYbqL7GLMMSLy1G0ujHgB9b81Fmu53MMi8mAx4M="
+    },
+    {
+      "id": "org.bouncycastle:bcprov-lts8on:jar:2.73.6",
+      "artifactId": "bcprov-lts8on",
+      "groupId": "org.bouncycastle",
+      "version": "2.73.6",
+      "sha256": "OstCqMHFSFZ6PpX9iM6jPMFNqG0sofdHbuuOe-Eixds="
+    },
+    {
       "id": "io.quarkus:quarkus-junit5:jar:3.12.1",
       "artifactId": "quarkus-junit5",
       "groupId": "io.quarkus",
