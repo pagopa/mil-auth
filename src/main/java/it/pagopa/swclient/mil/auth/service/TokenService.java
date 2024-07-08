@@ -140,20 +140,22 @@ public abstract class TokenService {
 	 * @return
 	 */
 	private String subject(GetAccessTokenRequest request, Client client) {
-		switch (request.getChannel()) {
-		case Channel.ATM: {
-			return request.getAcquirerId() + "/" + request.getTerminalId();
-		}
-		case Channel.POS: {
-			return request.getAcquirerId() + "/" + request.getMerchantId() + "/" + request.getTerminalId();
-		}
-		default:
-			String subject = client.getSubject();
-			if (subject == null) {
-				return request.getClientId();
+		String subject = null;
+		String channel = request.getChannel();
+		if (channel != null) {
+			if (channel.equals(Channel.ATM)) {
+				subject = request.getAcquirerId() + "/" + request.getTerminalId();
+			} else if (channel.equals(Channel.POS)) {
+				subject = request.getAcquirerId() + "/" + request.getMerchantId() + "/" + request.getTerminalId();
 			}
-			return subject;
 		}
+		if (subject == null) {
+			subject = client.getSubject();
+			if (subject == null) {
+				subject = request.getClientId();
+			}
+		}
+		return subject;
 	}
 
 	/**
