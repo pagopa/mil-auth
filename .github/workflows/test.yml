@@ -1,0 +1,31 @@
+name: TEST
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_push_update:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      packages: write
+      contents: write
+    
+    steps:
+      - name: Checkout the source code
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        with:
+          token: ${{ secrets.GIT_PAT }}
+          fetch-depth: 0
+
+      - name: Step #1
+        run: |
+          echo "branch_name=${GITHUB_REF////_}" >> $GITHUB_ENV
+          echo ${{env.branch_name}}
+          echo "${{env.branch_name}}"
+
+      - name: Step #2
+        run: |
+          echo ${{env.branch_name}}
+          echo "${{env.branch_name}}"
