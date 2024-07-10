@@ -104,8 +104,8 @@ jobs:
       #
       - name: Build Docker image
         run: |
-          BRANCH_NAME="${GITHUB_REF////_}"
-          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:$BRANCH_NAME .
+          echo "branch_name=${GITHUB_REF////_}" >> $GITHUB_ENV
+          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${{ env.branch_name }} .
 
       #
       # Push Docker image.
@@ -119,7 +119,7 @@ jobs:
       # Get Docker image with sha256.
       #
       - name: Get Docker image with sha256
-        run: echo "image_sha256=   $(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ env.BRANCH_NAME }})" >> "$GITHUB_ENV"
+        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ env.branch_name }})" >> "$GITHUB_ENV"
 
       #
       # Login to Azure.
