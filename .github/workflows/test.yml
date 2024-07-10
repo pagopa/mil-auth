@@ -27,6 +27,7 @@ jobs:
       - name: Step 2
         run: |
           echo "branch_name=${GITHUB_REF////_}" >> $GITHUB_ENV
+          echo $branch_name
           echo ${{env.branch_name}}
           echo "${{env.branch_name}}"
 
