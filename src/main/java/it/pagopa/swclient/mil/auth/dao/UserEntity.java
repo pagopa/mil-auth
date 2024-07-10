@@ -3,7 +3,7 @@
  *
  * 20 mar 2023
  */
-package it.pagopa.swclient.mil.auth.bean;
+package it.pagopa.swclient.mil.auth.dao;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @RegisterForReflection
@@ -19,7 +20,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @Data
 @Accessors(chain = true)
-public class User {
+public class UserEntity {
 	/*
 	 *
 	 */

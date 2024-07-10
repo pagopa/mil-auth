@@ -23,12 +23,12 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.bean.Role;
 import it.pagopa.swclient.mil.auth.bean.Scope;
+import it.pagopa.swclient.mil.auth.dao.ClientEntity;
+import it.pagopa.swclient.mil.auth.dao.RolesEntity;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
@@ -93,10 +93,10 @@ class TokenByClientSecretServiceTest {
 		 * Setup
 		 */
 		when(clientVerifier.verify("client_id", "channel", "client_secret"))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");
@@ -133,16 +133,61 @@ class TokenByClientSecretServiceTest {
 	 * @throws ParseException
 	 */
 	@Test
+	void given_clientCredentialsWithoutChannel_when_allGoesOk_then_getAccessToken() throws ParseException {
+		/*
+		 * Setup
+		 */
+		when(clientVerifier.verify("client_id", null, "client_secret"))
+			.thenReturn(UniGenerator.item(new ClientEntity()));
+
+		when(roleFinder.findRoles("acquirer_id", null, "client_id", "merchant_id", "terminal_id"))
+			.thenReturn(UniGenerator.item(new RolesEntity()
+				.setRoles(List.of("role"))));
+
+		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");
+
+		when(tokenSigner.sign(any(JWTClaimsSet.class)))
+			.thenReturn(UniGenerator.item(signedJwt));
+
+		/*
+		 * Test
+		 */
+		GetAccessTokenRequest request = new GetAccessTokenRequest()
+			.setAcquirerId("acquirer_id")
+			.setChannel(null)
+			.setClientId("client_id")
+			.setClientSecret("client_secret")
+			.setGrantType(GrantType.CLIENT_CREDENTIALS)
+			.setMerchantId("merchant_id")
+			.setRequestId("request_id")
+			.setTerminalId("terminal_id");
+
+		tokenByClientSecretService.process(request)
+			.subscribe()
+			.with(
+				response -> {
+					assertEquals(
+						"eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA",
+						response.getAccessToken());
+				},
+				f -> fail(f));
+	}
+
+	/**
+	 * 
+	 * @throws ParseException
+	 */
+	@Test
 	void given_clientCredentialsAndSubject_when_allGoesOk_then_getAccessToken() throws ParseException {
 		/*
 		 * Setup
 		 */
 		when(clientVerifier.verify("client_id", "channel", "client_secret"))
-			.thenReturn(UniGenerator.item(new Client()
+			.thenReturn(UniGenerator.item(new ClientEntity()
 				.setSubject("subject")));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");
@@ -184,10 +229,10 @@ class TokenByClientSecretServiceTest {
 		 * Setup
 		 */
 		when(clientVerifier.verify("client_id", Channel.ATM, "client_secret"))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", Channel.ATM, "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");

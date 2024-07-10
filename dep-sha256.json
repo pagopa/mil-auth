@@ -953,6 +953,202 @@
       "sha256": "OstCqMHFSFZ6PpX9iM6jPMFNqG0sofdHbuuOe-Eixds="
     },
     {
+      "id": "io.quarkus:quarkus-mongodb-panache:jar:3.12.1",
+      "artifactId": "quarkus-mongodb-panache",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "-EqWafmcX92F5bnQXBg0Y-mVzq46ckMZgCnO5oUZBBQ="
+    },
+    {
+      "id": "io.quarkus:quarkus-panache-common:jar:3.12.1",
+      "artifactId": "quarkus-panache-common",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "_mSZ8K5U5-z2VlTOu8PjNEBLjoSsF3OaLF9fKSWZUaU="
+    },
+    {
+      "id": "io.quarkus:quarkus-mongodb-panache-common:jar:3.12.1",
+      "artifactId": "quarkus-mongodb-panache-common",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "vio3McgCC9VnS5RTO73BI_qY35cb7pBUuhmdNbSoNlw="
+    },
+    {
+      "id": "io.quarkus:quarkus-mongodb-client:jar:3.12.1",
+      "artifactId": "quarkus-mongodb-client",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "7D-AOlfT3mW_pWbTy25RdbjCAz86m0HGZwsYVvr2A38="
+    },
+    {
+      "id": "io.quarkus:quarkus-mutiny-reactive-streams-operators:jar:3.12.1",
+      "artifactId": "quarkus-mutiny-reactive-streams-operators",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "73SMXHNnt_WeLRZ1pKclx00gwJVbi6sWoQxYLzN-5Dg="
+    },
+    {
+      "id": "org.eclipse.microprofile.reactive-streams-operators:microprofile-reactive-streams-operators-api:jar:3.0",
+      "artifactId": "microprofile-reactive-streams-operators-api",
+      "groupId": "org.eclipse.microprofile.reactive-streams-operators",
+      "version": "3.0",
+      "sha256": "pThfputVk5xP4vimVz-KqTttfbTm9ReKC9LLPSYyiQU="
+    },
+    {
+      "id": "org.eclipse.microprofile.reactive-streams-operators:microprofile-reactive-streams-operators-core:jar:3.0",
+      "artifactId": "microprofile-reactive-streams-operators-core",
+      "groupId": "org.eclipse.microprofile.reactive-streams-operators",
+      "version": "3.0",
+      "sha256": "91cVMVN6gkGtbGWRNLRwIK0_ZtOg2SouHKCn2BC36Z8="
+    },
+    {
+      "id": "io.smallrye.reactive:mutiny-reactive-streams-operators:jar:2.6.0",
+      "artifactId": "mutiny-reactive-streams-operators",
+      "groupId": "io.smallrye.reactive",
+      "version": "2.6.0",
+      "sha256": "vrNM1fa94h_-wLCpDgz1M5O6VSMx3EmKaDaBovdPxAI="
+    },
+    {
+      "id": "org.mongodb:mongodb-driver-sync:jar:4.11.1",
+      "artifactId": "mongodb-driver-sync",
+      "groupId": "org.mongodb",
+      "version": "4.11.1",
+      "sha256": "upWtyRXIsHRauwwbBbQsWnWRCIsX4ULm_HuP-NpVH7c="
+    },
+    {
+      "id": "org.mongodb:bson:jar:4.11.1",
+      "artifactId": "bson",
+      "groupId": "org.mongodb",
+      "version": "4.11.1",
+      "sha256": "1lkNu5aCaBL50etKjzCfK_tY-Z6nc4B-NcuS1Qt-LTA="
+    },
+    {
+      "id": "org.mongodb:mongodb-driver-core:jar:4.11.1",
+      "artifactId": "mongodb-driver-core",
+      "groupId": "org.mongodb",
+      "version": "4.11.1",
+      "sha256": "1eHr0pqB2O0_n7Z5gBah5hOiIURG6oOlPAtJfp6SSMY="
+    },
+    {
+      "id": "org.mongodb:bson-record-codec:jar:4.11.1",
+      "artifactId": "bson-record-codec",
+      "groupId": "org.mongodb",
+      "version": "4.11.1",
+      "sha256": "rsKM4e4MezxZnxllqUAJNUNxDko2599ueInh55agYZI="
+    },
+    {
+      "id": "org.mongodb:mongodb-driver-reactivestreams:jar:4.11.1",
+      "artifactId": "mongodb-driver-reactivestreams",
+      "groupId": "org.mongodb",
+      "version": "4.11.1",
+      "sha256": "o2yRJ_d85sXAb6pfnZTgD9WVflj_v0xk67f7xfzOPVw="
+    },
+    {
+      "id": "org.mongodb:mongodb-crypt:jar:1.8.0",
+      "artifactId": "mongodb-crypt",
+      "groupId": "org.mongodb",
+      "version": "1.8.0",
+      "sha256": "B79h4K3WSVWynww63UWLM5fHm8iK-dckPFKFFKh7JYE="
+    },
+    {
+      "id": "net.java.dev.jna:jna:jar:5.8.0",
+      "artifactId": "jna",
+      "groupId": "net.java.dev.jna",
+      "version": "5.8.0",
+      "sha256": "kwJzzBxJLyVmHqYkE6baP9f24BvxxNzAgX_IaWp7B6w="
+    },
+    {
+      "id": "io.quarkus:quarkus-panacheql:jar:3.12.1",
+      "artifactId": "quarkus-panacheql",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "BiQuWCJH35OAOnEcQATN-Y3z32nxRVKvCMxWrOf3XCk="
+    },
+    {
+      "id": "org.antlr:antlr4-runtime:jar:4.13.0",
+      "artifactId": "antlr4-runtime",
+      "groupId": "org.antlr",
+      "version": "4.13.0",
+      "sha256": "vX97XQe8CwR_EJFbMspLsd6eV9gEkJiILkRTyIwHal0="
+    },
+    {
+      "id": "io.quarkus:quarkus-narayana-jta:jar:3.12.1",
+      "artifactId": "quarkus-narayana-jta",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "BVFXAjRXKBfkTQqf0IclYuwGGPWK9Y6VzN_ma2mw6kA="
+    },
+    {
+      "id": "io.quarkus:quarkus-transaction-annotations:jar:3.12.1",
+      "artifactId": "quarkus-transaction-annotations",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "D70TJ3Nnxe3DT5DuZXijHjfICrfOjKKZEErz2RifwpI="
+    },
+    {
+      "id": "io.quarkus:quarkus-datasource-common:jar:3.12.1",
+      "artifactId": "quarkus-datasource-common",
+      "groupId": "io.quarkus",
+      "version": "3.12.1",
+      "sha256": "nIobhH1pA9T2wa8zykIVs_yTpyI-bVSiw5ieOA6kMeQ="
+    },
+    {
+      "id": "io.smallrye:smallrye-context-propagation-jta:jar:2.1.2",
+      "artifactId": "smallrye-context-propagation-jta",
+      "groupId": "io.smallrye",
+      "version": "2.1.2",
+      "sha256": "uDAi9oUbcRXfam5Yain5lcSH5k6V3aGWORW_Ac1-xiM="
+    },
+    {
+      "id": "io.smallrye.reactive:smallrye-reactive-converter-api:jar:3.0.1",
+      "artifactId": "smallrye-reactive-converter-api",
+      "groupId": "io.smallrye.reactive",
+      "version": "3.0.1",
+      "sha256": "xbEMnhlyIkN_srvpxLP2APTT-JgcpkJXZviJCiU1xNo="
+    },
+    {
+      "id": "io.smallrye.reactive:smallrye-reactive-converter-mutiny:jar:3.0.1",
+      "artifactId": "smallrye-reactive-converter-mutiny",
+      "groupId": "io.smallrye.reactive",
+      "version": "3.0.1",
+      "sha256": "iiVIlYFD-KPOLBiAX_RjlDMkds4D4CIQex82WXmxt94="
+    },
+    {
+      "id": "org.jboss.narayana.jta:narayana-jta:jar:7.0.1.Final",
+      "artifactId": "narayana-jta",
+      "groupId": "org.jboss.narayana.jta",
+      "version": "7.0.1.Final",
+      "sha256": "GmBXh6XHNZ6UsFtTGuUvgXRPvaBnP6JJF-KkNG-n3dk="
+    },
+    {
+      "id": "org.jboss:jboss-transaction-spi:jar:8.0.0.Final",
+      "artifactId": "jboss-transaction-spi",
+      "groupId": "org.jboss",
+      "version": "8.0.0.Final",
+      "sha256": "B-TmLOrgdajBGnFdibGZksh59QW0i-aycn9b55hWKuE="
+    },
+    {
+      "id": "jakarta.resource:jakarta.resource-api:jar:2.1.0",
+      "artifactId": "jakarta.resource-api",
+      "groupId": "jakarta.resource",
+      "version": "2.1.0",
+      "sha256": "TSathqX3LNL5xKMcxFJPe_PsD_dEFvCB-GQrfOgEEGc="
+    },
+    {
+      "id": "org.jboss.invocation:jboss-invocation:jar:2.0.0.Final",
+      "artifactId": "jboss-invocation",
+      "groupId": "org.jboss.invocation",
+      "version": "2.0.0.Final",
+      "sha256": "75vrO_-FkwcQs2e2-E1Av3ISiJjKbM3zd1U3eTt0sGc="
+    },
+    {
+      "id": "org.jboss.narayana.jts:narayana-jts-integration:jar:7.0.1.Final",
+      "artifactId": "narayana-jts-integration",
+      "groupId": "org.jboss.narayana.jts",
+      "version": "7.0.1.Final",
+      "sha256": "W-3h-Fn0Q-JABbUueoL6uW5aiXrXjhKQFbGc33cly6w="
+    },
+    {
       "id": "io.quarkus:quarkus-junit5:jar:3.12.1",
       "artifactId": "quarkus-junit5",
       "groupId": "io.quarkus",

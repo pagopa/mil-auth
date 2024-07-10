@@ -16,7 +16,8 @@ import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
-import it.pagopa.swclient.mil.auth.bean.User;
+import it.pagopa.swclient.mil.auth.dao.UserEntity;
+import it.pagopa.swclient.mil.auth.dao.UserRepository;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
@@ -41,7 +42,7 @@ public class TokenByPasswordService extends TokenService {
 	/*
 	 *
 	 */
-	private AuthDataRepository repository;
+	private UserRepository repository;
 
 	/**
 	 * 
@@ -59,7 +60,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param repository
 	 */
 	@Inject
-	TokenByPasswordService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner, ClaimEncryptor claimEncryptor, AuthDataRepository repository) {
+	TokenByPasswordService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner, ClaimEncryptor claimEncryptor, UserRepository repository) {
 		super(clientVerifier, roleFinder, tokenSigner, claimEncryptor);
 		this.repository = repository;
 	}
@@ -70,7 +71,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<User> findCredentials(GetAccessTokenRequest getAccessToken) {
+	private Uni<UserEntity> findCredentials(GetAccessTokenRequest getAccessToken) {
 		Log.trace("Search for the credentials");
 
 		String userHash;
@@ -115,7 +116,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private User verifyConsistency(User credentialsEntity, GetAccessTokenRequest getAccessToken) {
+	private UserEntity verifyConsistency(UserEntity credentialsEntity, GetAccessTokenRequest getAccessToken) {
 		Log.trace("Acquirer/channel/merchant consistency verification");
 
 		String foundAcquirerId = credentialsEntity.getAcquirerId();
@@ -149,7 +150,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Void verifyPassword(User credentialsEntity, GetAccessTokenRequest getAccessToken) {
+	private Void verifyPassword(UserEntity credentialsEntity, GetAccessTokenRequest getAccessToken) {
 		Log.trace("Password verification");
 		try {
 			if (PasswordVerifier.verify(getAccessToken.getPassword(), credentialsEntity.getSalt(), credentialsEntity.getPasswordHash())) {
