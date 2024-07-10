@@ -97,15 +97,26 @@ jobs:
       # Build native executable.
       #
       - name: Build native executable
-        run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=${{ github.event.inputs.skip-unit-test }} -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:ce70e1a8016471ff0fc9c8f048cd9e37afddacd3de37ed0bca74201d102e45f5 -s ${{ runner.temp }}/settings.xml --no-transfer-progress
+        run: |
+          ${{ runner.temp }}/maven/bin/mvn clean package \
+            -Pnative \
+            -Dmaven.test.skip=${{ github.event.inputs.skip-unit-test }} \
+            -Dquarkus.native.container-build=true \
+            -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:ce70e1a8016471ff0fc9c8f048cd9e37afddacd3de37ed0bca74201d102e45f5 \
+            -s ${{ runner.temp }}/settings.xml \
+            --no-transfer-progress
 
       #
       # Build Docker image.
       #
       - name: Build Docker image
         run: |
-          echo "branch_name=${GITHUB_REF////_}" >> $GITHUB_ENV
-          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${{ env.branch_name }} .
+          BRANCH_NAME="${GITHUB_REF////_}"
+          echo "branch_name=$BRANCH_NNAME" >> $GITHUB_ENV
+          docker build \
+            -f src/main/docker/Dockerfile.native-micro \
+            -t ghcr.io/${{ github.repository }}:$BRANCH_NAME \
+            .
 
       #
       # Push Docker image.
@@ -139,4 +150,8 @@ jobs:
         with:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ${{ env.image_sha256 }}
+            az containerapp update \
+              -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
+              -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} \
+              --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+              -i ${{ env.image_sha256 }}
