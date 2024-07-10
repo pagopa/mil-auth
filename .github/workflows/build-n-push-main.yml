@@ -11,6 +11,8 @@ on:
 jobs:
   build_push_update:
     runs-on: ubuntu-latest
+
+    environment: dev-cd
     
     permissions:
       id-token: write
