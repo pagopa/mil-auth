@@ -119,7 +119,7 @@ jobs:
       # Get Docker image with sha256.
       #
       - name: Get Docker image with sha256
-        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:$BRANCH_NAME)" >> "$GITHUB_ENV"
+        run: echo "image_sha256=   $(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ env.BRANCH_NAME }})" >> "$GITHUB_ENV"
 
       #
       # Login to Azure.
