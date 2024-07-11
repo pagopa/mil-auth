@@ -28,11 +28,12 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.bean.Role;
-import it.pagopa.swclient.mil.auth.bean.User;
+import it.pagopa.swclient.mil.auth.dao.ClientEntity;
+import it.pagopa.swclient.mil.auth.dao.RolesEntity;
+import it.pagopa.swclient.mil.auth.dao.UserEntity;
+import it.pagopa.swclient.mil.auth.dao.UserRepository;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
@@ -60,7 +61,7 @@ class TokenByPasswordServiceTest {
 	 *
 	 */
 	@InjectMock
-	AuthDataRepository repository;
+	UserRepository repository;
 
 	/*
 	 * 
@@ -122,7 +123,7 @@ class TokenByPasswordServiceTest {
 		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
 
 		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new User()
+			.thenReturn(UniGenerator.item(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel(Channel.POS)
 				.setMerchantId("merchant_id")
@@ -131,10 +132,10 @@ class TokenByPasswordServiceTest {
 				.setUsername(username)));
 
 		when(clientVerifier.verify("client_id", Channel.POS, null))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", Channel.POS, "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");
@@ -340,7 +341,7 @@ class TokenByPasswordServiceTest {
 		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
 
 		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new User()
+			.thenReturn(UniGenerator.item(new UserEntity()
 				.setAcquirerId("acquirer_id_2")
 				.setChannel("channel")
 				.setMerchantId("merchant_id")
@@ -349,10 +350,10 @@ class TokenByPasswordServiceTest {
 				.setUsername(username)));
 
 		when(clientVerifier.verify("client_id", "channel", null))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		/*
@@ -404,7 +405,7 @@ class TokenByPasswordServiceTest {
 		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
 
 		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new User()
+			.thenReturn(UniGenerator.item(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel_2")
 				.setMerchantId("merchant_id")
@@ -413,10 +414,10 @@ class TokenByPasswordServiceTest {
 				.setUsername(username)));
 
 		when(clientVerifier.verify("client_id", "channel", null))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		/*
@@ -468,7 +469,7 @@ class TokenByPasswordServiceTest {
 		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
 
 		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new User()
+			.thenReturn(UniGenerator.item(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel")
 				.setMerchantId("merchant_id_2")
@@ -477,10 +478,10 @@ class TokenByPasswordServiceTest {
 				.setUsername(username)));
 
 		when(clientVerifier.verify("client_id", "channel", null))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		/*
@@ -532,7 +533,7 @@ class TokenByPasswordServiceTest {
 		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
 
 		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new User()
+			.thenReturn(UniGenerator.item(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel")
 				.setMerchantId("merchant_id")
@@ -541,10 +542,10 @@ class TokenByPasswordServiceTest {
 				.setUsername(username)));
 
 		when(clientVerifier.verify("client_id", "channel", null))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		/*
@@ -596,7 +597,7 @@ class TokenByPasswordServiceTest {
 		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
 
 		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new User()
+			.thenReturn(UniGenerator.item(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel")
 				.setMerchantId("merchant_id")
@@ -605,10 +606,10 @@ class TokenByPasswordServiceTest {
 				.setUsername(username)));
 
 		when(clientVerifier.verify("client_id", "channel", null))
-			.thenReturn(UniGenerator.item(new Client()));
+			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new Role()
+			.thenReturn(UniGenerator.item(new RolesEntity()
 				.setRoles(List.of("role"))));
 
 		/*

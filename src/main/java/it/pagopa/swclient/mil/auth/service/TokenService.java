@@ -18,12 +18,12 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Context;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
-import it.pagopa.swclient.mil.auth.bean.Client;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
+import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.bean.Channel;
 
 /**
@@ -121,7 +121,7 @@ public abstract class TokenService {
 	 * @param scopes
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, Client client, List<String> roles, List<String> scopes) {
+	private Uni<String> generate(GetAccessTokenRequest request, long duration, ClientEntity client, List<String> roles, List<String> scopes) {
 		String fiscalCode = request.getFiscalCode();
 		if (fiscalCode == null) {
 			Log.trace("Fiscal code not present");
@@ -139,7 +139,7 @@ public abstract class TokenService {
 	 * @param client
 	 * @return
 	 */
-	private String subject(GetAccessTokenRequest request, Client client) {
+	private String subject(GetAccessTokenRequest request, ClientEntity client) {
 		String subject = null;
 		String channel = request.getChannel();
 		if (channel != null) {
@@ -168,7 +168,7 @@ public abstract class TokenService {
 	 * @param encFiscalCode
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, Client client, List<String> roles, List<String> scopes, EncryptedClaim encFiscalCode) {
+	private Uni<String> generate(GetAccessTokenRequest request, long duration, ClientEntity client, List<String> roles, List<String> scopes, EncryptedClaim encFiscalCode) {
 		Log.tracef("Encrypted fiscal code: %s", encFiscalCode);
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
@@ -183,7 +183,6 @@ public abstract class TokenService {
 			.claim(ClaimName.SCOPE, concat(scopes))
 			.claim(ClaimName.GROUPS, roles)
 			.claim(ClaimName.FISCAL_CODE, encFiscalCode != null ? encFiscalCode.toMap() : null)
-			.claim(ClaimName.SUBJECT_TYPE, client.getSubjectType())
 			.issuer(baseUrl)
 			.audience(audience)
 			.build();
@@ -199,7 +198,7 @@ public abstract class TokenService {
 	 * @param roles
 	 * @return
 	 */
-	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest request, Client client, List<String> roles) {
+	private Uni<GetAccessTokenResponse> generateToken(GetAccessTokenRequest request, ClientEntity client, List<String> roles) {
 		Log.trace("Access token generation");
 		if (Objects.equals(request.getScope(), Scope.OFFLINE_ACCESS) || request.getGrantType().equals(GrantType.REFRESH_TOKEN)) {
 			/*
