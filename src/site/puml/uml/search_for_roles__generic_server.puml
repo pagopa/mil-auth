@@ -2,15 +2,12 @@
 !include_many init.puml
 
 group #LightPink search for roles
-	auth -> serv ++ : getBlob("roles", "NA", "NA", $var("client id"), "NA", "NA", "roles.json"
-
-	!include_many blob_usage.puml
-
-	serv --> auth : $var("roles")
+	auth -> repo ++ : find("acquirerId = ?1 and channel = ?2 and clientId = ?3 and merchantId = ?4 and terminalId = ?5", "NA", "NA", $var("client id"), "NA", "NA")
+	repo --> auth -- : $var("roles")
 	!include_many roles.puml
 
 	note over auth #Orange
-		On blob not found, return 401 with specific error body
+		On roles not found, return 401 with specific error body
 		On any other error, return 500 with specific error body
 	end note
 end group
