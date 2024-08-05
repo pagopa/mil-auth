@@ -31,8 +31,8 @@ public class TokenInfoRequest {
 	 * Token
 	 */
 	@JsonProperty(JsonPropertyName.TOKEN)
-	@NotNull(message = "[" + AuthErrorCode.TOKEN_MUST_NOT_BE_NULL + "] " + FormParamName.TOKEN + " must not be null")
-	@Pattern(regexp = "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$", message = "[" + AuthErrorCode.TOKEN_MUST_MATCH_REGEXP + "] " + FormParamName.TOKEN + " must match \"{regexp}\"")
+	@NotNull(message = AuthErrorCode.TOKEN_MUST_NOT_BE_NULL_MSG)
+	@Pattern(regexp = AuthValidationPattern.TOKEN, message = AuthErrorCode.TOKEN_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String token;
 }

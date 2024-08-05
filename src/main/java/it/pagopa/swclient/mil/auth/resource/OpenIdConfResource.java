@@ -30,6 +30,7 @@ public class OpenIdConfResource {
 	String baseUrl;
 
 	/**
+	 * 
 	 * @return
 	 */
 	@GET

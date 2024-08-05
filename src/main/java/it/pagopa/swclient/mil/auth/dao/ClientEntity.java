@@ -1,7 +1,7 @@
 /*
  * ClientEntity.java
  *
- * 16 mar 2023
+ * 9 lug 2024
  */
 package it.pagopa.swclient.mil.auth.dao;
 
@@ -10,6 +10,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -19,6 +20,7 @@ import lombok.experimental.Accessors;
  * @author Antonio Tarricone
  */
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Accessors(chain = true)
 @MongoEntity(database = "mil", collection = "clients")

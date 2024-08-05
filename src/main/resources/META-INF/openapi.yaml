@@ -9,16 +9,31 @@ info:
     email: antonio.tarricone@pagopa.it
 
 servers:
-  - description: DEV
+  - description: Development/Test
     url: https://mil-d-apim.azure-api.net/mil-auth
-  - description: UAT
+    x-internal: true
+  - description: User Acceptance Test
     url: https://mil-u-apim.azure-api.net/mil-auth
+    x-internal: true
+    
+tags:
+  - name: wellknown
+    description: Well-known operation
+  - name: introspect
+    description: Token introspection operation
+  - name: token
+    description: Operation to get or refresh access token
+  - name: admin
+    description: Administrative operation
+  - name: maintenance
+    description: Maintenance operation
 
 paths:
   /token:
     post:
       operationId: getAccessToken
-      summary: Returns access token by means of resource owner password or refresh token
+      description: Returns access token or refresh it
+      tags: [ token ]
       security: [ ]
       parameters:
         - $ref: '#/components/parameters/RequestId'
@@ -32,33 +47,43 @@ paths:
         $ref: '#/components/requestBodies/GetAccessToken'
       responses:
         "201":
+          #description: Created
           $ref: '#/components/responses/AccessToken'
         "400":
+          #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Wrong credentials.
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "406":
-          description: Not acceptable. Did you require application/json?
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
         "415":
-          description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+          #description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
+          #description: Server error
           $ref: '#/components/responses/Error'
         default:
-          description: Unexpected error
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
 
   /token_info:
     post:
       operationId: introspect
       description: Introspects a given access token returning the clear value of user tax (fiscal) code (if any)
-      tags: [ info ]
+      tags: [ introspect ]
       security:
-        - BearerAuth: [ ]
+        - oAuth2: [ token_info ]
       parameters:
         - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
       requestBody:
         $ref: '#/components/requestBodies/TokenInfo'
       responses:
@@ -66,61 +91,201 @@ paths:
           #description: Ok
           $ref: '#/components/responses/TokenInfo'
         "204":
-          description: No content
+          #description: No content
+          $ref: '#/components/responses/NoContent'
         "400":
           #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Wrong credentials
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "406":
-          description: Not acceptable. Did you require application/json?
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
         "415":
-          description: Unsupported media type. Did you provide application/x-www-form-urlencoded?
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /.well-known/jwks.json:
+    get:
+      operationId: getJwks
+      description: Returns public keys
+      tags: [ wellknown ]
+      security: [ ]
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/Jwks'
+        "401":
+          #description: Unauthorized
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /.well-known/openid-configuration:
+    get:
+      operationId: getOpenIdConf
+      description: Returns OpenID configuration
+      tags: [ wellknown ]
+      security: [ ]
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/OpenIdConf'
+        "401":
+          #description: Unauthorized
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /admin/cleanexpkeys:
+    post:
+      operationId: cleanExpKeys
+      description: Cleans expired keys
+      tags: [ maintenance ]
+      security:
+        - oAuth2: [ admin ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/DeletedKeys'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+  /admin/clients:
+    post:
+      operationId: createClient
+      description: Creates a new client
+      tags: [ admin ]
+      security:
+        - oAuth2: [ admin ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateClient'
+      responses:
+        "201":
+          #description: Created
+          $ref: '#/components/responses/CreateClient'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+
+    get:
+      operationId: getClients
+      description: Returns all clients
+      tags: [ admin ]
+      security:
+        - oAuth2: [ admin ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/PageOfClients'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
           #description: Server error
           $ref: '#/components/responses/Error'
         default:
           description: Unexpected error
 
-  /.well-known/jwks.json:
-    get:
-      operationId: getJwks
-      summary: Returns public keys
-      security: [ ]
-      responses:
-        "200":
-          $ref: '#/components/responses/Jwks'
-        "403":
-          description: Forbidden
-        "406":
-          description: Not acceptable. Did you require application/json?
-        "429":
-          description: Too many request
-        "500":
-          $ref: '#/components/responses/Error'
-        default:
-          description: Unexpected error
+  
+  #/admin/roles:
 
-  /.well-known/openid-configuration:
-    get:
-      operationId: getOpenIdConf
-      summary: Returns OpenID configuration
-      security: [ ]
-      responses:
-        "200":
-          $ref: '#/components/responses/OpenIdConf'
-        "403":
-          description: Forbidden
-        "406":
-          description: Not acceptable. Did you require application/json?
-        "429":
-          description: Too many request
-        default:
-          description: Unexpected error
 
 components:
   # ========================================================
@@ -130,16 +295,27 @@ components:
     # ------------------------------------------------------
     # Basic types
     # ------------------------------------------------------
+    AccessControlAllowOrigin:
+      description: Indicates whether the response can be shared with requesting code from the given origin
+      type: string
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+    
     AcquirerId:
       description: Acquirer ID assigned by PagoPA
       type: string
       pattern: "^\\d{1,11}$"
+      minLength: 1
+      maxLength: 11
       example: "4585625"
 
     AdditionalData:
       description: Additional data for external token authentication
       type: string
       pattern: "^[ -~]{1,4096}$"
+      minLength: 1
+      maxLength: 4096
       example: "4b7eb94b-10c9-4f11-a10e-7292b29ab115"
     
     BearerTokenType:
@@ -167,16 +343,53 @@ components:
       type: string
       example: "client_credentials"
 
-    Error:
+    ClientDescription:
+      description: Description of a client
+      type: string
+      pattern: "^[ -~]{1,256}$"
+      minLength: 1
+      maxLength: 256
+      example: "SEND"
+    
+    ClientLocation:
+      description: URL of the client
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/mil-auth/admin/clients/d0d654e6-97da-4848-b568-99fedccb642b"
+    
+    ClientSecret:
+      description: Client secret (63 ^ 36 ≃ 6e64)
+      type: string
+      pattern: "^[0-9a-zA-Z-]{36}$"
+      minLength: 36
+      maxLength: 36
+      example: "c7a1b24b058347792ebdbaa-Az7fn37dh-q9"
+    
+    ErrorCode:
       description: Error code
       type: string
       pattern: "^[A-F0-9]{9}$"
+      minLength: 9
+      maxLength: 9
       example: "001000005"  
-
+      
+    ErrorDescription:
+      description: Error description
+      type: string
+      pattern: "^[ -~]{0,256}$"
+      minLength: 0
+      maxLength: 256
+      example: "Duplicate key"
+      
     ExternalToken:
       description: External token
       type: string
       pattern: "^[ -~]{1,4096}$"
+      minLength: 1
+      maxLength: 4096
       example: "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4MDc4MzUzNiwiaWF0IjoxNjgwNjk3MTM2LCJqdGkiOiI3MjBmMDFlZS1iZDk4LTRjYjItOTU2Mi0xZjI4YWY2NGJhZGYifQ.dTuvtzqy9oPWIN4NIBdhIR09Xpm70dgRCP-ybuVLo24DwqaysPKNmEHDXcq2gGE1w2L6e783_PXRK3RI0j1TQRFeLRbiPzN5imBdrJ2LlV8QNdkElOl2x32j652YeFcoAitBzFss_Do0_rquU_008eeIXWa-B-AiMsdAqgLUiMigsTT42rQYr7Mb8Am_NWwvZ9-DWiox6HbuUNUo3TStBmLervqlQ5j2_3AzcOILp8cJX0699fw7Y6gcu_pNHgjswqD0UVPSAmHf_bqFAH6b98qHVKe3isMSoktYi4FfWdpG1ykviEp9Ii0QKfeLnqyIR6g2o2XzGlDv7Usv5ouiXg"
     
     ExternalTokenGrantType:
@@ -190,6 +403,8 @@ components:
       description: User fiscal (tax) code
       type: string
       pattern: "^(([A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z])|(\\d{11}))$"
+      minLength: 11
+      maxLength: 16
       example: "RSSMRA85T10A562S"
       
     Issuer:
@@ -197,6 +412,8 @@ components:
       type: string
       format: uri
       pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/mil-auth/"
 
     JwksUri:
@@ -204,8 +421,18 @@ components:
       type: string
       format: uri
       pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/mil-auth/.well-known/jwks.json"
       
+    KeyId:
+      description: Key ID
+      type: string
+      pattern: "^[ -~]{1,512}$"
+      minLength: 1
+      maxLength: 512
+      example: "0ffa8f8d-d92b-46ee-a4e7-8f26651a2a96"
+    
     KeyType:
       description: Key type
       enum:
@@ -217,13 +444,16 @@ components:
       description: Merchant ID. Mandatory when Channel equals POS.
       type: string
       pattern: "^[0-9a-zA-Z]{1,15}$"
+      minLength: 1
+      maxLength: 15
       example: "28405fHfk73x88D"   
 
     Modulus:
       description: Modulus
-      format: byte  # Base64/RFC4648 URL safe
-      minLength: 128 # bytes
-      maxLength: 512 # bytes
+      type: string
+      pattern: ^[A-Za-z0-9_-]{172,683}$ # Base64/RFC4648 URL safe w/o padding
+      minLength: 172 # 128 bytes * 4 / 3
+      maxLength: 683 # 512 bytes * 4 / 3
       example: "qjcVEWJTTySeKxHsJSsmVGk2cEvXJ4tBC4uyU5MxYwBAiIWuZb_yDOIjLz7JN8QsJs3QrZtS3vqv18ljW2db6ED90OUo9CVJveSF4eNRozDHOvnHGT0HR-8Wf5GxcNy63zfQLrnfdp5F9TrhMFRMkEA0TCT7PhT3yF6YvwLtQyMciER1_KKnpGomfAkW-UpaF2nHfXiFPrOIHMuNb5BoRR1f0349tqloLgLd7vyMy1jg-BldmEgRV1bcFqjH0Cg3leROjDy9HzdFauRIlSb4VZrqNni2hgaTUHI5Xp7aCwpS9Y_mf19KpxN0_8d-f3UVRlwtI1dryelpdC5jowxia2Pf8UgSZyMs2ZxDf6eU0SH8wHEvMpeFpwmiBD1XcsISoTan0Yv7w_CLo6JOqX6EfogDQZUBzKKlVCZSoSinAz0_7Bj2orgWKQ9sbfgJWgJweKkJLH-bNSRaVcu02boxPnlJeay3wROhSAgtiKWZnsU1_FpPNG0JBFCh_x-VjkuBoREpNEyJM5NvhRCmyObtzocS4eCtAgvmo3EFv_Xa-rp0p5ez4A-_QUb5OsYOswqYbIV1GbtiAfCTOrNbv6K86LaTllZ9WqYrKgDv7KA-604K37k33LHROqcO9Q-bCN8hKzQDWs7M3DFNP6P5iBUUVs-gtWncHvIuUWTth-fBXa8"
     
     OfflineAccessScope:
@@ -237,8 +467,26 @@ components:
       description: User password
       type: string
       pattern: "^[ -~]{1,64}$"
+      minLength: 1
+      maxLength: 64
       example: "Password-001$"
       
+    PageNumber:
+      description: Number of the page
+      type: integer
+      format: int32 # TotalPages and TotalElements are int64 but PageNumber is int32 due to Panache APIs limits.
+      minimum: 1
+      maximum: 2147483647
+      example: 1
+
+    PageSize:
+      description: Size of the page
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 128 # See #/components/schemas/Clients.maxItems
+      example: 20
+    
     PasswordGrantType:
       description: Grant type to get an access token with resource owner password
       enum:
@@ -249,15 +497,17 @@ components:
     PositiveInteger:
       description: Non negative integer
       type: integer
+      format: int32
       minimum: 1
+      maximum: 2147483647
       example: 234
 
     PublicExponent:
       description: Public key exponent
       type: string
-      format: byte # Base64/RFC4648 URL safe
-      minLength: 1
-      maxLength: 17
+      pattern: ^[A-Za-z0-9_-]{2,683}$ # Base64/RFC4648 URL safe w/o padding
+      minLength: 2 # 1 byte * 4 / 3 = 2
+      maxLength: 683 # 512 bytes * 4 / 3 = 683
       example: "AQAB"
       
     PublicKeyUse:
@@ -275,16 +525,65 @@ components:
       type: string
       example: "refresh_token"
 
+    RateLimitLimit:
+      description: The number of allowed requests in the current period
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 240
+
+    RateLimitReset:
+      description: The number of seconds left in the current period
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 60
+
+    RetryAfter:
+      description: The number of seconds to wait before allowing a follow-up request
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 240
+
+    Salt:
+      description: Salt to calculate client secret hash
+      type: string
+      pattern: ^[A-Za-z0-9/+]{86,88}={0,2}$ # Base64
+      minLength: 88 # 64 bytes * 4 / 3 rounded up to a multiple of 4
+      maxLength: 88 # 64 bytes * 4 / 3 rounded up to a multiple of 4
+      example: "WDHwCRvvPKOEdbMfwldj0kRh3o+IU27aL6TqBv8v1Cl+FvgGZL8bHgY3bMbC0f6pPpPT5Di8fqnrtpBzwWNZHQ=="
+    
+    SecretHash:
+      description: Hash of client secret
+      type: string
+      pattern: ^[A-Za-z0-9/+]{43,44}={0,1}$ # Base64
+      minLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
+      maxLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
+      example: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
+    
+    Subject:
+      description: Subject linked to the client
+      type: string
+      pattern: "^[ -~]{1,256}$"
+      minLength: 1
+      maxLength: 256
+      example: "send"
+
     TerminalId:
       description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
       type: string
       pattern: "^[0-9a-zA-Z]{1,8}$"
+      minLength: 1
+      maxLength: 8
       example: "0aB9wXyZ"
 
     Token:
       description: Token
       type: string
       pattern: "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$"
+      minLength: 5
+      maxLength: 3074
       example: "eyJraWQiOiI2OWQzZDEwZi03MGRhLTQ5ODItYjI4ZC03MmU4MTQ4MzI4YTMiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21pbC1kLWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtaWRwIiwiYXVkIjpbImh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1wYXltZW50LW5vdGljZSIsImh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1mZWUtY2FsY3VsYXRvciJdLCJleHAiOjE2Nzg3ODkyOTUsInNjb3BlIjoidmVyaWZ5QnlRckNvZGUgYWN0aXZhdGVCeVFyQ29kZSB2ZXJpZnlCeVRheENvZGVBbmROb3RpY2VOdW1iZXIgYWN0aXZhdGVCeVRheENvZGVBbmROb3RpY2VOdW1iZXIgY2xvc2UgZ2V0UGF5bWVudFN0YXR1cyBnZXRGZWUifQ.UJ8Vwv0NwF5S3fajgsdpgV-t6VeZAVC9dR0QGVpevC6Rw35tTx_1pJq2kI0GVAp0Vm7mNmgpZgzqx14QJfBmtTz3ZMJuUYVJUfHHQxxRxEyVBslrloOCqc8LfFkC-jmVQG5_9p9f6Tb7MB-h9J_f9ivtFX9gz7jK2Q_llD3HU0FujMgHEJiloKl7sp2uDaMIiy9dOKT7m0M6sA1tA84kwuJASudd_KWotideFsiA8LMBy_fGlEO7ogF-WytXD0XfW6VIBwQKq5KB3L3HxUuOZE1Gr2hubZ9SCeGAptiaPCWeEDf4w4x3IvKUL-rmm4bs4xalCmUbWcnTkKJi5f4N_8d2aRBrCL7k01rEK-OI1NH1-cCCk97eanNxvFEAKk_9t8rggipYt9BuL929p11LHVeYqqfemz1yrzc58LJXWPNgSMZ8XjKoITzsEiKWtGMYNV6GodJs_USnMKGIlc_uynZS0Q9mUV5IWhFaOZWFkM1nNwebMq9edg-kxtj1WpNkXfP1lahOMt36a9Rn2rWBLAhMBnerigsxFmUpi90EmbDkgOKTEXd3adOWLBb0jQSw0gPlNHe4bHh_LxBNNWljd6P9yZ4CYvZsWFwt_85d-PS56y-mNWV5oFMgPd-_qeF3Fn-QMj3Q5qySoqNCLzX7pnqjzXrveazLcR-CrroIUGM"
 
     TokenEndpoint:
@@ -292,12 +591,32 @@ components:
       type: string
       format: uri
       pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/mil-auth/token"
 
+    TotalElements:
+      description: Total elements
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 9223372036854775807
+      example: 20
+      
+    TotalPages:
+      description: Total pages
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 9223372036854775807
+      example: 20
+    
     Username:
       description: User name
       type: string
       pattern: "^[ -~]{1,64}$"
+      minLength: 1
+      maxLength: 64
       example: "Merchant-001"
 
     UUID:
@@ -305,6 +624,8 @@ components:
       type: string
       format: uuid
       pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      minLength: 36
+      maxLength: 36
       example: "d0d654e6-97da-4848-b568-99fedccb642b"
 
     # ------------------------------------------------------
@@ -333,6 +654,94 @@ components:
         token_type: "Bearer"
         expires_in: 36000
     
+    Client:
+      description: Client data
+      additionalProperties: false
+      properties:
+        clientId:
+          $ref: '#/components/schemas/UUID'
+        channel:
+          $ref: '#/components/schemas/Channel'
+        salt:
+          $ref: '#/components/schemas/Salt'
+        secretHash:
+          $ref: '#/components/schemas/SecretHash'
+        description:
+          $ref: '#/components/schemas/ClientDescription'
+        subject:
+          $ref: '#/components/schemas/Subject'
+      required:
+        - clientId
+        - salt
+        - secretHash
+        - description
+      example:
+        clientId: "0e68f43a-60dd-4e68-ae6d-b4caf96122a9"
+        salt: "WDHwCRvvPKOEdbMfwldj0kRh3o+IU27aL6TqBv8v1Cl+FvgGZL8bHgY3bMbC0f6pPpPT5Di8fqnrtpBzwWNZHQ=="
+        secretHash: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
+        description: "SEND"
+        subject: "send"
+    
+    Clients:
+      description: List of clients
+      type: array
+      minItems: 0
+      maxItems: 128
+      items:
+        $ref: '#/components/schemas/Client'
+      example:
+        - clientId: "0e68f43a-60dd-4e68-ae6d-b4caf96122a9"
+          salt: "WDHwCRvvPKOEdbMfwldj0kRh3o+IU27aL6TqBv8v1Cl+FvgGZL8bHgY3bMbC0f6pPpPT5Di8fqnrtpBzwWNZHQ=="
+          secretHash: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
+          description: "SEND"
+          subject: "send"
+    
+    CreateClientReq:
+      description: Request to create a new client
+      additionalProperties: false
+      properties:
+        channel:
+          $ref: '#/components/schemas/Channel'
+        description:
+          $ref: '#/components/schemas/ClientDescription'
+        subject:
+          $ref: '#/components/schemas/Subject'
+      required:
+        - description
+      example:
+        channel: "ATM"
+        description: "ATM Layer - Test Environment"
+    
+    CreateClientRes:
+      description: Response to a request to create a new client
+      additionalProperties: false
+      properties:
+        clientId:
+          $ref: '#/components/schemas/UUID'
+        clientSecret:
+          $ref: '#/components/schemas/ClientSecret'
+      required:
+        - clientId
+        - clientSecret
+      example:
+        clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
+        clientSecret: "265a5ac0-c651-428e-bed6-763f6cd244b5"
+    
+    DeletedKeys:
+      description: List of IDs of deleted keys
+      additionalProperties: false
+      properties:
+        kids:
+          type: array
+          maxItems: 2048
+          items:
+            $ref: '#/components/schemas/KeyId'
+      required:
+        - kids
+      example:
+        kids:
+          - "0ffa8f8d-d92b-46ee-a4e7-8f26651a2a96"
+    
     Errors:
       description: List of errors
       type: object
@@ -342,13 +751,21 @@ components:
           type: array
           maxItems: 32
           items:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorCode'
+        descriptions:
+          type: array
+          maxItems: 32
+          items:
+            $ref: '#/components/schemas/ErrorDescription'
       required:
         - errors
       example:
         errors:
           - "00000000A"
           - "001000001"
+        descriptions:
+          - "[00000000A] Duplicate client id"
+          - "[001000001] Invalid location"
 
     GetAccessTokenByClientCredentials:
       description: Request to get an access token by means of client credentials
@@ -360,7 +777,7 @@ components:
         client_id:
           $ref: '#/components/schemas/UUID'
         client_secret:
-          $ref: '#/components/schemas/UUID'
+          $ref: '#/components/schemas/ClientSecret'
       required:
         - grant_type
         - client_id
@@ -373,7 +790,7 @@ components:
     GetAccessTokenByExternalToken:
       description: Request to get an access token by means of external token
       type: object
-      additionalProperties: true
+      #additionalProperties: true
       properties:
         grant_type:
           $ref: '#/components/schemas/ExternalTokenGrantType'
@@ -400,7 +817,7 @@ components:
     GetAccessTokenByPassword:
       description: Request to get an access token by means of resource owner password
       type: object
-      additionalProperties: true
+      #additionalProperties: true
       properties:
         grant_type:
           $ref: '#/components/schemas/PasswordGrantType'
@@ -436,6 +853,55 @@ components:
         jwks_uri:
           $ref: '#/components/schemas/JwksUri'
 
+    PageMetadata:
+      description: Metadata of a page of data
+      type: object
+      additionalProperties: false
+      properties:
+        totalElements:
+          $ref: '#/components/schemas/TotalElements'
+        totalPages:
+          $ref: '#/components/schemas/TotalPages'
+        page:
+          $ref: '#/components/schemas/PageNumber'
+        size:
+          $ref: '#/components/schemas/PageSize'
+      example:
+        totalElements: 198
+        totalPages: 10
+        page: 5
+        size: 20
+    
+    PageOfClients:
+      description: Page of clients
+      allOf:
+        - type: object
+          additionalProperties: false
+          properties:
+            clients:
+              $ref: '#/components/schemas/Clients'
+          required:
+            - clients
+        - type: object
+          additionalProperties: false
+          properties:
+            page:
+              $ref: '#/components/schemas/PageMetadata'
+          required:
+            - page
+      example:
+        clients:
+          - clientId: "0e68f43a-60dd-4e68-ae6d-b4caf96122a9"
+            salt: "WDHwCRvvPKOEdbMfwldj0kRh3o+IU27aL6TqBv8v1Cl+FvgGZL8bHgY3bMbC0f6pPpPT5Di8fqnrtpBzwWNZHQ=="
+            secretHash: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
+            description: "SEND"
+            subject: "send"
+        page:
+          totalElements: 2
+          totalPages: 2
+          page: 1
+          size: 1
+    
     PublicKey:
       description: Public key
       type: object
@@ -448,7 +914,7 @@ components:
         use:
           $ref: '#/components/schemas/PublicKeyUse'
         kid:
-          $ref: '#/components/schemas/UUID'
+          $ref: '#/components/schemas/KeyId'
         exp:
           $ref: '#/components/schemas/PositiveInteger'
         iat:
@@ -497,7 +963,7 @@ components:
     RefreshAccessToken:
       description: Request to get an access token by means of a refresh token
       type: object
-      additionalProperties: true
+      #additionalProperties: true
       properties:
         grant_type:
           $ref: '#/components/schemas/RefreshGrantType'
@@ -536,12 +1002,19 @@ components:
       required:
         - fiscalCode
       example:
-        userCode: "RSSMRA85T10A562S"
+        fiscalCode: "RSSMRA85T10A562S"
 
   # ========================================================
   # Request bodies
   # ========================================================
   requestBodies:
+    CreateClient:
+      description: Request to create e new client
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateClientReq'
+    
     GetAccessToken:
       description: Request to get an access token by means of username and password or by refresh token or by external token
       content:
@@ -596,6 +1069,22 @@ components:
       schema:
         $ref: '#/components/schemas/MerchantId'
     
+    PageNumber:
+      name: page
+      in: query
+      description: Number of the requested page of data
+      required: true
+      schema:
+        $ref: '#/components/schemas/PageNumber'
+
+    PageSize:
+      name: size
+      in: query
+      description: Size of the requested page of data
+      required: true
+      schema:
+        $ref: '#/components/schemas/PageSize'
+    
     RequestId:
       name: RequestId
       in: header
@@ -620,6 +1109,8 @@ components:
       schema:
         type: string
         pattern: "^[ -~]{1,64}$"
+        minLength: 1
+        maxLength: 64
         example: "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay"
 
   # ========================================================
@@ -627,35 +1118,218 @@ components:
   # ========================================================
   responses:
     AccessToken:
-      description: Response provided when an access token is requested
+      description: Response returned when an access token is requested
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/AccessToken'
 
+    CreateClient:
+      description: Response returned when the creation of a new client is requested
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+        Location:
+          description: URL of the client
+          required: true
+          schema:
+            $ref: '#/components/schemas/ClientLocation'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateClientRes'
+
+    DeletedKeys:
+      description: Response returned when cleaning of expired keys is requested
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DeletedKeys'
+
     Error:
       description: Error response
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+        Retry-After:
+          description: The number of seconds to wait before allowing a follow-up request
+          required: false
+          schema:
+            $ref: '#/components/schemas/RetryAfter'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
+        text/*:
+          schema:
+            type: string
+            pattern: "^[ -~]{0,65535}$"
+            maxLength: 65535
 
     Jwks:
       description: Public keys
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicKeys'
 
+    NoContent:
+      description: No content response
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+
     OpenIdConf:
       description: OpenID configuration
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/OpenIdConf'
   
+    PageOfClients:
+      description: Response to the request to get clients
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PageOfClients'
+    
     TokenInfo:
       description: Response to the request to introspect an access token
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
       content:
         application/json:
           schema:
@@ -665,8 +1339,13 @@ components:
   # Security schemes
   # ----------------------------------------------------------------------------------
   securitySchemes:
-    BearerAuth:
+    oAuth2:
       description: A bearer token in the format of a JWS and conforms to the specifications included in RFC8725
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /token
+          refreshUrl: /token
+          scopes:
+            token_info: introspect access token
+            admin: admin operations

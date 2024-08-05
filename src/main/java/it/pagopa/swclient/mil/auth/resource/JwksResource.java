@@ -8,9 +8,6 @@ package it.pagopa.swclient.mil.auth.resource;
 import java.time.Instant;
 import java.util.List;
 import java.util.OptionalLong;
-import java.util.UUID;
-
-import org.jboss.logging.MDC;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -62,22 +59,21 @@ public class JwksResource {
 	 * @return
 	 */
 	private InternalServerErrorException errorOnRetrievingKeys(Throwable t) {
-		String message = String.format("[%s] Error searching for keys.", AuthErrorCode.ERROR_SEARCHING_FOR_KEYS);
+		String message = String.format("[%s] Error searching for keys", AuthErrorCode.ERROR_SEARCHING_FOR_KEYS);
 		Log.errorf(t, message);
 		return new InternalServerErrorException(Response
 			.status(Status.INTERNAL_SERVER_ERROR)
-			.entity(new Errors(List.of(AuthErrorCode.ERROR_SEARCHING_FOR_KEYS), List.of(message)))
+			.entity(new Errors(AuthErrorCode.ERROR_SEARCHING_FOR_KEYS, message))
 			.build());
 	}
 
 	/**
+	 * 
 	 * @return
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> get() {
-		String correlationId = UUID.randomUUID().toString();
-		MDC.put("requestId", correlationId);
 		Log.debug("get - Input parameters: n/a");
 		return keyExtService.getKeys(
 			KeyUtils.DOMAIN_VALUE,
@@ -113,7 +109,6 @@ public class JwksResource {
 				return Response
 					.status(Status.OK)
 					.cacheControl(cacheControl)
-					.header("CorrelationId", correlationId)
 					.entity(new PublicKeys(l))
 					.build();
 			})

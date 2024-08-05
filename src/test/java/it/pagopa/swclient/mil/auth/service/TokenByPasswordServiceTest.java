@@ -6,6 +6,7 @@ package it.pagopa.swclient.mil.auth.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -152,7 +152,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword(password);
@@ -173,7 +172,7 @@ class TokenByPasswordServiceTest {
 	 */
 	@Test
 	void given_userCredentials_when_messageDigestThrowsException_then_getFailure() {
-		try (MockedStatic<MessageDigest> digest = Mockito.mockStatic(MessageDigest.class)) {
+		try (MockedStatic<MessageDigest> digest = mockStatic(MessageDigest.class)) {
 			digest.when(() -> MessageDigest.getInstance("SHA256"))
 				.thenThrow(NoSuchAlgorithmException.class);
 
@@ -183,7 +182,6 @@ class TokenByPasswordServiceTest {
 				.setClientId("client_id")
 				.setGrantType(GrantType.PASSWORD)
 				.setMerchantId("merchant_id")
-				.setRequestId("request_id")
 				.setTerminalId("terminal_id")
 				.setUsername("username")
 				.setPassword("password");
@@ -223,7 +221,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword(password);
@@ -262,7 +259,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword(password);
@@ -301,7 +297,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword(password);
@@ -365,7 +360,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword(password);
@@ -429,7 +423,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword(password);
@@ -493,7 +486,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword(password);
@@ -557,7 +549,6 @@ class TokenByPasswordServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.PASSWORD)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setUsername(username)
 			.setPassword("password_2");
@@ -615,7 +606,7 @@ class TokenByPasswordServiceTest {
 		/*
 		 * Test
 		 */
-		try (MockedStatic<PasswordVerifier> passwordVerifier = Mockito.mockStatic(PasswordVerifier.class)) {
+		try (MockedStatic<PasswordVerifier> passwordVerifier = mockStatic(PasswordVerifier.class)) {
 			passwordVerifier.when(() -> PasswordVerifier.verify(password, salt, passwordHash))
 				.thenThrow(NoSuchAlgorithmException.class);
 
@@ -625,7 +616,6 @@ class TokenByPasswordServiceTest {
 				.setClientId("client_id")
 				.setGrantType(GrantType.PASSWORD)
 				.setMerchantId("merchant_id")
-				.setRequestId("request_id")
 				.setTerminalId("terminal_id")
 				.setUsername(username)
 				.setPassword(password);

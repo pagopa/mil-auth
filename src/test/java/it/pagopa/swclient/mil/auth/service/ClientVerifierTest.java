@@ -184,7 +184,7 @@ class ClientVerifierTest {
 	 * 
 	 */
 	@Test
-	void give_clientDataWithUnexpectedSecret_when_invokeVerify_then_getFailure() {
+	void given_clientDataWithUnexpectedSecret_when_invokeVerify_then_getFailure() {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))

@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.security.MessageDigest;
@@ -26,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -309,7 +309,7 @@ class TokenSignerTest {
 					.setKid(keyBaseUrl + "key_name/key_version")
 					.setValue(new byte[1])));
 
-		try (MockedStatic<SignedJWTFactory> signedJWTFactory = Mockito.mockStatic(SignedJWTFactory.class)) {
+		try (MockedStatic<SignedJWTFactory> signedJWTFactory = mockStatic(SignedJWTFactory.class)) {
 			signedJWTFactory.when(() -> SignedJWTFactory.createInstance(
 				any(Base64URL.class),
 				any(Base64URL.class),
@@ -370,7 +370,7 @@ class TokenSignerTest {
 					.setKid(keyBaseUrl + "key_name/key_version")
 					.setValue(new byte[1])));
 
-		try (MockedStatic<MessageDigest> digest = Mockito.mockStatic(MessageDigest.class)) {
+		try (MockedStatic<MessageDigest> digest = mockStatic(MessageDigest.class)) {
 			digest.when(() -> MessageDigest.getInstance("SHA256"))
 				.thenThrow(NoSuchAlgorithmException.class);
 
