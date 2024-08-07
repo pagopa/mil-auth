@@ -40,10 +40,10 @@
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
 		<quarkus.platform.version>3.13.0</quarkus.platform.version>
 		<!-- Other dependecies version -->
-		<common.version>2.3.0</common.version>
-		<azure-services.version>5.3.0</azure-services.version>
+		<common.version>2.6.0</common.version>
+		<azure-services.version>5.4.0</azure-services.version>
 		<lombok.version>1.18.32</lombok.version>
-		<otel-exporter-azure.version>3.8.3.0</otel-exporter-azure.version>
+		<otel-exporter-azure.version>3.8.3.1</otel-exporter-azure.version>
 		<assertj-core.version>3.25.3</assertj-core.version>
 		<bouncycastle.version>2.73.6</bouncycastle.version>
 		<!-- Sonar config -->
@@ -53,7 +53,11 @@
 		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
 		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-
+		<sonar.issue.ignore.multicriteria>e1,e2</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e1.ruleKey>java:S116</sonar.issue.ignore.multicriteria.e1.ruleKey>
+		<sonar.issue.ignore.multicriteria.e1.resourceKey>src/test/java/**/*.java</sonar.issue.ignore.multicriteria.e1.resourceKey>
+		<sonar.issue.ignore.multicriteria.e2.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e2.ruleKey>
+		<sonar.issue.ignore.multicriteria.e2.resourceKey>src/test/java/**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
 		<skipITs>true</skipITs>
 	</properties>
 
@@ -85,6 +89,10 @@
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-arc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest-client</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -215,6 +223,7 @@
 							<goal>build</goal>
 							<goal>generate-code</goal>
 							<goal>generate-code-tests</goal>
+							<goal>native-image-agent</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -336,7 +345,7 @@
 			</activation>
 			<properties>
 				<skipITs>false</skipITs>
-				<quarkus.package.type>native</quarkus.package.type>
+				<quarkus.native.enabled>true</quarkus.native.enabled>
 			</properties>
 		</profile>
 		<!-- To execute SCA with SonarCloud:                                      -->

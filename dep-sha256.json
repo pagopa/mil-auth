@@ -603,34 +603,6 @@
       "sha256": "aczARIfod3nUlwqlDGc8w0qd8IDBwOjY6rLotG-CXPQ="
     },
     {
-      "id": "io.quarkus:quarkus-rest-client-jackson:jar:3.13.0",
-      "artifactId": "quarkus-rest-client-jackson",
-      "groupId": "io.quarkus",
-      "version": "3.13.0",
-      "sha256": "zxHuQ-UuHRT0t1wGZd-9u5RXZaqHkt2H3odP4shGerI="
-    },
-    {
-      "id": "io.quarkus.resteasy.reactive:resteasy-reactive-jackson:jar:3.13.0",
-      "artifactId": "resteasy-reactive-jackson",
-      "groupId": "io.quarkus.resteasy.reactive",
-      "version": "3.13.0",
-      "sha256": "P3N0HThUiFZvIZHdNB_tPGjkHnigfpnwGffuPp7yc44="
-    },
-    {
-      "id": "com.fasterxml.jackson.core:jackson-databind:jar:2.17.2",
-      "artifactId": "jackson-databind",
-      "groupId": "com.fasterxml.jackson.core",
-      "version": "2.17.2",
-      "sha256": "wEmT8zwPhFNCZTeE8U84Nz0AUoDmNZ21-AhwHPrnPAw="
-    },
-    {
-      "id": "com.fasterxml.jackson.core:jackson-annotations:jar:2.17.2",
-      "artifactId": "jackson-annotations",
-      "groupId": "com.fasterxml.jackson.core",
-      "version": "2.17.2",
-      "sha256": "hzpgbiNQeWn5u76pOdXhknSoh3XqWhabp-LXlapRVuE="
-    },
-    {
       "id": "io.quarkus:quarkus-rest-client:jar:3.13.0",
       "artifactId": "quarkus-rest-client",
       "groupId": "io.quarkus",
@@ -673,6 +645,20 @@
       "sha256": "45SaixKYt0ago1tvjBZ-2_lkCjQcsLSRfUQqu9SHhNc="
     },
     {
+      "id": "io.smallrye:jandex:jar:3.2.0",
+      "artifactId": "jandex",
+      "groupId": "io.smallrye",
+      "version": "3.2.0",
+      "sha256": "baPpzo0MCkM_PnzmEKPGasywDHH-5nqg_z5ahBOVrBU="
+    },
+    {
+      "id": "io.quarkus:quarkus-tls-registry:jar:3.13.0",
+      "artifactId": "quarkus-tls-registry",
+      "groupId": "io.quarkus",
+      "version": "3.13.0",
+      "sha256": "inlDAA2c5c-aF3gC8XZwYG2ZVrxuS_SaYZD8AaSzRl0="
+    },
+    {
       "id": "io.smallrye.stork:stork-api:jar:2.6.0",
       "artifactId": "stork-api",
       "groupId": "io.smallrye.stork",
@@ -692,6 +678,34 @@
       "groupId": "org.eclipse.microprofile.rest.client",
       "version": "3.0.1",
       "sha256": "K3Fpi5XIksxlkjX0_-ZjteLxFRzrTncmiyP_KwxjIcs="
+    },
+    {
+      "id": "io.quarkus:quarkus-rest-client-jackson:jar:3.13.0",
+      "artifactId": "quarkus-rest-client-jackson",
+      "groupId": "io.quarkus",
+      "version": "3.13.0",
+      "sha256": "zxHuQ-UuHRT0t1wGZd-9u5RXZaqHkt2H3odP4shGerI="
+    },
+    {
+      "id": "io.quarkus.resteasy.reactive:resteasy-reactive-jackson:jar:3.13.0",
+      "artifactId": "resteasy-reactive-jackson",
+      "groupId": "io.quarkus.resteasy.reactive",
+      "version": "3.13.0",
+      "sha256": "P3N0HThUiFZvIZHdNB_tPGjkHnigfpnwGffuPp7yc44="
+    },
+    {
+      "id": "com.fasterxml.jackson.core:jackson-databind:jar:2.17.2",
+      "artifactId": "jackson-databind",
+      "groupId": "com.fasterxml.jackson.core",
+      "version": "2.17.2",
+      "sha256": "wEmT8zwPhFNCZTeE8U84Nz0AUoDmNZ21-AhwHPrnPAw="
+    },
+    {
+      "id": "com.fasterxml.jackson.core:jackson-annotations:jar:2.17.2",
+      "artifactId": "jackson-annotations",
+      "groupId": "com.fasterxml.jackson.core",
+      "version": "2.17.2",
+      "sha256": "hzpgbiNQeWn5u76pOdXhknSoh3XqWhabp-LXlapRVuE="
     },
     {
       "id": "io.quarkus:quarkus-cache:jar:3.13.0",
@@ -911,18 +925,18 @@
       "sha256": "uHd2HNlLQK-VV9OP_9H7bvPHtOAZUdyApSNdfhrXcHc="
     },
     {
-      "id": "it.pagopa.swclient.mil:common:jar:2.3.0",
+      "id": "it.pagopa.swclient.mil:common:jar:2.6.0",
       "artifactId": "common",
       "groupId": "it.pagopa.swclient.mil",
-      "version": "2.3.0",
-      "sha256": "GvpPTiLMCTL0YX_AM3NqP0aFd1R4WNnz3M1MKsyrlec="
+      "version": "2.6.0",
+      "sha256": "NKb3hLFpbfEeB1IN5I-DHAgvltdOkG9aaw7CzSM9UAk="
     },
     {
-      "id": "it.pagopa.swclient.mil:azure-services:jar:5.3.0",
+      "id": "it.pagopa.swclient.mil:azure-services:jar:5.4.0",
       "artifactId": "azure-services",
       "groupId": "it.pagopa.swclient.mil",
-      "version": "5.3.0",
-      "sha256": "Va6M1UY7XOE9lsC7xJHTK5CiIWK284bEMk6wdSS_xJc="
+      "version": "5.4.0",
+      "sha256": "4k3M69uXxlHHRZGAYkyjlPGbSpvm5z5Wl41m55B2B8w="
     },
     {
       "id": "com.nimbusds:nimbus-jose-jwt:jar:9.40",
@@ -1618,13 +1632,6 @@
       "sha256": "N49Ux3jkGlyB2wzgBCldQu01OCLIdM_IDJBSxyZYW-0="
     },
     {
-      "id": "io.smallrye:jandex:jar:3.2.0",
-      "artifactId": "jandex",
-      "groupId": "io.smallrye",
-      "version": "3.2.0",
-      "sha256": "baPpzo0MCkM_PnzmEKPGasywDHH-5nqg_z5ahBOVrBU="
-    },
-    {
       "id": "commons-io:commons-io:jar:2.16.1",
       "artifactId": "commons-io",
       "groupId": "commons-io",
@@ -2045,13 +2052,6 @@
       "sha256": "dkxueDYzvmx5_pFqgEXtaXL1_WJNsHtPx-LKUz1m83A="
     },
     {
-      "id": "io.quarkus:quarkus-tls-registry:jar:3.13.0",
-      "artifactId": "quarkus-tls-registry",
-      "groupId": "io.quarkus",
-      "version": "3.13.0",
-      "sha256": "inlDAA2c5c-aF3gC8XZwYG2ZVrxuS_SaYZD8AaSzRl0="
-    },
-    {
       "id": "io.quarkus:quarkus-security-runtime-spi:jar:3.13.0",
       "artifactId": "quarkus-security-runtime-spi",
       "groupId": "io.quarkus",
@@ -2346,18 +2346,18 @@
       "sha256": "T7aksu03RL2VxJX-pC2ca41LbCbdViN21cYuwo1dtk8="
     },
     {
-      "id": "io.quarkiverse.opentelemetry.exporter:quarkus-opentelemetry-exporter-azure:jar:3.8.3.0",
+      "id": "io.quarkiverse.opentelemetry.exporter:quarkus-opentelemetry-exporter-azure:jar:3.8.3.1",
       "artifactId": "quarkus-opentelemetry-exporter-azure",
       "groupId": "io.quarkiverse.opentelemetry.exporter",
-      "version": "3.8.3.0",
-      "sha256": "zXg8PGdYXA0HWGdhdtfw-dOGV90P3wsjJnEeJGyxJ-s="
+      "version": "3.8.3.1",
+      "sha256": "yrfpdJwkaEvwztQpcKW7IAhLafbRzcp_bvaiKFNtZqg="
     },
     {
-      "id": "io.quarkiverse.opentelemetry.exporter:quarkus-opentelemetry-exporter-common:jar:3.8.3.0",
+      "id": "io.quarkiverse.opentelemetry.exporter:quarkus-opentelemetry-exporter-common:jar:3.8.3.1",
       "artifactId": "quarkus-opentelemetry-exporter-common",
       "groupId": "io.quarkiverse.opentelemetry.exporter",
-      "version": "3.8.3.0",
-      "sha256": "kYITtdlW51ntA3XFfHMGovcWnlJ0BJ3r1YcPlSg1A2M="
+      "version": "3.8.3.1",
+      "sha256": "nCVMG180ikCbP-Fj88f5D_52Hd6a7tBWLSI6O2qkuEA="
     },
     {
       "id": "com.azure:azure-monitor-opentelemetry-exporter:jar:1.0.0-beta.21",
