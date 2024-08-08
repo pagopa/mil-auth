@@ -6,7 +6,6 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.quarkus.logging.Log;
@@ -66,9 +65,16 @@ public class TokenResource {
 	/*
 	 *
 	 */
+	private Instance<TokenService> tokenService;
+
+	/**
+	 * 
+	 * @param tokenService
+	 */
 	@Inject
-	@Any
-	Instance<TokenService> tokenService;
+	TokenResource(@Any Instance<TokenService> tokenService) {
+		this.tokenService = tokenService;
+	}
 
 	/**
 	 * Dispatches the request to the right method.

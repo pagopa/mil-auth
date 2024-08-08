@@ -6,14 +6,12 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
@@ -24,15 +22,10 @@ import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Errors;
-import it.pagopa.swclient.mil.bean.HeaderParamName;
-import it.pagopa.swclient.mil.bean.ValidationPattern;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -72,7 +65,7 @@ public class TokenInfoResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("token_info")
-	public Uni<Response> getTokenInfo(@Valid @BeanParam TokenInfoRequest request) {
+	public Uni<Response> getTokenInfo(@Valid TokenInfoRequest request) {
 		try {
 			SignedJWT token = SignedJWT.parse(request.getToken());
 			Map<String, Object> map = token.getJWTClaimsSet()
