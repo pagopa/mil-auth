@@ -28,13 +28,16 @@ public final class AuthAdminErrorCode {
 	public static final String SIZE_MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE    = AuthErrorCode.MODULE_ID + "10000A";
 	public static final String SIZE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE = AuthErrorCode.MODULE_ID + "10000B";
 	public static final String ERROR_READING_CLIENTS                       = AuthErrorCode.MODULE_ID + "10000C";
+	public static final String CLIENT_NOT_FOUND                            = AuthErrorCode.MODULE_ID + "10000D";
+	public static final String ERROR_DELETING_CLIENT                       = AuthErrorCode.MODULE_ID + "10000E";
+	public static final String ERROR_UPDATING_CLIENT                       = AuthErrorCode.MODULE_ID + "10000F";
 	// @formatter:on
 
 	// @formatter:off
 	public static final String MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE    = " must be less than or equal to {value}";
 	public static final String MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE = " must be greater than or equal to {value}";
 	// @formatter:on
-	
+
 	// @formatter:off
 	public static final String ERROR_DELETING_EXP_KEYS_MSG                     = "[" + ERROR_DELETING_EXP_KEYS                     + "] Error deleting expired keys";
 	public static final String DESCRIPTION_MUST_NOT_BE_NULL_MSG                = "[" + DESCRIPTION_MUST_NOT_BE_NULL                + "]" + AdminJsonPropertyName.DESCRIPTION + AuthErrorCode.MUST_NOT_BE_NULL_MSG;
@@ -48,6 +51,9 @@ public final class AuthAdminErrorCode {
 	public static final String SIZE_MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE_MSG    = "[" + SIZE_MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE    + "]" + AdminQueryParamName.PAGE          + MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE;
 	public static final String SIZE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE_MSG = "[" + SIZE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE + "]" + AdminQueryParamName.PAGE          + MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE;
 	public static final String ERROR_READING_CLIENTS_MSG                       = "[" + ERROR_READING_CLIENTS                       + "] Error reading clients";
+	public static final String CLIENT_NOT_FOUND_MSG                            = "[" + CLIENT_NOT_FOUND                            + "] Client not found";
+	public static final String ERROR_DELETING_CLIENT_MSG                       = "[" + ERROR_DELETING_CLIENT                       + "] Error deleting client";
+	public static final String ERROR_UPDATING_CLIENT_MSG                       = "[" + ERROR_UPDATING_CLIENT                       + "] Error updating client";
 	// @formatter:on
 
 	/**

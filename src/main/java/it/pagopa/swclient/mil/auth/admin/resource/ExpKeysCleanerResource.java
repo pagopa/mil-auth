@@ -5,11 +5,8 @@
  */
 package it.pagopa.swclient.mil.auth.admin.resource;
 
-import java.util.List;
-
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.auth.admin.AuthAdminErrorCode;
 import it.pagopa.swclient.mil.auth.admin.bean.DeletedKeys;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
@@ -17,12 +14,8 @@ import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.DeletedKeyBundle;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.service.AzureKeyVaultKeysExtReactiveService;
 import it.pagopa.swclient.mil.bean.Errors;
-import it.pagopa.swclient.mil.bean.HeaderParamName;
-import it.pagopa.swclient.mil.bean.ValidationPattern;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
-import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -70,16 +63,10 @@ public class ExpKeysCleanerResource {
 
 	/**
 	 * 
-	 * @param requestId
-	 * @param version
 	 * @return
 	 */
 	@POST
-	public Uni<DeletedKeys> clean(
-		@HeaderParam(HeaderParamName.REQUEST_ID)
-		@Pattern(regexp = ValidationPattern.REQUEST_ID, message = ErrorCode.REQUEST_ID_MUST_MATCH_REGEXP_MSG) String requestId,
-		@HeaderParam(HeaderParamName.VERSION)
-		@Pattern(regexp = ValidationPattern.VERSION, message = ErrorCode.VERSION_MUST_MATCH_REGEXP_MSG) String version) {
+	public Uni<DeletedKeys> clean() {
 		Log.trace("Delete expired key");
 		return keyExtService.deleteExpiredKeys(KeyUtils.DOMAIN_VALUE)
 			.map(DeletedKeyBundle::getKey)

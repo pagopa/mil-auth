@@ -1,5 +1,5 @@
 /*
- * CreateClientRequest.java
+ * CreateOrUpdateClientRequest.java
  *
  * 25 lug 2024
  */
@@ -16,7 +16,6 @@ import it.pagopa.swclient.mil.bean.HeaderParamName;
 import it.pagopa.swclient.mil.bean.ValidationPattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.HeaderParam;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,11 +31,11 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @Data
 @Accessors(chain = true)
-public class CreateClientRequest {
+public class CreateOrUpdateClientRequest {
 	/*
 	 * Channel
 	 */
-	@HeaderParam(HeaderParamName.CHANNEL)
+	@JsonProperty(value = HeaderParamName.CHANNEL)
 	@Pattern(regexp = ValidationPattern.CHANNEL, message = ErrorCode.CHANNEL_MUST_MATCH_REGEXP_MSG)
 	private String channel;
 
