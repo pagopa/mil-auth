@@ -14,18 +14,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-import com.azure.core.http.ContentType;
-
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
 import it.pagopa.swclient.mil.auth.bean.TokenInfoRequest;
 import it.pagopa.swclient.mil.auth.bean.TokenInfoResponse;
 import it.pagopa.swclient.mil.auth.service.ClaimEncryptor;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
-import it.pagopa.swclient.mil.bean.HeaderParamName;
 import jakarta.ws.rs.core.MediaType;
 
 /**
@@ -71,7 +69,7 @@ class TokenInfoResourceTest {
 		 * 
 		 */
 		TokenInfoResponse actual = given()
-			.contentType(ContentType.APPLICATION_JSON)
+			.contentType(MediaType.APPLICATION_JSON)
 			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-700000000000")
 			.body(new TokenInfoRequest("eyJraWQiOiJhdXRoMDcwOTY0M2Y0OTM5NDUyOWI5MmMxOWE2OGM4ZTE4NGEvNjU4MWM3MDRkZWRhNDk3OTk0M2MzYjM0NDY4ZGY3YzIiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiZmlzY2FsQ29kZSI6eyJraWQiOiJraWQiLCJhbGciOiJSU0EtT0FFUC0yNTYiLCJ2YWx1ZSI6IkFBRUNBdz09In0sImNoYW5uZWwiOiJQT1MiLCJpc3MiOiJodHRwOi8vZHVtbXkiLCJncm91cHMiOlsiTm90aWNlUGF5ZXIiLCJTbGF2ZVBvcyJdLCJ0ZXJtaW5hbElkIjoiMTIzNDU2NzgiLCJleHAiOjE3MTY4MDQ3MzksImFjcXVpcmVySWQiOiI0NTg1NjI1IiwiaWF0IjoxNzE2ODA0NDM5fQ.expected_signature"))
 			.when()
@@ -106,7 +104,7 @@ class TokenInfoResourceTest {
 		 * 
 		 */
 		given()
-			.contentType(ContentType.APPLICATION_JSON)
+			.contentType(MediaType.APPLICATION_JSON)
 			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-700000000001")
 			.body(new TokenInfoRequest("eyJraWQiOiJhdXRoMDcwOTY0M2Y0OTM5NDUyOWI5MmMxOWE2OGM4ZTE4NGEvNjU4MWM3MDRkZWRhNDk3OTk0M2MzYjM0NDY4ZGY3YzIiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHA6Ly9kdW1teSIsImdyb3VwcyI6WyJOb3RpY2VQYXllciIsIlNsYXZlUG9zIl0sInRlcm1pbmFsSWQiOiIxMjM0NTY3OCIsImV4cCI6MTcxNjg5MzcxOSwiYWNxdWlyZXJJZCI6IjQ1ODU2MjUiLCJpYXQiOjE3MTY4OTM0MTl9.expected_signature"))
 			.when()
@@ -135,7 +133,7 @@ class TokenInfoResourceTest {
 		 * 
 		 */
 		given()
-			.contentType(ContentType.APPLICATION_JSON)
+			.contentType(MediaType.APPLICATION_JSON)
 			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-700000000002")
 			.body(new TokenInfoRequest("1.1.1"))
 			.when()
@@ -164,7 +162,7 @@ class TokenInfoResourceTest {
 		 * 
 		 */
 		given()
-			.contentType(ContentType.APPLICATION_JSON)
+			.contentType(MediaType.APPLICATION_JSON)
 			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-700000000003")
 			.body(new TokenInfoRequest("eyJraWQiOiJhdXRoMDcwOTY0M2Y0OTM5NDUyOWI5MmMxOWE2OGM4ZTE4NGEvNjU4MWM3MDRkZWRhNDk3OTk0M2MzYjM0NDY4ZGY3YzIiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiZmlzY2FsQ29kZSI6eyJraWQiOiJraWQiLCJhbGciOiJSU0EtT0FFUC0yNTYiLCJ2YWx1ZSI6IkFBRUNBdz09In0sImNoYW5uZWwiOiJQT1MiLCJpc3MiOiJodHRwOi8vZHVtbXkiLCJncm91cHMiOlsiTm90aWNlUGF5ZXIiLCJTbGF2ZVBvcyJdLCJ0ZXJtaW5hbElkIjoiMTIzNDU2NzgiLCJleHAiOjE3MTY4MDQ3MzksImFjcXVpcmVySWQiOiI0NTg1NjI1IiwiaWF0IjoxNzE2ODA0NDM5fQ.expected_signature"))
 			.when()
@@ -193,7 +191,7 @@ class TokenInfoResourceTest {
 		 * 
 		 */
 		given()
-			.contentType(ContentType.APPLICATION_JSON)
+			.contentType(MediaType.APPLICATION_JSON)
 			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-700000000004")
 			.body(new TokenInfoRequest("eyJraWQiOiJhdXRoMDcwOTY0M2Y0OTM5NDUyOWI5MmMxOWE2OGM4ZTE4NGEvNjU4MWM3MDRkZWRhNDk3OTk0M2MzYjM0NDY4ZGY3YzIiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiZmlzY2FsQ29kZSI6eyJraWQiOiJraWQiLCJhbGciOiJSU0EtT0FFUC0yNTYiLCJ2YWx1ZSI6IkFBRUNBdz09In0sImNoYW5uZWwiOiJQT1MiLCJpc3MiOiJodHRwOi8vZHVtbXkiLCJncm91cHMiOlsiTm90aWNlUGF5ZXIiLCJTbGF2ZVBvcyJdLCJ0ZXJtaW5hbElkIjoiMTIzNDU2NzgiLCJleHAiOjE3MTY4MDQ3MzksImFjcXVpcmVySWQiOiI0NTg1NjI1IiwiaWF0IjoxNzE2ODA0NDM5fQ.expected_signature"))
 			.when()
@@ -222,7 +220,7 @@ class TokenInfoResourceTest {
 		 * 
 		 */
 		given()
-			.contentType(ContentType.APPLICATION_JSON)
+			.contentType(MediaType.APPLICATION_JSON)
 			.header(HeaderParamName.REQUEST_ID, "00000000-0000-0000-0000-700000000005")
 			.body(new TokenInfoRequest("eyJraWQiOiJhdXRoMDcwOTY0M2Y0OTM5NDUyOWI5MmMxOWE2OGM4ZTE4NGEvNjU4MWM3MDRkZWRhNDk3OTk0M2MzYjM0NDY4ZGY3YzIiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiIzOTY1ZGY1Ni1jYTlhLTQ5ZTUtOTdlOC0wNjE0MzNkNGEyNWIiLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiZmlzY2FsQ29kZSI6eyJraWQiOiJraWQiLCJhbGciOiJSU0EtT0FFUC0yNTYiLCJ2YWx1ZSI6IkFBRUNBdz09In0sImNoYW5uZWwiOiJQT1MiLCJpc3MiOiJodHRwOi8vZHVtbXkiLCJncm91cHMiOlsiTm90aWNlUGF5ZXIiLCJTbGF2ZVBvcyJdLCJ0ZXJtaW5hbElkIjoiMTIzNDU2NzgiLCJleHAiOjE3MTY4MDQ3MzksImFjcXVpcmVySWQiOiI0NTg1NjI1IiwiaWF0IjoxNzE2ODA0NDM5fQ.expected_signature"))
 			.when()
