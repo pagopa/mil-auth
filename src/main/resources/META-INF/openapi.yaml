@@ -790,7 +790,7 @@ components:
     GetAccessTokenByExternalToken:
       description: Request to get an access token by means of external token
       type: object
-      #additionalProperties: true
+      additionalProperties: false
       properties:
         grant_type:
           $ref: '#/components/schemas/ExternalTokenGrantType'
@@ -817,7 +817,7 @@ components:
     GetAccessTokenByPassword:
       description: Request to get an access token by means of resource owner password
       type: object
-      #additionalProperties: true
+      additionalProperties: false
       properties:
         grant_type:
           $ref: '#/components/schemas/PasswordGrantType'
@@ -866,29 +866,29 @@ components:
           $ref: '#/components/schemas/PageNumber'
         size:
           $ref: '#/components/schemas/PageSize'
+      required:
+        - totalElements
+        - totalPages
+        - page
+        - size
       example:
         totalElements: 198
         totalPages: 10
         page: 5
         size: 20
-    
+
     PageOfClients:
       description: Page of clients
-      allOf:
-        - type: object
-          additionalProperties: false
-          properties:
-            clients:
-              $ref: '#/components/schemas/Clients'
-          required:
-            - clients
-        - type: object
-          additionalProperties: false
-          properties:
-            page:
-              $ref: '#/components/schemas/PageMetadata'
-          required:
-            - page
+      type: object
+      additionalProperties: false
+      properties:
+        clients:
+          $ref: '#/components/schemas/Clients'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+      required:
+        - clients
+        - page
       example:
         clients:
           - clientId: "0e68f43a-60dd-4e68-ae6d-b4caf96122a9"
