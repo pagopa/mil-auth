@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     environment: dev-cd
-    
+
     permissions:
       id-token: write
       packages: write
       contents: write
-    
+
     steps:
       #
       # Checkout the source code.
@@ -40,7 +40,7 @@ jobs:
           path: |
             ${{ runner.temp }}/jdk_setup.tar.gz
             ${{ runner.temp }}/jdk_setup.sha256
-      
+
       #
       # Download JDK and verify its hash.
       #
@@ -141,7 +141,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
- 
+
       #
       # Update Container App.
       #
