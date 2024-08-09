@@ -263,7 +263,7 @@ class ClientResourceTest {
 
 		assertEquals(metadata, clients.getPage());
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -311,7 +311,7 @@ class ClientResourceTest {
 
 		assertEquals(metadata, clients.getPage());
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -385,7 +385,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		Client client = given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.get("/{" + AdminPathParamName.CLIENT_ID + "}")
@@ -420,7 +420,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.get("/{" + AdminPathParamName.CLIENT_ID + "}")
@@ -450,7 +450,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.get("/{" + AdminPathParamName.CLIENT_ID + "}")
@@ -485,7 +485,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(new CreateOrUpdateClientRequest("ATM", "Test description", "test-subject"))
@@ -521,7 +521,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(new CreateOrUpdateClientRequest("ATM", "Test description", "test-subject"))
@@ -558,7 +558,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(new CreateOrUpdateClientRequest("ATM", "Test description", "test-subject"))
@@ -586,7 +586,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.delete("/{" + AdminPathParamName.CLIENT_ID + "}")
@@ -611,7 +611,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.delete("/{" + AdminPathParamName.CLIENT_ID + "}")
@@ -637,7 +637,7 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
-			// .filter(validationFilter)
+			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.delete("/{" + AdminPathParamName.CLIENT_ID + "}")
