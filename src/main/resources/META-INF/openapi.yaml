@@ -578,7 +578,7 @@ components:
       description: Number of the page
       type: integer
       format: int32 # TotalPages and TotalElements are int64 but PageNumber is int32 due to Panache APIs limits.
-      minimum: 1
+      minimum: 0
       maximum: 2147483647
       example: 1
     PageSize:
