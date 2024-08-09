@@ -12,14 +12,3 @@ overrides:
       - "src/main/resources/META-INF/openapi.yaml#/paths/~1.well-known~1openid-configuration/get/security"
     rules:
       owasp:api2:2023-read-restricted: "off"
-  - files:
-      - "src/main/resources/META-INF/openapi.yaml#/paths/~1.well-known~1jwks.json/get/responses"
-      - "src/main/resources/META-INF/openapi.yaml#/paths/~1.well-known~1openid-configuration/get/responses"
-      - "src/main/resources/META-INF/openapi.yaml#/paths/~1admin~1cleanexpkeys/post/responses"
-      - "src/main/resources/META-INF/openapi.yaml#/paths/~1admin~1clients/post/responses"
-    rules:
-      owasp:api8:2023-define-error-validation: "off"
-  - files:
-      - "src/main/resources/META-INF/openapi.yaml#/paths/~1admin~1cleanexpkeys/post/security"
-    rules:
-      owasp:api5:2023-admin-security-unique: "off"
