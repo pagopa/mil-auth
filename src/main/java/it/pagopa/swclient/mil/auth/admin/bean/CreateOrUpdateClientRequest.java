@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.auth.admin.AuthAdminErrorCode;
-import it.pagopa.swclient.mil.bean.HeaderParamName;
 import it.pagopa.swclient.mil.bean.ValidationPattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -35,7 +34,7 @@ public class CreateOrUpdateClientRequest {
 	/*
 	 * Channel
 	 */
-	@JsonProperty(value = HeaderParamName.CHANNEL)
+	@JsonProperty(value = AdminJsonPropertyName.CHANNEL)
 	@Pattern(regexp = ValidationPattern.CHANNEL, message = ErrorCode.CHANNEL_MUST_MATCH_REGEXP_MSG)
 	private String channel;
 
