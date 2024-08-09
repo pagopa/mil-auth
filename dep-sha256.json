@@ -932,11 +932,11 @@
       "sha256": "NKb3hLFpbfEeB1IN5I-DHAgvltdOkG9aaw7CzSM9UAk="
     },
     {
-      "id": "it.pagopa.swclient.mil:azure-services:jar:5.4.2",
+      "id": "it.pagopa.swclient.mil:azure-services:jar:5.4.3",
       "artifactId": "azure-services",
       "groupId": "it.pagopa.swclient.mil",
-      "version": "5.4.2",
-      "sha256": "quP-l3ydwOsnIq_nVh-yTPtGhO1spW9Z1T2M4QNDnAA="
+      "version": "5.4.3",
+      "sha256": "aDGpTzkojE7PqHyk8CXfkxgzIGqhOWfYgwdgzrqgL08="
     },
     {
       "id": "com.nimbusds:nimbus-jose-jwt:jar:9.40",
