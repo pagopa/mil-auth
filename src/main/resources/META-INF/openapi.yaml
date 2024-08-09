@@ -1,13 +1,11 @@
 openapi: 3.0.3
-
 info:
   title: Authorization Microservice
-  version: 1.10.0
+  version: 2.10.0
   description: Authorization Microservice for Multi-channel Integration Layer of SW Client Project
   contact:
     name: Antonio Tarricone
     email: antonio.tarricone@pagopa.it
-
 servers:
   - description: Development/Test
     url: https://mil-d-apim.azure-api.net/mil-auth
@@ -15,7 +13,6 @@ servers:
   - description: User Acceptance Test
     url: https://mil-u-apim.azure-api.net/mil-auth
     x-internal: true
-
 tags:
   - name: wellknown
     description: Well-known operation
@@ -27,14 +24,13 @@ tags:
     description: Administrative operation
   - name: maintenance
     description: Maintenance operation
-
 paths:
   /token:
     post:
       operationId: getAccessToken
       description: Returns access token or refresh it
-      tags: [ token ]
-      security: [ ]
+      tags: [token]
+      security: []
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -73,14 +69,13 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
   /token_info:
     post:
       operationId: introspect
       description: Introspects a given access token returning the clear value of user tax (fiscal) code (if any)
-      tags: [ introspect ]
+      tags: [introspect]
       security:
-        - oAuth2: [ token_info ]
+        - oAuth2: [token_info]
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -117,13 +112,12 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
   /.well-known/jwks.json:
     get:
       operationId: getJwks
       description: Returns public keys
-      tags: [ wellknown ]
-      security: [ ]
+      tags: [wellknown]
+      security: []
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -152,13 +146,12 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
   /.well-known/openid-configuration:
     get:
       operationId: getOpenIdConf
       description: Returns OpenID configuration
-      tags: [ wellknown ]
-      security: [ ]
+      tags: [wellknown]
+      security: []
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -187,14 +180,13 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
   /admin/cleanexpkeys:
     post:
       operationId: cleanExpKeys
       description: Cleans expired keys
-      tags: [ maintenance ]
+      tags: [maintenance]
       security:
-        - oAuth2: [ admin ]
+        - oAuth2: [admin]
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -223,14 +215,13 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
   /admin/clients:
     post:
       operationId: createClient
       description: Creates a new client
-      tags: [ admin ]
+      tags: [admin]
       security:
-        - oAuth2: [ admin ]
+        - oAuth2: [admin]
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -264,13 +255,12 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
     get:
       operationId: getClients
       description: Returns all clients
-      tags: [ admin ]
+      tags: [admin]
       security:
-        - oAuth2: [ admin ]
+        - oAuth2: [admin]
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -301,14 +291,13 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
   /admin/clients/{clientId}:
     get:
       operationId: getClient
       description: Returns a client
-      tags: [ admin ]
+      tags: [admin]
       security:
-        - oAuth2: [ admin ]
+        - oAuth2: [admin]
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -341,13 +330,12 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
     patch:
       operationId: updateClient
       description: Updated a client
-      tags: [ admin ]
+      tags: [admin]
       security:
-        - oAuth2: [ admin ]
+        - oAuth2: [admin]
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -385,13 +373,12 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
     delete:
       operationId: deleteClient
       description: Deletes a client
-      tags: [ admin ]
+      tags: [admin]
       security:
-        - oAuth2: [ admin ]
+        - oAuth2: [admin]
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
@@ -424,11 +411,7 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-
-
-  #/admin/roles:
-
-
+          #/admin/roles:
 components:
   # ========================================================
   # Schemas
@@ -443,7 +426,6 @@ components:
       pattern: "^[ -~]{1,2048}$"
       minLength: 1
       maxLength: 2048
-
     AcquirerId:
       description: Acquirer ID assigned by PagoPA
       type: string
@@ -451,7 +433,6 @@ components:
       minLength: 1
       maxLength: 11
       example: "4585625"
-
     AdditionalData:
       description: Additional data for external token authentication
       type: string
@@ -459,14 +440,12 @@ components:
       minLength: 1
       maxLength: 4096
       example: "4b7eb94b-10c9-4f11-a10e-7292b29ab115"
-
     BearerTokenType:
       description: Token type for bearer token
       type: string
       enum:
         - Bearer
       example: "Bearer"
-
     Channel:
       description: Channel originating the request
       enum:
@@ -477,14 +456,12 @@ components:
         - CSA
       type: string
       example: "ATM"
-
     ClientCredentialsGrantType:
       description: Grant type to get an access token with client credentials
       enum:
         - client_credentials
       type: string
       example: "client_credentials"
-
     ClientDescription:
       description: Description of a client
       type: string
@@ -492,7 +469,6 @@ components:
       minLength: 1
       maxLength: 256
       example: "SEND"
-
     ClientLocation:
       description: URL of the client
       type: string
@@ -501,7 +477,6 @@ components:
       minLength: 1
       maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/mil-auth/admin/clients/d0d654e6-97da-4848-b568-99fedccb642b"
-
     ClientSecret:
       description: Client secret (63 ^ 36 ≃ 6e64)
       type: string
@@ -509,7 +484,6 @@ components:
       minLength: 36
       maxLength: 36
       example: "c7a1b24b058347792ebdbaa-Az7fn37dh-q9"
-
     ErrorCode:
       description: Error code
       type: string
@@ -517,7 +491,6 @@ components:
       minLength: 9
       maxLength: 9
       example: "001000005"
-
     ErrorDescription:
       description: Error description
       type: string
@@ -525,7 +498,6 @@ components:
       minLength: 0
       maxLength: 256
       example: "Duplicate key"
-
     ExternalToken:
       description: External token
       type: string
@@ -533,14 +505,12 @@ components:
       minLength: 1
       maxLength: 4096
       example: "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4MDc4MzUzNiwiaWF0IjoxNjgwNjk3MTM2LCJqdGkiOiI3MjBmMDFlZS1iZDk4LTRjYjItOTU2Mi0xZjI4YWY2NGJhZGYifQ.dTuvtzqy9oPWIN4NIBdhIR09Xpm70dgRCP-ybuVLo24DwqaysPKNmEHDXcq2gGE1w2L6e783_PXRK3RI0j1TQRFeLRbiPzN5imBdrJ2LlV8QNdkElOl2x32j652YeFcoAitBzFss_Do0_rquU_008eeIXWa-B-AiMsdAqgLUiMigsTT42rQYr7Mb8Am_NWwvZ9-DWiox6HbuUNUo3TStBmLervqlQ5j2_3AzcOILp8cJX0699fw7Y6gcu_pNHgjswqD0UVPSAmHf_bqFAH6b98qHVKe3isMSoktYi4FfWdpG1ykviEp9Ii0QKfeLnqyIR6g2o2XzGlDv7Usv5ouiXg"
-
     ExternalTokenGrantType:
       description: Grant type to get an access token by means of external token
       enum:
         - poynt_token
       type: string
       example: "poynt_token"
-
     FiscalCode:
       description: User fiscal (tax) code
       type: string
@@ -548,7 +518,6 @@ components:
       minLength: 11
       maxLength: 16
       example: "RSSMRA85T10A562S"
-
     Issuer:
       description: URL of token issuer
       type: string
@@ -557,7 +526,6 @@ components:
       minLength: 1
       maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/mil-auth/"
-
     JwksUri:
       description: URL to get JKWS
       type: string
@@ -566,7 +534,6 @@ components:
       minLength: 1
       maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/mil-auth/.well-known/jwks.json"
-
     KeyId:
       description: Key ID
       type: string
@@ -574,14 +541,12 @@ components:
       minLength: 1
       maxLength: 512
       example: "0ffa8f8d-d92b-46ee-a4e7-8f26651a2a96"
-
     KeyType:
       description: Key type
       enum:
         - RSA
       type: string
       example: "RSA"
-
     MerchantId:
       description: Merchant ID. Mandatory when Channel equals POS.
       type: string
@@ -589,7 +554,6 @@ components:
       minLength: 1
       maxLength: 15
       example: "28405fHfk73x88D"
-
     Modulus:
       description: Modulus
       type: string
@@ -597,14 +561,12 @@ components:
       minLength: 172 # 128 bytes * 4 / 3
       maxLength: 683 # 512 bytes * 4 / 3
       example: "qjcVEWJTTySeKxHsJSsmVGk2cEvXJ4tBC4uyU5MxYwBAiIWuZb_yDOIjLz7JN8QsJs3QrZtS3vqv18ljW2db6ED90OUo9CVJveSF4eNRozDHOvnHGT0HR-8Wf5GxcNy63zfQLrnfdp5F9TrhMFRMkEA0TCT7PhT3yF6YvwLtQyMciER1_KKnpGomfAkW-UpaF2nHfXiFPrOIHMuNb5BoRR1f0349tqloLgLd7vyMy1jg-BldmEgRV1bcFqjH0Cg3leROjDy9HzdFauRIlSb4VZrqNni2hgaTUHI5Xp7aCwpS9Y_mf19KpxN0_8d-f3UVRlwtI1dryelpdC5jowxia2Pf8UgSZyMs2ZxDf6eU0SH8wHEvMpeFpwmiBD1XcsISoTan0Yv7w_CLo6JOqX6EfogDQZUBzKKlVCZSoSinAz0_7Bj2orgWKQ9sbfgJWgJweKkJLH-bNSRaVcu02boxPnlJeay3wROhSAgtiKWZnsU1_FpPNG0JBFCh_x-VjkuBoREpNEyJM5NvhRCmyObtzocS4eCtAgvmo3EFv_Xa-rp0p5ez4A-_QUb5OsYOswqYbIV1GbtiAfCTOrNbv6K86LaTllZ9WqYrKgDv7KA-604K37k33LHROqcO9Q-bCN8hKzQDWs7M3DFNP6P5iBUUVs-gtWncHvIuUWTth-fBXa8"
-
     OfflineAccessScope:
       description: Scope for offline_access
       enum:
         - offline_access
       type: string
       example: "offline_access"
-
     Password:
       description: User password
       type: string
@@ -612,7 +574,6 @@ components:
       minLength: 1
       maxLength: 64
       example: "Password-001$"
-
     PageNumber:
       description: Number of the page
       type: integer
@@ -620,7 +581,6 @@ components:
       minimum: 1
       maximum: 2147483647
       example: 1
-
     PageSize:
       description: Size of the page
       type: integer
@@ -628,14 +588,12 @@ components:
       minimum: 1
       maximum: 128 # See #/components/schemas/Clients.maxItems
       example: 20
-
     PasswordGrantType:
       description: Grant type to get an access token with resource owner password
       enum:
         - password
       type: string
       example: "password"
-
     PositiveInteger:
       description: Non negative integer
       type: integer
@@ -643,7 +601,6 @@ components:
       minimum: 1
       maximum: 2147483647
       example: 234
-
     PublicExponent:
       description: Public key exponent
       type: string
@@ -651,7 +608,6 @@ components:
       minLength: 2 # 1 byte * 4 / 3 = 2
       maxLength: 683 # 512 bytes * 4 / 3 = 683
       example: "AQAB"
-
     PublicKeyUse:
       description: Public key use
       enum:
@@ -659,35 +615,30 @@ components:
         - enc
       type: string
       example: "sig"
-
     RefreshGrantType:
       description: Grant type to refresh an access token
       enum:
         - refresh_token
       type: string
       example: "refresh_token"
-
     RateLimitLimit:
       description: The number of allowed requests in the current period
       type: integer
       format: int32
       minimum: 1
       maximum: 240
-
     RateLimitReset:
       description: The number of seconds left in the current period
       type: integer
       format: int32
       minimum: 1
       maximum: 60
-
     RetryAfter:
       description: The number of seconds to wait before allowing a follow-up request
       type: integer
       format: int32
       minimum: 1
       maximum: 240
-
     Salt:
       description: Salt to calculate client secret hash
       type: string
@@ -695,7 +646,6 @@ components:
       minLength: 88 # 64 bytes * 4 / 3 rounded up to a multiple of 4
       maxLength: 88 # 64 bytes * 4 / 3 rounded up to a multiple of 4
       example: "WDHwCRvvPKOEdbMfwldj0kRh3o+IU27aL6TqBv8v1Cl+FvgGZL8bHgY3bMbC0f6pPpPT5Di8fqnrtpBzwWNZHQ=="
-
     SecretHash:
       description: Hash of client secret
       type: string
@@ -703,7 +653,6 @@ components:
       minLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
       maxLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
       example: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
-
     Subject:
       description: Subject linked to the client
       type: string
@@ -711,7 +660,6 @@ components:
       minLength: 1
       maxLength: 256
       example: "send"
-
     TerminalId:
       description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
       type: string
@@ -719,7 +667,6 @@ components:
       minLength: 1
       maxLength: 8
       example: "0aB9wXyZ"
-
     Token:
       description: Token
       type: string
@@ -727,7 +674,6 @@ components:
       minLength: 5
       maxLength: 3074
       example: "eyJraWQiOiI2OWQzZDEwZi03MGRhLTQ5ODItYjI4ZC03MmU4MTQ4MzI4YTMiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21pbC1kLWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtaWRwIiwiYXVkIjpbImh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1wYXltZW50LW5vdGljZSIsImh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1mZWUtY2FsY3VsYXRvciJdLCJleHAiOjE2Nzg3ODkyOTUsInNjb3BlIjoidmVyaWZ5QnlRckNvZGUgYWN0aXZhdGVCeVFyQ29kZSB2ZXJpZnlCeVRheENvZGVBbmROb3RpY2VOdW1iZXIgYWN0aXZhdGVCeVRheENvZGVBbmROb3RpY2VOdW1iZXIgY2xvc2UgZ2V0UGF5bWVudFN0YXR1cyBnZXRGZWUifQ.UJ8Vwv0NwF5S3fajgsdpgV-t6VeZAVC9dR0QGVpevC6Rw35tTx_1pJq2kI0GVAp0Vm7mNmgpZgzqx14QJfBmtTz3ZMJuUYVJUfHHQxxRxEyVBslrloOCqc8LfFkC-jmVQG5_9p9f6Tb7MB-h9J_f9ivtFX9gz7jK2Q_llD3HU0FujMgHEJiloKl7sp2uDaMIiy9dOKT7m0M6sA1tA84kwuJASudd_KWotideFsiA8LMBy_fGlEO7ogF-WytXD0XfW6VIBwQKq5KB3L3HxUuOZE1Gr2hubZ9SCeGAptiaPCWeEDf4w4x3IvKUL-rmm4bs4xalCmUbWcnTkKJi5f4N_8d2aRBrCL7k01rEK-OI1NH1-cCCk97eanNxvFEAKk_9t8rggipYt9BuL929p11LHVeYqqfemz1yrzc58LJXWPNgSMZ8XjKoITzsEiKWtGMYNV6GodJs_USnMKGIlc_uynZS0Q9mUV5IWhFaOZWFkM1nNwebMq9edg-kxtj1WpNkXfP1lahOMt36a9Rn2rWBLAhMBnerigsxFmUpi90EmbDkgOKTEXd3adOWLBb0jQSw0gPlNHe4bHh_LxBNNWljd6P9yZ4CYvZsWFwt_85d-PS56y-mNWV5oFMgPd-_qeF3Fn-QMj3Q5qySoqNCLzX7pnqjzXrveazLcR-CrroIUGM"
-
     TokenEndpoint:
       description: URL to get tokens
       type: string
@@ -736,7 +682,6 @@ components:
       minLength: 1
       maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/mil-auth/token"
-
     TotalElements:
       description: Total elements
       type: integer
@@ -744,7 +689,6 @@ components:
       minimum: 0
       maximum: 9223372036854775807
       example: 20
-
     TotalPages:
       description: Total pages
       type: integer
@@ -752,7 +696,6 @@ components:
       minimum: 0
       maximum: 9223372036854775807
       example: 20
-
     Username:
       description: User name
       type: string
@@ -760,7 +703,6 @@ components:
       minLength: 1
       maxLength: 64
       example: "Merchant-001"
-
     UUID:
       description: UUID
       type: string
@@ -769,7 +711,6 @@ components:
       minLength: 36
       maxLength: 36
       example: "d0d654e6-97da-4848-b568-99fedccb642b"
-
     # ------------------------------------------------------
     # Complex types
     # ------------------------------------------------------
@@ -795,7 +736,6 @@ components:
         refresh_token: "eyJraWQiOiIxN2YwNWViZC1hMWMzLTRjNWMtODM4Ny1jOWZlNjU4MDRiMDEiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21pbC1kLWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtaWRwIiwiYXVkIjoiaHR0cHM6Ly9taWwtZC1hcGltLmF6dXJlLWFwaS5uZXQvbWlsLWlkcCIsImV4cCI6MTY3ODg4MTA1NSwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyJ9.Bu-BXKRMoE8fdBfuoPAa70WQYUWVH3BK3VFMw-9mr7hGlKBSONXQY8vcrFuh4OLm6vHX2hUagYuJ3yS_Anm5AHU8Kpay0dGm30fyPxFAyv5s_Yn_ET3VExPZBedBSlHl0Rzt0JQ_9X07X0JkCwWacxWMueKNoVndAh3QxswbkwtEANAKvQcvAtdLjh-93eDYFq0vvS8qNRReTZf46fldIL9H5-0MMqjfVi5A6y8YCzx7_kOHKq8wCy7u75QtKhPRzYnY0JcBVMALZgQovpCYpnlPkP3JV3cgdmlDGWmGHbKQz9iQ5bY1071e3vhxqR2iEqFJwn7nohYq9sxkMQGxNxz2BI-w3v_SQ3zS3mI1qK_qm1c7yzyF3c_lB920T5hBup9RozIXVb2OkX38pW6JKORETgSLlhnqLc8Rr1_HaQ2qN_JYcn7Urv_0mSJh-i8zS39F1glY3ejHHiVbl8cSJsPPw-ehpKAozf6h0_JiZBe0TuBtyTNULQH1iri19C9z_XBgBnfC1DtrnQn-UIgGbJq1TnIgtVmtTnReJqDpcf6_MGDLqCL-x192UQszb8GgWjD8tRusJ9X5HG1RHUAVyQ5gfOCegHmymyB7Dx7e5fCOghDUTT0t2dvVKbIXZGilrddKBg70iBGDA5j5-01lvnl2aaxBv51Y_zr-3IZdAyA"
         token_type: "Bearer"
         expires_in: 36000
-
     Client:
       description: Client data
       additionalProperties: false
@@ -823,7 +763,6 @@ components:
         secretHash: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
         description: "SEND"
         subject: "send"
-
     Clients:
       description: List of clients
       type: array
@@ -837,7 +776,6 @@ components:
           secretHash: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
           description: "SEND"
           subject: "send"
-
     CreateOrUpdateClientReq:
       description: Request to create or update a client
       additionalProperties: false
@@ -853,7 +791,6 @@ components:
       example:
         channel: "ATM"
         description: "ATM Layer - Test Environment"
-
     CreateClientRes:
       description: Response to a request to create a new client
       additionalProperties: false
@@ -868,7 +805,6 @@ components:
       example:
         clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
         clientSecret: "265a5ac0-c651-428e-bed6-763f6cd244b5"
-
     DeletedKeys:
       description: List of IDs of deleted keys
       additionalProperties: false
@@ -883,7 +819,6 @@ components:
       example:
         kids:
           - "0ffa8f8d-d92b-46ee-a4e7-8f26651a2a96"
-
     Errors:
       description: List of errors
       type: object
@@ -908,7 +843,6 @@ components:
         descriptions:
           - "[00000000A] Duplicate client id"
           - "[001000001] Invalid location"
-
     GetAccessTokenByClientCredentials:
       description: Request to get an access token by means of client credentials
       type: object
@@ -928,7 +862,6 @@ components:
         grant_type: "client_credentials"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
         client_secret: "265a5ac0-c651-428e-bed6-763f6cd244b5"
-
     GetAccessTokenByExternalToken:
       description: Request to get an access token by means of external token
       type: object
@@ -955,7 +888,6 @@ components:
         add_data: "4b7eb94b-10c9-4f11-a10e-7292b29ab115"
         scope: "offline_access"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
-
     GetAccessTokenByPassword:
       description: Request to get an access token by means of resource owner password
       type: object
@@ -982,7 +914,6 @@ components:
         password: "Password-001$"
         scope: "offline_access"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
-
     OpenIdConf:
       description: OpenID configuration
       type: object
@@ -994,7 +925,6 @@ components:
           $ref: '#/components/schemas/TokenEndpoint'
         jwks_uri:
           $ref: '#/components/schemas/JwksUri'
-
     PageMetadata:
       description: Metadata of a page of data
       type: object
@@ -1018,7 +948,6 @@ components:
         totalPages: 10
         page: 5
         size: 20
-
     PageOfClients:
       description: Page of clients
       type: object
@@ -1043,7 +972,6 @@ components:
           totalPages: 2
           page: 1
           size: 1
-
     PublicKey:
       description: Public key
       type: object
@@ -1079,7 +1007,6 @@ components:
         exp: 1678975089
         iat: 1678888689
         n: "qjcVEWJTTySeKxHsJSsmVGk2cEvXJ4tBC4uyU5MxYwBAiIWuZb_yDOIjLz7JN8QsJs3QrZtS3vqv18ljW2db6ED90OUo9CVJveSF4eNRozDHOvnHGT0HR-8Wf5GxcNy63zfQLrnfdp5F9TrhMFRMkEA0TCT7PhT3yF6YvwLtQyMciER1_KKnpGomfAkW-UpaF2nHfXiFPrOIHMuNb5BoRR1f0349tqloLgLd7vyMy1jg-BldmEgRV1bcFqjH0Cg3leROjDy9HzdFauRIlSb4VZrqNni2hgaTUHI5Xp7aCwpS9Y_mf19KpxN0_8d-f3UVRlwtI1dryelpdC5jowxia2Pf8UgSZyMs2ZxDf6eU0SH8wHEvMpeFpwmiBD1XcsISoTan0Yv7w_CLo6JOqX6EfogDQZUBzKKlVCZSoSinAz0_7Bj2orgWKQ9sbfgJWgJweKkJLH-bNSRaVcu02boxPnlJeay3wROhSAgtiKWZnsU1_FpPNG0JBFCh_x-VjkuBoREpNEyJM5NvhRCmyObtzocS4eCtAgvmo3EFv_Xa-rp0p5ez4A-_QUb5OsYOswqYbIV1GbtiAfCTOrNbv6K86LaTllZ9WqYrKgDv7KA-604K37k33LHROqcO9Q-bCN8hKzQDWs7M3DFNP6P5iBUUVs-gtWncHvIuUWTth-fBXa8"
-
     PublicKeys:
       description: Public keys
       type: object
@@ -1101,7 +1028,6 @@ components:
             exp: 1678975089
             iat: 1678888689
             n: "qjcVEWJTTySeKxHsJSsmVGk2cEvXJ4tBC4uyU5MxYwBAiIWuZb_yDOIjLz7JN8QsJs3QrZtS3vqv18ljW2db6ED90OUo9CVJveSF4eNRozDHOvnHGT0HR-8Wf5GxcNy63zfQLrnfdp5F9TrhMFRMkEA0TCT7PhT3yF6YvwLtQyMciER1_KKnpGomfAkW-UpaF2nHfXiFPrOIHMuNb5BoRR1f0349tqloLgLd7vyMy1jg-BldmEgRV1bcFqjH0Cg3leROjDy9HzdFauRIlSb4VZrqNni2hgaTUHI5Xp7aCwpS9Y_mf19KpxN0_8d-f3UVRlwtI1dryelpdC5jowxia2Pf8UgSZyMs2ZxDf6eU0SH8wHEvMpeFpwmiBD1XcsISoTan0Yv7w_CLo6JOqX6EfogDQZUBzKKlVCZSoSinAz0_7Bj2orgWKQ9sbfgJWgJweKkJLH-bNSRaVcu02boxPnlJeay3wROhSAgtiKWZnsU1_FpPNG0JBFCh_x-VjkuBoREpNEyJM5NvhRCmyObtzocS4eCtAgvmo3EFv_Xa-rp0p5ez4A-_QUb5OsYOswqYbIV1GbtiAfCTOrNbv6K86LaTllZ9WqYrKgDv7KA-604K37k33LHROqcO9Q-bCN8hKzQDWs7M3DFNP6P5iBUUVs-gtWncHvIuUWTth-fBXa8"
-
     RefreshAccessToken:
       description: Request to get an access token by means of a refresh token
       type: object
@@ -1121,7 +1047,6 @@ components:
         grant_type: "refresh_token"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
         refresh_token: "eyJraWQiOiIxN2YwNWViZC1hMWMzLTRjNWMtODM4Ny1jOWZlNjU4MDRiMDEiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21pbC1kLWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtaWRwIiwiYXVkIjoiaHR0cHM6Ly9taWwtZC1hcGltLmF6dXJlLWFwaS5uZXQvbWlsLWlkcCIsImV4cCI6MTY3ODg4MTA1NSwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyJ9.Bu-BXKRMoE8fdBfuoPAa70WQYUWVH3BK3VFMw-9mr7hGlKBSONXQY8vcrFuh4OLm6vHX2hUagYuJ3yS_Anm5AHU8Kpay0dGm30fyPxFAyv5s_Yn_ET3VExPZBedBSlHl0Rzt0JQ_9X07X0JkCwWacxWMueKNoVndAh3QxswbkwtEANAKvQcvAtdLjh-93eDYFq0vvS8qNRReTZf46fldIL9H5-0MMqjfVi5A6y8YCzx7_kOHKq8wCy7u75QtKhPRzYnY0JcBVMALZgQovpCYpnlPkP3JV3cgdmlDGWmGHbKQz9iQ5bY1071e3vhxqR2iEqFJwn7nohYq9sxkMQGxNxz2BI-w3v_SQ3zS3mI1qK_qm1c7yzyF3c_lB920T5hBup9RozIXVb2OkX38pW6JKORETgSLlhnqLc8Rr1_HaQ2qN_JYcn7Urv_0mSJh-i8zS39F1glY3ejHHiVbl8cSJsPPw-ehpKAozf6h0_JiZBe0TuBtyTNULQH1iri19C9z_XBgBnfC1DtrnQn-UIgGbJq1TnIgtVmtTnReJqDpcf6_MGDLqCL-x192UQszb8GgWjD8tRusJ9X5HG1RHUAVyQ5gfOCegHmymyB7Dx7e5fCOghDUTT0t2dvVKbIXZGilrddKBg70iBGDA5j5-01lvnl2aaxBv51Y_zr-3IZdAyA"
-
     TokenInfoRequest:
       description: Request to introspect an access token
       type: object
@@ -1133,7 +1058,6 @@ components:
         - token
       example:
         token: "eyJraWQiOiJhdXRoYjk0MGJmNjZhZGY3NDgxYTk3MWI0ZTI2OTNhZDljMWIvYTdmNDdmNDA5ZDc1NDc4YWJiNjY1NGEzNmQxY2Y0NjkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJhdWQiOiJtaWwucGFnb3BhLml0IiwiY2xpZW50SWQiOiI1MjU0ZjA4Ny0xMjE0LTQ1Y2QtOTRhZS1mZGE1M2M4MzUxOTciLCJtZXJjaGFudElkIjoiMjg0MDVmSGZrNzN4ODhEIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLXUtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwiZ3JvdXBzIjpbIk5vdGljZVBheWVyIiwiU2xhdmVQb3MiLCJQYXlXaXRoSURQYXkiXSwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzEwNzYwMDc0LCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTcxMDc1OTE3NH0.DwdwI-kYMf9OWY5PjBUw9zrSZGXGaqWlj1FwygAKv_AMvZ41_Uu8fnL7LOpYTYS0qNouxOVsRmpOnjfvt1zfx8t8MZP07O7KpO4cJpBfqm2kXI5_A2gimFrF4m_4LM-exNM0fW5gaGC8TVfMm0dkrJh0tFnZ3j-xw9bGi1ZqubIth0H7M8JkvzZ1o6CMOyfEVTYbiJb9lhsP6qrmduhhv9uRAo7SyIVFVudjsNyrw-MFDwQhpGdhrKa_2q6ZpkjzRcK1t_NynFI1IFbWuy5wYS1DllA9uJxU9Rc1zPHQk1UR_Cfrek3D7rfg9tJY0XqDerG8gUMg7wlizMZSkmWfhNKz5yH9seV4_ktVU2rBVsN-OIwMfOiD3kwjIxw4NcX5Uza9cMCQPSZqbDCG4jeFQjJ1WxBkKAfFJLc_Vb59CS2UttwCJA8A9OsCJ2kQQ9fg_Ez1tzNdsCsMXQo7XAFPKGTe0MpL2UPiErPATEjdfdzHnwyZsx-DubAEwKUREHjAevAQb6i6b6aI_3Ti51ArLor1jW_1EHwt2fRyhbDdTyvKSI7trqtx8DkNgd42dOBYrIqYUs2xfaFdKLGDmH5dFX7n8l--xqaNDU983Z1neNX-lsRWe-22eT0ykfRW_GI84v_uRA2My5RL2mmJ9vjRQ3LTlaOairNYkYplyXcydSQ"
-
     TokenInfoResponse:
       description: Response to the request to introspect an access token
       type: object
@@ -1145,7 +1069,6 @@ components:
         - fiscalCode
       example:
         fiscalCode: "RSSMRA85T10A562S"
-
   # ========================================================
   # Request bodies
   # ========================================================
@@ -1156,7 +1079,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CreateOrUpdateClientReq'
-
     GetAccessToken:
       description: Request to get an access token by means of username and password or by refresh token or by external token
       content:
@@ -1167,14 +1089,12 @@ components:
               - $ref: '#/components/schemas/RefreshAccessToken'
               - $ref: '#/components/schemas/GetAccessTokenByExternalToken'
               - $ref: '#/components/schemas/GetAccessTokenByClientCredentials'
-
     TokenInfo:
       description: Request to introspect an access token
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/TokenInfoRequest'
-
   # ========================================================
   # Parameters
   # ========================================================
@@ -1186,7 +1106,6 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/AcquirerId'
-
     Channel:
       name: Channel
       in: header
@@ -1194,7 +1113,6 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/Channel'
-
     ClientId:
       name: clientId
       in: path
@@ -1202,7 +1120,6 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/UUID'
-
     FiscalCode:
       name: FiscalCode
       in: header
@@ -1210,7 +1127,6 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/FiscalCode'
-
     MerchantId:
       name: MerchantId
       description: Merchant ID. Mandatory when Channel equals POS.
@@ -1218,7 +1134,6 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/MerchantId'
-
     PageNumber:
       name: page
       in: query
@@ -1226,7 +1141,6 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PageNumber'
-
     PageSize:
       name: size
       in: query
@@ -1234,7 +1148,6 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PageSize'
-
     RequestId:
       name: RequestId
       in: header
@@ -1242,7 +1155,6 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/UUID'
-
     TerminalId:
       name: TerminalId
       in: header
@@ -1250,7 +1162,6 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/TerminalId'
-
     Version:
       name: Version
       in: header
@@ -1262,7 +1173,6 @@ components:
         minLength: 1
         maxLength: 64
         example: "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay"
-
   # ========================================================
   # Responses
   # ========================================================
@@ -1289,7 +1199,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/AccessToken'
-
     Client:
       description: Response returned when client data is requested
       headers:
@@ -1312,7 +1221,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Client'
-
     CreateClient:
       description: Response returned when the creation of a new client is requested
       headers:
@@ -1340,7 +1248,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CreateClientRes'
-
     DeletedKeys:
       description: Response returned when cleaning of expired keys is requested
       headers:
@@ -1363,7 +1270,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DeletedKeys'
-
     Error:
       description: Error response
       headers:
@@ -1396,7 +1302,6 @@ components:
             type: string
             pattern: "^[ -~]{0,65535}$"
             maxLength: 65535
-
     Jwks:
       description: Public keys
       headers:
@@ -1419,7 +1324,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicKeys'
-
     NoContent:
       description: No content response
       headers:
@@ -1438,7 +1342,6 @@ components:
           required: false
           schema:
             $ref: '#/components/schemas/RateLimitReset'
-
     OpenIdConf:
       description: OpenID configuration
       headers:
@@ -1461,7 +1364,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/OpenIdConf'
-
     PageOfClients:
       description: Response to the request to get clients
       headers:
@@ -1484,7 +1386,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PageOfClients'
-
     TokenInfo:
       description: Response to the request to introspect an access token
       headers:
@@ -1507,7 +1408,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/TokenInfoResponse'
-
   # ----------------------------------------------------------------------------------
   # Security schemes
   # ----------------------------------------------------------------------------------
