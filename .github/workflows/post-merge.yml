@@ -231,9 +231,9 @@ jobs:
             --env-var "clientSecretForMilDebtPosition=${{ secrets.NEWMAN_IT__CLIENTSECRETFORMILDEBTPOSITION }}"
 
       #
-      # STABLE - Update of pom.xml with the new version.
+      # STABLE - Update of pom.xml and openapi.yaml with the new version.
       #
-      - name: STABLE - Update of pom.xml with the new version
+      - name: STABLE - Update of pom.xml and openapi.yaml with the new version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }} -s ${{ runner.temp }}/settings.xml --no-transfer-progress
