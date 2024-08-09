@@ -114,7 +114,6 @@ class TokenByClientSecretServiceTest {
 			.setClientSecret("client_secret")
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		tokenByClientSecretService.process(request)
@@ -127,7 +126,7 @@ class TokenByClientSecretServiceTest {
 				},
 				f -> fail(f));
 	}
-	
+
 	/**
 	 * 
 	 * @throws ParseException
@@ -159,7 +158,6 @@ class TokenByClientSecretServiceTest {
 			.setClientSecret("client_secret")
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		tokenByClientSecretService.process(request)
@@ -205,7 +203,6 @@ class TokenByClientSecretServiceTest {
 			.setClientSecret("client_secret")
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		tokenByClientSecretService.process(request)
@@ -256,7 +253,6 @@ class TokenByClientSecretServiceTest {
 			.setClientSecret("client_secret")
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setScope(Scope.OFFLINE_ACCESS)
 			.setFiscalCode("CGNNMO80A41A662W");

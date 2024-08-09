@@ -138,7 +138,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -164,7 +163,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken("@.@.@")
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -210,7 +208,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -257,7 +254,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -303,7 +299,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -350,7 +345,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -396,7 +390,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -443,7 +436,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)
@@ -493,7 +485,6 @@ class RefreshTokensServiceTest {
 			.setRefreshToken(refreshTokenStr)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id");
 
 		refreshTokensService.process(request)

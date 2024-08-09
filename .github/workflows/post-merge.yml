@@ -10,16 +10,16 @@ on:
 jobs:
   post_merge:
     if: github.event.pull_request.merged == true
-    
+
     runs-on: ubuntu-latest
-    
+
     environment: dev-cd
-    
+
     permissions:
       id-token: write
       packages: write
       contents: write
-    
+
     steps:
       #
       # Checkout the source code.
@@ -58,7 +58,7 @@ jobs:
           path: |
             ${{ runner.temp }}/jdk_setup.tar.gz
             ${{ runner.temp }}/jdk_setup.sha256
-      
+
       #
       # Download JDK and verify its hash.
       #
@@ -122,6 +122,13 @@ jobs:
         run: ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }}-RC -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
+      # RELEASE CANDIDATE - Update of openapi.yaml with the new version.
+      #
+      - name: RELEASE CANDIDATE - Update of openapi.yaml with the new version.
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}-RC\"" "src/main/resources/META-INF/openapi.yaml"
+
+      #
       # RELEASE CANDIDATE - Execute unit-test + Calculate test coverage + SCA with Sonar.
       #
       - name: RELEASE CANDIDATE - Execute unit-test + Calculate test coverage + SCA with Sonar
@@ -170,7 +177,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
- 
+
       #
       # RELEASE CANDIDATE - Update Container App + OpenAPI descriptor on APIM
       #
@@ -213,20 +220,6 @@ jobs:
       #
       # Run Postman collection.
       #
-      - name: Run Postman collection (warmup)
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          newman run src/test/postman/mil-auth.postman_collection.json \
-            -x \
-            -e src/test/postman/dev.postman_environment.json \
-            --env-var "correctPassword=${{ secrets.NEWMAN_IT__CORRECTPASSWORD }}" \
-            --env-var "correctClientSecret=${{ secrets.NEWMAN_IT__CORRECTCLIENTSECRET }}" \
-            --env-var "correctClientSecretForVasLayer=${{ secrets.NEWMAN_IT__CORRECTCLIENTSECRETFORVASLAYER }}" \
-            --env-var "clientSecretForMilDebtPosition=${{ secrets.NEWMAN_IT__CLIENTSECRETFORMILDEBTPOSITION }}"
-
-      #
-      # Run Postman collection.
-      #
       - name: Run Postman collection
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
@@ -244,12 +237,14 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }} -s ${{ runner.temp }}/settings.xml --no-transfer-progress
+          yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}\"" "src/main/resources/META-INF/openapi.yaml"
           git config user.name "GitHub Workflow"
           git config user.email "<>"
           git add pom.xml
-          git commit -m "pom.xml updated with new version ${{ steps.semantic.outputs.new_release_version }}"
+          git add src/main/resources/META-INF/openapi.yaml
+          git commit -m "Updated with new version ${{ steps.semantic.outputs.new_release_version }}"
           git push origin main
-      
+
       #
       # Calculation of the new version (again) with tagging + releasing + etc.
       #

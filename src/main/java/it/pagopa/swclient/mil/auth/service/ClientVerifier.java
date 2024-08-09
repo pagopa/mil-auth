@@ -15,7 +15,7 @@ import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.auth.dao.ClientRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
-import it.pagopa.swclient.mil.auth.util.SecretVerifier;
+import it.pagopa.swclient.mil.auth.util.SecretTriplet;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -92,7 +92,7 @@ public class ClientVerifier {
 		if (foundSecret == null && expectedSecret == null) {
 			Log.debug("Secret is not used");
 			return clientEntity;
-		} else if (foundSecret != null && expectedSecret != null && SecretVerifier.verify(expectedSecret, clientEntity.getSalt(), foundSecret)) {
+		} else if (foundSecret != null && expectedSecret != null && new SecretTriplet(expectedSecret, clientEntity.getSalt(), foundSecret).verify()) {
 			Log.debug("Secret is ok");
 			return clientEntity;
 		} else {

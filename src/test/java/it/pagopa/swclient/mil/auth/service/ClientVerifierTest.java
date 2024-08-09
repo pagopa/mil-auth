@@ -8,13 +8,9 @@ package it.pagopa.swclient.mil.auth.service;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-// import java.security.NoSuchAlgorithmException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-// import org.mockito.MockedStatic;
-// import org.mockito.Mockito;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -24,7 +20,6 @@ import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.auth.dao.ClientRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
-// import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -184,7 +179,7 @@ class ClientVerifierTest {
 	 * 
 	 */
 	@Test
-	void give_clientDataWithUnexpectedSecret_when_invokeVerify_then_getFailure() {
+	void given_clientDataWithUnexpectedSecret_when_invokeVerify_then_getFailure() {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
@@ -211,27 +206,6 @@ class ClientVerifierTest {
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailedWith(AuthException.class);
 	}
-
-	/**
-	 * 
-	 */
-	// @Test
-	// void given_errorVerifingSecret_when_invokeVerify_then_getFailure() {
-	// Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION, null, null);
-	//
-	// when(repository.findByClientId(ID))
-	// .thenReturn(UniGenerator.item(client));
-	//
-	// try (MockedStatic<PasswordVerifier> digest = Mockito.mockStatic(PasswordVerifier.class)) {
-	// digest.when(() -> PasswordVerifier.verify(anyString(), anyString(), anyString()))
-	// .thenThrow(NoSuchAlgorithmException.class);
-	//
-	// verifier.verify(ID, CHANNEL, SECRET)
-	// .subscribe()
-	// .withSubscriber(UniAssertSubscriber.create())
-	// .assertFailedWith(AuthError.class);
-	// }
-	// }
 
 	/**
 	 * 

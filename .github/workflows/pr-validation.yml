@@ -48,7 +48,7 @@ jobs:
           path: |
             ${{ runner.temp }}/jdk_setup.tar.gz
             ${{ runner.temp }}/jdk_setup.sha256
-      
+
       - name: Download JDK and verify its hash
         if: steps.cache-jdk.outputs.cache-hit != 'true'
         run: |
@@ -56,14 +56,14 @@ jobs:
           curl -L "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.2%2B13/OpenJDK21U-jdk_x64_linux_hotspot_21.0.2_13.tar.gz" -o "${{ runner.temp }}/jdk_setup.tar.gz"
           sha256sum --check --status "${{ runner.temp }}/jdk_setup.sha256"
 
-      - name: Setup JDK 
+      - name: Setup JDK
         uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
         with:
           distribution: "jdkfile"
           jdkFile: "${{ runner.temp }}/jdk_setup.tar.gz"
           java-version: "21"
           cache: maven
-          
+
       - name: Cache Maven
         uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
         id: cache-maven

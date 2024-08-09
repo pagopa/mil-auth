@@ -114,7 +114,6 @@ class TokenByPoyntTokenServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.POYNT_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setExtToken("poynt_token")
 			.setAddData("business_id");
@@ -145,7 +144,6 @@ class TokenByPoyntTokenServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.POYNT_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setExtToken("poynt_token")
 			.setAddData("business_id");
@@ -176,7 +174,6 @@ class TokenByPoyntTokenServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.POYNT_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setExtToken("poynt_token")
 			.setAddData("business_id");
@@ -220,7 +217,6 @@ class TokenByPoyntTokenServiceTest {
 			.setClientId("client_id")
 			.setGrantType(GrantType.POYNT_TOKEN)
 			.setMerchantId("merchant_id")
-			.setRequestId("request_id")
 			.setTerminalId("terminal_id")
 			.setExtToken("poynt_token")
 			.setAddData("business_id");

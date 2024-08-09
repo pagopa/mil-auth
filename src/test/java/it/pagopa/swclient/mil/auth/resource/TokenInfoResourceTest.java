@@ -19,11 +19,11 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
 import it.pagopa.swclient.mil.auth.bean.TokenInfoRequest;
 import it.pagopa.swclient.mil.auth.bean.TokenInfoResponse;
 import it.pagopa.swclient.mil.auth.service.ClaimEncryptor;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.bean.HeaderParamName;
 import jakarta.ws.rs.core.MediaType;
 
 /**

@@ -23,13 +23,13 @@ import it.pagopa.swclient.mil.auth.bean.FormParamName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.bean.HeaderParamName;
 import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.service.TokenByClientSecretService;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
+import it.pagopa.swclient.mil.bean.HeaderParamName;
 import jakarta.ws.rs.core.MediaType;
 
 /**
@@ -84,7 +84,6 @@ class TokenResourceTest {
 			.setClientSecret(CLIENT_SECRET)
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId(MERCHANT_ID)
-			.setRequestId(REQUEST_ID)
 			.setTerminalId(TERMINAL_ID);
 
 		when(tokenByClientSecretService.process(request))
@@ -134,7 +133,6 @@ class TokenResourceTest {
 			.setClientSecret(CLIENT_SECRET)
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId(MERCHANT_ID)
-			.setRequestId(REQUEST_ID)
 			.setTerminalId(TERMINAL_ID);
 
 		when(tokenByClientSecretService.process(request))
@@ -178,7 +176,6 @@ class TokenResourceTest {
 			.setClientSecret(CLIENT_SECRET)
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId(MERCHANT_ID)
-			.setRequestId(REQUEST_ID)
 			.setTerminalId(TERMINAL_ID);
 
 		when(tokenByClientSecretService.process(request))
@@ -222,7 +219,6 @@ class TokenResourceTest {
 			.setClientSecret(CLIENT_SECRET)
 			.setGrantType(GrantType.CLIENT_CREDENTIALS)
 			.setMerchantId(MERCHANT_ID)
-			.setRequestId(REQUEST_ID)
 			.setTerminalId(TERMINAL_ID);
 
 		when(tokenByClientSecretService.process(request))

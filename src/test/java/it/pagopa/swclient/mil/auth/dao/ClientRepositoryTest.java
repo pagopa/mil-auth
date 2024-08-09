@@ -29,7 +29,7 @@ class ClientRepositoryTest {
 	 */
 	@InjectMock
 	ClientRepository repository;
-	
+
 	/**
 	 * 
 	 * @param testInfo

@@ -6,7 +6,6 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.quarkus.logging.Log;
@@ -66,9 +65,16 @@ public class TokenResource {
 	/*
 	 *
 	 */
+	private Instance<TokenService> tokenService;
+
+	/**
+	 * 
+	 * @param tokenService
+	 */
 	@Inject
-	@Any
-	Instance<TokenService> tokenService;
+	TokenResource(@Any Instance<TokenService> tokenService) {
+		this.tokenService = tokenService;
+	}
 
 	/**
 	 * Dispatches the request to the right method.
@@ -90,21 +96,21 @@ public class TokenResource {
 			.transform(t -> {
 				Log.errorf(t, "Unexpected error.");
 				return new InternalServerErrorException(Response.status(Status.INTERNAL_SERVER_ERROR)
-					.entity(new Errors(List.of(AuthErrorCode.UNEXPECTED_ERROR)))
+					.entity(new Errors(AuthErrorCode.UNEXPECTED_ERROR))
 					.build());
 			})
 			.onFailure(AuthError.class)
 			.transform(t -> {
 				AuthError e = (AuthError) t;
 				return new InternalServerErrorException(Response.status(Status.INTERNAL_SERVER_ERROR)
-					.entity(new Errors(List.of(e.getCode()), List.of(e.getMessage())))
+					.entity(new Errors(e.getCode(), e.getMessage()))
 					.build());
 			})
 			.onFailure(AuthException.class)
 			.transform(t -> {
 				AuthException e = (AuthException) t;
 				return new NotAuthorizedException(Response.status(Status.UNAUTHORIZED)
-					.entity(new Errors(List.of(e.getCode()), List.of(e.getMessage())))
+					.entity(new Errors(e.getCode(), e.getMessage()))
 					.build());
 			});
 	}

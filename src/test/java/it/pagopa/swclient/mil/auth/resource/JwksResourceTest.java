@@ -84,7 +84,8 @@ class JwksResourceTest {
 				.setKeyOps(List.of(
 					JsonWebKeyOperation.SIGN,
 					JsonWebKeyOperation.VERIFY))
-				.setKid("https://keyvault/keys/key_name_1/key_version_1"))
+				.setKid(
+					"https://keyvault/keys/key_name_1/key_version_1"))
 			.setTags(Map.of(
 				it.pagopa.swclient.mil.azureservices.keyvault.keys.util.KeyUtils.DOMAIN_KEY,
 				KeyUtils.DOMAIN_VALUE));
