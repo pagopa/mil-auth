@@ -35,9 +35,9 @@ public class ReadClientsRequest {
 	 * </p>
 	 */
 	@QueryParam(AdminQueryParamName.PAGE)
-	@Min(value = 1, message = AuthAdminErrorCode.PAGE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE_MSG)
+	@Min(value = 0, message = AuthAdminErrorCode.PAGE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE_MSG)
 	@Max(value = Integer.MAX_VALUE, message = AuthAdminErrorCode.PAGE_MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE_MSG)
-	@DefaultValue("1")
+	@DefaultValue("0")
 	private int page;
 
 	/**
