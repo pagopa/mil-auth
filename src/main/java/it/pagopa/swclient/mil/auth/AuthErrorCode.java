@@ -5,8 +5,6 @@
  */
 package it.pagopa.swclient.mil.auth;
 
-import it.pagopa.swclient.mil.auth.bean.FormParamName;
-
 /**
  * Error codes returned by not-admin operations.
  *
@@ -64,21 +62,21 @@ public final class AuthErrorCode {
 	public static final String MUST_MATCH_REGEXP_MSG = " must match \"{regexp}\"";
 
 	// @formatter:off
-	public static final String GRANT_TYPE_MUST_NOT_BE_NULL_MSG     = "[" + GRANT_TYPE_MUST_NOT_BE_NULL     + "] " + FormParamName.GRANT_TYPE    + MUST_NOT_BE_NULL_MSG;
-	public static final String GRANT_TYPE_MUST_MATCH_REGEXP_MSG    = "[" + GRANT_TYPE_MUST_MATCH_REGEXP    + "] " + FormParamName.GRANT_TYPE    + MUST_MATCH_REGEXP_MSG;
-	public static final String USERNAME_MUST_MATCH_REGEXP_MSG      = "[" + USERNAME_MUST_MATCH_REGEXP      + "] " + FormParamName.USERNAME      + MUST_MATCH_REGEXP_MSG;
-	public static final String PASSWORD_MUST_MATCH_REGEXP_MSG      = "[" + PASSWORD_MUST_MATCH_REGEXP      + "] " + FormParamName.PASSWORD      + MUST_MATCH_REGEXP_MSG;
-	public static final String REFRESH_TOKEN_MUST_MATCH_REGEXP_MSG = "[" + REFRESH_TOKEN_MUST_MATCH_REGEXP + "] " + FormParamName.REFRESH_TOKEN + MUST_MATCH_REGEXP_MSG;
-	public static final String EXT_TOKEN_MUST_MATCH_REGEXP_MSG     = "[" + EXT_TOKEN_MUST_MATCH_REGEXP     + "] " + FormParamName.EXT_TOKEN     + MUST_MATCH_REGEXP_MSG;
-	public static final String ADD_DATA_MUST_MATCH_REGEXP_MSG      = "[" + ADD_DATA_MUST_MATCH_REGEXP      + "] " + FormParamName.ADD_DATA      + MUST_MATCH_REGEXP_MSG;
-	public static final String CLIENT_ID_MUST_NOT_BE_NULL_MSG      = "[" + CLIENT_ID_MUST_NOT_BE_NULL      + "] " + FormParamName.CLIENT_ID     + MUST_NOT_BE_NULL_MSG;
-	public static final String CLIENT_ID_MUST_MATCH_REGEXP_MSG     = "[" + CLIENT_ID_MUST_MATCH_REGEXP     + "] " + FormParamName.CLIENT_ID     + MUST_MATCH_REGEXP_MSG;
-	public static final String SCOPE_MUST_MATCH_REGEXP_MSG         = "[" + SCOPE_MUST_MATCH_REGEXP         + "] " + FormParamName.SCOPE         + MUST_MATCH_REGEXP_MSG;
-	public static final String CLIENT_SECRET_MUST_MATCH_REGEXP_MSG = "[" + CLIENT_SECRET_MUST_MATCH_REGEXP + "] " + FormParamName.CLIENT_SECRET + MUST_MATCH_REGEXP_MSG;
-	public static final String FISCAL_CODE_MUST_MATCH_REGEXP_MSG   = "[" + FISCAL_CODE_MUST_MATCH_REGEXP   + "] " + FormParamName.FISCAL_CODE   + MUST_MATCH_REGEXP_MSG;
+	public static final String GRANT_TYPE_MUST_NOT_BE_NULL_MSG     = "[" + GRANT_TYPE_MUST_NOT_BE_NULL     + "] Grant type"    + MUST_NOT_BE_NULL_MSG;
+	public static final String GRANT_TYPE_MUST_MATCH_REGEXP_MSG    = "[" + GRANT_TYPE_MUST_MATCH_REGEXP    + "] Grant type"    + MUST_MATCH_REGEXP_MSG;
+	public static final String USERNAME_MUST_MATCH_REGEXP_MSG      = "[" + USERNAME_MUST_MATCH_REGEXP      + "] User name"     + MUST_MATCH_REGEXP_MSG;
+	public static final String PASSWORD_MUST_MATCH_REGEXP_MSG      = "[" + PASSWORD_MUST_MATCH_REGEXP      + "] Password"      + MUST_MATCH_REGEXP_MSG;
+	public static final String REFRESH_TOKEN_MUST_MATCH_REGEXP_MSG = "[" + REFRESH_TOKEN_MUST_MATCH_REGEXP + "] Refresh token" + MUST_MATCH_REGEXP_MSG;
+	public static final String EXT_TOKEN_MUST_MATCH_REGEXP_MSG     = "[" + EXT_TOKEN_MUST_MATCH_REGEXP     + "] Ext token"     + MUST_MATCH_REGEXP_MSG;
+	public static final String ADD_DATA_MUST_MATCH_REGEXP_MSG      = "[" + ADD_DATA_MUST_MATCH_REGEXP      + "] Add data"      + MUST_MATCH_REGEXP_MSG;
+	public static final String CLIENT_ID_MUST_NOT_BE_NULL_MSG      = "[" + CLIENT_ID_MUST_NOT_BE_NULL      + "] Client ID"     + MUST_NOT_BE_NULL_MSG;
+	public static final String CLIENT_ID_MUST_MATCH_REGEXP_MSG     = "[" + CLIENT_ID_MUST_MATCH_REGEXP     + "] Client ID"     + MUST_MATCH_REGEXP_MSG;
+	public static final String SCOPE_MUST_MATCH_REGEXP_MSG         = "[" + SCOPE_MUST_MATCH_REGEXP         + "] Scope"         + MUST_MATCH_REGEXP_MSG;
+	public static final String CLIENT_SECRET_MUST_MATCH_REGEXP_MSG = "[" + CLIENT_SECRET_MUST_MATCH_REGEXP + "] Client secret" + MUST_MATCH_REGEXP_MSG;
+	public static final String FISCAL_CODE_MUST_MATCH_REGEXP_MSG   = "[" + FISCAL_CODE_MUST_MATCH_REGEXP   + "] Fiscal code"   + MUST_MATCH_REGEXP_MSG;
 	public static final String INCONSISTENT_REQUEST_MSG            = "[" + INCONSISTENT_REQUEST            + "] Inconsistent request.";
-	public static final String TOKEN_MUST_NOT_BE_NULL_MSG          = "[" + TOKEN_MUST_NOT_BE_NULL          + "] " + FormParamName.TOKEN         + MUST_NOT_BE_NULL_MSG;
-	public static final String TOKEN_MUST_MATCH_REGEXP_MSG         = "[" + TOKEN_MUST_MATCH_REGEXP         + "] " + FormParamName.TOKEN         + MUST_MATCH_REGEXP_MSG;
+	public static final String TOKEN_MUST_NOT_BE_NULL_MSG          = "[" + TOKEN_MUST_NOT_BE_NULL          + "] Token"         + MUST_NOT_BE_NULL_MSG;
+	public static final String TOKEN_MUST_MATCH_REGEXP_MSG         = "[" + TOKEN_MUST_MATCH_REGEXP         + "] Token"         + MUST_MATCH_REGEXP_MSG;
 	// @formatter:on
 
 	/**

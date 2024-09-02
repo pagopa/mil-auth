@@ -1,7 +1,7 @@
 /*
- * RolesEntity.java
+ * SetOfRolesEntity.java
  *
- * 20 mar 2023
+ * 9 lug 2024
  */
 package it.pagopa.swclient.mil.auth.dao;
 
@@ -26,10 +26,11 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @MongoEntity(database = "mil", collection = "roles")
-public class RolesEntity {
+public class SetOfRolesEntity {
 	/*
 	 * Properties name.
 	 */
+	public static final String ID_PRP = "id";
 	public static final String ACQUIRER_ID_PRP = "acquirerId";
 	public static final String CHANNEL_PRP = "channel";
 	public static final String CLIENT_ID_PRP = "clientId";
@@ -42,6 +43,12 @@ public class RolesEntity {
 	 */
 	@BsonId
 	public ObjectId id;
+
+	/*
+	 *
+	 */
+	@BsonProperty(value = ID_PRP)
+	public String setOfRolesId;
 
 	/*
 	 *
@@ -81,6 +88,7 @@ public class RolesEntity {
 
 	/**
 	 * 
+	 * @param setOfRolesId
 	 * @param acquirerId
 	 * @param channel
 	 * @param clientId
@@ -88,7 +96,8 @@ public class RolesEntity {
 	 * @param terminalId
 	 * @param roles
 	 */
-	public RolesEntity(String acquirerId, String channel, String clientId, String merchantId, String terminalId, List<String> roles) {
+	public SetOfRolesEntity(String setOfRolesId, String acquirerId, String channel, String clientId, String merchantId, String terminalId, List<String> roles) {
+		this.setOfRolesId = setOfRolesId;
 		this.acquirerId = acquirerId;
 		this.channel = channel;
 		this.clientId = clientId;

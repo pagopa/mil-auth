@@ -24,7 +24,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Multi;
-import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
+import it.pagopa.swclient.mil.auth.bean.AuthJsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.PublicKeys;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
@@ -198,6 +198,6 @@ class JwksResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(JsonPropertyName.ERRORS, notNullValue());
+			.body(AuthJsonPropertyName.ERRORS, notNullValue());
 	}
 }

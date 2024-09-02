@@ -20,8 +20,10 @@ tags:
     description: Token introspection operation
   - name: token
     description: Operation to get or refresh access token
-  - name: admin
-    description: Administrative operation
+  - name: client
+    description: Administrative operation for client
+  - name: roles
+    description: Administrative operation for set of roles
   - name: maintenance
     description: Maintenance operation
 paths:
@@ -219,7 +221,7 @@ paths:
     post:
       operationId: createClient
       description: Creates a new client
-      tags: [admin]
+      tags: [client]
       security:
         - oAuth2: [admin]
       parameters:
@@ -258,7 +260,7 @@ paths:
     get:
       operationId: getClients
       description: Returns all clients
-      tags: [admin]
+      tags: [client]
       security:
         - oAuth2: [admin]
       parameters:
@@ -295,7 +297,7 @@ paths:
     get:
       operationId: getClient
       description: Returns a client
-      tags: [admin]
+      tags: [client]
       security:
         - oAuth2: [admin]
       parameters:
@@ -333,7 +335,7 @@ paths:
     patch:
       operationId: updateClient
       description: Updated a client
-      tags: [admin]
+      tags: [client]
       security:
         - oAuth2: [admin]
       parameters:
@@ -376,7 +378,7 @@ paths:
     delete:
       operationId: deleteClient
       description: Deletes a client
-      tags: [admin]
+      tags: [client]
       security:
         - oAuth2: [admin]
       parameters:
@@ -411,7 +413,207 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
-          #/admin/roles:
+  /admin/roles:
+    get:
+      operationId: getSetsOfRoles
+      description: Searches sets of roles
+      tags: [roles]
+      security:
+        - oAuth2: [admin]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/ClientIdQuery'
+        - $ref: '#/components/parameters/AcquirerIdOrNa'
+        - $ref: '#/components/parameters/ChannelOrNa'
+        - $ref: '#/components/parameters/MerchantIdOrNa'
+        - $ref: '#/components/parameters/TerminalIdOrNa'
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/PageOfSetsOfRoles'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+    post:
+      operationId: createSetOfRoles
+      description: Creates a set of roles
+      tags: [roles]
+      security:
+        - oAuth2: [admin]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrUpdateSetOfRoles'
+      responses:
+        "201":
+          #description: Created
+          $ref: '#/components/responses/CreateSetOfRoles'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+  /admin/roles/{setOfRolesId}:
+    get:
+      operationId: getSetOfRoles
+      description: Returns a set of roles
+      tags: [roles]
+      security:
+        - oAuth2: [admin]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/SetOfRolesId'
+      responses:
+        "200":
+          #description: Ok
+          $ref: '#/components/responses/SetOfRoles'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "404":
+          #description: Not found
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+    put:
+      operationId: updateSetOfRoles
+      description: Updates a set of roles
+      tags: [roles]
+      security:
+        - oAuth2: [admin]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/SetOfRolesId'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrUpdateSetOfRoles'
+      responses:
+        "204":
+          #description: No content
+          $ref: '#/components/responses/NoContent'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "404":
+          #description: Not found
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+    delete:
+      operationId: deleteSetOfRoles
+      description: Deletes a set of roles
+      tags: [roles]
+      security:
+        - oAuth2: [admin]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/SetOfRolesId'
+      responses:
+        "204":
+          #description: No content
+          $ref: '#/components/responses/NoContent'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "404":
+          #description: Not found
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
 components:
   # ========================================================
   # Schemas
@@ -433,6 +635,13 @@ components:
       minLength: 1
       maxLength: 11
       example: "4585625"
+    AcquirerIdOrNa:
+      description: Acquirer ID assigned by PagoPA or 'NA'
+      type: string
+      pattern: "^(\\d{1,11}|NA)$"
+      minLength: 1
+      maxLength: 11
+      example: "NA"
     AdditionalData:
       description: Additional data for external token authentication
       type: string
@@ -447,7 +656,7 @@ components:
         - Bearer
       example: "Bearer"
     Channel:
-      description: Channel originating the request
+      description: Channel
       enum:
         - ATM
         - POS
@@ -456,6 +665,17 @@ components:
         - CSA
       type: string
       example: "ATM"
+    ChannelOrNa:
+      description: Channel or 'NA'
+      enum:
+        - ATM
+        - POS
+        - TOTEM
+        - CASH_REGISTER
+        - CSA
+        - NA
+      type: string
+      example: "NA"
     ClientCredentialsGrantType:
       description: Grant type to get an access token with client credentials
       enum:
@@ -554,6 +774,13 @@ components:
       minLength: 1
       maxLength: 15
       example: "28405fHfk73x88D"
+    MerchantIdOrNa:
+      description: Merchant ID or 'NA'
+      type: string
+      pattern: "^([0-9a-zA-Z]{1,15}|NA)$"
+      minLength: 1
+      maxLength: 15
+      example: "NA"
     Modulus:
       description: Modulus
       type: string
@@ -639,6 +866,13 @@ components:
       format: int32
       minimum: 1
       maximum: 240
+    Role:
+      description: Role
+      type: string
+      pattern: "^[ -~]{1,64}$"
+      minLength: 1
+      maxLength: 64
+      example: "mil-auth-admin"
     Salt:
       description: Salt to calculate client secret hash
       type: string
@@ -653,6 +887,14 @@ components:
       minLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
       maxLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
       example: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
+    SetOfRolesLocation:
+      description: URL of the set of roles
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/mil-auth/admin/roles/7f49f59a-2033-4def-b462-9f64b25b20ea"
     Subject:
       description: Subject linked to the client
       type: string
@@ -667,6 +909,13 @@ components:
       minLength: 1
       maxLength: 8
       example: "0aB9wXyZ"
+    TerminalIdOrNa:
+      description: ID of the terminal or 'NA'
+      type: string
+      pattern: "^([0-9a-zA-Z]{1,8}|NA)$"
+      minLength: 1
+      maxLength: 8
+      example: "NA"
     Token:
       description: Token
       type: string
@@ -805,6 +1054,37 @@ components:
       example:
         clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
         clientSecret: "265a5ac0-c651-428e-bed6-763f6cd244b5"
+    CreateOrUpdateSetOfRolesReq:
+      description: Request to create or update a set of roles
+      additionalProperties: false
+      properties:
+        clientId:
+          $ref: '#/components/schemas/UUID'
+        acquirerId:
+          $ref: '#/components/schemas/AcquirerIdOrNa'
+        channel:
+          $ref: '#/components/schemas/ChannelOrNa'
+        merchantId:
+          $ref: '#/components/schemas/MerchantIdOrNa'
+        terminalId:
+          $ref: '#/components/schemas/TerminalIdOrNa'
+        roles:
+          $ref: '#/components/schemas/Roles'
+      required:
+        - clientId
+        - acquirerId
+        - channel
+        - merchantId
+        - terminalId
+        - roles
+      example:
+        clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
+        acquirerId: "NA"
+        channel: "NA"
+        merchantId: "NA"
+        terminalId: "NA"
+        roles:
+          - "mil-auth-admin"
     DeletedKeys:
       description: List of IDs of deleted keys
       additionalProperties: false
@@ -972,6 +1252,34 @@ components:
           totalPages: 2
           page: 1
           size: 1
+    PageOfSetsOfRoles:
+      description: Page of sets of roles
+      type: object
+      additionalProperties: false
+      properties:
+        roles:
+          $ref: '#/components/schemas/SetsOfRoles'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+      required:
+        - roles
+        - page
+      example:
+        roles:
+          - id: "7f49f59a-2033-4def-b462-9f64b25b20ea"
+            acquirerId: "4585625"
+            channel: "POS"
+            clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
+            merchantId: "28405fHfk73x88D"
+            terminalId: "0aB9wXyZ"
+            roles:
+              - "NoticePayer"
+              - "SlavePos"
+        page:
+          totalElements: 2
+          totalPages: 2
+          page: 1
+          size: 1
     PublicKey:
       description: Public key
       type: object
@@ -1047,6 +1355,69 @@ components:
         grant_type: "refresh_token"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
         refresh_token: "eyJraWQiOiIxN2YwNWViZC1hMWMzLTRjNWMtODM4Ny1jOWZlNjU4MDRiMDEiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21pbC1kLWFwaW0uYXp1cmUtYXBpLm5ldC9taWwtaWRwIiwiYXVkIjoiaHR0cHM6Ly9taWwtZC1hcGltLmF6dXJlLWFwaS5uZXQvbWlsLWlkcCIsImV4cCI6MTY3ODg4MTA1NSwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyJ9.Bu-BXKRMoE8fdBfuoPAa70WQYUWVH3BK3VFMw-9mr7hGlKBSONXQY8vcrFuh4OLm6vHX2hUagYuJ3yS_Anm5AHU8Kpay0dGm30fyPxFAyv5s_Yn_ET3VExPZBedBSlHl0Rzt0JQ_9X07X0JkCwWacxWMueKNoVndAh3QxswbkwtEANAKvQcvAtdLjh-93eDYFq0vvS8qNRReTZf46fldIL9H5-0MMqjfVi5A6y8YCzx7_kOHKq8wCy7u75QtKhPRzYnY0JcBVMALZgQovpCYpnlPkP3JV3cgdmlDGWmGHbKQz9iQ5bY1071e3vhxqR2iEqFJwn7nohYq9sxkMQGxNxz2BI-w3v_SQ3zS3mI1qK_qm1c7yzyF3c_lB920T5hBup9RozIXVb2OkX38pW6JKORETgSLlhnqLc8Rr1_HaQ2qN_JYcn7Urv_0mSJh-i8zS39F1glY3ejHHiVbl8cSJsPPw-ehpKAozf6h0_JiZBe0TuBtyTNULQH1iri19C9z_XBgBnfC1DtrnQn-UIgGbJq1TnIgtVmtTnReJqDpcf6_MGDLqCL-x192UQszb8GgWjD8tRusJ9X5HG1RHUAVyQ5gfOCegHmymyB7Dx7e5fCOghDUTT0t2dvVKbIXZGilrddKBg70iBGDA5j5-01lvnl2aaxBv51Y_zr-3IZdAyA"
+    Roles:
+      description: Roles
+      type: array
+      minItems: 0
+      maxItems: 32
+      items:
+        $ref: '#/components/schemas/Role'
+      example:
+        - "mil-auth-admin"
+    SetOfRoles:
+      description: Set of roles
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        acquirerId:
+          $ref: '#/components/schemas/AcquirerIdOrNa'
+        channel:
+          $ref: '#/components/schemas/ChannelOrNa'
+        clientId:
+          $ref: '#/components/schemas/UUID'
+        merchantId:
+          $ref: '#/components/schemas/MerchantIdOrNa'
+        terminalId:
+          $ref: '#/components/schemas/TerminalIdOrNa'
+        roles:
+          $ref: '#/components/schemas/Roles'
+      required:
+        - id
+        - acquirerId
+        - channel
+        - clientId
+        - merchantId
+        - terminalId
+        - roles
+      example:
+        id: "7f49f59a-2033-4def-b462-9f64b25b20ea"
+        acquirerId: "4585625"
+        channel: "POS"
+        clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
+        merchantId: "28405fHfk73x88D"
+        terminalId: "0aB9wXyZ"
+        roles:
+          - "NoticePayer"
+          - "SlavePos"
+    SetsOfRoles:
+      description: List of sets of roles
+      type: array
+      minItems: 0
+      maxItems: 2147483647
+      items:
+        $ref: '#/components/schemas/SetOfRoles'
+      example:
+        - id: "7f49f59a-2033-4def-b462-9f64b25b20ea"
+          acquirerId: "4585625"
+          channel: "POS"
+          clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
+          merchantId: "28405fHfk73x88D"
+          terminalId: "0aB9wXyZ"
+          roles:
+            - "NoticePayer"
+            - "SlavePos"
     TokenInfoRequest:
       description: Request to introspect an access token
       type: object
@@ -1079,6 +1450,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CreateOrUpdateClientReq'
+    CreateOrUpdateSetOfRoles:
+      description: Request to create or update a set of roles
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateOrUpdateSetOfRolesReq'
     GetAccessToken:
       description: Request to get an access token by means of username and password or by refresh token or by external token
       content:
@@ -1106,18 +1483,39 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/AcquirerId'
+    AcquirerIdOrNa:
+      name: acquirerId
+      in: query
+      description: Acquirer ID assigned by PagoPA or 'NA'
+      required: false
+      schema:
+        $ref: '#/components/schemas/AcquirerIdOrNa'
     Channel:
       name: Channel
       in: header
-      description: Channel originating the request
+      description: Channel
       required: false
       schema:
         $ref: '#/components/schemas/Channel'
+    ChannelOrNa:
+      name: channel
+      in: query
+      description: Channel or 'NA'
+      required: false
+      schema:
+        $ref: '#/components/schemas/ChannelOrNa'
     ClientId:
       name: clientId
       in: path
       description: Client ID
       required: true
+      schema:
+        $ref: '#/components/schemas/UUID'
+    ClientIdQuery:
+      name: clientId
+      in: query
+      description: Client ID
+      required: false
       schema:
         $ref: '#/components/schemas/UUID'
     FiscalCode:
@@ -1134,6 +1532,13 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/MerchantId'
+    MerchantIdOrNa:
+      name: merchantId
+      description: Merchant ID or 'NA'
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/MerchantIdOrNa'
     PageNumber:
       name: page
       in: query
@@ -1155,6 +1560,13 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/UUID'
+    SetOfRolesId:
+      name: setOfRolesId
+      in: path
+      description: ID of a set of roles
+      required: true
+      schema:
+        $ref: '#/components/schemas/UUID'
     TerminalId:
       name: TerminalId
       in: header
@@ -1162,6 +1574,13 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/TerminalId'
+    TerminalIdOrNa:
+      name: terminalId
+      in: query
+      description: ID of the terminal or 'NA'
+      required: false
+      schema:
+        $ref: '#/components/schemas/TerminalIdOrNa'
     Version:
       name: Version
       in: header
@@ -1248,6 +1667,29 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CreateClientRes'
+    CreateSetOfRoles:
+      description: Response returned when the creation of a new set of roles is requested
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+        Location:
+          description: URL of the set of roles
+          required: true
+          schema:
+            $ref: '#/components/schemas/SetOfRolesLocation'
     DeletedKeys:
       description: Response returned when cleaning of expired keys is requested
       headers:
@@ -1386,6 +1828,50 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PageOfClients'
+    PageOfSetsOfRoles:
+      description: Response to the request to get list of sets of roles
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PageOfSetsOfRoles'
+    SetOfRoles:
+      description: Response returned when set of roles data is requested
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SetOfRoles'
     TokenInfo:
       description: Response to the request to introspect an access token
       headers:

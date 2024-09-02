@@ -9,8 +9,8 @@ import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.dao.RolesEntity;
 import it.pagopa.swclient.mil.auth.dao.RolesRepository;
+import it.pagopa.swclient.mil.auth.dao.SetOfRolesEntity;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,7 +28,7 @@ public class RolesFinder {
 	private static final String NA = "NA";
 
 	/*
-	 * Roles repository.
+	 * SetOfRoles repository.
 	 */
 	private RolesRepository repository;
 
@@ -57,23 +57,26 @@ public class RolesFinder {
 	 * @param terminalId
 	 * @return
 	 */
-	private Uni<RolesEntity> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+	private Uni<SetOfRolesEntity> find(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.tracef("Search (sub) for the roles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s", acquirerId, channel, clientId, merchantId, terminalId);
-		return repository.findByFullKey(replaceNullWithNa(acquirerId), replaceNullWithNa(channel), clientId, replaceNullWithNa(merchantId), replaceNullWithNa(terminalId))
+		return repository
+			.findByFullKey(
+				replaceNullWithNa(acquirerId),
+				replaceNullWithNa(channel),
+				clientId,
+				replaceNullWithNa(merchantId),
+				replaceNullWithNa(terminalId))
 			.onFailure().transform(t -> {
 				String message = String.format("[%s] Error searching for the roles for ", AuthErrorCode.ERROR_SEARCHING_FOR_ROLES);
 				Log.errorf(t, message);
 				return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_ROLES, message);
 			})
-			.invoke(rolesEntity -> {
-				if (rolesEntity == null) {
-					String message = String.format("[%s] roles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s not found", AuthErrorCode.ROLES_NOT_FOUND, acquirerId, channel, clientId, merchantId, terminalId);
-					Log.warn(message);
-					throw new AuthException(AuthErrorCode.ROLES_NOT_FOUND, message);
-				} else {
-					Log.debugf("Roles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s found: %s", acquirerId, channel, clientId, merchantId, terminalId, rolesEntity);
-				}
-			});
+			.map(opt -> opt.orElseThrow(() -> {
+				String message = String.format("[%s] roles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s not found", AuthErrorCode.ROLES_NOT_FOUND, acquirerId, channel, clientId, merchantId, terminalId);
+				Log.warn(message);
+				throw new AuthException(AuthErrorCode.ROLES_NOT_FOUND, message);
+			}))
+			.invoke(entity -> Log.debugf("SetOfRoles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s found: %s", acquirerId, channel, clientId, merchantId, terminalId, entity));
 	}
 
 	/**
@@ -87,7 +90,7 @@ public class RolesFinder {
 	 * @return
 	 */
 	@CacheResult(cacheName = "client-role")
-	public Uni<RolesEntity> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
+	public Uni<SetOfRolesEntity> findRoles(String acquirerId, String channel, String clientId, String merchantId, String terminalId) {
 		Log.tracef("Search (main) for the roles for acquirerId=%s, channel=%s, clientId=%s, merchantId=%s, terminalId=%s", acquirerId, channel, clientId, merchantId, terminalId);
 		return find(acquirerId, channel, clientId, merchantId, terminalId)
 			.onFailure(AuthException.class)

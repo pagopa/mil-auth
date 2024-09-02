@@ -27,7 +27,7 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.client.PoyntClient;
 import it.pagopa.swclient.mil.auth.dao.ClientEntity;
-import it.pagopa.swclient.mil.auth.dao.RolesEntity;
+import it.pagopa.swclient.mil.auth.dao.SetOfRolesEntity;
 import it.pagopa.swclient.mil.auth.dao.UserRepository;
 import it.pagopa.swclient.mil.auth.qualifier.PoyntToken;
 import it.pagopa.swclient.mil.auth.util.AuthError;
@@ -200,7 +200,7 @@ class TokenByPoyntTokenServiceTest {
 			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new RolesEntity()
+			.thenReturn(UniGenerator.item(new SetOfRolesEntity()
 				.setRoles(List.of("role"))));
 
 		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");

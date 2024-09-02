@@ -8,6 +8,7 @@ package it.pagopa.swclient.mil.auth.service;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,8 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.dao.RolesEntity;
 import it.pagopa.swclient.mil.auth.dao.RolesRepository;
+import it.pagopa.swclient.mil.auth.dao.SetOfRolesEntity;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
@@ -35,6 +36,7 @@ class RolesFinderTest {
 	/*
 	 *
 	 */
+	private static final String ID = "7f49f59a-2033-4def-b462-9f64b25b20ea";
 	private static final String ACQUIRER_ID = "4585625";
 	private static final String CHANNEL = "POS";
 	private static final String CLIENT_ID = "3965df56-ca9a-49e5-97e8-061433d4a25b";
@@ -71,10 +73,10 @@ class RolesFinderTest {
 	 */
 	@Test
 	void given_okScenario_when_invokeFindRoles_then_getThem() {
-		RolesEntity role = new RolesEntity(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES);
+		SetOfRolesEntity role = new SetOfRolesEntity(ID, ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID, ROLES);
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(UniGenerator.item(role));
+			.thenReturn(UniGenerator.item(Optional.of(role)));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
 			.subscribe()
@@ -89,13 +91,13 @@ class RolesFinderTest {
 	@Test
 	void given_inexistentRoles_when_invokeFindRoles_then_getFailure() {
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
 			.subscribe()
@@ -109,10 +111,10 @@ class RolesFinderTest {
 	@Test
 	void given_inexistentRoles_when_invokeFindRolesWithUnknownTerminal_then_getFailure() {
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null)
 			.subscribe()
@@ -126,7 +128,7 @@ class RolesFinderTest {
 	@Test
 	void given_inexistentRoles_when_invokeFindRolesWithUnknownMerchantAndTerminal_then_getFailure() {
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null)
 			.subscribe()
@@ -140,10 +142,10 @@ class RolesFinderTest {
 	@Test
 	void given_inexistentRoles_when_invokeFindRolesWithUnknownMerchantAndKnownTerminal_then_getFailure() {
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", TERMINAL_ID))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, TERMINAL_ID)
 			.subscribe()
@@ -156,13 +158,13 @@ class RolesFinderTest {
 	 */
 	@Test
 	void given_okScenarioWithoutSpecificRolesForTerminal_when_invokeFindRoles_then_getThem() {
-		RolesEntity role = new RolesEntity(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null, ROLES);
+		SetOfRolesEntity role = new SetOfRolesEntity(ID, ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null, ROLES);
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(UniGenerator.item(role));
+			.thenReturn(UniGenerator.item(Optional.of(role)));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
 			.subscribe()
@@ -176,13 +178,13 @@ class RolesFinderTest {
 	 */
 	@Test
 	void given_okScenarioWithoutSpecificRolesForTerminal_when_invokeFindRolesWithUnknonwTerminal_then_getThem() {
-		RolesEntity role = new RolesEntity(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null, ROLES);
+		SetOfRolesEntity role = new SetOfRolesEntity(ID, ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null, ROLES);
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(UniGenerator.item(role));
+			.thenReturn(UniGenerator.item(Optional.of(role)));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, null)
 			.subscribe()
@@ -196,16 +198,16 @@ class RolesFinderTest {
 	 */
 	@Test
 	void given_okScenarioWithoutSpecificRolesForTerminal_when_invokeFindRolesWithUnknonwMerchantAndTerminal_then_getThem() {
-		RolesEntity role = new RolesEntity(ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null, ROLES);
+		SetOfRolesEntity role = new SetOfRolesEntity(ID, ACQUIRER_ID, CHANNEL, CLIENT_ID, null, null, ROLES);
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, "NA"))
-			.thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().item(Optional.empty()));
 
 		when(repository.findByFullKey(ACQUIRER_ID, CHANNEL, CLIENT_ID, "NA", "NA"))
-			.thenReturn(UniGenerator.item(role));
+			.thenReturn(UniGenerator.item(Optional.of(role)));
 
 		finder.findRoles(ACQUIRER_ID, CHANNEL, CLIENT_ID, MERCHANT_ID, TERMINAL_ID)
 			.subscribe()

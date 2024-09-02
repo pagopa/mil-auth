@@ -27,14 +27,18 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class CreateClientResponse {
-	/*
-	 * Client ID
+	/**
+	 * <p>
+	 * Client ID.
+	 * </p>
 	 */
 	@JsonProperty(AdminJsonPropertyName.CLIENT_ID)
 	private String clientId;
 
-	/*
-	 * Client Secret
+	/**
+	 * <p>
+	 * Client secret.
+	 * </p>
 	 */
 	@JsonProperty(AdminJsonPropertyName.CLIENT_SECRET)
 	@ToString.Exclude

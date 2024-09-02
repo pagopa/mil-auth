@@ -8,6 +8,8 @@ package it.pagopa.swclient.mil.auth.service;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -74,7 +76,7 @@ class ClientVerifierTest {
 	void given_inexistentClientId_when_invokeFindClient_then_getFailure() {
 		when(repository.findByClientId(anyString()))
 			.thenReturn(Uni.createFrom()
-				.nullItem());
+				.item(Optional.empty()));
 
 		verifier.findClient(ID)
 			.subscribe()
@@ -134,7 +136,7 @@ class ClientVerifierTest {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
-			.thenReturn(UniGenerator.item(client));
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.findClient(ID)
 			.subscribe()
@@ -151,7 +153,7 @@ class ClientVerifierTest {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
-			.thenReturn(UniGenerator.item(client));
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, WRONG_CHANNEL, SECRET)
 			.subscribe()
@@ -167,7 +169,7 @@ class ClientVerifierTest {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
-			.thenReturn(UniGenerator.item(client));
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, WRONG_SECRET)
 			.subscribe()
@@ -183,7 +185,7 @@ class ClientVerifierTest {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
-			.thenReturn(UniGenerator.item(client));
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, null)
 			.subscribe()
@@ -199,7 +201,7 @@ class ClientVerifierTest {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, null, null, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
-			.thenReturn(UniGenerator.item(client));
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, SECRET)
 			.subscribe()
@@ -215,7 +217,7 @@ class ClientVerifierTest {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
-			.thenReturn(UniGenerator.item(client));
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, SECRET)
 			.subscribe()
@@ -232,7 +234,7 @@ class ClientVerifierTest {
 		ClientEntity client = new ClientEntity(ID, CHANNEL, null, null, DESCRIPTION, null);
 
 		when(repository.findByClientId(ID))
-			.thenReturn(UniGenerator.item(client));
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, null)
 			.subscribe()

@@ -63,7 +63,7 @@ public class GetAccessTokenRequest {
 	/*
 	 * grant_type
 	 */
-	@FormParam(FormParamName.GRANT_TYPE)
+	@FormParam(AuthFormParamName.GRANT_TYPE)
 	@NotNull(message = AuthErrorCode.GRANT_TYPE_MUST_NOT_BE_NULL_MSG)
 	@Pattern(regexp = AuthValidationPattern.GRANT_TYPE, message = AuthErrorCode.GRANT_TYPE_MUST_MATCH_REGEXP_MSG)
 	private String grantType;
@@ -71,7 +71,7 @@ public class GetAccessTokenRequest {
 	/*
 	 * username
 	 */
-	@FormParam(FormParamName.USERNAME)
+	@FormParam(AuthFormParamName.USERNAME)
 	@Pattern(regexp = AuthValidationPattern.USERNAME, message = AuthErrorCode.USERNAME_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String username;
@@ -79,7 +79,7 @@ public class GetAccessTokenRequest {
 	/*
 	 * password
 	 */
-	@FormParam(FormParamName.PASSWORD)
+	@FormParam(AuthFormParamName.PASSWORD)
 	@Pattern(regexp = AuthValidationPattern.PASSWORD, message = AuthErrorCode.PASSWORD_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String password;
@@ -87,7 +87,7 @@ public class GetAccessTokenRequest {
 	/*
 	 * refresh_token
 	 */
-	@FormParam(FormParamName.REFRESH_TOKEN)
+	@FormParam(AuthFormParamName.REFRESH_TOKEN)
 	@Pattern(regexp = AuthValidationPattern.REFRESH_TOKEN, message = AuthErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String refreshToken;
@@ -95,7 +95,7 @@ public class GetAccessTokenRequest {
 	/*
 	 * poynt_token
 	 */
-	@FormParam(FormParamName.EXT_TOKEN)
+	@FormParam(AuthFormParamName.EXT_TOKEN)
 	@Pattern(regexp = AuthValidationPattern.EXT_TOKEN, message = AuthErrorCode.EXT_TOKEN_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String extToken;
@@ -103,29 +103,29 @@ public class GetAccessTokenRequest {
 	/*
 	 * add_data
 	 */
-	@FormParam(FormParamName.ADD_DATA)
+	@FormParam(AuthFormParamName.ADD_DATA)
 	@Pattern(regexp = AuthValidationPattern.ADD_DATA, message = AuthErrorCode.ADD_DATA_MUST_MATCH_REGEXP_MSG)
 	private String addData;
 
 	/*
 	 * client_id
 	 */
-	@FormParam(FormParamName.CLIENT_ID)
-	@NotNull(message = AuthErrorCode.CLIENT_ID_MUST_NOT_BE_NULL_MSG + "] client_id must not be null")
+	@FormParam(AuthFormParamName.CLIENT_ID)
+	@NotNull(message = AuthErrorCode.CLIENT_ID_MUST_NOT_BE_NULL_MSG)
 	@Pattern(regexp = AuthValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG)
 	private String clientId;
 
 	/*
 	 * scope
 	 */
-	@FormParam(FormParamName.SCOPE)
+	@FormParam(AuthFormParamName.SCOPE)
 	@Pattern(regexp = AuthValidationPattern.SCOPE, message = AuthErrorCode.SCOPE_MUST_MATCH_REGEXP_MSG)
 	private String scope;
 
 	/*
 	 * client_secret
 	 */
-	@FormParam(FormParamName.CLIENT_SECRET)
+	@FormParam(AuthFormParamName.CLIENT_SECRET)
 	@Pattern(regexp = AuthValidationPattern.CLIENT_SECRET, message = AuthErrorCode.CLIENT_SECRET_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String clientSecret;
@@ -133,7 +133,7 @@ public class GetAccessTokenRequest {
 	/*
 	 * fiscal_code
 	 */
-	@FormParam(FormParamName.FISCAL_CODE)
+	@FormParam(AuthFormParamName.FISCAL_CODE)
 	@Pattern(regexp = AuthValidationPattern.FISCAL_CODE, message = AuthErrorCode.FISCAL_CODE_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String fiscalCode;

@@ -28,14 +28,18 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class PageOfClients {
-	/*
-	 * 
+	/**
+	 * <p>
+	 * List of clients.
+	 * </p>
 	 */
 	@JsonProperty(AdminJsonPropertyName.CLIENTS)
 	private List<Client> clients;
 
-	/*
-	 * 
+	/**
+	 * <p>
+	 * Page metadata.
+	 * </p>
 	 */
 	@JsonProperty(AdminJsonPropertyName.PAGE)
 	private PageMetadata page;

@@ -30,7 +30,7 @@ public class TokenInfoRequest {
 	/*
 	 * Token
 	 */
-	@JsonProperty(JsonPropertyName.TOKEN)
+	@JsonProperty(AuthJsonPropertyName.TOKEN)
 	@NotNull(message = AuthErrorCode.TOKEN_MUST_NOT_BE_NULL_MSG)
 	@Pattern(regexp = AuthValidationPattern.TOKEN, message = AuthErrorCode.TOKEN_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude

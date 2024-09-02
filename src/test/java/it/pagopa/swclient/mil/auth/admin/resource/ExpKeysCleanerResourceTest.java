@@ -18,7 +18,7 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.smallrye.mutiny.Multi;
-import it.pagopa.swclient.mil.auth.admin.AuthAdminErrorCode;
+import it.pagopa.swclient.mil.auth.admin.AdminErrorCode;
 import it.pagopa.swclient.mil.auth.admin.bean.DeletedKeys;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.DeletedKeyBundle;
@@ -108,6 +108,6 @@ class ExpKeysCleanerResourceTest {
 			.as(Errors.class);
 
 		assertThat(actual.getErrors())
-			.containsExactlyInAnyOrder(AuthAdminErrorCode.ERROR_DELETING_EXP_KEYS);
+			.containsExactlyInAnyOrder(AdminErrorCode.ERROR_DELETING_EXP_KEYS);
 	}
 }

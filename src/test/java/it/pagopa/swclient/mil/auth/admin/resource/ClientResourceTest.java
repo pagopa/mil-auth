@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.util.Files;
-import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,8 +28,6 @@ import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.mongodb.MongoWriteException;
 import com.nimbusds.jose.util.StandardCharset;
 
-import io.quarkus.mongodb.panache.common.reactive.ReactivePanacheUpdate;
-import io.quarkus.mongodb.panache.reactive.ReactivePanacheQuery;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -57,7 +54,6 @@ import jakarta.ws.rs.core.MediaType;
 @TestSecurity(user = "test_user", roles = {
 	"mil-auth-admin"
 })
-@SuppressWarnings("unchecked")
 class ClientResourceTest {
 	/*
 	 *
@@ -102,14 +98,14 @@ class ClientResourceTest {
 			.thenReturn(UniGenerator.item(new ClientEntity()));
 
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
 			.when()
 			.post()
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(201)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(AdminJsonPropertyName.CLIENT_ID, notNullValue())
@@ -128,14 +124,14 @@ class ClientResourceTest {
 			.thenReturn(Uni.createFrom().failure(exc));
 
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
 			.when()
 			.post()
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(409);
 	}
 
@@ -151,14 +147,14 @@ class ClientResourceTest {
 			.thenReturn(Uni.createFrom().failure(exc));
 
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
 			.when()
 			.post()
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(500);
 	}
 
@@ -171,14 +167,14 @@ class ClientResourceTest {
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
 			.when()
 			.post()
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(500);
 	}
 
@@ -206,14 +202,8 @@ class ClientResourceTest {
 			.setSecretHash("6y//vlAdvWKBgtxZ8AYUuISqwzPJbTB+6Ed4TRYRPfU=")
 			.setSubject("subject #2");
 
-		ReactivePanacheQuery<ClientEntity> query = mock(ReactivePanacheQuery.class);
-		when(query.list())
+		when(repository.findAll(1, 2))
 			.thenReturn(UniGenerator.item(List.of(entity1, entity2)));
-		when(query.page(1, 2))
-			.thenReturn(query);
-
-		when(repository.findAll(any()))
-			.thenReturn(query);
 		when(repository.count())
 			.thenReturn(UniGenerator.item(Long.valueOf(5)));
 
@@ -242,19 +232,17 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		PageOfClients clients = given()
+			.log().all()
 			.filter(validationFilter)
 			.queryParam(AdminQueryParamName.PAGE, 1)
 			.queryParam(AdminQueryParamName.SIZE, 2)
 			.when()
 			.get()
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.extract()
-			.response()
-			.as(PageOfClients.class);
+			.extract().response().as(PageOfClients.class);
 
 		assertThat(clients.getClients())
 			.containsExactlyInAnyOrder(
@@ -272,14 +260,8 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		ReactivePanacheQuery<ClientEntity> query = mock(ReactivePanacheQuery.class);
-		when(query.list())
+		when(repository.findAll(1, 2))
 			.thenReturn(UniGenerator.item(List.of()));
-		when(query.page(1, 2))
-			.thenReturn(query);
-
-		when(repository.findAll(any()))
-			.thenReturn(query);
 		when(repository.count())
 			.thenReturn(UniGenerator.item(Long.valueOf(0)));
 
@@ -292,19 +274,17 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		PageOfClients clients = given()
+			.log().all()
 			.filter(validationFilter)
 			.queryParam(AdminQueryParamName.PAGE, 1)
 			.queryParam(AdminQueryParamName.SIZE, 2)
 			.when()
 			.get()
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.extract()
-			.response()
-			.as(PageOfClients.class);
+			.extract().response().as(PageOfClients.class);
 
 		assertThat(clients.getClients())
 			.isEmpty();
@@ -320,14 +300,8 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		ReactivePanacheQuery<ClientEntity> query = mock(ReactivePanacheQuery.class);
-		when(query.list())
+		when(repository.findAll(1, 2))
 			.thenReturn(UniGenerator.item(List.of()));
-		when(query.page(1, 2))
-			.thenReturn(query);
-
-		when(repository.findAll(any()))
-			.thenReturn(query);
 		when(repository.count())
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
@@ -335,14 +309,14 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.queryParam(AdminQueryParamName.PAGE, 1)
 			.queryParam(AdminQueryParamName.SIZE, 2)
 			.when()
 			.get()
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON);
 	}
@@ -363,12 +337,8 @@ class ClientResourceTest {
 			.setSecretHash("zrH0O1skqerDIQ5uuzSkva0ZBZ3mrzV0OxdX69sBWBs=")
 			.setSubject("subject #1");
 
-		ReactivePanacheQuery<ClientEntity> query = mock(ReactivePanacheQuery.class);
-		when(query.firstResultOptional())
+		when(repository.findByClientId("83c0b10f-b398-4cc8-b356-a3e0f0291679"))
 			.thenReturn(UniGenerator.item(Optional.of(entity)));
-
-		when(repository.find(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
-			.thenReturn(query);
 
 		/*
 		 * Expected values
@@ -385,18 +355,16 @@ class ClientResourceTest {
 		 * Tests
 		 */
 		Client client = given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.get("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.extract()
-			.response()
-			.as(Client.class);
+			.extract().response().as(Client.class);
 
 		assertEquals(dto, client);
 	}
@@ -409,24 +377,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		ReactivePanacheQuery<ClientEntity> query = mock(ReactivePanacheQuery.class);
-		when(query.firstResultOptional())
+		when(repository.findByClientId("83c0b10f-b398-4cc8-b356-a3e0f0291679"))
 			.thenReturn(UniGenerator.item(Optional.empty()));
-
-		when(repository.find(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
-			.thenReturn(query);
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.get("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(404)
 			.contentType(MediaType.APPLICATION_JSON);
 	}
@@ -439,24 +403,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		ReactivePanacheQuery<ClientEntity> query = mock(ReactivePanacheQuery.class);
-		when(query.firstResultOptional())
+		when(repository.findByClientId("83c0b10f-b398-4cc8-b356-a3e0f0291679"))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
-
-		when(repository.find(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
-			.thenReturn(query);
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.get("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON);
 	}
@@ -469,22 +429,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		ReactivePanacheUpdate panacheUpdate = mock(ReactivePanacheUpdate.class);
-		when(panacheUpdate.where(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+		when(
+			repository
+				.updateByClientId(
+					"83c0b10f-b398-4cc8-b356-a3e0f0291679",
+					"ATM",
+					"Test description",
+					"test-subject"))
 			.thenReturn(UniGenerator.item(Long.valueOf(1)));
-
-		Document update = new Document("$set", new Document()
-			.append(ClientEntity.CHANNEL_PRP, "ATM")
-			.append(ClientEntity.DESCRIPTION_PRP, "Test description")
-			.append(ClientEntity.SUBJECT_PRP, "test-subject"));
-
-		when(repository.update(update))
-			.thenReturn(panacheUpdate);
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
@@ -492,8 +450,7 @@ class ClientResourceTest {
 			.when()
 			.patch("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(204);
 	}
 
@@ -505,22 +462,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		ReactivePanacheUpdate panacheUpdate = mock(ReactivePanacheUpdate.class);
-		when(panacheUpdate.where(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+		when(
+			repository
+				.updateByClientId(
+					"83c0b10f-b398-4cc8-b356-a3e0f0291679",
+					"ATM",
+					"Test description",
+					"test-subject"))
 			.thenReturn(UniGenerator.item(Long.valueOf(0)));
-
-		Document update = new Document("$set", new Document()
-			.append(ClientEntity.CHANNEL_PRP, "ATM")
-			.append(ClientEntity.DESCRIPTION_PRP, "Test description")
-			.append(ClientEntity.SUBJECT_PRP, "test-subject"));
-
-		when(repository.update(update))
-			.thenReturn(panacheUpdate);
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
@@ -528,8 +483,7 @@ class ClientResourceTest {
 			.when()
 			.patch("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(404)
 			.contentType(MediaType.APPLICATION_JSON);
 	}
@@ -542,22 +496,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		ReactivePanacheUpdate panacheUpdate = mock(ReactivePanacheUpdate.class);
-		when(panacheUpdate.where(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+		when(
+			repository
+				.updateByClientId(
+					"83c0b10f-b398-4cc8-b356-a3e0f0291679",
+					"ATM",
+					"Test description",
+					"test-subject"))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
-
-		Document update = new Document("$set", new Document()
-			.append(ClientEntity.CHANNEL_PRP, "ATM")
-			.append(ClientEntity.DESCRIPTION_PRP, "Test description")
-			.append(ClientEntity.SUBJECT_PRP, "test-subject"));
-
-		when(repository.update(update))
-			.thenReturn(panacheUpdate);
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
@@ -565,8 +517,7 @@ class ClientResourceTest {
 			.when()
 			.patch("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON);
 	}
@@ -579,20 +530,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		when(repository.delete(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+		when(repository.deleteByClientId("83c0b10f-b398-4cc8-b356-a3e0f0291679"))
 			.thenReturn(UniGenerator.item((Long.valueOf(1))));
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.delete("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(204);
 	}
 
@@ -604,20 +555,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		when(repository.delete(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+		when(repository.deleteByClientId("83c0b10f-b398-4cc8-b356-a3e0f0291679"))
 			.thenReturn(UniGenerator.item((Long.valueOf(0))));
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.delete("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(404)
 			.contentType(MediaType.APPLICATION_JSON);
 	}
@@ -630,20 +581,20 @@ class ClientResourceTest {
 		/*
 		 * Mocking
 		 */
-		when(repository.delete(ClientEntity.CLIENT_ID_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+		when(repository.deleteByClientId("83c0b10f-b398-4cc8-b356-a3e0f0291679"))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic exception")));
 
 		/*
 		 * Tests
 		 */
 		given()
+			.log().all()
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.when()
 			.delete("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
-			.log()
-			.everything()
+			.log().all()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON);
 	}

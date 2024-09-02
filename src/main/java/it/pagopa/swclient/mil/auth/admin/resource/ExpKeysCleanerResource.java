@@ -7,7 +7,7 @@ package it.pagopa.swclient.mil.auth.admin.resource;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.admin.AuthAdminErrorCode;
+import it.pagopa.swclient.mil.auth.admin.AdminErrorCode;
 import it.pagopa.swclient.mil.auth.admin.bean.DeletedKeys;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.DeletedKeyBundle;
@@ -54,10 +54,10 @@ public class ExpKeysCleanerResource {
 	 * @return
 	 */
 	private InternalServerErrorException onError(Throwable t) {
-		Log.errorf(t, AuthAdminErrorCode.ERROR_DELETING_EXP_KEYS_MSG);
+		Log.errorf(t, AdminErrorCode.ERROR_DELETING_EXP_KEYS_MSG);
 		return new InternalServerErrorException(Response
 			.status(Status.INTERNAL_SERVER_ERROR)
-			.entity(new Errors(AuthAdminErrorCode.ERROR_DELETING_EXP_KEYS, AuthAdminErrorCode.ERROR_DELETING_EXP_KEYS_MSG))
+			.entity(new Errors(AdminErrorCode.ERROR_DELETING_EXP_KEYS, AdminErrorCode.ERROR_DELETING_EXP_KEYS_MSG))
 			.build());
 	}
 
