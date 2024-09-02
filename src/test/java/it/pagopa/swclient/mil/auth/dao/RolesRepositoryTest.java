@@ -186,6 +186,51 @@ class RolesRepositoryTest {
 			.assertCompleted()
 			.assertItem(Tuple2.of(Long.valueOf(2), List.of(entity1, entity2)));
 	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void testFindByNoParameters() {
+		SetOfRolesEntity entity1 = new SetOfRolesEntity()
+			.setAcquirerId("acquirer_id")
+			.setChannel("channel")
+			.setClientId("client_id")
+			.setMerchantId("merchant_id")
+			.setTerminalId("terminal_id_1")
+			.setRoles(List.of("role_1_1", "role_1_2"));
+
+		SetOfRolesEntity entity2 = new SetOfRolesEntity()
+			.setAcquirerId("acquirer_id")
+			.setChannel("channel")
+			.setClientId("client_id")
+			.setMerchantId("merchant_id")
+			.setTerminalId("terminal_id_2")
+			.setRoles(List.of("role_2_1", "role_2_2"));
+
+		ReactivePanacheQuery<SetOfRolesEntity> query = mock(ReactivePanacheQuery.class);
+		when(query.list())
+			.thenReturn(UniGenerator.item(List.of(entity1, entity2)));
+		when(query.page(0, 2))
+			.thenReturn(query);
+
+		when(repository
+			.findAll(any(Sort.class)))
+			.thenReturn(query);
+
+		when(repository
+			.count())
+			.thenReturn(UniGenerator.item(Long.valueOf(2)));
+
+		when(repository.findByParameters(0, 2, null, null, null, null, null))
+			.thenCallRealMethod();
+
+		repository.findByParameters(0, 2, null, null, null, null, null)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertCompleted()
+			.assertItem(Tuple2.of(Long.valueOf(2), List.of(entity1, entity2)));
+	}
 
 	/**
 	 * 

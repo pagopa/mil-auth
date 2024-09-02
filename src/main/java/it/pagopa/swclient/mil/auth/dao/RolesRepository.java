@@ -116,22 +116,39 @@ public class RolesRepository implements ReactivePanacheMongoRepository<SetOfRole
 
 		Log.debugf("Query: ", query);
 
-		return Uni.combine()
-			.all()
-			.unis(
-				count(query, parameters),
-				find(
-					query,
-					Sort.ascending(
-						SetOfRolesEntity.CLIENT_ID_PRP,
-						SetOfRolesEntity.ACQUIRER_ID_PRP,
-						SetOfRolesEntity.CHANNEL_PRP,
-						SetOfRolesEntity.MERCHANT_ID_PRP,
-						SetOfRolesEntity.TERMINAL_ID_PRP),
-					parameters)
-					.page(page, size)
-					.list())
-			.asTuple();
+		if (query.isEmpty()) {
+			return Uni.combine()
+				.all()
+				.unis(
+					count(),
+					findAll(
+						Sort.ascending(
+							SetOfRolesEntity.CLIENT_ID_PRP,
+							SetOfRolesEntity.ACQUIRER_ID_PRP,
+							SetOfRolesEntity.CHANNEL_PRP,
+							SetOfRolesEntity.MERCHANT_ID_PRP,
+							SetOfRolesEntity.TERMINAL_ID_PRP))
+						.page(page, size)
+						.list())
+				.asTuple();
+		} else {
+			return Uni.combine()
+				.all()
+				.unis(
+					count(query, parameters),
+					find(
+						query,
+						Sort.ascending(
+							SetOfRolesEntity.CLIENT_ID_PRP,
+							SetOfRolesEntity.ACQUIRER_ID_PRP,
+							SetOfRolesEntity.CHANNEL_PRP,
+							SetOfRolesEntity.MERCHANT_ID_PRP,
+							SetOfRolesEntity.TERMINAL_ID_PRP),
+						parameters)
+						.page(page, size)
+						.list())
+				.asTuple();
+		}
 	}
 
 	/**
