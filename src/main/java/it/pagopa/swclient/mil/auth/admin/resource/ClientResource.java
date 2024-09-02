@@ -8,18 +8,14 @@ package it.pagopa.swclient.mil.auth.admin.resource;
 import java.util.List;
 import java.util.UUID;
 
-import org.bson.Document;
-
 import com.mongodb.MongoWriteException;
 
 import io.quarkus.logging.Log;
-import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.tuples.Tuple2;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.admin.AuthAdminErrorCode;
+import it.pagopa.swclient.mil.auth.admin.AdminErrorCode;
 import it.pagopa.swclient.mil.auth.admin.bean.AdminPathParamName;
-import it.pagopa.swclient.mil.auth.admin.bean.AuthAdminValidationPattern;
 import it.pagopa.swclient.mil.auth.admin.bean.Client;
 import it.pagopa.swclient.mil.auth.admin.bean.CreateClientResponse;
 import it.pagopa.swclient.mil.auth.admin.bean.CreateOrUpdateClientRequest;
@@ -27,6 +23,7 @@ import it.pagopa.swclient.mil.auth.admin.bean.PageMetadata;
 import it.pagopa.swclient.mil.auth.admin.bean.PageOfClients;
 import it.pagopa.swclient.mil.auth.admin.bean.ReadClientsRequest;
 import it.pagopa.swclient.mil.auth.admin.util.ClientConverter;
+import it.pagopa.swclient.mil.auth.bean.AuthValidationPattern;
 import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.auth.dao.ClientRepository;
 import it.pagopa.swclient.mil.auth.util.SecretTriplet;
@@ -91,30 +88,33 @@ public class ClientResource {
 				/*
 				 * Duplicate key
 				 */
-				Log.warnf(m, AuthAdminErrorCode.DUPLICATE_CLIENT_ID_MSG);
-				return new WebApplicationException(Response
-					.status(Status.CONFLICT)
-					.entity(new Errors(AuthAdminErrorCode.DUPLICATE_CLIENT_ID, AuthAdminErrorCode.DUPLICATE_CLIENT_ID_MSG))
-					.build());
+				Log.warnf(m, AdminErrorCode.DUPLICATE_CLIENT_ID_MSG);
+				return new WebApplicationException(
+					Response
+						.status(Status.CONFLICT)
+						.entity(new Errors(AdminErrorCode.DUPLICATE_CLIENT_ID, AdminErrorCode.DUPLICATE_CLIENT_ID_MSG))
+						.build());
 			} else {
 				/*
 				 * Other error
 				 */
-				Log.errorf(m, AuthAdminErrorCode.ERROR_STORING_CLIENT_MSG);
-				return new InternalServerErrorException(Response
-					.status(Status.INTERNAL_SERVER_ERROR)
-					.entity(new Errors(AuthAdminErrorCode.ERROR_STORING_CLIENT, AuthAdminErrorCode.ERROR_STORING_CLIENT_MSG))
-					.build());
+				Log.errorf(m, AdminErrorCode.ERROR_STORING_CLIENT_MSG);
+				return new InternalServerErrorException(
+					Response
+						.status(Status.INTERNAL_SERVER_ERROR)
+						.entity(new Errors(AdminErrorCode.ERROR_STORING_CLIENT, AdminErrorCode.ERROR_STORING_CLIENT_MSG))
+						.build());
 			}
 		} else {
 			/*
 			 * Unexpected error
 			 */
-			Log.errorf(t, AuthAdminErrorCode.ERROR_CREATING_CLIENT_MSG);
-			return new InternalServerErrorException(Response
-				.status(Status.INTERNAL_SERVER_ERROR)
-				.entity(new Errors(AuthAdminErrorCode.ERROR_CREATING_CLIENT, AuthAdminErrorCode.ERROR_CREATING_CLIENT_MSG))
-				.build());
+			Log.errorf(t, AdminErrorCode.ERROR_CREATING_CLIENT_MSG);
+			return new InternalServerErrorException(
+				Response
+					.status(Status.INTERNAL_SERVER_ERROR)
+					.entity(new Errors(AdminErrorCode.ERROR_CREATING_CLIENT, AdminErrorCode.ERROR_CREATING_CLIENT_MSG))
+					.build());
 		}
 	}
 
@@ -153,11 +153,16 @@ public class ClientResource {
 			req.getDescription(),
 			req.getSubject());
 
-		return repository.persist(entity)
+		return repository
+			.persist(entity)
 			.map(e -> {
 				CreateClientResponse res = new CreateClientResponse(clientId, triplet.getSecret());
 				Log.debugf("Client created successfully: %s", res.toString());
-				return Response.created(uriInfo.getAbsolutePathBuilder().path(clientId).build())
+				return Response.created(
+					uriInfo
+						.getAbsolutePathBuilder()
+						.path(clientId)
+						.build())
 					.entity(res)
 					.build();
 			})
@@ -186,7 +191,8 @@ public class ClientResource {
 		/*
 		 * Page of data
 		 */
-		List<Client> clients = tuple.getItem2()
+		List<Client> clients = tuple
+			.getItem2()
 			.stream()
 			.map(ClientConverter::convert)
 			.toList();
@@ -200,11 +206,12 @@ public class ClientResource {
 	 * @return
 	 */
 	private WebApplicationException onFindError(Throwable t) {
-		Log.errorf(t, AuthAdminErrorCode.ERROR_READING_CLIENTS_MSG);
-		return new InternalServerErrorException(Response
-			.status(Status.INTERNAL_SERVER_ERROR)
-			.entity(new Errors(AuthAdminErrorCode.ERROR_READING_CLIENTS, AuthAdminErrorCode.ERROR_READING_CLIENTS_MSG))
-			.build());
+		Log.errorf(t, AdminErrorCode.ERROR_READING_CLIENTS_MSG);
+		return new InternalServerErrorException(
+			Response
+				.status(Status.INTERNAL_SERVER_ERROR)
+				.entity(new Errors(AdminErrorCode.ERROR_READING_CLIENTS, AdminErrorCode.ERROR_READING_CLIENTS_MSG))
+				.build());
 	}
 
 	/**
@@ -215,14 +222,11 @@ public class ClientResource {
 	@GET
 	public Uni<PageOfClients> read(@Valid ReadClientsRequest req) {
 		Log.tracef("Read clients: %s", req);
-
 		return Uni.combine()
 			.all()
 			.unis(
 				repository.count(),
-				repository.findAll(Sort.ascending(ClientEntity.CLIENT_ID_PRP))
-					.page(req.getPage(), req.getSize())
-					.list())
+				repository.findAll(req.getPage(), req.getSize()))
 			.asTuple()
 			.map(tuple -> tuple2Page(req.getPage(), req.getSize(), tuple))
 			.invoke(res -> Log.debugf("Clients read successfully: %s", res.toString()))
@@ -234,10 +238,10 @@ public class ClientResource {
 	 * @return
 	 */
 	private WebApplicationException onNotFoundError() {
-		Log.error(AuthAdminErrorCode.CLIENT_NOT_FOUND_MSG);
+		Log.error(AdminErrorCode.CLIENT_NOT_FOUND_MSG);
 		return new NotFoundException(Response
 			.status(Status.NOT_FOUND)
-			.entity(new Errors(AuthAdminErrorCode.CLIENT_NOT_FOUND, AuthAdminErrorCode.CLIENT_NOT_FOUND_MSG))
+			.entity(new Errors(AdminErrorCode.CLIENT_NOT_FOUND, AdminErrorCode.CLIENT_NOT_FOUND_MSG))
 			.build());
 	}
 
@@ -250,10 +254,9 @@ public class ClientResource {
 	@Path("/{" + AdminPathParamName.CLIENT_ID + "}")
 	public Uni<Client> read(
 		@PathParam(AdminPathParamName.CLIENT_ID)
-		@Pattern(regexp = AuthAdminValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG) String clientId) {
+		@Pattern(regexp = AuthValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG) String clientId) {
 		Log.tracef("Read client %s", clientId);
-		return repository.find(ClientEntity.CLIENT_ID_PRP, clientId)
-			.firstResultOptional()
+		return repository.findByClientId(clientId)
 			.onFailure().transform(this::onFindError)
 			.map(opt -> opt.orElseThrow(this::onNotFoundError))
 			.map(ClientConverter::convert)
@@ -270,16 +273,15 @@ public class ClientResource {
 	 * @return
 	 */
 	private WebApplicationException onUpdateError(Throwable t) {
-		Log.errorf(t, AuthAdminErrorCode.ERROR_UPDATING_CLIENT_MSG);
+		Log.errorf(t, AdminErrorCode.ERROR_UPDATING_CLIENT_MSG);
 		return new InternalServerErrorException(Response
 			.status(Status.INTERNAL_SERVER_ERROR)
-			.entity(new Errors(AuthAdminErrorCode.ERROR_UPDATING_CLIENT, AuthAdminErrorCode.ERROR_UPDATING_CLIENT_MSG))
+			.entity(new Errors(AdminErrorCode.ERROR_UPDATING_CLIENT, AdminErrorCode.ERROR_UPDATING_CLIENT_MSG))
 			.build());
 	}
 
 	/**
 	 * 
-	 * @param clientId
 	 * @param req
 	 * @return
 	 */
@@ -287,21 +289,18 @@ public class ClientResource {
 	@Path("/{" + AdminPathParamName.CLIENT_ID + "}")
 	public Uni<Response> update(
 		@PathParam(AdminPathParamName.CLIENT_ID)
-		@Pattern(regexp = AuthAdminValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG) String clientId,
-		@Valid CreateOrUpdateClientRequest req) {
+		@Pattern(regexp = AuthValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG) String clientId,
+		CreateOrUpdateClientRequest req) {
 		Log.tracef("Update client %s: %s", clientId, req);
-
-		Document update = new Document("$set", new Document()
-			.append(ClientEntity.CHANNEL_PRP, req.getChannel())
-			.append(ClientEntity.DESCRIPTION_PRP, req.getDescription())
-			.append(ClientEntity.SUBJECT_PRP, req.getSubject()));
-
-		return repository.update(update)
-			.where(ClientEntity.CLIENT_ID_PRP, clientId)
+		return repository.updateByClientId(
+			clientId,
+			req.getChannel(),
+			req.getDescription(),
+			req.getSubject())
 			.onFailure().transform(this::onUpdateError)
 			.map(n -> {
 				if (n > 0) {
-					Log.debugf("Client %s updated successfully", clientId);
+					Log.debugf("Client %s updated successfully: %s", clientId, req);
 					return Response.noContent().build();
 				} else {
 					throw onNotFoundError();
@@ -319,10 +318,10 @@ public class ClientResource {
 	 * @return
 	 */
 	private WebApplicationException onDeleteError(Throwable t) {
-		Log.errorf(t, AuthAdminErrorCode.ERROR_DELETING_CLIENT_MSG);
+		Log.errorf(t, AdminErrorCode.ERROR_DELETING_CLIENT_MSG);
 		return new InternalServerErrorException(Response
 			.status(Status.INTERNAL_SERVER_ERROR)
-			.entity(new Errors(AuthAdminErrorCode.ERROR_DELETING_CLIENT, AuthAdminErrorCode.ERROR_DELETING_CLIENT_MSG))
+			.entity(new Errors(AdminErrorCode.ERROR_DELETING_CLIENT, AdminErrorCode.ERROR_DELETING_CLIENT_MSG))
 			.build());
 	}
 
@@ -335,9 +334,9 @@ public class ClientResource {
 	@Path("/{" + AdminPathParamName.CLIENT_ID + "}")
 	public Uni<Response> delete(
 		@PathParam(AdminPathParamName.CLIENT_ID)
-		@Pattern(regexp = AuthAdminValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG) String clientId) {
+		@Pattern(regexp = AuthValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG) String clientId) {
 		Log.tracef("Delete client %s", clientId);
-		return repository.delete(ClientEntity.CLIENT_ID_PRP, clientId)
+		return repository.deleteByClientId(clientId)
 			.onFailure().transform(this::onDeleteError)
 			.map(n -> {
 				if (n > 0) {

@@ -30,7 +30,7 @@ public class TokenInfoResponse {
 	/*
 	 * Fiscal code
 	 */
-	@JsonProperty(JsonPropertyName.FISCAL_CODE)
+	@JsonProperty(AuthJsonPropertyName.FISCAL_CODE)
 	@ToString.Exclude
 	private String fiscalCode;
 }

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.ErrorCode;
-import it.pagopa.swclient.mil.auth.admin.AuthAdminErrorCode;
+import it.pagopa.swclient.mil.auth.admin.AdminErrorCode;
 import it.pagopa.swclient.mil.bean.ValidationPattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -31,25 +31,31 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class CreateOrUpdateClientRequest {
-	/*
-	 * Channel
+	/**
+	 * <p>
+	 * Channel.
+	 * </p>
 	 */
 	@JsonProperty(value = AdminJsonPropertyName.CHANNEL)
 	@Pattern(regexp = ValidationPattern.CHANNEL, message = ErrorCode.CHANNEL_MUST_MATCH_REGEXP_MSG)
 	private String channel;
 
-	/*
-	 * Client description
+	/**
+	 * <p>
+	 * Client description.
+	 * </p>
 	 */
 	@JsonProperty(value = AdminJsonPropertyName.DESCRIPTION)
-	@NotNull(message = AuthAdminErrorCode.DESCRIPTION_MUST_MATCH_REGEXP_MSG)
-	@Pattern(regexp = AuthAdminValidationPattern.DESCRIPTION, message = AuthAdminErrorCode.DESCRIPTION_MUST_MATCH_REGEXP_MSG)
+	@NotNull(message = AdminErrorCode.DESCRIPTION_MUST_MATCH_REGEXP_MSG)
+	@Pattern(regexp = AdminValidationPattern.DESCRIPTION, message = AdminErrorCode.DESCRIPTION_MUST_MATCH_REGEXP_MSG)
 	private String description;
 
-	/*
-	 * Subject
+	/**
+	 * <p>
+	 * Client subject.
+	 * </p>
 	 */
 	@JsonProperty(value = AdminJsonPropertyName.SUBJECT)
-	@Pattern(regexp = AuthAdminValidationPattern.SUBJECT, message = AuthAdminErrorCode.SUBJECT_MUST_MATCH_REGEXP_MSG)
+	@Pattern(regexp = AdminValidationPattern.SUBJECT, message = AdminErrorCode.SUBJECT_MUST_MATCH_REGEXP_MSG)
 	private String subject;
 }

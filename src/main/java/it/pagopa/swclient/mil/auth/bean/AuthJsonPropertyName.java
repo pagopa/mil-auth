@@ -1,5 +1,5 @@
 /*
- * JsonPropertyName.java
+ * AuthJsonPropertyName.java
  *
  * 28 ago 2023
  */
@@ -8,7 +8,7 @@ package it.pagopa.swclient.mil.auth.bean;
 /**
  * @author Antonio Tarricone
  */
-public class JsonPropertyName {
+public class AuthJsonPropertyName {
 	public static final String ACCESS_TOKEN = "access_token";
 	public static final String REFRESH_TOKEN = "refresh_token";
 	public static final String TOKEN_TYPE = "token_type";
@@ -33,6 +33,6 @@ public class JsonPropertyName {
 
 	public static final String TOKEN = "token";
 
-	private JsonPropertyName() {
+	private AuthJsonPropertyName() {
 	}
 }

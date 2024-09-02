@@ -32,7 +32,7 @@ public class PublicKey {
 	/*
 	 * Public exponent
 	 */
-	@JsonProperty(JsonPropertyName.EXPONENT)
+	@JsonProperty(AuthJsonPropertyName.EXPONENT)
 	@JsonSerialize(using = ByteArraySerializer.class)
 	@JsonDeserialize(using = ByteArrayDeserializer.class)
 	private byte[] e;
@@ -40,19 +40,19 @@ public class PublicKey {
 	/*
 	 * Public key use
 	 */
-	@JsonProperty(JsonPropertyName.USE)
+	@JsonProperty(AuthJsonPropertyName.USE)
 	private String use;
 
 	/*
 	 * Key ID
 	 */
-	@JsonProperty(JsonPropertyName.KID)
+	@JsonProperty(AuthJsonPropertyName.KID)
 	private String kid;
 
 	/*
 	 * Modulus
 	 */
-	@JsonProperty(JsonPropertyName.MODULUS)
+	@JsonProperty(AuthJsonPropertyName.MODULUS)
 	@JsonSerialize(using = ByteArraySerializer.class)
 	@JsonDeserialize(using = ByteArrayDeserializer.class)
 	private byte[] n;
@@ -60,18 +60,18 @@ public class PublicKey {
 	/*
 	 * Key type
 	 */
-	@JsonProperty(JsonPropertyName.TYPE)
+	@JsonProperty(AuthJsonPropertyName.TYPE)
 	private String kty;
 
 	/*
 	 * Expiration time
 	 */
-	@JsonProperty(JsonPropertyName.EXPIRATION)
+	@JsonProperty(AuthJsonPropertyName.EXPIRATION)
 	private long exp;
 
 	/*
 	 * Issued at
 	 */
-	@JsonProperty(JsonPropertyName.ISSUED_AT)
+	@JsonProperty(AuthJsonPropertyName.ISSUED_AT)
 	private long iat;
 }

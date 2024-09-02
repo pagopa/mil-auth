@@ -52,15 +52,12 @@ public class ClientVerifier {
 				Log.errorf(t, message);
 				return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CLIENT, message);
 			})
-			.invoke(clientEntity -> {
-				if (clientEntity == null) {
-					String message = String.format("[%s] Client %s not found", AuthErrorCode.CLIENT_NOT_FOUND, clientId);
-					Log.warn(message);
-					throw new AuthException(AuthErrorCode.CLIENT_NOT_FOUND, message);
-				} else {
-					Log.debugf("Client found: %s", clientEntity);
-				}
-			});
+			.map(opt -> opt.orElseThrow(() -> {
+				String message = String.format("[%s] Client %s not found", AuthErrorCode.CLIENT_NOT_FOUND, clientId);
+				Log.warn(message);
+				throw new AuthException(AuthErrorCode.CLIENT_NOT_FOUND, message);
+			}))
+			.invoke(entity -> Log.debugf("Client found: %s", entity));
 	}
 
 	/**

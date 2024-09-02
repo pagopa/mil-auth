@@ -27,6 +27,6 @@ public class PublicKeys {
 	/*
 	 *
 	 */
-	@JsonProperty(JsonPropertyName.KEYS)
+	@JsonProperty(AuthJsonPropertyName.KEYS)
 	private List<PublicKey> keys;
 }

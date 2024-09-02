@@ -1,5 +1,5 @@
 /*
- * FormParamName.java
+ * AuthFormParamName.java
  *
  * 28 ago 2023
  */
@@ -8,7 +8,7 @@ package it.pagopa.swclient.mil.auth.bean;
 /**
  * @author Antonio Tarricone
  */
-public class FormParamName {
+public class AuthFormParamName {
 	public static final String GRANT_TYPE = "grant_type";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
@@ -21,6 +21,6 @@ public class FormParamName {
 	public static final String FISCAL_CODE = "fiscal_code";
 	public static final String TOKEN = "token";
 
-	private FormParamName() {
+	private AuthFormParamName() {
 	}
 }

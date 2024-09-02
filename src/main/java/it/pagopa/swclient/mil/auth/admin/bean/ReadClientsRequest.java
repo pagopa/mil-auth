@@ -5,10 +5,10 @@
  */
 package it.pagopa.swclient.mil.auth.admin.bean;
 
+import org.hibernate.validator.constraints.Range;
+
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import it.pagopa.swclient.mil.auth.admin.AuthAdminErrorCode;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import it.pagopa.swclient.mil.auth.admin.AdminErrorCode;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
 import lombok.AllArgsConstructor;
@@ -35,8 +35,7 @@ public class ReadClientsRequest {
 	 * </p>
 	 */
 	@QueryParam(AdminQueryParamName.PAGE)
-	@Min(value = 0, message = AuthAdminErrorCode.PAGE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE_MSG)
-	@Max(value = Integer.MAX_VALUE, message = AuthAdminErrorCode.PAGE_MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE_MSG)
+	@Range(min = 0, max = Integer.MAX_VALUE, message = AdminErrorCode.PAGE_MUST_BE_BETWEEN_MIN_AND_MAX_MSG)
 	@DefaultValue("0")
 	private int page;
 
@@ -46,8 +45,7 @@ public class ReadClientsRequest {
 	 * </p>
 	 */
 	@QueryParam(AdminQueryParamName.SIZE)
-	@Min(value = 1, message = AuthAdminErrorCode.SIZE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_VALUE_MSG)
-	@Max(value = 128, message = AuthAdminErrorCode.SIZE_MUST_BE_LESS_THAN_OR_EQUAL_TO_VALUE_MSG)
+	@Range(min = 1, max = 128, message = AdminErrorCode.SIZE_MUST_BE_BETWEEN_MIN_AND_MAX_MSG)
 	@DefaultValue("20")
 	private int size;
 }

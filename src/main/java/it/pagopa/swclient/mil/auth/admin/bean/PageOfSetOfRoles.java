@@ -1,7 +1,7 @@
 /*
- * DeletedKeys.java
+ * PageOfSetOfRoles.java
  *
- * 22 lug 2024
+ * 19 ago 2024
  */
 package it.pagopa.swclient.mil.auth.admin.bean;
 
@@ -27,12 +27,20 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @Data
 @Accessors(chain = true)
-public class DeletedKeys {
+public class PageOfSetOfRoles {
 	/**
 	 * <p>
-	 * List of deleted key IDs.
+	 * List of roles.
 	 * </p>
 	 */
-	@JsonProperty(AdminJsonPropertyName.DELETED_KIDS)
-	private List<String> kids;
+	@JsonProperty(AdminJsonPropertyName.ROLES)
+	private List<SetOfRoles> setsOfRoles;
+
+	/**
+	 * <p>
+	 * Page metadata.
+	 * </p>
+	 */
+	@JsonProperty(AdminJsonPropertyName.PAGE)
+	private PageMetadata page;
 }

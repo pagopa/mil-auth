@@ -29,27 +29,27 @@ public class GetAccessTokenResponse {
 	/*
 	 * access_token
 	 */
-	@JsonProperty(JsonPropertyName.ACCESS_TOKEN)
+	@JsonProperty(AuthJsonPropertyName.ACCESS_TOKEN)
 	@ToString.Exclude
 	private String accessToken;
 
 	/*
 	 * refresh_token
 	 */
-	@JsonProperty(JsonPropertyName.REFRESH_TOKEN)
+	@JsonProperty(AuthJsonPropertyName.REFRESH_TOKEN)
 	@ToString.Exclude
 	private String refreshToken;
 
 	/*
 	 * token_type
 	 */
-	@JsonProperty(JsonPropertyName.TOKEN_TYPE)
+	@JsonProperty(AuthJsonPropertyName.TOKEN_TYPE)
 	private String tokenType = TokenType.BEARER;
 
 	/*
 	 * expires_in
 	 */
-	@JsonProperty(JsonPropertyName.EXPIRES_IN)
+	@JsonProperty(AuthJsonPropertyName.EXPIRES_IN)
 	private long expiresIn;
 
 	/**

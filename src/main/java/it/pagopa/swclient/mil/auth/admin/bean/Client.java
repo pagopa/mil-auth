@@ -26,37 +26,37 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class Client {
-	/*
+	/**
 	 *
 	 */
 	@JsonProperty(AdminJsonPropertyName.CLIENT_ID)
 	private String clientId;
 
-	/*
+	/**
 	 *
 	 */
 	@JsonProperty(AdminJsonPropertyName.CHANNEL)
 	private String channel;
 
-	/*
+	/**
 	 *
 	 */
 	@JsonProperty(AdminJsonPropertyName.SALT)
 	private String salt;
 
-	/*
+	/**
 	 *
 	 */
 	@JsonProperty(AdminJsonPropertyName.SECRET_HASH)
 	private String secretHash;
 
-	/*
+	/**
 	 *
 	 */
 	@JsonProperty(AdminJsonPropertyName.DESCRIPTION)
 	private String description;
 
-	/*
+	/**
 	 * 
 	 */
 	@JsonProperty(AdminJsonPropertyName.SUBJECT)

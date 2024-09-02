@@ -19,11 +19,11 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.bean.FormParamName;
+import it.pagopa.swclient.mil.auth.bean.AuthFormParamName;
+import it.pagopa.swclient.mil.auth.bean.AuthJsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
-import it.pagopa.swclient.mil.auth.bean.JsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.TokenType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.service.TokenByClientSecretService;
@@ -102,9 +102,9 @@ class TokenResourceTest {
 			.header(HeaderParamName.CHANNEL, CHANNEL)
 			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
 			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-			.formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
+			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(AuthFormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -112,10 +112,10 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(JsonPropertyName.ACCESS_TOKEN, notNullValue())
-			.body(JsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
-			.body(JsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-			.body(JsonPropertyName.REFRESH_TOKEN, nullValue());
+			.body(AuthJsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(AuthJsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
 
 	/**
@@ -148,9 +148,9 @@ class TokenResourceTest {
 			.header(HeaderParamName.CHANNEL, CHANNEL)
 			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
 			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-			.formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
+			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(AuthFormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -158,7 +158,7 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(JsonPropertyName.ERRORS, notNullValue());
+			.body(AuthJsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -191,9 +191,9 @@ class TokenResourceTest {
 			.header(HeaderParamName.CHANNEL, CHANNEL)
 			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
 			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-			.formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
+			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(AuthFormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -201,7 +201,7 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(401)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(JsonPropertyName.ERRORS, notNullValue());
+			.body(AuthJsonPropertyName.ERRORS, notNullValue());
 	}
 
 	/**
@@ -234,9 +234,9 @@ class TokenResourceTest {
 			.header(HeaderParamName.CHANNEL, CHANNEL)
 			.header(HeaderParamName.MERCHANT_ID, MERCHANT_ID)
 			.header(HeaderParamName.TERMINAL_ID, TERMINAL_ID)
-			.formParam(FormParamName.CLIENT_ID, CLIENT_ID)
-			.formParam(FormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
-			.formParam(FormParamName.CLIENT_SECRET, CLIENT_SECRET)
+			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.CLIENT_CREDENTIALS)
+			.formParam(AuthFormParamName.CLIENT_SECRET, CLIENT_SECRET)
 			.when()
 			.post()
 			.then()
@@ -244,6 +244,6 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(JsonPropertyName.ERRORS, notNullValue());
+			.body(AuthJsonPropertyName.ERRORS, notNullValue());
 	}
 }

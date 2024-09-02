@@ -22,6 +22,13 @@ public class AdminPathParamName {
 
 	/**
 	 * <p>
+	 * ID of set of roles.
+	 * </p>
+	 */
+	public static final String SET_OF_ROLES_ID = "id";
+
+	/**
+	 * <p>
 	 * This class contains only constants.
 	 * </p>
 	 */
