@@ -929,14 +929,14 @@
       "artifactId": "common",
       "groupId": "it.pagopa.swclient.mil",
       "version": "2.7.0",
-      "sha256": "Wp00pb9g7NVDIeajteUjLyqNdX_QsCgHI0mueMHydqc="
+      "sha256": "guLvITsgXdkIAiAIe2HVLtIcPe26lw_8Poy49bHSctg="
     },
     {
       "id": "it.pagopa.swclient.mil:azure-services:jar:5.5.0",
       "artifactId": "azure-services",
       "groupId": "it.pagopa.swclient.mil",
       "version": "5.5.0",
-      "sha256": "rto8kzvyyD3hUFr_Qiel1ZXg3FiUJ5gp6l5rtzjFccg="
+      "sha256": "WY5QQksothVNOBqqnCAw2jRMjXF1On4_i3eSRKc8gXA="
     },
     {
       "id": "com.nimbusds:nimbus-jose-jwt:jar:9.40",
