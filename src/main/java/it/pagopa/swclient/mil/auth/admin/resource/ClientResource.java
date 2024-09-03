@@ -5,8 +5,11 @@
  */
 package it.pagopa.swclient.mil.auth.admin.resource;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.mongodb.MongoWriteException;
 
@@ -43,11 +46,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import jakarta.ws.rs.core.UriInfo;
 
 /**
  * 
@@ -59,6 +60,12 @@ import jakarta.ws.rs.core.UriInfo;
 	"mil-auth-admin"
 })
 public class ClientResource {
+	/*
+	 * mil-auth base URL.
+	 */
+	@ConfigProperty(name = "base-url", defaultValue = "")
+	String baseUrl;
+	
 	/*
 	 * 
 	 */
@@ -121,12 +128,11 @@ public class ClientResource {
 	/**
 	 * 
 	 * @param req
-	 * @param uriInfo
 	 * @return
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Uni<Response> create(@Valid CreateOrUpdateClientRequest req, @Context UriInfo uriInfo) {
+	public Uni<Response> create(@Valid CreateOrUpdateClientRequest req) {
 		Log.tracef("Create a new client: %s", req.toString());
 
 		/*
@@ -158,11 +164,7 @@ public class ClientResource {
 			.map(e -> {
 				CreateClientResponse res = new CreateClientResponse(clientId, triplet.getSecret());
 				Log.debugf("Client created successfully: %s", res.toString());
-				return Response.created(
-					uriInfo
-						.getAbsolutePathBuilder()
-						.path(clientId)
-						.build())
+				return Response.created(URI.create(baseUrl + "/admin/clients/" + clientId))
 					.entity(res)
 					.build();
 			})
