@@ -5,8 +5,11 @@
  */
 package it.pagopa.swclient.mil.auth.admin.resource;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.mongodb.MongoWriteException;
 
@@ -41,11 +44,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import jakarta.ws.rs.core.UriInfo;
 
 /**
  * <p>
@@ -60,6 +61,12 @@ import jakarta.ws.rs.core.UriInfo;
 	"mil-auth-admin"
 })
 public class RolesResource {
+	/*
+	 * mil-auth base URL.
+	 */
+	@ConfigProperty(name = "base-url", defaultValue = "")
+	String baseUrl;
+	
 	/**
 	 * <p>
 	 * Repository of roles entities.
@@ -121,12 +128,11 @@ public class RolesResource {
 	/**
 	 * 
 	 * @param req
-	 * @param uriInfo
 	 * @return
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Uni<Response> create(@Valid CreateOrUpdateSetOfRolesRequest req, @Context UriInfo uriInfo) {
+	public Uni<Response> create(@Valid CreateOrUpdateSetOfRolesRequest req) {
 		Log.tracef("Create a new list of roles: %s", req.toString());
 
 		String id = UUID.randomUUID().toString();
@@ -146,11 +152,7 @@ public class RolesResource {
 			req.getRoles());
 
 		return repository.persist(entity)
-			.map(e -> Response.created(
-				uriInfo.getAbsolutePathBuilder()
-					.path(id)
-					.build())
-				.build())
+			.map(e -> Response.created(URI.create(baseUrl + "/admin/roles/" + id)).build())
 			.invoke(() -> Log.debug("List of roles created successfully"))
 			.onFailure().transform(this::onPersistError);
 	}
