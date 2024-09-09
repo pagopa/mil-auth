@@ -1,0 +1,24 @@
+@startuml
+!include_many init.puml
+note over auth
+	__ $var("sign/verify key create parameters") __
+	{
+		"kty": "RSA",
+		"attributes": {
+			"created": $var("current unix epoch"),
+			"enabled": true,
+			"exp": $var("current unix epoch") + $var("cryptoperiod"),
+			"exportable": false,
+			"nbf": $var("current unix epoch")
+		},
+		"key_ops":[
+			"sign",
+			"verify"
+		],
+		"key_size": $var("key size"),
+		"tags":{
+			"domain":"auth"
+		}
+	}
+end note
+@enduml

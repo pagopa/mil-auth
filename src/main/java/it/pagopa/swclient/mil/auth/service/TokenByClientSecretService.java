@@ -5,8 +5,6 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
@@ -27,26 +25,17 @@ public class TokenByClientSecretService extends TokenService {
 	TokenByClientSecretService() {
 		super();
 	}
-	
+
 	/**
 	 * 
-	 * @param accessDuration
-	 * @param refreshDuration
-	 * @param baseUrl
-	 * @param audience
 	 * @param clientVerifier
 	 * @param roleFinder
 	 * @param tokenSigner
+	 * @param claimEncryptor
 	 */
 	@Inject
-	TokenByClientSecretService(@ConfigProperty(name = "access.duration") long accessDuration,
-		@ConfigProperty(name = "refresh.duration") long refreshDuration,
-		@ConfigProperty(name = "base-url", defaultValue = "") String baseUrl,
-		@ConfigProperty(name = "token-audience", defaultValue = "mil.pagopa.it") String audience,
-		ClientVerifier clientVerifier,
-		RolesFinder roleFinder,
-		TokenSigner tokenSigner) {
-		super(accessDuration, refreshDuration, baseUrl, audience, clientVerifier, roleFinder, tokenSigner);
+	TokenByClientSecretService(ClientVerifier clientVerifier, RolesFinder roleFinder, TokenSigner tokenSigner, ClaimEncryptor claimEncryptor) {
+		super(clientVerifier, roleFinder, tokenSigner, claimEncryptor);
 	}
 
 	/**
@@ -55,7 +44,7 @@ public class TokenByClientSecretService extends TokenService {
 	 */
 	@Override
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
-		Log.debugf("Generation of the token by client secret.");
+		Log.tracef("Generation of the token by client secret");
 		return super.process(getAccessToken);
 	}
 }

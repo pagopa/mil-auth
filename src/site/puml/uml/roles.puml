@@ -1,0 +1,16 @@
+@startuml
+!include_many init.puml
+note right
+	__ $var("roles") __
+	{
+		"roles": [
+			"$var("role #1")",
+			"$var("role #2")",
+			.
+			.
+			.
+			"$var("role #n")"
+		]
+	}
+end note
+@enduml

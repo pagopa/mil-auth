@@ -1,0 +1,40 @@
+@startuml
+!include_many init.puml
+
+group retrieve enc/dec key
+	opt there isn't a suitable $var("enc/dec key azure id") stored in the local cache
+		auth -> serv ++ : getKeyWithLongestExp("auth", ["encrypt", "decrypt"], ["RSA"])
+
+		!include_many key_vault_usage.puml
+
+		alt suitable key found
+			serv --> auth : $var("enc/dec key bundle")
+			!include_many key_bundle__encrypt_decrypt.puml
+		else suitable key not found
+			serv --> auth -- : //not found//
+
+			auth -> auth : generate $var("enc/dec key name")
+
+			auth -> auth : generate $var("enc/dec key create parameters")
+			!include_many key_create_parameters__encrypt_decrypt.puml
+
+			auth -> serv ++ : createKey($var("enc/dec key name"), $var("enc/dec key create parameters"))
+
+			!include_many key_vault_usage.puml
+
+			serv --> auth -- : $var("enc/dec key bundle")
+			!include_many key_bundle__encrypt_decrypt.puml
+		end
+
+		auth -> auth : extract $var("enc/dec key azure id") and $var("enc/dec key expiration unix epoch") from $var("enc/dec key bundle") and store them in the local cache
+	end
+
+	note over auth #Orange
+		On any error, return 500 with specific error body
+	end note
+
+	note over auth #LightGreen
+		Here $var("enc/dec key azure id") has been retrieved
+	end note
+end
+@enduml

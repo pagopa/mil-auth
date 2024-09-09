@@ -9,8 +9,9 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInfo;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -23,10 +24,24 @@ import jakarta.ws.rs.core.MediaType;
  */
 @QuarkusTest
 @TestHTTPEndpoint(OpenIdConfResource.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenIdConfResourceTest {
+	/*
+	 * 
+	 */
 	@ConfigProperty(name = "base-url")
 	String baseUrl;
+
+	/**
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
+	}
 
 	@Test
 	void test() {

@@ -8,26 +8,27 @@ package it.pagopa.swclient.mil.auth.service;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.TestInfo;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.bean.Client;
+import it.pagopa.swclient.mil.auth.dao.ClientEntity;
+import it.pagopa.swclient.mil.auth.dao.ClientRepository;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
-import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
 /**
+ * 
  * @author Antonio Tarricone
  */
 @QuarkusTest
@@ -38,7 +39,7 @@ class ClientVerifierTest {
 	private static final String ID = "3965df56-ca9a-49e5-97e8-061433d4a25b";
 	private static final String CHANNEL = "POS";
 	private static final String SALT = "aGw/h/8Fm9S2aNvlvIaxJyhKP67ZU4FEm6mDVhL3aEVrahXFif9x2BkQ4OY87Z9tWVyWbSB/JeztYVmTshrFWQ==";
-	private static final String HASH = "G3oYMwnLVR9+m7WB4/pvoVeHxzsTdeyhndpVoruHzog=";
+	private static final String HASH = "EOPjxZXy7YbxLubGSs7EhavNqbjVF0ywYQPFE0WYbSw=";
 	private static final String SECRET = "5ceef788-4115-43a7-a704-b1bcc9a47c86";
 	private static final String DESCRIPTION = "VAS Layer";
 	private static final String WRONG_CHANNEL = "ATM";
@@ -48,7 +49,7 @@ class ClientVerifierTest {
 	 *
 	 */
 	@InjectMock
-	AuthDataRepository repository;
+	ClientRepository repository;
 
 	/*
 	 *
@@ -57,13 +58,25 @@ class ClientVerifierTest {
 	ClientVerifier verifier;
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
+	 * @param testInfo
+	 */
+	@BeforeEach
+	void init(TestInfo testInfo) {
+		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
+		System.out.println(frame);
+		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
+		System.out.println(frame);
+	}
+
+	/**
+	 * 
 	 */
 	@Test
-	void testFindClientWithNotFound() {
-		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+	void given_inexistentClientId_when_invokeFindClient_then_getFailure() {
+		when(repository.findByClientId(anyString()))
+			.thenReturn(Uni.createFrom()
+				.item(Optional.empty()));
 
 		verifier.findClient(ID)
 			.subscribe()
@@ -73,13 +86,13 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testFindClientWithError1() {
-		when(repository.getClient(anyString()))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
+	void given_errorFindingClient_when_invokeFindClient_then_getFailure() {
+		when(repository.findByClientId(anyString()))
+			.thenReturn(Uni.createFrom()
+				.failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
 		verifier.findClient(ID)
 			.subscribe()
@@ -88,12 +101,11 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testFindClientWithError2() {
-		when(repository.getClient(anyString()))
+	void given_unhandledErrorFindingClient_when_invokeFindClient_then_getFailure() {
+		when(repository.findByClientId(anyString()))
 			.thenReturn(Uni.createFrom().failure(new Exception()));
 
 		verifier.findClient(ID)
@@ -103,15 +115,28 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#findClient(java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testFindClientOk() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+	void given_handledErrorFindingClient_when_invokeFindClient_then_getFailure() {
+		when(repository.findByClientId(anyString()))
+			.thenReturn(UniGenerator.error("code", "string"));
 
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
+		verifier.findClient(ID)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void given_clientData_when_invokeFindClient_then_getIt() {
+		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
+
+		when(repository.findByClientId(ID))
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.findClient(ID)
 			.subscribe()
@@ -121,15 +146,14 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithWrongChannel() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+	void given_clientDataWithBadChannel_when_invokeVerify_then_getFailure() {
+		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
+		when(repository.findByClientId(ID))
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, WRONG_CHANNEL, SECRET)
 			.subscribe()
@@ -138,15 +162,14 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithWrongSecret() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+	void given_clientDataWithBadSecret_when_invokeVerify_then_getFailure() {
+		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
+		when(repository.findByClientId(ID))
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, WRONG_SECRET)
 			.subscribe()
@@ -155,15 +178,14 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithNullSecretExpectedButNonNullValueFound() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+	void given_clientDataWithUnexpectedSecret_when_invokeVerify_then_getFailure() {
+		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
+		when(repository.findByClientId(ID))
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, null)
 			.subscribe()
@@ -172,15 +194,14 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithNonNullSecretExpectedButNullValueFound() {
-		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION);
+	void given_clientDataWithUnexpectedNullSecret_when_invokeVerify_then_getFailure() {
+		ClientEntity client = new ClientEntity(ID, CHANNEL, null, null, DESCRIPTION, null);
 
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
+		when(repository.findByClientId(ID))
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, SECRET)
 			.subscribe()
@@ -189,36 +210,14 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithErrorVerifingSecret() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
+	void given_okScenario_when_invokeVerify_then_getOk() {
+		ClientEntity client = new ClientEntity(ID, CHANNEL, SALT, HASH, DESCRIPTION, null);
 
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
-
-		try (MockedStatic<PasswordVerifier> digest = Mockito.mockStatic(PasswordVerifier.class)) {
-			digest.when(() -> PasswordVerifier.verify(anyString(), anyString(), anyString()))
-				.thenThrow(NoSuchAlgorithmException.class);
-			verifier.verify(ID, CHANNEL, SECRET)
-				.subscribe()
-				.withSubscriber(UniAssertSubscriber.create())
-				.assertFailedWith(AuthError.class);
-		}
-	}
-
-	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
-	 */
-	@Test
-	void testVerifyOk() {
-		Client client = new Client(ID, CHANNEL, SALT, HASH, DESCRIPTION);
-
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
+		when(repository.findByClientId(ID))
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, SECRET)
 			.subscribe()
@@ -228,15 +227,14 @@ class ClientVerifierTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link it.pagopa.swclient.mil.auth.service.ClientVerifier#verify(java.lang.String, java.lang.String, java.lang.String)}.
+	 * 
 	 */
 	@Test
-	void testVerifyWithoutSecret() {
-		Client client = new Client(ID, CHANNEL, null, null, DESCRIPTION);
+	void given_okScenarioWithoutSecret_when_invokeVerify_then_getOk() {
+		ClientEntity client = new ClientEntity(ID, CHANNEL, null, null, DESCRIPTION, null);
 
-		when(repository.getClient(ID))
-			.thenReturn(UniGenerator.item(client));
+		when(repository.findByClientId(ID))
+			.thenReturn(UniGenerator.item(Optional.of(client)));
 
 		verifier.verify(ID, CHANNEL, null)
 			.subscribe()

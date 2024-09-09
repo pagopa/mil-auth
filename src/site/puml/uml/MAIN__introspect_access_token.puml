@@ -1,0 +1,75 @@
+@startuml
+!include_many init.puml
+autonumber "<font color='blue'><b><u>##</u></b></font>"
+
+activate clt
+
+clt -> auth ++ : POST /token_info
+	note left
+		__header__
+		Authorization: Bearer $var("access token with token_info role")
+		RequestId: $var("request id")
+		Content-Type: application/json
+		__body__
+		{
+			"token": "$var("token to introspect")"
+		}
+	end note
+
+auth -> auth : parse "$var("token to introspect")"
+
+note over auth #Orange
+	On parsing error, return 400 with specific error body
+end note
+
+auth -> auth : $var("enc fiscal code") = extract "fiscalCode" claim from "$var("token to introspect")"
+
+note over auth #Orange
+	On $var("enc fiscal code") not present, return 204
+end note
+
+note over auth
+	__ $var("enc fiscal code") __
+	{
+		"kid": "$var("enc/dec key my id")",
+		"alg": "RSA-OAEP-256",
+		"value": "$var("enc fiscal code")"
+	}
+end note
+
+auth -> auth : extract $var("enc/dec key name") and $var("enc/dec key version") from $var("enc/dec key my id")
+
+auth -> auth : generate $var("key operation parameters to decrypt")
+	note over auth
+		__ $var("key operation parameters to decrypt") __
+		{
+			"alg": "RSA-OAEP-256",
+			"value": "$var("enc fiscal code")"
+		}
+	end note
+
+auth -> serv ++ : decrypt($var("enc/dec key name"), $var("enc/dec key version"), $var("key operation parameters to decrypt"))
+
+!include_many key_vault_usage.puml
+
+serv --> auth -- : $var("key operation result for decryption")
+	note right
+		__ $var("key operation result for decryption") __
+		{
+			"kid": "$var("enc/dec key azure id")",
+			"value": "$var("b64 fiscal code")"
+		}
+	end note
+
+auth -> auth : convert $var("b64 fiscal code") to $var("fiscal code")
+
+auth --> clt -- : HTTP 200 (ok)
+	note right
+		__body__
+		{
+			"fiscalCode": "$var("fiscal code")"
+		}
+	end note
+
+deactivate clt
+@enduml

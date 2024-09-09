@@ -11,24 +11,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.experimental.Accessors;
 
 /**
  * @author Antonio Tarricone
  */
 @RegisterForReflection
-@AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@ToString
-@EqualsAndHashCode
+@AllArgsConstructor
+@Data
+@Accessors(chain = true)
 public class PublicKeys {
 	/*
 	 *
 	 */
-	@JsonProperty(JsonPropertyName.KEYS)
+	@JsonProperty(AuthJsonPropertyName.KEYS)
 	private List<PublicKey> keys;
 }

@@ -1,0 +1,30 @@
+@startuml
+!include_many init.puml
+
+opt $var("fiscal code") != null
+	!include_many retrieve_key__encrypt_decrypt.puml
+
+	auth -> auth : extract $var("enc/dec key name") and $var("enc/dec key version") from $var("enc/dec key azure id")
+
+	auth -> auth : $var("b64 fiscal code") = base64-urlsafe(utf-8($var("fiscal code")))
+
+	auth -> auth : generate $var("key operation parameters to encrypt")
+	!include_many key_operation_parameters__encrypt.puml
+
+	auth -> serv ++ : encrypt($var("enc/dec key name"), $var("enc/dec key version"), $var("key operation parameters to encrypt"))
+
+	!include_many key_vault_usage.puml
+
+	serv --> auth -- : $var("key operation result for encryption")
+	!include key_operation_result__encrypt.puml
+
+	note over auth #Orange
+		On any error, return 500 with specific error body
+	end note
+
+	auth -> auth : generate $var("enc/dec key my id") from $var("enc/dec key azure id")
+
+	auth -> auth : generate $var("encrypted claim")
+	!include_many encrypted_claim.puml
+end
+@enduml

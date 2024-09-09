@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "538cca45-14a8-4ae3-a660-19dbac765116",
+		"_postman_id": "0250942b-784a-4514-9105-48b4f71bba36",
 		"name": "mil-auth",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23394429"
@@ -51,8 +51,7 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000006",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000006"
 					}
 				],
 				"body": {
@@ -82,6 +81,244 @@
 					],
 					"path": [
 						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "client_credentials - ok w/ fiscal code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"accessTokenWithFiscalCode\", jsonData.access_token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000006"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{correctClientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForClientCredentials}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "fiscal_code",
+							"value": "{{fiscalCode}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "client_credentials - mil-debt-position",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const schema = {",
+							"   \"type\":\"object\",",
+							"   \"properties\":{",
+							"      \"access_token\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"token_type\":{",
+							"         \"type\":\"string\"",
+							"      },",
+							"      \"expires_in\":{",
+							"         \"type\":\"integer\"",
+							"      }",
+							"   },",
+							"   \"required\":[",
+							"      \"access_token\",",
+							"      \"token_type\",",
+							"      \"expires_in\"",
+							"   ],",
+							"   \"additionalProperties\":false",
+							"};",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"accessTokenForMilDebtPosition\", jsonData.access_token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000006"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_secret",
+							"value": "{{clientSecretForMilDebtPosition}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientIdForMilDebtPosition}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "token_info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessTokenForMilDebtPosition}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "RequestId",
+						"value": "00000000-0000-0000-0000-000000000099"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"token\":\"{{accessTokenWithFiscalCode}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/token_info",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"token_info"
 					]
 				}
 			},
@@ -132,28 +369,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-00000000000b",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-00000000000b"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -208,8 +440,7 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000007",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000007"
 					}
 				],
 				"body": {
@@ -264,8 +495,7 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000008",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000008"
 					}
 				],
 				"body": {
@@ -345,28 +575,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000001",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000001"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -459,28 +684,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000002",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000002"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -545,28 +765,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000003",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000003"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -626,28 +841,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000004",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000004"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -707,28 +917,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000005",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000005"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -826,28 +1031,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-000000000009",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-000000000009"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -902,28 +1102,23 @@
 				"header": [
 					{
 						"key": "RequestId",
-						"value": "00000000-0000-0000-0000-00000000000a",
-						"type": "text"
+						"value": "00000000-0000-0000-0000-00000000000a"
 					},
 					{
 						"key": "AcquirerId",
-						"value": "{{acquirerId}}",
-						"type": "text"
+						"value": "{{acquirerId}}"
 					},
 					{
 						"key": "Channel",
-						"value": "{{channel}}",
-						"type": "text"
+						"value": "{{channel}}"
 					},
 					{
 						"key": "MerchantId",
-						"value": "{{merchantId}}",
-						"type": "text"
+						"value": "{{merchantId}}"
 					},
 					{
 						"key": "TerminalId",
-						"value": "{{terminalId}}",
-						"type": "text"
+						"value": "{{terminalId}}"
 					}
 				],
 				"body": {
@@ -1091,8 +1286,8 @@
 		},
 		{
 			"key": "correctPassword",
-			"value": "antonio",
-			"type": "string"
+			"value": "",
+			"type": "secret"
 		},
 		{
 			"key": "clientIdForPassword",
@@ -1136,8 +1331,8 @@
 		},
 		{
 			"key": "correctClientSecret",
-			"value": "be81144b-e8ec-487d-a440-ea8d144343f7",
-			"type": "string"
+			"value": "",
+			"type": "secret"
 		},
 		{
 			"key": "wrongClientSecret",
@@ -1160,8 +1355,31 @@
 		},
 		{
 			"key": "correctClientSecretForVasLayer",
-			"value": "5ceef788-4115-43a7-a704-b1bcc9a47c86",
+			"value": "",
+			"type": "secret"
+		},
+		{
+			"key": "fiscalCode",
+			"value": "CHCZLN73D08A662B",
 			"type": "string"
+		},
+		{
+			"key": "accessTokenWithFiscalCode",
+			"value": ""
+		},
+		{
+			"key": "clientIdForMilDebtPosition",
+			"value": "6010064c-ec73-4fa5-9ed5-5446af8920cf",
+			"type": "string"
+		},
+		{
+			"key": "clientSecretForMilDebtPosition",
+			"value": "",
+			"type": "secret"
+		},
+		{
+			"key": "accessTokenForMilDebtPosition",
+			"value": ""
 		}
 	]
 }

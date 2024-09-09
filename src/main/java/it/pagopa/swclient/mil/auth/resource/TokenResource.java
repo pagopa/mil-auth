@@ -6,7 +6,6 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.quarkus.logging.Log;
@@ -23,6 +22,7 @@ import it.pagopa.swclient.mil.auth.service.TokenService;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.bean.Errors;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.util.AnnotationLiteral;
@@ -44,6 +44,7 @@ import jakarta.ws.rs.core.Response.Status;
  */
 @SuppressWarnings("serial")
 @Path("/token")
+@PermitAll
 public class TokenResource {
 	/*
 	 *
@@ -64,9 +65,16 @@ public class TokenResource {
 	/*
 	 *
 	 */
+	private Instance<TokenService> tokenService;
+
+	/**
+	 * 
+	 * @param tokenService
+	 */
 	@Inject
-	@Any
-	Instance<TokenService> tokenService;
+	TokenResource(@Any Instance<TokenService> tokenService) {
+		this.tokenService = tokenService;
+	}
 
 	/**
 	 * Dispatches the request to the right method.
@@ -88,21 +96,21 @@ public class TokenResource {
 			.transform(t -> {
 				Log.errorf(t, "Unexpected error.");
 				return new InternalServerErrorException(Response.status(Status.INTERNAL_SERVER_ERROR)
-					.entity(new Errors(List.of(AuthErrorCode.UNEXPECTED_ERROR)))
+					.entity(new Errors(AuthErrorCode.UNEXPECTED_ERROR))
 					.build());
 			})
 			.onFailure(AuthError.class)
 			.transform(t -> {
 				AuthError e = (AuthError) t;
 				return new InternalServerErrorException(Response.status(Status.INTERNAL_SERVER_ERROR)
-					.entity(new Errors(List.of(e.getCode()), List.of(e.getMessage())))
+					.entity(new Errors(e.getCode(), e.getMessage()))
 					.build());
 			})
 			.onFailure(AuthException.class)
 			.transform(t -> {
 				AuthException e = (AuthException) t;
 				return new NotAuthorizedException(Response.status(Status.UNAUTHORIZED)
-					.entity(new Errors(List.of(e.getCode()), List.of(e.getMessage())))
+					.entity(new Errors(e.getCode(), e.getMessage()))
 					.build());
 			});
 	}

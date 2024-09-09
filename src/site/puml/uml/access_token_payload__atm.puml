@@ -1,0 +1,30 @@
+@startuml
+!include_many init.puml
+note over auth #LightBlue
+	__ $var("access token payload") __
+	{
+		"sub": "$var("acquirer id") /$var("terminal id")",
+		"aud": "mil.pagopa.it",
+		"clientId": "$var("client id")",
+		"acquirerId": "$var("acquirer id")",
+		"terminalId": "$var("terminal id")",
+		"channel": "$var("channel")",
+		"fiscalCode": {
+			"kid": "$var("enc/dec key my id")",
+			"alg": "RSA-OAEP-256",
+			"value": "$var("enc fiscal code")"
+		},
+		"iss": "$var("mil-auth url")",
+		"groups": [
+			"$var("role #1")",
+			"$var("role #2")",
+			.
+			.
+			.
+			"$var("role #n")"
+		],
+		"exp": $var("current unix epoch") + $var("access token duration"),
+		"iat": $var("current unix epoch")
+	}
+end note
+@enduml

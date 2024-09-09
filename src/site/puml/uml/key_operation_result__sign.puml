@@ -1,0 +1,10 @@
+@startuml
+!include_many init.puml
+note right
+	__ $var("key operation result for signature") __
+	{
+		"kid": "$var("sign/verify key azure id")",
+		"value": "$var("signature")"
+	}
+end note
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+!include_many init.puml
+
+note over auth
+	__ $var("key sign parameters") __
+	{
+		"alg": "RS256",
+		"value": "$var("access token hash")"
+	}
+end note
+@enduml
