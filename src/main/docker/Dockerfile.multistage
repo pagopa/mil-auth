@@ -12,12 +12,10 @@ USER quarkus
 
 WORKDIR /code
 
-ARG GH_USER
-
 RUN \
  --mount=type=secret,id=gh_token,uid=1001 \
  export GH_TOKEN=$(cat /run/secrets/gh_token) && \
- echo "<settings><servers><server><id>github</id><username>$GH_USER</username><password>$GH_TOKEN</password></server></servers></settings>" >> settings.xml
+ echo "<settings><servers><server><id>github</id><username></username><password>$GH_TOKEN</password></server></servers></settings>" >> settings.xml
 
 COPY src /code/src
 
