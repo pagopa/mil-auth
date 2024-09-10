@@ -43,6 +43,6 @@ jobs:
           platforms: linux/amd64
           tags: ghcr.io/${{ github.repository }}:${{ github.head_ref || github.ref_name }}
           build-args:
-            GH_USER=${{ secrets.GIT_USER }}
+            "GH_USER=${{ secrets.GIT_USER }}"
           secrets: |
             "gh_token=${{ secrets.GIT_PAT }}"
