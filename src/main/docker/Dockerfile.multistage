@@ -14,8 +14,6 @@ WORKDIR /code
 
 ARG GH_USER
 
-ENV GH_USER=${GH_USER}
-
 RUN \
  --mount=type=secret,id=gh_token,uid=1001 \
  export GH_TOKEN=$(cat /run/secrets/gh_token) && \
