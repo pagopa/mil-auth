@@ -98,9 +98,9 @@
 		"<role #n>"
 	],
 	"fiscalCode": {
-    	"kid": "<enc/dec key my id>",
-    	"alg": "RSA-OAEP-256",
-    	"value": "<enc fiscal code>"
+		"kid": "<enc/dec key my id>",
+		"alg": "RSA-OAEP-256",
+		"value": "<enc fiscal code>"
   	}
 }
 ```
