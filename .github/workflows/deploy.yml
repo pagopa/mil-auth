@@ -73,7 +73,7 @@ jobs:
           executable_path=$(command -v -- "terraform") && dirname -- "$executable_path"
           pwd
           echo "${{ runner.temp }}"
-          terraform init -backend-config="src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -reconfigure
+          terraform init -backend-config="./src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -reconfigure
 
           echo "Terraform apply..."
-          terraform apply -var-file="src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
+          terraform apply -var-file="./src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
