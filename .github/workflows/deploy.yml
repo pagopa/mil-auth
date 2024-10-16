@@ -70,6 +70,7 @@ jobs:
           echo "*** [$ENV_FOLDER] folder will be used."
           
           echo "Terraform init..."
+          ls
           terraform init -backend-config="src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -reconfigure
 
           echo "Terraform apply..."
