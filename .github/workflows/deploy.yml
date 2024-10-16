@@ -27,36 +27,6 @@ jobs:
 
     steps:
       #
-      # Build image name
-      #
-      - name: Build image name
-        shell: bash
-        env:
-          IMAGE_HASH: ${{ inputs.image-hash }}
-          IMAGE_TAG: ${{ inputs.image-tag }}
-        run: |
-          if [ -n "$IMAGE_HASH" ]; then
-            echo "IMAGE=ghcr.io/pagopa/mil-auth:$IMAGE_TAG@sha256:$IMAGE_HASH" >> $GITHUB_ENV
-          else
-            echo "IMAGE=ghcr.io/pagopa/mil-auth:IMAGE_TAG" >> $GITHUB_ENV
-          fi
-          echo "$IMAGE_TAG will be deployed."
-
-      - name: Define environment
-        shell: bash
-        env:
-          ENVIRONMENT: ${{ inputs.environment }}
-        run: |
-          if [ "$ENVIRONMENT" -eq "prod-cd" ]; then
-            echo "ENV_FOLDER=prod" >> $GITHUB_ENV
-          elif [ "$ENVIRONMENT" -eq "uat-cd" ]; then
-            echo "ENV_FOLDER=uat" >> $GITHUB_ENV
-          else
-            echo "ENV_FOLDER=dev" >> $GITHUB_ENV
-          fi
-          echo "$ENV_FOLDER folder will be used."
-
-      #
       # Setup Terraform
       #
       - name: Setup Terraform
@@ -76,15 +46,31 @@ jobs:
       #
       # Terraform init
       #
-      - name: Terraform init
+      - name: Terraform
         shell: bash
+        env:
+          IMAGE_HASH: ${{ inputs.image-hash }}
+          IMAGE_TAG: ${{ inputs.image-tag }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
+          if [ -n "$IMAGE_HASH" ]; then
+            IMAGE="ghcr.io/pagopa/mil-auth:$IMAGE_TAG@sha256:$IMAGE_HASH"
+          else
+            IMAGE="ghcr.io/pagopa/mil-auth:IMAGE_TAG"
+          fi
+          echo "$IMAGE will be deployed."
+
+          if [ "$ENVIRONMENT" -eq "prod-cd" ]; then
+            ENV_FOLDER="prod"
+          elif [ "$ENVIRONMENT" -eq "uat-cd" ]; then
+            ENV_FOLDER="uat"
+          else
+            ENV_FOLDER="dev"
+          fi
+          echo "$ENV_FOLDER folder will be used."
+          
+          echo "Terraform init..."
           terraform init -backend-config="src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -reconfigure
 
-      #
-      # Terraform apply
-      #
-      - name: Terraform apply
-        shell: bash
-        run: |
+          echo "Terraform apply..."
           terraform apply -var-file="src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
