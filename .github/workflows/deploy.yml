@@ -3,6 +3,8 @@ name: Deploy
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        type: environment
       image-hash:
         type: string
         required: false
