@@ -74,6 +74,7 @@ jobs:
           executable_path=$(command -v -- "terraform") && dirname -- "$executable_path"
           pwd
           echo "${{ runner.temp }}"
+          ls "$WORKSPACE/src/main/terraform/env/$ENV_FOLDER/"
           terraform init -backend-config="$WORKSPACE/src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -reconfigure
 
           echo "Terraform apply..."
