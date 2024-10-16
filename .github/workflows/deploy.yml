@@ -60,9 +60,9 @@ jobs:
           fi
           echo "*** [$IMAGE] will be deployed."
 
-          if [ "$ENVIRONMENT" -eq "prod-cd" ]; then
+          if [[ "$ENVIRONMENT" == "prod-cd" ]]; then
             ENV_FOLDER="prod"
-          elif [ "$ENVIRONMENT" -eq "uat-cd" ]; then
+          elif [[ "$ENVIRONMENT" == "uat-cd" ]]; then
             ENV_FOLDER="uat"
           else
             ENV_FOLDER="dev"
