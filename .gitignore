@@ -46,8 +46,11 @@ nb-configuration.xml
 # Terraform
 #
 src/main/terraform/identity/.terraform/
+src/main/terraform/.terraform/
 .terraform.lock.hcl
 
 
 /.apt_generated/
 /.apt_generated_tests/
+/GH_TOKEN.txt
+/GH_USER.txt
