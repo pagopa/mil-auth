@@ -48,11 +48,11 @@ jobs:
       #
       - name: Terraform
         shell: bash
+        working-directory: src/main/terraform
         env:
           IMAGE_HASH: ${{ inputs.image-hash }}
           IMAGE_TAG: ${{ inputs.image-tag }}
           ENVIRONMENT: ${{ inputs.environment }}
-          WORKSPACE: ${{ github.workspace }}
         run: |
           if [ -n "$IMAGE_HASH" ]; then
             IMAGE="ghcr.io/pagopa/mil-auth:$IMAGE_TAG@sha256:$IMAGE_HASH"
@@ -71,11 +71,8 @@ jobs:
           echo "*** [$ENV_FOLDER] folder will be used."
           
           echo "Terraform init..."
-          executable_path=$(command -v -- "terraform") && dirname -- "$executable_path"
-          pwd
-          echo "${{ runner.temp }}"
-          ls "$WORKSPACE/src/main/terraform/env/$ENV_FOLDER/"
-          terraform init -backend-config="$WORKSPACE/src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -reconfigure
+          ls
+          terraform init -backend-config="env/$ENV_FOLDER/backend.tfvars" -reconfigure
 
           echo "Terraform apply..."
-          terraform apply -var-file="$WORKSPACE/src/main/terraform/env/$ENV_FOLDER/backend.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
+          terraform apply -var-file="env/$ENV_FOLDER/backend.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
