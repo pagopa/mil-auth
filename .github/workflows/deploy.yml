@@ -31,24 +31,30 @@ jobs:
       #
       - name: Build image name
         shell: bash
+        env:
+          IMAGE_HASH: ${{ inputs.image-hash }}
+          IMAGE_TAG: ${{ inputs.image-tag }}
         run: |
-          if [ -n "${{ inputs.image-hash }}" ]; then
-            echo "IMAGE=ghcr.io/pagopa/mil-auth:${{ inputs.image-tag }}@sha256:${{ inputs.image-hash }}" >> $GITHUB_ENV
+          if [ -n "$IMAGE_HASH" ]; then
+            echo "IMAGE=ghcr.io/pagopa/mil-auth:$IMAGE_TAG@sha256:$IMAGE_HASH" >> $GITHUB_ENV
           else
-            echo "IMAGE=ghcr.io/pagopa/mil-auth:${{ inputs.image-tag }}" >> $GITHUB_ENV
+            echo "IMAGE=ghcr.io/pagopa/mil-auth:IMAGE_TAG" >> $GITHUB_ENV
           fi
-          echo "${{ env.image }} will be deployed."
+          echo "$IMAGE_TAG will be deployed."
 
       - name: Define environment
         shell: bash
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          if [ "${{ github.environment }}" -eq "prod-cd" ]; then
+          if [ "$ENVIRONMENT" -eq "prod-cd" ]; then
             echo "ENV_FOLDER=prod" >> $GITHUB_ENV
-          elif [ "${{ github.environment }}" -eq "uat-cd" ]; then
+          elif [ "$ENVIRONMENT" -eq "uat-cd" ]; then
             echo "ENV_FOLDER=uat" >> $GITHUB_ENV
           else
             echo "ENV_FOLDER=dev" >> $GITHUB_ENV
           fi
+          echo "$ENV_FOLDER folder will be used."
 
       #
       # Setup Terraform
