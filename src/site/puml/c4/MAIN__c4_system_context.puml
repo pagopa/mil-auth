@@ -1,0 +1,27 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/C4/C4.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/C4/C4_Context.puml
+
+LAYOUT_TOP_DOWN() 
+
+Enterprise_Boundary(pagopa, "PagoPA") {
+	Person(admin, "Admin")
+	Person(maintainer, "Maintainer")
+	
+	System_Boundary(mil, "MIL") {
+		System_Ext(mil_other, "Other MIL Service")
+		System(mil_auth, "mil-auth", "")
+	}
+
+	System_Ext(atm_layer, "ATM Layer")
+}
+
+System_Ext(3rd_party, "3rd-party Server Application")
+
+admin --> mil_auth
+maintainer --> mil_auth
+mil_other --> mil_auth
+atm_layer --> mil_auth
+3rd_party --> mil_auth
+
+@enduml

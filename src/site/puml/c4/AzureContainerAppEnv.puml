@@ -1,0 +1,8 @@
+sprite $AzureContainerAppEnv [70x70/16z] {
+xTW5aiD034HH5qhJoltFkrqxHcKudFY7wOLjbQVlJ0hLRXU732gIHCQLATEYLExoZigfd8egx1P5vs203YXw2CPWLbSyu9Mv9aL3QWVRLrV2FcKY6gYuMXNb
+NbXQOHL5O-kPjC8UhZ2dX045c1yDB0fWdGeUgLnIDRoZ-Kn1iOGofnsApBsZmWO_btHcDYlnJ3mtAwv7Ay4CJa56iVmafHsARBsZCiKwbCA_qQY4_wZ4qWhx
+PENotWgDeiB0lEA9gZ87P9Jwp60-_nKrJXvsdJFgobnI6Ph83WfmotIe2gFovLFpgPoA32l2xhQTWGqf7c7ZolHs_G4
+}
+AzureEntityColoring(AzureContainerAppEnv)
+!define AzureContainerAppEnv(e_alias, e_label, e_techn) AzureEntity(e_alias, e_label, e_techn, AZURE_SYMBOL_COLOR, AzureContainerAppEnv, AzureContainerAppEnv)
+!define AzureContainerAppEnv(e_alias, e_label, e_techn, e_descr) AzureEntity(e_alias, e_label, e_techn, e_descr, AZURE_SYMBOL_COLOR, AzureContainerAppEnv, AzureContainerAppEnv)

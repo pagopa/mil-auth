@@ -1,0 +1,55 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/AzureCommon.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/AzureC4Integration.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/General/Azure.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/AzureC4Integration.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/Identity/AzureActiveDirectory.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/DevOps/AzureApplicationInsights.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/Security/AzureKeyVault.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/Databases/AzureCosmosDb.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/Networking/AzureApplicationGateway.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/Web/AzureAPIManagement.puml
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/azure/Containers/AzureContainerApp.puml
+!include AzureContainerAppEnv.puml
+
+!include https://raw.githubusercontent.com/plantuml/plantuml-stdlib/682cc9a6acbde6f68c8bf8689cabe1f67de1540a/C4/C4_Container.puml
+
+LAYOUT_LEFT_RIGHT()
+
+Person(admin, "Admin")
+Person(maintainer, "Maintainer")
+
+Container_Ext(atm_layer, "ATM Layer")
+Container_Ext(3rd_party, "3rd-party Server Application")
+
+Azure(env, "Azure", "PROD-CSTAR") {
+	Container_Ext(mil_other, "Other MIL Service")
+
+	AzureApplicationGateway(appgw, "Application Gateway", "cstar-p-app-gw-maz")
+
+	AzureAPIManagement(apim, "API Manager", "cstar-p-apim")
+
+	AzureContainerAppEnv(cae, "Container Apps Environment", "???") {
+        AzureContainerApp(auth, "mil-auth", "???")
+    }
+		
+	AzureActiveDirectory(entraid, "Authorization Server", "Azure Entra ID")
+	AzureKeyVault(keyvault, "Key Vault", "cstar-p-weu-mil-auth-kv")
+	AzureCosmosDb(repo, "Database", "cstar-p-weu-mil-cosmos-account")
+	AzureApplicationInsights(appinsights, "OpenTelemetry", "cstar-p-appinsights")
+}
+
+admin --> appgw
+maintainer --> appgw
+atm_layer --> appgw
+3rd_party --> appgw
+mil_other --> appgw
+appgw --> apim
+apim --> auth
+auth --> entraid
+auth --> repo
+auth --> keyvault
+auth --> appinsights
+
+@enduml

@@ -1,26 +1,28 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/AzureCommon.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/AzureC4Integration.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Containers/AzureContainerApp.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Identity/AzureActiveDirectory.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/DevOps/AzureApplicationInsights.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Security/AzureKeyVault.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Databases/AzureCosmosDb.puml
-
 LAYOUT_LEFT_RIGHT()
 
-Container_Ext(client, "Client", "Client Application")
+Person(admin, "Admin")
+Person(maintainer, "Maintainer")
 
-AzureContainerApp(auth, "mil-auth", "MIL Authorization Server")
-AzureActiveDirectory(entraid, "Authorization Server", "Azure Entra ID")
-AzureKeyVault(keyvault, "Key Vault", "Azure Key Vault")
-AzureCosmosDb(repo, "Database", "Azure CosmosDB")
-AzureApplicationInsights(appinsights, "OpenTelemetry", "Azure Application Insights")
+Container_Ext(atm_layer, "ATM Layer")
+Container_Ext(3rd_party, "3rd-party Server Application")
+Container_Ext(mil_other, "Other MIL Service")
 
-Rel(client, auth, "uses")
-Rel(auth, entraid, "gets access tokens for Azure resources")
-Rel(auth, repo, "gets configuration")
-Rel(auth, keyvault, "creates keys, gets keys, signs, verifies signatures, encrypts, decrypts")
-Rel(auth, appinsights, "sends OpenTelemetry data")
+Container(auth, "mil-auth", "")
+Container_Ext(entraid, "Authorization Server", "")
+Container_Ext(keyvault, "Key Vault", "")
+ContainerDb(repo, "Database", "")
+Container_Ext(appinsights, "OpenTelemetry", "")
+
+admin --> auth
+maintainer --> auth
+atm_layer --> auth
+3rd_party --> auth
+mil_other --> auth
+auth --> entraid
+auth --> repo
+auth --> keyvault
+auth --> appinsights
+
 @enduml
