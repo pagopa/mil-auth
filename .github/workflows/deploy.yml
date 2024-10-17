@@ -58,7 +58,6 @@ jobs:
           ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-          TF_LOG: "DEBUG"
         run: |
           if [ -n "$IMAGE_HASH" ]; then
             IMAGE="ghcr.io/pagopa/mil-auth:$IMAGE_TAG@sha256:$IMAGE_HASH"
@@ -77,7 +76,7 @@ jobs:
           echo "*** [$ENV_FOLDER] folder will be used."
           
           echo "Terraform init..."
-          terraform init -backend-config="env/$ENV_FOLDER/backend.tfvars" -reconfigure
+          terraform init -backend-config="env/$ENV_FOLDER/backend.tfvars" -backend-config="use_oidc=true" -reconfigure
 
           echo "Terraform apply..."
           terraform apply -var-file="env/$ENV_FOLDER/backend.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
