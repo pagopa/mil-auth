@@ -118,6 +118,11 @@ resource "azurerm_container_app" "auth" {
         name        = "mongodb.connection-string-2"
         secret_name = "cosmosdb-account-mil-secondary-mongodb-connection-string"
       }
+
+      env {
+        name        = "IDENTITY_CLIENT_ID"
+        secret_name = "identity-client-id"
+      }
     }
 
     max_replicas = var.mil_auth_max_replicas
@@ -127,35 +132,41 @@ resource "azurerm_container_app" "auth" {
   secret {
     name                = "cosmosdb-account-mil-primary-mongodb-connection-string"
     key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/cosmosdb-account-mil-primary-mongodb-connection-string"
-    identity            = "System"
+    identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
   secret {
     name                = "cosmosdb-account-mil-secondary-mongodb-connection-string"
     key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/cosmosdb-account-mil-secondary-mongodb-connection-string"
-    identity            = "System"
+    identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
   secret {
     name                = "storage-account-auth-primary-blob-endpoint"
     key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/storage-account-auth-primary-blob-endpoint"
-    identity            = "System"
+    identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
   secret {
     name                = "key-vault-auth-vault-uri"
     key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/key-vault-auth-vault-uri"
-    identity            = "System"
+    identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
   secret {
     name                = "application-insigths-mil-connection-string"
     key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/application-insigths-mil-connection-string"
-    identity            = "System"
+    identity            = data.azurerm_user_assigned_identity.auth.id
+  }
+
+  secret {
+    name  = "identity-client-id"
+    value = "${data.azurerm_user_assigned_identity.auth.client_id}"
   }
 
   identity {
-    type = "SystemAssigned"
+    type = "UserAssigned"
+    identity_ids = [data.azurerm_user_assigned_identity.auth.id]
   }
 
   ingress {
