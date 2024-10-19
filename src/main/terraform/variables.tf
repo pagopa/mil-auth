@@ -45,6 +45,12 @@ variable "tags" {
   type = map(any)
 }
 
+variable "user_managed_identity_endpoint" {
+  type        = string
+  default     = "http://169.254.169.254/metadata/identity/oauth2/token"
+  description = "Endpoint to get the access token to use to access to Azure resources when User Managed Identity is in use."
+}
+
 # ------------------------------------------------------------------------------
 # Specific variables definition.
 # ------------------------------------------------------------------------------

@@ -120,8 +120,13 @@ resource "azurerm_container_app" "auth" {
       }
 
       env {
-        name        = "IDENTITY_CLIENT_ID"
+        name        = "USER_MANAGED_IDENTITY_CLIENT_ID"
         secret_name = "identity-client-id"
+      }
+
+      env {
+        name  = "USER_MANAGED_IDENTITY_ENDPOINT"
+        value = var.user_managed_identity_endpoint
       }
     }
 
