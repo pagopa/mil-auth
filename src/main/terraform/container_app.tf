@@ -2,7 +2,7 @@
 # Container app.
 # ------------------------------------------------------------------------------
 resource "azurerm_container_app" "auth" {
-  name                         = "${local.project}-auth-2-ca"
+  name                         = "${local.project}-auth-ca"
   container_app_environment_id = data.azurerm_container_app_environment.mil.id
   resource_group_name          = data.azurerm_container_app_environment.mil.resource_group_name
   revision_mode                = "Single"
@@ -120,13 +120,8 @@ resource "azurerm_container_app" "auth" {
       }
 
       env {
-        name        = "USER_MANAGED_IDENTITY_CLIENT_ID"
+        name        = "IDENTITY_CLIENT_ID"
         secret_name = "identity-client-id"
-      }
-
-      env {
-        name  = "USER_MANAGED_IDENTITY_ENDPOINT"
-        value = var.user_managed_identity_endpoint
       }
     }
 
