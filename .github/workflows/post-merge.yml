@@ -188,10 +188,8 @@ jobs:
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
         run: |
-          IMAGE="ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC@sha256:${{ env.image_sha256_rc }}"
-          echo "[$IMAGE] will be deployed."
           terraform init -backend-config="env/dev-cd/backend.tfvars" -reconfigure
-          terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
+          terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=${{ env.image_sha256_rc }}" -auto-approve -lock-timeout=300s
 
       #
       # Install Node.
@@ -295,7 +293,5 @@ jobs:
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
         run: |
-          IMAGE="ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}@sha256:${{ env.env.image_sha256 }}"
-          echo "[$IMAGE] will be deployed."
           terraform init -backend-config="env/dev-cd/backend.tfvars" -reconfigure
-          terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
+          terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=${{ env.image_sha256 }}" -auto-approve -lock-timeout=300s
