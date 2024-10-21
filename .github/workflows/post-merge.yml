@@ -165,7 +165,9 @@ jobs:
       #
       - name: RELEASE CANDIDATE - Get Docker image with sha256
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256_rc=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC)" >> "$GITHUB_ENV"
+        run: |
+          image_sha256_rc_temp=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC)
+          echo "image_sha256_rc=${image_sha256_rc_temp/@/:${{ steps.semantic.outputs.new_release_version }}-RC@}" >> "$GITHUB_ENV"
 
       #
       # Setup Terraform
@@ -279,7 +281,9 @@ jobs:
       #
       - name: STABLE - Get Docker image with sha256
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }})" >> "$GITHUB_ENV"
+        run: |
+          image_sha256_temp=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }})
+          echo "image_sha256=${image_sha256_temp/@/:${{ steps.semantic.outputs.new_release_version }}@}" >> "$GITHUB_ENV"
 
       #
       # STABLE - Update Container App.
