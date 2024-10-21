@@ -46,7 +46,7 @@ jobs:
           fetch-depth: 0
 
       #
-      # Terraform init
+      # Terraform
       #
       - name: Terraform
         shell: bash
@@ -60,14 +60,12 @@ jobs:
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
         run: |
           if [ -n "$IMAGE_HASH" ]; then
-            IMAGE="ghcr.io/pagopa/mil-auth:$IMAGE_TAG@sha256:$IMAGE_HASH"
+            IMAGE="ghcr.io/${{ github.repository }}:$IMAGE_TAG@sha256:$IMAGE_HASH"
           else
-            IMAGE="ghcr.io/pagopa/mil-auth:$IMAGE_TAG"
+            IMAGE="ghcr.io/${{ github.repository }}:$IMAGE_TAG"
           fi
           echo "[$IMAGE] will be deployed."
           
-          echo "Terraform init..."
           terraform init -backend-config="env/$ENVIRONMENT/backend.tfvars" -reconfigure
 
-          echo "Terraform apply..."
           terraform apply -var-file="env/$ENVIRONMENT/terraform.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s

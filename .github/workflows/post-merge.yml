@@ -168,38 +168,30 @@ jobs:
         run: echo "image_sha256_rc=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC)" >> "$GITHUB_ENV"
 
       #
-      # Login to Azure.
+      # Setup Terraform
       #
-      - name: Login to Azure
+      - name: Setup Terraform
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          terraform_version: 1.9.7
 
       #
-      # RELEASE CANDIDATE - Update Container App + OpenAPI descriptor on APIM
+      # RELEASE CANDIDATE - Update Container App.
       #
-      - name: RELEASE CANDIDATE - Update Container App + OpenAPI descriptor on APIM
+      - name: RELEASE CANDIDATE - Update Container App
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105
-        with:
-          inlineScript: |
-            az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ${{ env.image_sha256_rc }}
-            API_DATA=$(az apim api show --resource-group ${{ secrets.AZURE_APIM_RESOURCE_GROUP }} --service-name ${{ secrets.AZURE_APIM_NAME }} --api-id ${{ secrets.AZURE_APIM_API_ID }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --query "{path:path, serviceUrl:serviceUrl}")
-            API_PATH=$(echo $API_DATA | jq -r '.path')
-            API_SERVICE_URL=$(echo $API_DATA | jq -r '.serviceUrl')
-            az apim api import \
-              --resource-group ${{ secrets.AZURE_APIM_RESOURCE_GROUP }} \
-              --service-name ${{ secrets.AZURE_APIM_NAME }} \
-              --api-id ${{ secrets.AZURE_APIM_API_ID }} \
-              --specification-format OpenApi \
-              --specification-path src/main/resources/META-INF/openapi.yaml \
-              --path $API_PATH \
-              --service-url $API_SERVICE_URL \
-              --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        shell: bash
+        working-directory: src/main/terraform
+        env:
+          ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+          ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+        run: |
+          IMAGE="ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC@sha256:${{ env.image_sha256_rc }}"
+          echo "[$IMAGE] will be deployed."
+          terraform init -backend-config="env/dev-cd/backend.tfvars" -reconfigure
+          terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
 
       #
       # Install Node.
@@ -296,8 +288,14 @@ jobs:
       #
       - name: STABLE - Update Container App
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105
-        with:
-          inlineScript: |
-            az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -i ${{ env.image_sha256 }}
+        shell: bash
+        working-directory: src/main/terraform
+        env:
+          ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+          ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+        run: |
+          IMAGE="ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}@sha256:${{ env.env.image_sha256 }}"
+          echo "[$IMAGE] will be deployed."
+          terraform init -backend-config="env/dev-cd/backend.tfvars" -reconfigure
+          terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=$IMAGE" -auto-approve -lock-timeout=300s
