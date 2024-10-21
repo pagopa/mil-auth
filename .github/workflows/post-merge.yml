@@ -302,7 +302,9 @@ jobs:
           ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+          CHECK_ENV: "${{ secrets.CHECK_ENV }}"
         run: |
+          echo "CHECK_ENV=$CHECK_ENV"
           terraform init -backend-config="env/dev-cd/backend.tfvars" -reconfigure
           terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=${{ steps.stable_image.outputs.image }}" -auto-approve -lock-timeout=300s
 
@@ -349,6 +351,8 @@ jobs:
           ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+          CHECK_ENV: "${{ secrets.CHECK_ENV }}"
         run: |
+          echo "CHECK_ENV=$CHECK_ENV"
           terraform init -backend-config="env/uat-cd/backend.tfvars" -reconfigure
           terraform apply -var-file="env/uat-cd/terraform.tfvars" -var="mil_auth_image=${{ needs.post_merge.outputs.image }}" -auto-approve -lock-timeout=300s
