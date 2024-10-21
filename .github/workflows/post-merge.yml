@@ -307,7 +307,7 @@ jobs:
           terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=${{ steps.stable_image.outputs.image }}" -auto-approve -lock-timeout=300s
 
 
-  uat_deploy:
+  uat_deployment:
     needs: post_merge
     
     if: needs.post_merge.outputs.new_release_published == 'true'
@@ -340,10 +340,10 @@ jobs:
       - name: STABLE - Update Container App
         shell: bash
         working-directory: src/main/terraform
-            env:
-              ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-              ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-              ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-            run: |
-              terraform init -backend-config="env/uat-cd/backend.tfvars" -reconfigure
-              terraform apply -var-file="env/uat-cd/terraform.tfvars" -var="mil_auth_image=${{ needs.post_merge.outputs.image }}" -auto-approve -lock-timeout=300s
+        env:
+          ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+          ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+        run: |
+          terraform init -backend-config="env/uat-cd/backend.tfvars" -reconfigure
+          terraform apply -var-file="env/uat-cd/terraform.tfvars" -var="mil_auth_image=${{ needs.post_merge.outputs.image }}" -auto-approve -lock-timeout=300s
