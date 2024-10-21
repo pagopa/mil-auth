@@ -130,7 +130,9 @@ jobs:
       # Get Docker image with sha256.
       #
       - name: Get Docker image with sha256
-        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ env.branch_name }})" >> "$GITHUB_ENV"
+        run: |
+          echo "image_sha256_temp=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ env.branch_name }})"
+          echo "image_sha256=${image_sha256_temp/@/:${{ env.branch_name }}@}" >> "$GITHUB_ENV"
 
       #
       # Update Container App.
