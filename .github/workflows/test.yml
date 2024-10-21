@@ -12,14 +12,14 @@ jobs:
         shell: bash
         run: |
           ENV_VAR_J1_S1="env. var. job #1, step #1"
-          echo "ENV_VAR_J1_S1=$ENV_VAR_J1_S1"
+          echo "ENV_VAR_J1_S1=$ENV_VAR_J1_S1" >> $GITHUB_ENV
       - name: job #1 step #2
         id: j1_s2
         shell: bash
         run: |
           ENV_VAR_J1_S2="env. var. job #1, step #2"
           echo "ENV_VAR_J1_S1=$ENV_VAR_J1_S1"
-          echo "ENV_VAR_J1_S2=$ENV_VAR_J1_S2"
+          echo "ENV_VAR_J1_S2=$ENV_VAR_J1_S2" >> $GITHUB_ENV
   job_2:
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +30,7 @@ jobs:
           ENV_VAR_J2_S1="env. var. job #2, step #1"
           echo "ENV_VAR_J1_S1=$ENV_VAR_J1_S1"
           echo "ENV_VAR_J1_S2=$ENV_VAR_J1_S2"
-          echo "ENV_VAR_J2_S1=$ENV_VAR_J2_S1"
+          echo "ENV_VAR_J2_S1=$ENV_VAR_J2_S1" >> $GITHUB_ENV
       - name: job #2 step #2
         id: j2_s2
         shell: bash
@@ -39,4 +39,4 @@ jobs:
           echo "ENV_VAR_J1_S1=$ENV_VAR_J1_S1"
           echo "ENV_VAR_J1_S2=$ENV_VAR_J1_S2"
           echo "ENV_VAR_J2_S1=$ENV_VAR_J2_S1"
-          echo "ENV_VAR_J2_S2=$ENV_VAR_J2_S2"
+          echo "ENV_VAR_J2_S2=$ENV_VAR_J2_S2" >> $GITHUB_ENV
