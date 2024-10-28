@@ -1,6 +1,7 @@
-name: Post-merge workflow
+name: Post-merge/release workflow
 
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - closed
@@ -9,16 +10,16 @@ on:
 
 jobs:
   post_merge:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     environment: dev-cd
 
     permissions:
-      id-token: write
-      packages: write
-      contents: write
+      id-token: write # Get OIDC token to authenticate to Azure.
+      packages: write # Push container imaged to GHCR.
+      contents: write # Create a new release.
 
     outputs:
        new_release_published: ${{ steps.semantic.outputs.new_release_published }}
@@ -29,150 +30,65 @@ jobs:
       # Checkout the source code.
       #
       - name: Checkout the source code
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
         with:
           token: ${{ secrets.GIT_PAT }}
           fetch-depth: 0
 
       #
+      # Install Node.
+      #
+      - name: Install Node
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version: "20.18.0"
+
+      #
       # Calculate of the new version (dry-run).
       #
       - name: Calculate of the new version (dry-run)
-        uses: cycjimmy/semantic-release-action@8e58d20d0f6c8773181f43eb74d6a05e3099571d
+        uses: cycjimmy/semantic-release-action@b1b432f13acb7768e0c8efdec416d363a57546f2 # 4.1.1
         id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          semantic_version: 19
+          semantic_version: 21.1.1
           branch: main
           extra_plugins: |
-            @semantic-release/release-notes-generator@10.0.3
-            @semantic-release/git@10.0.1
+            @semantic-release/release-notes-generator@14.0.1 # 44c780c6f9c1bf2643fe48b6718bd9a84b820132
+            @semantic-release/git@10.0.1 # 3e934d45f97fd07a63617c0fc098c9ed3e67d97a
           dry_run: true
 
       #
-      # Cache JDK.
+      # Setup Java Build Environment.
       #
-      - name: Cache JDK
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
-        id: cache-jdk
+      - name: Setup Java Build Environment
+        uses: pagopa/mil-actions/setup-java-build-env@241c6c17f483229fdd4ac26c6d79d1d65be2659c # 1.1.1
         with:
-          key: OpenJDK21U-jdk_x64_linux_hotspot_21.0.2_13.tar.gz
-          path: |
-            ${{ runner.temp }}/jdk_setup.tar.gz
-            ${{ runner.temp }}/jdk_setup.sha256
-
+          gh_user: ${{ secrets.GIT_USER }}
+          gh_token: ${{ secrets.GIT_PAT }}
+          
       #
-      # Download JDK and verify its hash.
+      # RELEASE CANDIDATE - Update of pom.xml and openapi.yaml with the RC new version.
       #
-      - name: Download JDK and verify its hash
-        if: steps.semantic.outputs.new_release_published == 'true' && steps.cache-jdk.outputs.cache-hit != 'true'
-        run: |
-          echo "454bebb2c9fe48d981341461ffb6bf1017c7b7c6e15c6b0c29b959194ba3aaa5  ${{ runner.temp }}/jdk_setup.tar.gz" >> ${{ runner.temp }}/jdk_setup.sha256
-          curl -L "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.2%2B13/OpenJDK21U-jdk_x64_linux_hotspot_21.0.2_13.tar.gz" -o "${{ runner.temp }}/jdk_setup.tar.gz"
-          sha256sum --check --status "${{ runner.temp }}/jdk_setup.sha256"
-
-      #
-      # Setup JDK.
-      #
-      - name: Setup JDK
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
-        with:
-          distribution: "jdkfile"
-          jdkFile: "${{ runner.temp }}/jdk_setup.tar.gz"
-          java-version: "21"
-          cache: maven
-
-      #
-      # Cache Maven.
-      #
-      - name: Cache Maven
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
-        id: cache-maven
-        with:
-          key: apache-maven-3.9.6-bin.tar.gz
-          path: |
-            ${{ runner.temp }}/maven_setup.tar.gz
-            ${{ runner.temp }}/maven_setup.sha256
-
-      #
-      # Download Maven and verify its hash.
-      #
-      - name: Download Maven and verify its hash
-        if: steps.semantic.outputs.new_release_published == 'true' && steps.cache-maven.outputs.cache-hit != 'true'
-        run: |
-          echo "6eedd2cae3626d6ad3a5c9ee324bd265853d64297f07f033430755bd0e0c3a4b  ${{ runner.temp }}/maven_setup.tar.gz" >> ${{ runner.temp }}/maven_setup.sha256
-          curl -L "https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz" -o "${{ runner.temp }}/maven_setup.tar.gz"
-          sha256sum --check --status "${{ runner.temp }}/maven_setup.sha256"
-
-      #
-      # Setup Maven.
-      #
-      - name: Setup Maven
+      - name: RELEASE CANDIDATE - Update of pom.xml and openapi.yaml with the new version
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
-          mkdir ${{ runner.temp }}/maven
-          tar -xvf ${{ runner.temp }}/maven_setup.tar.gz -C ${{ runner.temp }}/maven --strip-components=1
-          echo "<settings><servers><server><id>github</id><username>${{ secrets.GIT_USER }}</username><password>${{ secrets.GIT_PAT }}</password></server></servers></settings>" >> ${{ runner.temp }}/settings.xml
+          yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}-RC\"" "src/main/resources/META-INF/openapi.yaml"
+          ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }}-RC -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
-      # RELEASE CANDIDATE - Update of pom.xml with the new version.
+      # RELEASE CANDIDATE - Build and push native container image.
       #
-      - name: RELEASE CANDIDATE - Update of pom.xml with the new version
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }}-RC -s ${{ runner.temp }}/settings.xml --no-transfer-progress
-
-      #
-      # RELEASE CANDIDATE - Update of openapi.yaml with the new version.
-      #
-      - name: RELEASE CANDIDATE - Update of openapi.yaml with the new version.
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}-RC\"" "src/main/resources/META-INF/openapi.yaml"
-
-      #
-      # RELEASE CANDIDATE - Execute unit-test + Calculate test coverage + SCA with Sonar.
-      #
-      - name: RELEASE CANDIDATE - Execute unit-test + Calculate test coverage + SCA with Sonar
-        if: steps.semantic.outputs.new_release_published == 'true'
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ${{ runner.temp }}/maven/bin/mvn verify -Pvalidate -s ${{ runner.temp }}/settings.xml --no-transfer-progress
-
-      #
-      # RELEASE CANDIDATE - Build native executable.
-      #
-      - name: RELEASE CANDIDATE - Build native executable
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:ce70e1a8016471ff0fc9c8f048cd9e37afddacd3de37ed0bca74201d102e45f5 -s ${{ runner.temp }}/settings.xml --no-transfer-progress
-
-      #
-      # RELEASE CANDIDATE - Build Docker image.
-      #
-      - name: RELEASE CANDIDATE - Build Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC .
-
-      #
-      # RELEASE CANDIDATE - Push Docker image.
-      #
-      - name: RELEASE CANDIDATE - Push Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push -a ghcr.io/${{ github.repository }}
-
-      #
-      # RELEASE CANDICATE - Get Docker image with sha256.
-      #
-      - name: RELEASE CANDIDATE - Get Docker image with sha256
+      - name: RELEASE CANDIDATE - Build and push native container image
         id: rc_image
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          temp=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }}-RC)
-          echo "image=${temp/@/:${{ steps.semantic.outputs.new_release_version }}-RC@}" >> $GITHUB_OUTPUT
+        uses: pagopa/mil-actions/build-push-native-image@241c6c17f483229fdd4ac26c6d79d1d65be2659c # 1.1.1
+        with:
+          gh_token: ${{ secrets.GIT_PAT }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          release_version: ${{ steps.semantic.outputs.new_release_version }}-RC
+          skip_test: false
 
       #
       # Setup Terraform
@@ -197,15 +113,6 @@ jobs:
         run: |
           terraform init -backend-config="env/dev-cd/backend.tfvars" -reconfigure
           terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=${{ steps.rc_image.outputs.image }}" -auto-approve -lock-timeout=300s
-
-      #
-      # Install Node.
-      #
-      - name: Install Node
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
-        with:
-          node-version: "18.16.0"
 
       #
       # Install Newman.
@@ -247,49 +154,29 @@ jobs:
       #
       - name: Calculation of the new version (w/o dry_run) and put tag
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: cycjimmy/semantic-release-action@8e58d20d0f6c8773181f43eb74d6a05e3099571d
+        uses: cycjimmy/semantic-release-action@b1b432f13acb7768e0c8efdec416d363a57546f2 # 4.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          semantic_version: 19
+          semantic_version: 21.1.1
           branch: main
           extra_plugins: |
-            @semantic-release/release-notes-generator@10.0.3
-            @semantic-release/git@10.0.1
+            @semantic-release/release-notes-generator@14.0.1 # 44c780c6f9c1bf2643fe48b6718bd9a84b820132
+            @semantic-release/git@10.0.1 # 3e934d45f97fd07a63617c0fc098c9ed3e67d97a
           dry_run: false
 
       #
-      # STABLE - Build native executable.
+      # STABLE - Build and push native container image.
       #
-      - name: STABLE - Build native executable
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:ce70e1a8016471ff0fc9c8f048cd9e37afddacd3de37ed0bca74201d102e45f5 -s ${{ runner.temp }}/settings.xml --no-transfer-progress
-
-      #
-      # STABLE - Build Docker image.
-      #
-      - name: STABLE - Build Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }} .
-
-      #
-      # STABLE - Push Docker image.
-      #
-      - name: STABLE - Push Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push -a ghcr.io/${{ github.repository }}
-
-      #
-      # STABLE - Get Docker image with sha256.
-      #
-      - name: STABLE - Get Docker image with sha256
+      - name: STABLE - Build and push native container image
         id: stable_image
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          temp=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ steps.semantic.outputs.new_release_version }})
-          echo "image=${temp/@/:${{ steps.semantic.outputs.new_release_version }}@}" >> $GITHUB_OUTPUT
+        uses: pagopa/mil-actions/build-push-native-image@241c6c17f483229fdd4ac26c6d79d1d65be2659c # 1.1.1
+        with:
+          gh_token: ${{ secrets.GIT_PAT }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          release_version: ${{ steps.semantic.outputs.new_release_version }}
+          skip_test: true
 
       #
       # STABLE - Update Container App.
@@ -302,9 +189,7 @@ jobs:
           ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-          CHECK_ENV: "${{ secrets.CHECK_ENV }}"
         run: |
-          echo "CHECK_ENV=$CHECK_ENV"
           terraform init -backend-config="env/dev-cd/backend.tfvars" -reconfigure
           terraform apply -var-file="env/dev-cd/terraform.tfvars" -var="mil_auth_image=${{ steps.stable_image.outputs.image }}" -auto-approve -lock-timeout=300s
 
@@ -320,18 +205,13 @@ jobs:
 
     permissions:
       id-token: write
-      packages: write
-      contents: write
 
     steps:
       #
       # Checkout the source code.
       #
       - name: Checkout the source code
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
-        with:
-          token: ${{ secrets.GIT_PAT }}
-          fetch-depth: 0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
 
       #
       # Setup Terraform
@@ -351,8 +231,6 @@ jobs:
           ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-          CHECK_ENV: "${{ secrets.CHECK_ENV }}"
         run: |
-          echo "CHECK_ENV=$CHECK_ENV"
           terraform init -backend-config="env/uat-cd/backend.tfvars" -reconfigure
           terraform apply -var-file="env/uat-cd/terraform.tfvars" -var="mil_auth_image=${{ needs.post_merge.outputs.image }}" -auto-approve -lock-timeout=300s

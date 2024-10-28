@@ -24,8 +24,6 @@ jobs:
 
     permissions:
       id-token: write
-      packages: write
-      contents: write
 
     steps:
       #
@@ -40,10 +38,7 @@ jobs:
       # Checkout the source code
       #
       - name: Checkout the source code
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
-        with:
-          token: ${{ secrets.GIT_PAT }}
-          fetch-depth: 0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
 
       #
       # Terraform
