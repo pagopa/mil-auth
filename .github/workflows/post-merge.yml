@@ -199,7 +199,7 @@ jobs:
     
     if: needs.post_merge.outputs.new_release_published == 'true'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     environment: uat-cd
 
