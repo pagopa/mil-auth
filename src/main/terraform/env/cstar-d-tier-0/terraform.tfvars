@@ -1,16 +1,17 @@
 # ------------------------------------------------------------------------------
 # General variables.
 # ------------------------------------------------------------------------------
-prefix         = "mil"
+prefix         = "cstar"
 env_short      = "d"
 env            = "dev"
 location       = "westeurope" # this will be "italynorth"
 location_short = "weu"        # this will be "itn"
+domain         = "tier-0"
 
 tags = {
   CreatedBy   = "Terraform"
-  Environment = "DEV"
-  Owner       = "mil"
+  Environment = "dev"
+  Owner       = "cstar"
   Source      = "https://github.com/pagopa/mil-auth/tree/main/src/main/terraform"
   CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
 }
@@ -18,25 +19,25 @@ tags = {
 # ------------------------------------------------------------------------------
 # External resources.
 # ------------------------------------------------------------------------------
-cae_name                       = "mil-d-cae"
-cae_resource_group_name        = "mil-d-app-rg"
-id_name                        = "mil-d-auth-identity"
-id_resource_group_name         = "mil-d-identity-rg"
-general_kv_name                = "mil-d-general-kv"
-general_kv_resource_group_name = "mil-d-sec-rg"
-auth_kv_name                   = "mil-d-auth-kv"
-auth_kv_resource_group_name    = "mil-d-sec-rg"
-auth_st_name                   = "mildauthst"
-auth_st_resource_group_name    = "mil-d-data-rg"
+cae_name                       = "cstar-d-tier-0-cae"
+cae_resource_group_name        = "cstar-d-tier-0-app-rg"
+id_name                        = "cstar-d-tier-0-auth-id"
+id_resource_group_name         = "cstar-d-tier-0-identity-rg"
+general_kv_name                = "cstar-d-tier-0-gen-kv"
+general_kv_resource_group_name = "cstar-d-tier-0-sec-rg"
+auth_kv_name                   = "cstar-d-tier-0-auth-kv"
+auth_kv_resource_group_name    = "cstar-d-tier-0-sec-rg"
+auth_st_name                   = "cstardtier0authst"
+auth_st_resource_group_name    = "cstar-d-tier-0-data-rg"
 
 # ------------------------------------------------------------------------------
 # Names of key vault secrets.
 # ------------------------------------------------------------------------------
-cosmosdb_account_primary_mongodb_connection_string_kv_secret   = "cosmosdb-account-mil-primary-mongodb-connection-string"
-cosmosdb_account_secondary_mongodb_connection_string_kv_secret = "cosmosdb-account-mil-secondary-mongodb-connection-string"
+cosmosdb_account_primary_mongodb_connection_string_kv_secret   = "cosmosdb-account-tier-0-primary-mongodb-connection-string"
+cosmosdb_account_secondary_mongodb_connection_string_kv_secret = "cosmosdb-account-tier-0-secondary-mongodb-connection-string"
 storage_account_primary_blob_endpoint_kv_secret                = "storage-account-auth-primary-blob-endpoint"
 key_vault_auth_vault_uri_kv_secret                             = "key-vault-auth-vault-uri"
-application_insigths_connection-string_kv_secret               = "application-insigths-mil-connection-string"
+application_insigths_connection-string_kv_secret               = "core-application-insigths-connection-string"
 
 # ------------------------------------------------------------------------------
 # Configuration of the microservice.
