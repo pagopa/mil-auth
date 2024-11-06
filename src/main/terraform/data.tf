@@ -2,38 +2,38 @@
 # Container Apps Environment.
 # ------------------------------------------------------------------------------
 data "azurerm_container_app_environment" "mil" {
-  name                = "${local.project}-cae"
-  resource_group_name = "${local.project}-app-rg"
+  name                = var.cae_name
+  resource_group_name = var.cae_resource_group_name
 }
 
 # ------------------------------------------------------------------------------
 # Identity for this Container App.
 # ------------------------------------------------------------------------------
 data "azurerm_user_assigned_identity" "auth" {
-  resource_group_name = "${local.project}-identity-rg"
-  name                = "${var.prefix}-${var.env_short}-auth-identity"
+  resource_group_name = var.id_name
+  name                = var.id_resource_group_name
 }
 
 # ------------------------------------------------------------------------------
 # General purpose key vault used to protect secrets.
 # ------------------------------------------------------------------------------
 data "azurerm_key_vault" "general" {
-  name                = "${local.project}-general-kv"
-  resource_group_name = "${local.project}-sec-rg"
+  name                = var.general_kv_name
+  resource_group_name = var.general_kv_resource_group_name
 }
 
 # ------------------------------------------------------------------------------
 # Key vault for cryptographics operations.
 # ------------------------------------------------------------------------------
 data "azurerm_key_vault" "auth" {
-  name                = "${local.project}-auth-kv"
-  resource_group_name = "${local.project}-sec-rg"
+  name                = var.auth_kv_name
+  resource_group_name = var.auth_kv_resource_group_name
 }
 
 # ------------------------------------------------------------------------------
 # Storage account containing configuration files.
 # ------------------------------------------------------------------------------
 data "azurerm_storage_account" "auth" {
-  name                = "${var.prefix}${var.env_short}authst"
-  resource_group_name = "${local.project}-data-rg"
+  name                = var.auth_st_name
+  resource_group_name = var.auth_st_resource_group_name
 }

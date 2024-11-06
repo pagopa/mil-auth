@@ -45,14 +45,91 @@ variable "tags" {
   type = map(any)
 }
 
-variable "user_managed_identity_endpoint" {
-  type        = string
-  default     = "http://169.254.169.254/metadata/identity/oauth2/token"
-  description = "Endpoint to get the access token to use to access to Azure resources when User Managed Identity is in use."
+variable "domain" {
+  type    = string
+  default = ""
 }
 
 # ------------------------------------------------------------------------------
-# Specific variables definition.
+# Container Apps Environment.
+# ------------------------------------------------------------------------------
+variable "cae_name" {
+  type = string
+}
+
+variable "cae_resource_group_name" {
+  type = string
+}
+
+# ------------------------------------------------------------------------------
+# Identity for this Container App.
+# ------------------------------------------------------------------------------
+variable "id_name" {
+  type = string
+}
+
+variable "id_resource_group_name" {
+  type = string
+}
+
+# ------------------------------------------------------------------------------
+# General purpose key vault used to protect secrets.
+# ------------------------------------------------------------------------------
+variable "general_kv_name" {
+  type = string
+}
+
+variable "general_kv_resource_group_name" {
+  type = string
+}
+
+# ------------------------------------------------------------------------------
+# Key vault for cryptographics operations.
+# ------------------------------------------------------------------------------
+variable "auth_kv_name" {
+  type = string
+}
+
+variable "auth_kv_resource_group_name" {
+  type = string
+}
+
+# ------------------------------------------------------------------------------
+# Storage account containing configuration files.
+# ------------------------------------------------------------------------------
+variable "auth_st_name" {
+  type = string
+}
+
+variable "auth_st_resource_group_name" {
+  type = string
+}
+
+# ------------------------------------------------------------------------------
+# Names of key vault secrets.
+# ------------------------------------------------------------------------------
+variable "cosmosdb_account_primary_mongodb_connection_string_kv_secret" {
+  type = string
+}
+
+variable "cosmosdb_account_secondary_mongodb_connection_string_kv_secret" {
+  type = string
+}
+
+variable "storage_account_primary_blob_endpoint_kv_secret" {
+  type = string
+}
+
+variable "key_vault_auth_vault_uri_kv_secret" {
+  type = string
+}
+
+variable "application_insigths_connection_string_kv_secret" {
+  type = string
+}
+
+# ------------------------------------------------------------------------------
+# Specific to auth microservice.
 # ------------------------------------------------------------------------------
 variable "mil_auth_quarkus_log_level" {
   type    = string
@@ -93,10 +170,6 @@ variable "mil_auth_access_duration" {
 variable "mil_auth_refresh_duration" {
   type    = number
   default = 3600
-}
-
-variable "mil_auth_openapi_descriptor" {
-  type = string
 }
 
 variable "mil_auth_image" {
