@@ -137,25 +137,25 @@ resource "azurerm_container_app" "auth" {
 
   secret {
     name                = "cosmosdb-account-mil-secondary-mongodb-connection-string"
-    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${cosmosdb_account_secondary_mongodb_connection_string_kv_secret}"
+    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${var.cosmosdb_account_secondary_mongodb_connection_string_kv_secret}"
     identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
   secret {
     name                = "storage-account-auth-primary-blob-endpoint"
-    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${storage_account_primary_blob_endpoint_kv_secret}"
+    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${var.storage_account_primary_blob_endpoint_kv_secret}"
     identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
   secret {
     name                = "key-vault-auth-vault-uri"
-    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${key_vault_auth_vault_uri_kv_secret}"
+    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${var.key_vault_auth_vault_uri_kv_secret}"
     identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
   secret {
     name                = "application-insigths-mil-connection-string"
-    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${application_insigths_connection_string_kv_secret}"
+    key_vault_secret_id = "${data.azurerm_key_vault.general.vault_uri}secrets/${var.application_insigths_connection_string_kv_secret}"
     identity            = data.azurerm_user_assigned_identity.auth.id
   }
 
