@@ -10,8 +10,8 @@ data "azurerm_container_app_environment" "mil" {
 # Identity for this Container App.
 # ------------------------------------------------------------------------------
 data "azurerm_user_assigned_identity" "auth" {
-  resource_group_name = var.id_name
-  name                = var.id_resource_group_name
+  name                = var.id_name
+  resource_group_name = var.id_resource_group_name
 }
 
 # ------------------------------------------------------------------------------
