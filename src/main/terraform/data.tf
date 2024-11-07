@@ -21,19 +21,3 @@ data "azurerm_key_vault" "general" {
   name                = var.general_kv_name
   resource_group_name = var.general_kv_resource_group_name
 }
-
-# ------------------------------------------------------------------------------
-# Key vault for cryptographics operations.
-# ------------------------------------------------------------------------------
-data "azurerm_key_vault" "auth" {
-  name                = var.auth_kv_name
-  resource_group_name = var.auth_kv_resource_group_name
-}
-
-# ------------------------------------------------------------------------------
-# Storage account containing configuration files.
-# ------------------------------------------------------------------------------
-data "azurerm_storage_account" "auth" {
-  name                = var.auth_st_name
-  resource_group_name = var.auth_st_resource_group_name
-}
