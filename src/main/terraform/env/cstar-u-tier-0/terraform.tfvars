@@ -14,6 +14,7 @@ tags = {
   Owner       = "cstar"
   Source      = "https://github.com/pagopa/mil-auth/tree/main/src/main/terraform"
   CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
+  Domain      = "tier-0"
 }
 
 # ------------------------------------------------------------------------------
