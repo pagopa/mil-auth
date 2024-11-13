@@ -649,10 +649,10 @@ components:
         application/x-www-form-urlencoded:
           schema:
             oneOf:
+              - $ref: '#/components/schemas/GetAccessTokenByClientCredentials'
               - $ref: '#/components/schemas/GetAccessTokenByPassword'
               - $ref: '#/components/schemas/RefreshAccessToken'
               - $ref: '#/components/schemas/GetAccessTokenByExternalToken'
-              - $ref: '#/components/schemas/GetAccessTokenByClientCredentials'
     TokenInfo:
       description: Request to introspect an access token
       content:
