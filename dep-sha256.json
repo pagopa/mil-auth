@@ -953,18 +953,18 @@
       "sha256": "FMrvWW0y7TivX17Z6GwQQRvxGxhgrJVo439OiN2eKwo="
     },
     {
-      "id": "org.bouncycastle:bcutil-lts8on:jar:2.73.6",
+      "id": "org.bouncycastle:bcutil-lts8on:jar:2.73.7",
       "artifactId": "bcutil-lts8on",
       "groupId": "org.bouncycastle",
-      "version": "2.73.6",
-      "sha256": "W0jYbYbqL7GLMMSLy1G0ujHgB9b81Fmu53MMi8mAx4M="
+      "version": "2.73.7",
+      "sha256": "03ALDCPuKZzSRYYhZyIGpfNIlR84t-iOk7IaHxu-Zxg="
     },
     {
-      "id": "org.bouncycastle:bcprov-lts8on:jar:2.73.6",
+      "id": "org.bouncycastle:bcprov-lts8on:jar:2.73.7",
       "artifactId": "bcprov-lts8on",
       "groupId": "org.bouncycastle",
-      "version": "2.73.6",
-      "sha256": "OstCqMHFSFZ6PpX9iM6jPMFNqG0sofdHbuuOe-Eixds="
+      "version": "2.73.7",
+      "sha256": "LIzWo_7zyhSubiig3gDBbWJ2d9KML_AqAFE_rrK3_7E="
     },
     {
       "id": "io.quarkus:quarkus-mongodb-panache:jar:3.15.1",
