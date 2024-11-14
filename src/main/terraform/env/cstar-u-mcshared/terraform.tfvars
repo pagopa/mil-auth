@@ -6,36 +6,27 @@ env_short      = "u"
 env            = "uat"
 location       = "westeurope" # this will be "italynorth"
 location_short = "weu"        # this will be "itn"
-domain         = "tier-0"
-
-tags = {
-  CreatedBy   = "Terraform"
-  Environment = "uat"
-  Owner       = "cstar"
-  Source      = "https://github.com/pagopa/mil-auth/tree/main/src/main/terraform"
-  CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
-  Domain      = "tier-0"
-}
+domain         = "mcshared"
 
 # ------------------------------------------------------------------------------
 # External resources.
 # ------------------------------------------------------------------------------
-cae_name                       = "cstar-u-tier-0-cae"
-cae_resource_group_name        = "cstar-u-tier-0-app-rg"
-id_name                        = "cstar-u-tier-0-auth-id"
-id_resource_group_name         = "cstar-u-tier-0-identity-rg"
-general_kv_name                = "cstar-u-tier-0-gen-kv"
-general_kv_resource_group_name = "cstar-u-tier-0-sec-rg"
-auth_kv_name                   = "cstar-u-tier-0-auth-kv"
-auth_kv_resource_group_name    = "cstar-u-tier-0-sec-rg"
-auth_st_name                   = "cstarutier0authst"
-auth_st_resource_group_name    = "cstar-u-tier-0-data-rg"
+cae_name                       = "cstar-u-mcshared-cae"
+cae_resource_group_name        = "cstar-u-mcshared-app-rg"
+id_name                        = "cstar-u-mcshared-auth-id"
+id_resource_group_name         = "cstar-u-mcshared-identity-rg"
+general_kv_name                = "cstar-u-mcshared-gen-kv"
+general_kv_resource_group_name = "cstar-u-mcshared-sec-rg"
+auth_kv_name                   = "cstar-u-mcshared-auth-kv"
+auth_kv_resource_group_name    = "cstar-u-mcshared-sec-rg"
+auth_st_name                   = "cstarumcsharedauthst"
+auth_st_resource_group_name    = "cstar-u-mcshared-data-rg"
 
 # ------------------------------------------------------------------------------
 # Names of key vault secrets.
 # ------------------------------------------------------------------------------
-cosmosdb_account_primary_mongodb_connection_string_kv_secret   = "cosmosdb-account-tier-0-primary-mongodb-connection-string"
-cosmosdb_account_secondary_mongodb_connection_string_kv_secret = "cosmosdb-account-tier-0-secondary-mongodb-connection-string"
+cosmosdb_account_primary_mongodb_connection_string_kv_secret   = "cosmosdb-account-mcshared-primary-mongodb-connection-string"
+cosmosdb_account_secondary_mongodb_connection_string_kv_secret = "cosmosdb-account-mcshared-secondary-mongodb-connection-string"
 storage_account_primary_blob_endpoint_kv_secret                = "storage-account-auth-primary-blob-endpoint"
 key_vault_auth_vault_uri_kv_secret                             = "key-vault-auth-vault-uri"
 application_insigths_connection_string_kv_secret               = "core-application-insigths-connection-string"
