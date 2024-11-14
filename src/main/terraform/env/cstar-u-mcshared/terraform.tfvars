@@ -52,4 +52,4 @@ mil_auth_keyvault_backoff_num_of_attempts  = 5
 mil_auth_mongodb_connect_timeout           = "5s"
 mil_auth_mongodb_read_timeout              = "10s"
 mil_auth_mongodb_server_selection_timeout  = "5s"
-mil_auth_base_url                          = "https://mil-d-apim.azure-api.net/mil-auth"
+mil_auth_base_url                          = "https://api-mcshared.uat.cstar.pagopa.it/auth"
