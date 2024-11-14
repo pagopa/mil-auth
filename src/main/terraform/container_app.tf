@@ -181,5 +181,5 @@ resource "azurerm_container_app" "auth" {
     }
   }
 
-  tags = var.tags
+  tags = local.tags
 }

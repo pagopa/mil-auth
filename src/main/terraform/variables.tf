@@ -41,10 +41,6 @@ variable "location_short" {
   description = "Location short like eg: neu, weu."
 }
 
-variable "tags" {
-  type = map(any)
-}
-
 variable "domain" {
   type    = string
   default = ""
