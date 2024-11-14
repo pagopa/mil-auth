@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Authorization Microservice
-  version: 2.13.0
+  version: 2.14.0
   description: Authorization Microservice for Multi-channel Integration Layer of SW Client Project
   contact:
     name: Antonio Tarricone
