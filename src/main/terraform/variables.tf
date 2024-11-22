@@ -91,17 +91,6 @@ variable "auth_kv_resource_group_name" {
 }
 
 # ------------------------------------------------------------------------------
-# Storage account containing configuration files.
-# ------------------------------------------------------------------------------
-variable "auth_st_name" {
-  type = string
-}
-
-variable "auth_st_resource_group_name" {
-  type = string
-}
-
-# ------------------------------------------------------------------------------
 # Names of key vault secrets.
 # ------------------------------------------------------------------------------
 variable "cosmosdb_account_primary_mongodb_connection_string_kv_secret" {
@@ -109,10 +98,6 @@ variable "cosmosdb_account_primary_mongodb_connection_string_kv_secret" {
 }
 
 variable "cosmosdb_account_secondary_mongodb_connection_string_kv_secret" {
-  type = string
-}
-
-variable "storage_account_primary_blob_endpoint_kv_secret" {
   type = string
 }
 
