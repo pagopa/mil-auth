@@ -65,7 +65,7 @@ public class ClientResource {
 	 */
 	@ConfigProperty(name = "base-url", defaultValue = "")
 	String baseUrl;
-	
+
 	/*
 	 * 
 	 */

@@ -5,12 +5,9 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Objects;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
@@ -21,12 +18,9 @@ import it.pagopa.swclient.mil.auth.dao.UserRepository;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
-import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
-import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.auth.util.SecretTriplet;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 
 /**
  * @author Antonio Tarricone
@@ -34,11 +28,6 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 @Password
 public class TokenByPasswordService extends TokenService {
-	/*
-	 * 
-	 */
-	private static final String ERROR_SEARCHING_FOR_CREDENTIALS_MSG = "[%s] Error searching for the credentials";
-
 	/*
 	 *
 	 */
@@ -71,39 +60,22 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Uni<UserEntity> findCredentials(GetAccessTokenRequest getAccessToken) {
-		Log.trace("Search for the credentials");
-
-		String userHash;
-		try {
-			userHash = Base64.getUrlEncoder().encodeToString(
-				MessageDigest.getInstance("SHA256").digest(
-					getAccessToken.getUsername().getBytes(StandardCharsets.UTF_8)));
-		} catch (NoSuchAlgorithmException e) {
-			String message = String.format(ERROR_SEARCHING_FOR_CREDENTIALS_MSG, AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
-			Log.errorf(e, message);
-			return UniGenerator.error(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS, message);
-		}
-
-		return repository.getUser(userHash)
+	@CacheResult(cacheName = "client-role")
+	public Uni<UserEntity> findUser(GetAccessTokenRequest getAccessToken) {
+		String username = getAccessToken.getUsername();
+		Log.tracef("Search for the user %s", username);
+		return repository.findByUsername(username)
 			.onFailure().transform(t -> {
-				if (t instanceof WebApplicationException e) {
-					Response r = e.getResponse();
-					// r cannot be null
-					if (r.getStatus() == 404) {
-						Log.warnf("[%s] Credentials not found", AuthErrorCode.WRONG_CREDENTIALS);
-						return new AuthException(AuthErrorCode.WRONG_CREDENTIALS, String.format("[%s] Wrong credentials", AuthErrorCode.WRONG_CREDENTIALS)); // It's better not to give details...
-					} else {
-						String message = String.format(ERROR_SEARCHING_FOR_CREDENTIALS_MSG, AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
-						Log.errorf(t, message);
-						return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS, message);
-					}
-				} else {
-					String message = String.format(ERROR_SEARCHING_FOR_CREDENTIALS_MSG, AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS);
-					Log.errorf(t, message);
-					return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_CREDENTIALS, message);
-				}
-			});
+				String message = String.format("[%s] Error searching for user %s", AuthErrorCode.ERROR_SEARCHING_FOR_USER, username);
+				Log.errorf(t, message);
+				return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_USER, message);
+			})
+			.map(opt -> opt.orElseThrow(() -> {
+				String message = String.format("[%s] User %s not found", AuthErrorCode.USER_NOT_FOUND, username);
+				Log.warn(message);
+				throw new AuthException(AuthErrorCode.USER_NOT_FOUND, message);
+			}))
+			.invoke(entity -> Log.debugf("User found: %s", entity));
 	}
 
 	/**
@@ -112,28 +84,28 @@ public class TokenByPasswordService extends TokenService {
 	 * If the verification succeeds, the method returns ResourceOwnerCredentialsEntity, otherwise it
 	 * returns a failure with specific error code.
 	 *
-	 * @param credentialsEntity
+	 * @param userEntity
 	 * @param getAccessToken
 	 * @return
 	 */
-	private UserEntity verifyConsistency(UserEntity credentialsEntity, GetAccessTokenRequest getAccessToken) {
+	private UserEntity verifyConsistency(UserEntity userEntity, GetAccessTokenRequest getAccessToken) {
 		Log.trace("Acquirer/channel/merchant consistency verification");
 
-		String foundAcquirerId = credentialsEntity.getAcquirerId();
-		String foundChannel = credentialsEntity.getChannel();
-		String foundMerchantId = credentialsEntity.getMerchantId();
+		String foundAcquirerId = userEntity.getAcquirerId();
+		String foundChannel = userEntity.getChannel();
+		String foundMerchantId = userEntity.getMerchantId();
 
 		String expectedAcquirerId = getAccessToken.getAcquirerId();
 		String expectedChannel = getAccessToken.getChannel();
 		String expectedMerchantId = getAccessToken.getMerchantId();
 
-		boolean consistency = foundAcquirerId.equals(expectedAcquirerId)
-			&& foundChannel.equals(expectedChannel)
+		boolean consistency = Objects.equals(foundAcquirerId, expectedAcquirerId)
+			&& Objects.equals(foundChannel, expectedChannel)
 			&& Objects.equals(foundMerchantId, expectedMerchantId);
 
 		if (consistency) {
 			Log.debug("Acquirer/channel/merchant consistency has been successufully verified");
-			return credentialsEntity;
+			return userEntity;
 		} else {
 			Log.warnf("[%s] Acquirer/channel/merchant isn't consistent. Expected %s/%s/%s, found %s/%s/%s", AuthErrorCode.INCONSISTENT_CREDENTIALS, expectedAcquirerId, expectedChannel, expectedMerchantId, foundAcquirerId, foundChannel, foundMerchantId);
 			throw new AuthException(AuthErrorCode.INCONSISTENT_CREDENTIALS, String.format("[%s] Inconsistent credentials", AuthErrorCode.INCONSISTENT_CREDENTIALS)); // It's better not to give details...
@@ -146,25 +118,19 @@ public class TokenByPasswordService extends TokenService {
 	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
 	 * specific error code.
 	 *
-	 * @param credentialsEntity
+	 * @param userEntity
 	 * @param getAccessToken
 	 * @return
 	 */
-	private Void verifyPassword(UserEntity credentialsEntity, GetAccessTokenRequest getAccessToken) {
+	private Void verifyPassword(UserEntity userEntity, GetAccessTokenRequest getAccessToken) {
 		Log.trace("Password verification");
-		try {
-			if (PasswordVerifier.verify(getAccessToken.getPassword(), credentialsEntity.getSalt(), credentialsEntity.getPasswordHash())) {
-				Log.debug("Password has been successfully verified");
-				return null;
-			} else {
-				String message = String.format("[%s] Wrong credentials", AuthErrorCode.WRONG_CREDENTIALS);
-				Log.warn(message);
-				throw new AuthException(AuthErrorCode.WRONG_CREDENTIALS, message);
-			}
-		} catch (NoSuchAlgorithmException e) {
-			String message = String.format("[%s] Error verifing credentials", AuthErrorCode.ERROR_VERIFING_CREDENTIALS);
-			Log.errorf(e, message);
-			throw new AuthError(AuthErrorCode.ERROR_VERIFING_CREDENTIALS, message);
+		if (new SecretTriplet(getAccessToken.getPassword(), userEntity.getSalt(), userEntity.getPasswordHash()).verify()) {
+			Log.debug("Password has been successfully verified");
+			return null;
+		} else {
+			String message = String.format("[%s] Wrong credentials", AuthErrorCode.WRONG_CREDENTIALS);
+			Log.warn(message);
+			throw new AuthException(AuthErrorCode.WRONG_CREDENTIALS, message);
 		}
 	}
 
@@ -176,7 +142,7 @@ public class TokenByPasswordService extends TokenService {
 	 * @param getAccessToken
 	 */
 	private Uni<Void> verifyCredentials(GetAccessTokenRequest getAccessToken) {
-		return findCredentials(getAccessToken)
+		return findUser(getAccessToken)
 			.map(c -> verifyConsistency(c, getAccessToken))
 			.map(c -> verifyPassword(c, getAccessToken));
 	}

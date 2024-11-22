@@ -5,7 +5,11 @@
  */
 package it.pagopa.swclient.mil.auth.dao;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.types.ObjectId;
+
+import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,39 +19,88 @@ import lombok.experimental.Accessors;
  * 
  * @author Antonio Tarricone
  */
-@RegisterForReflection
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Accessors(chain = true)
+@MongoEntity(database = "mil", collection = "users")
 public class UserEntity {
 	/*
-	 *
+	 * Properties name.
 	 */
-	private String username;
+	public static final String USER_ID_PRP = "userId";
+	public static final String USERNAME_PRP = "username";
+	public static final String CHANNEL_PRP = "channel";
+	public static final String SALT_PRP = "salt";
+	public static final String PASSWORD_HASH_PRP = "passwordHash";
+	public static final String ACQUIRER_ID_PRP = "acquirerId";
+	public static final String MERCHANT_ID_PRP = "merchantId";
+
+	/*
+	 * Used by MongoDB for the _id field.
+	 */
+	@BsonId
+	public ObjectId id;
 
 	/*
 	 *
 	 */
-	private String salt;
+	@BsonProperty(value = USER_ID_PRP)
+	public String userId;
 
 	/*
 	 *
 	 */
-	private String passwordHash;
+	@BsonProperty(value = USERNAME_PRP)
+	public String username;
 
 	/*
 	 *
 	 */
-	private String acquirerId;
+	@BsonProperty(value = CHANNEL_PRP)
+	public String channel;
+
+	/*
+	 * Base64 string.
+	 */
+	@BsonProperty(value = SALT_PRP)
+	public String salt;
+
+	/*
+	 * Base64 string.
+	 */
+	@BsonProperty(value = PASSWORD_HASH_PRP)
+	public String passwordHash;
 
 	/*
 	 *
 	 */
-	private String channel;
+	@BsonProperty(value = ACQUIRER_ID_PRP)
+	public String acquirerId;
 
 	/*
 	 *
 	 */
-	private String merchantId;
+	@BsonProperty(value = MERCHANT_ID_PRP)
+	public String merchantId;
+
+	/**
+	 * 
+	 * @param userId
+	 * @param username
+	 * @param channel
+	 * @param salt
+	 * @param passwordHash
+	 * @param acquirerId
+	 * @param merchantId
+	 */
+	public UserEntity(String userId, String username, String channel, String salt, String passwordHash, String acquirerId, String merchantId) {
+		this.userId = userId;
+		this.username = username;
+		this.channel = channel;
+		this.salt = salt;
+		this.passwordHash = passwordHash;
+		this.acquirerId = acquirerId;
+		this.merchantId = merchantId;
+	}
 }

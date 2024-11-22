@@ -148,6 +148,20 @@ public class AdminJsonPropertyName {
 
 	/**
 	 * <p>
+	 * Username.
+	 * </p>
+	 */
+	public static final String USERNAME = "username";
+
+	/**
+	 * <p>
+	 * Password.
+	 * </p>
+	 */
+	public static final String PASSWORD = "password";
+
+	/**
+	 * <p>
 	 * This class contains constants only.
 	 * </p>
 	 */

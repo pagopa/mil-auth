@@ -42,6 +42,10 @@ public final class AdminErrorCode {
 	public static final String ROLE_MUST_NOT_BE_NULL                  = AuthErrorCode.MODULE_ID + "100018";
 	public static final String ROLES_MUST_NOT_BE_NULL                 = AuthErrorCode.MODULE_ID + "100019";
 	public static final String SET_OF_ROLES_ID_MUST_MATCH_REGEXP      = AuthErrorCode.MODULE_ID + "10001A";
+	public static final String USERNAME_MUST_NOT_BE_NULL              = AuthErrorCode.MODULE_ID + "10001B";
+	public static final String DUPLICATE_USER                         = AuthErrorCode.MODULE_ID + "10001C";
+	public static final String ERROR_STORING_USER                     = AuthErrorCode.MODULE_ID + "10001D";
+	public static final String ERROR_DELETING_USER                    = AuthErrorCode.MODULE_ID + "10001E";
 	
 	public static final String MUST_BE_BETWEEN_MIN_AND_MAX_MSG = " must be between {min} and {max}";
 
@@ -71,7 +75,10 @@ public final class AdminErrorCode {
 	public static final String ROLE_MUST_MATCH_REGEXP_MSG                 = "[" + ROLE_MUST_MATCH_REGEXP                 + "] Role" + AuthErrorCode.MUST_MATCH_REGEXP_MSG;
 	public static final String ROLES_MUST_NOT_BE_NULL_MSG                 = "[" + ROLES_MUST_NOT_BE_NULL                 + "] Roles" + AuthErrorCode.MUST_NOT_BE_NULL_MSG;
 	public static final String SET_OF_ROLES_ID_MUST_MATCH_REGEXP_MSG      = "[" + SET_OF_ROLES_ID_MUST_MATCH_REGEXP      + "] Set of roles" + AuthErrorCode.MUST_MATCH_REGEXP_MSG;
-	
+	public static final String USERNAME_MUST_NOT_BE_NULL_MSG              = "[" + USERNAME_MUST_NOT_BE_NULL              + "] Username" + AuthErrorCode.MUST_NOT_BE_NULL_MSG;
+	public static final String DUPLICATE_USER_MSG                         = "[" + DUPLICATE_USER                         + "] Duplicate user";
+	public static final String ERROR_STORING_USER_MSG                     = "[" + ERROR_STORING_USER                     + "] Error storing user";
+	public static final String ERROR_DELETING_USER_MSG                    = "[" + ERROR_DELETING_USER                    + "] Error deleting user";
 	// @formatter:on
 
 	/**

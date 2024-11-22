@@ -186,7 +186,7 @@ class RolesRepositoryTest {
 			.assertCompleted()
 			.assertItem(Tuple2.of(Long.valueOf(2), List.of(entity1, entity2)));
 	}
-	
+
 	/**
 	 * 
 	 */

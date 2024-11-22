@@ -66,7 +66,7 @@ public class RolesResource {
 	 */
 	@ConfigProperty(name = "base-url", defaultValue = "")
 	String baseUrl;
-	
+
 	/**
 	 * <p>
 	 * Repository of roles entities.

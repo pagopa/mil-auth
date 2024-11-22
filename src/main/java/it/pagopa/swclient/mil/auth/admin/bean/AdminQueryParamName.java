@@ -64,6 +64,13 @@ public class AdminQueryParamName {
 
 	/**
 	 * <p>
+	 * User name.
+	 * </p>
+	 */
+	public static final String USERNAME = "username";
+
+	/**
+	 * <p>
 	 * This class contains only constants.
 	 * </p>
 	 */
