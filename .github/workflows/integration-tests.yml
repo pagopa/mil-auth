@@ -60,7 +60,8 @@ jobs:
       #
       - name: Run integration tests
         run: |
-          ${{ runner.temp }}/maven/bin/mvn verify \
+          ${{ runner.temp }}/maven/bin/mvn clean compile verify \
+            -X \
             -s ${{ runner.temp }}/settings.xml \
             --no-transfer-progress \
             -DskipUTs=true \
