@@ -58,11 +58,9 @@ jobs:
       - name: Run integration tests
         run: |
           ${{ runner.temp }}/maven/bin/mvn verify \
-            -DforkCount=0 \
+            -Pit \
             -s ${{ runner.temp }}/settings.xml \
             --no-transfer-progress \
-            -DskipUTs=true \
-            -DskipITs=false \
             -Dbase_uri=${{ secrets.IT_BASE_URI }} \
             -Dadmin_client_id=${{ secrets.IT_ADMIN_CLIENT_ID }} \
             -Dadmin_client_secret=${{ secrets.IT_ADMIN_CLIENT_SECRET }} \
