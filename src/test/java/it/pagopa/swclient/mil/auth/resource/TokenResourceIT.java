@@ -56,7 +56,7 @@ class TokenResourceIT {
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "base_uri")
+	@ConfigProperty(name = "base_uri", defaultValue = "null")
 	String baseUri;
 	
 	@ConfigProperty(name = "port", defaultValue = "443")
@@ -65,28 +65,28 @@ class TokenResourceIT {
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "admin_client_id")
+	@ConfigProperty(name = "admin_client_id", defaultValue = "null")
 	String adminClientId;
 
-	@ConfigProperty(name = "admin_client_secret")
+	@ConfigProperty(name = "admin_client_secret", defaultValue = "null")
 	String adminClientSecret;
 
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "token_info_client_id")
+	@ConfigProperty(name = "token_info_client_id", defaultValue = "null")
 	String tokenInfoClientId;
 
-	@ConfigProperty(name = "token_info_client_secret")
+	@ConfigProperty(name = "token_info_client_secret", defaultValue = "null")
 	String tokenInfoClientSecret;
 
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "test_username")
+	@ConfigProperty(name = "test_username", defaultValue = "null")
 	String testUsername;
 
-	@ConfigProperty(name = "test_password")
+	@ConfigProperty(name = "test_password", defaultValue = "null")
 	String testPassword;
 
 	/**
