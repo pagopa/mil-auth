@@ -174,7 +174,7 @@ variable "mil_auth_max_replicas" {
 
 variable "mil_auth_min_replicas" {
   type    = number
-  default = 1
+  default = 0
 }
 
 variable "mil_auth_keyvault_maxresults" {
