@@ -57,7 +57,8 @@ jobs:
       #
       - name: Run integration tests
         run: |
-          ${{ runner.temp }}/maven/bin/mvn clean package verify \
+          ${{ runner.temp }}/maven/bin/mvn verify \
+            -DforkCount=0 \
             -s ${{ runner.temp }}/settings.xml \
             --no-transfer-progress \
             -DskipUTs=true \
