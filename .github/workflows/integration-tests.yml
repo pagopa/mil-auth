@@ -37,9 +37,6 @@ jobs:
     environment: cstar-d-mcshared
 
     steps:
-      - name: Reachability test
-        run: curl https://cstar-d-mcshared-auth-ca.blueforest-569cf489.westeurope.azurecontainerapps.io/.well-known/jwks.json
-        
       #
       # Checkout the source code.
       #
@@ -60,8 +57,7 @@ jobs:
       #
       - name: Run integration tests
         run: |
-          ${{ runner.temp }}/maven/bin/mvn clean compile verify \
-            -X \
+          ${{ runner.temp }}/maven/bin/mvn clean package verify \
             -s ${{ runner.temp }}/settings.xml \
             --no-transfer-progress \
             -DskipUTs=true \
