@@ -26,7 +26,6 @@ jobs:
           container_app_environment_name: ${{ secrets.ACA_ENV_NAME }}
           resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
           pat_token: ${{ secrets.GIT_PAT }}
-          self_hosted_runner_image_tag: 3.5.1
 
 
   integration_tests:
