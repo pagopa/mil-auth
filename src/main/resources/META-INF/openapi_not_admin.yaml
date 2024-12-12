@@ -41,8 +41,8 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/GetAccessToken'
       responses:
-        "201":
-          #description: Created
+        "200":
+          #description: Ok
           $ref: '#/components/responses/AccessToken'
         "400":
           #description: Bad request
