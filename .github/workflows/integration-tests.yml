@@ -4,13 +4,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  integration_tets:
+  integration_tests:
     runs-on: ubuntu-22.04
 
     environment: cstar-d-mcshared
-
-    permissions:
-      id-token: write # Get OIDC token to authenticate to Azure.
 
     steps:
       #
@@ -34,6 +31,8 @@ jobs:
       - name: Run integration tests
         run: |
           ${{ runner.temp }}/maven/bin/mvn verify \
+            -s ${{ runner.temp }}/settings.xml \
+            --no-transfer-progress \
             -DskipUTs=true \
             -DskipITs=false \
             -Dbase_uri=${{ secrets.IT_BASE_URI }} \
