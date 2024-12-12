@@ -37,6 +37,9 @@ jobs:
     environment: cstar-d-mcshared
 
     steps:
+      - name: Reachability test
+        run: curl https://cstar-d-mcshared-auth-ca.blueforest-569cf489.westeurope.azurecontainerapps.io/.well-known/jwks.json
+        
       #
       # Checkout the source code.
       #
