@@ -34,7 +34,6 @@ auth_st_resource_group_name    = "mil-d-data-rg"
 # ------------------------------------------------------------------------------
 cosmosdb_account_primary_mongodb_connection_string_kv_secret   = "cosmosdb-account-mil-primary-mongodb-connection-string"
 cosmosdb_account_secondary_mongodb_connection_string_kv_secret = "cosmosdb-account-mil-secondary-mongodb-connection-string"
-storage_account_primary_blob_endpoint_kv_secret                = "storage-account-auth-primary-blob-endpoint"
 key_vault_auth_vault_uri_kv_secret                             = "key-vault-auth-vault-uri"
 application_insigths_connection_string_kv_secret               = "application-insigths-mil-connection-string"
 
@@ -53,7 +52,7 @@ mil_auth_image                             = "ghcr.io/pagopa/mil-auth:latest"
 mil_auth_cpu                               = 1
 mil_auth_memory                            = "2Gi"
 mil_auth_max_replicas                      = 5
-mil_auth_min_replicas                      = 1
+mil_auth_min_replicas                      = 0
 mil_auth_keyvault_maxresults               = 20
 mil_auth_keyvault_backoff_num_of_attempts  = 5
 mil_auth_mongodb_connect_timeout           = "5s"

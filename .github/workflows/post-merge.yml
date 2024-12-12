@@ -75,6 +75,7 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}-RC\"" "src/main/resources/META-INF/openapi.yaml"
+          yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}-RC\"" "src/main/resources/META-INF/openapi_not_admin.yaml"
           ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }}-RC -s ${{ runner.temp }}/settings.xml --no-transfer-progress
 
       #
@@ -142,6 +143,7 @@ jobs:
         run: |
           ${{ runner.temp }}/maven/bin/mvn versions:set -DnewVersion=${{ steps.semantic.outputs.new_release_version }} -s ${{ runner.temp }}/settings.xml --no-transfer-progress
           yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}\"" "src/main/resources/META-INF/openapi.yaml"
+          yq -i ".info.version = \"${{ steps.semantic.outputs.new_release_version }}\"" "src/main/resources/META-INF/openapi_not_admin.yaml"
           git config user.name "GitHub Workflow"
           git config user.email "<>"
           git add pom.xml

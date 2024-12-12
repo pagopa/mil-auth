@@ -6,20 +6,15 @@ package it.pagopa.swclient.mil.auth.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.mockito.MockedStatic;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -37,7 +32,6 @@ import it.pagopa.swclient.mil.auth.dao.UserRepository;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
-import it.pagopa.swclient.mil.auth.util.PasswordVerifier;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import it.pagopa.swclient.mil.bean.Channel;
 import jakarta.inject.Inject;
@@ -96,40 +90,25 @@ class TokenByPasswordServiceTest {
 	/**
 	 * 
 	 * @throws ParseException
-	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void given_userCredentials_when_allGoesOk_then_getAccessToken() throws ParseException, NoSuchAlgorithmException {
+	void given_userCredentials_when_allGoesOk_then_getAccessToken() throws ParseException {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
-		final String password = "password";
-		final String salt = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
+		final String password = "3ebcd984-48b1-4df2-99d8-f5d550dbad02";
+		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
+		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-		byte[] saltBytes = Base64.getDecoder().decode(salt);
-
-		byte[] data = new byte[passwordBytes.length + saltBytes.length];
-		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
-		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-
-		byte[] passwordHashBytes = MessageDigest.getInstance("SHA256").digest(data);
-
-		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
-
-		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new UserEntity()
+		when(repository.findByUsername(username))
+			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel(Channel.POS)
 				.setMerchantId("merchant_id")
 				.setPasswordHash(passwordHash)
 				.setSalt(salt)
-				.setUsername(username)));
+				.setUsername(username))));
 
 		when(clientVerifier.verify("client_id", Channel.POS, null))
 			.thenReturn(UniGenerator.item(new ClientEntity()));
@@ -171,46 +150,16 @@ class TokenByPasswordServiceTest {
 	 * 
 	 */
 	@Test
-	void given_userCredentials_when_messageDigestThrowsException_then_getFailure() {
-		try (MockedStatic<MessageDigest> digest = mockStatic(MessageDigest.class)) {
-			digest.when(() -> MessageDigest.getInstance("SHA256"))
-				.thenThrow(NoSuchAlgorithmException.class);
-
-			GetAccessTokenRequest request = new GetAccessTokenRequest()
-				.setAcquirerId("acquirer_id")
-				.setChannel("channel")
-				.setClientId("client_id")
-				.setGrantType(GrantType.PASSWORD)
-				.setMerchantId("merchant_id")
-				.setTerminalId("terminal_id")
-				.setUsername("username")
-				.setPassword("password");
-
-			tokenByPasswordService.process(request)
-				.subscribe()
-				.withSubscriber(UniAssertSubscriber.create())
-				.assertFailedWith(AuthError.class);
-		}
-	}
-
-	/**
-	 * 
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void given_userCredentials_when_userNotFound_then_getFailure() throws NoSuchAlgorithmException {
+	void given_userCredentials_when_userNotFound_then_getFailure() {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
 		final String password = "password";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		when(repository.getUser(userHash))
-			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build())));
+		when(repository.findByUsername(username))
+			.thenReturn(Uni.createFrom()
+				.item(Optional.empty()));
 
 		/*
 		 * Test
@@ -233,21 +182,16 @@ class TokenByPasswordServiceTest {
 
 	/**
 	 * 
-	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void given_userCredentials_when_getUserReturns500_then_getFailure() throws NoSuchAlgorithmException {
+	void given_userCredentials_when_getUserReturns500_then_getFailure() {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
 		final String password = "password";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		when(repository.getUser(userHash))
+		when(repository.findByUsername(username))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
 		/*
@@ -271,21 +215,16 @@ class TokenByPasswordServiceTest {
 
 	/**
 	 * 
-	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void given_userCredentials_when_getUserThrowsAnotherException_then_getFailure() throws NoSuchAlgorithmException {
+	void given_userCredentials_when_getUserThrowsAnotherException_then_getFailure() {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
 		final String password = "password";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		when(repository.getUser(userHash))
+		when(repository.findByUsername(username))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic_exception")));
 
 		/*
@@ -309,40 +248,25 @@ class TokenByPasswordServiceTest {
 
 	/**
 	 * 
-	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void given_userCredentials_when_consistencyVerificationFailsDueToAcquirerId_then_getFailure() throws NoSuchAlgorithmException {
+	void given_userCredentials_when_consistencyVerificationFailsDueToAcquirerId_then_getFailure() {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
-		final String password = "password";
-		final String salt = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
+		final String password = "3ebcd984-48b1-4df2-99d8-f5d550dbad02";
+		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
+		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-		byte[] saltBytes = Base64.getDecoder().decode(salt);
-
-		byte[] data = new byte[passwordBytes.length + saltBytes.length];
-		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
-		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-
-		byte[] passwordHashBytes = MessageDigest.getInstance("SHA256").digest(data);
-
-		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
-
-		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new UserEntity()
+		when(repository.findByUsername(username))
+			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id_2")
 				.setChannel("channel")
 				.setMerchantId("merchant_id")
 				.setPasswordHash(passwordHash)
 				.setSalt(salt)
-				.setUsername(username)));
+				.setUsername(username))));
 
 		when(clientVerifier.verify("client_id", "channel", null))
 			.thenReturn(UniGenerator.item(new ClientEntity()));
@@ -372,40 +296,25 @@ class TokenByPasswordServiceTest {
 
 	/**
 	 * 
-	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void given_userCredentials_when_consistencyVerificationFailsDueToChannel_then_getFailure() throws NoSuchAlgorithmException {
+	void given_userCredentials_when_consistencyVerificationFailsDueToChannel_then_getFailure() {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
-		final String password = "password";
-		final String salt = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
+		final String password = "3ebcd984-48b1-4df2-99d8-f5d550dbad02";
+		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
+		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-		byte[] saltBytes = Base64.getDecoder().decode(salt);
-
-		byte[] data = new byte[passwordBytes.length + saltBytes.length];
-		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
-		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-
-		byte[] passwordHashBytes = MessageDigest.getInstance("SHA256").digest(data);
-
-		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
-
-		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new UserEntity()
+		when(repository.findByUsername(username))
+			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel_2")
 				.setMerchantId("merchant_id")
 				.setPasswordHash(passwordHash)
 				.setSalt(salt)
-				.setUsername(username)));
+				.setUsername(username))));
 
 		when(clientVerifier.verify("client_id", "channel", null))
 			.thenReturn(UniGenerator.item(new ClientEntity()));
@@ -435,40 +344,25 @@ class TokenByPasswordServiceTest {
 
 	/**
 	 * 
-	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void given_userCredentials_when_consistencyVerificationFailsDueToMerchantId_then_getFailure() throws NoSuchAlgorithmException {
+	void given_userCredentials_when_consistencyVerificationFailsDueToMerchantId_then_getFailure() {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
-		final String password = "password";
-		final String salt = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
+		final String password = "3ebcd984-48b1-4df2-99d8-f5d550dbad02";
+		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
+		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-		byte[] saltBytes = Base64.getDecoder().decode(salt);
-
-		byte[] data = new byte[passwordBytes.length + saltBytes.length];
-		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
-		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-
-		byte[] passwordHashBytes = MessageDigest.getInstance("SHA256").digest(data);
-
-		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
-
-		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new UserEntity()
+		when(repository.findByUsername(username))
+			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel")
 				.setMerchantId("merchant_id_2")
 				.setPasswordHash(passwordHash)
 				.setSalt(salt)
-				.setUsername(username)));
+				.setUsername(username))));
 
 		when(clientVerifier.verify("client_id", "channel", null))
 			.thenReturn(UniGenerator.item(new ClientEntity()));
@@ -498,40 +392,24 @@ class TokenByPasswordServiceTest {
 
 	/**
 	 * 
-	 * @throws NoSuchAlgorithmException
 	 */
 	@Test
-	void given_userCredentials_when_passwordIsWrong_then_getFailure() throws NoSuchAlgorithmException {
+	void given_userCredentials_when_passwordIsWrong_then_getFailure() {
 		/*
 		 * Setup
 		 */
 		final String username = "username";
-		final String password = "password";
-		final String salt = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
+		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
+		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-		byte[] saltBytes = Base64.getDecoder().decode(salt);
-
-		byte[] data = new byte[passwordBytes.length + saltBytes.length];
-		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
-		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-
-		byte[] passwordHashBytes = MessageDigest.getInstance("SHA256").digest(data);
-
-		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
-
-		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new UserEntity()
+		when(repository.findByUsername(username))
+			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel")
 				.setMerchantId("merchant_id")
 				.setPasswordHash(passwordHash)
 				.setSalt(salt)
-				.setUsername(username)));
+				.setUsername(username))));
 
 		when(clientVerifier.verify("client_id", "channel", null))
 			.thenReturn(UniGenerator.item(new ClientEntity()));
@@ -557,73 +435,5 @@ class TokenByPasswordServiceTest {
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertFailedWith(AuthException.class);
-	}
-
-	/**
-	 * 
-	 * @throws NoSuchAlgorithmException
-	 */
-	@Test
-	void given_userCredentials_when_passwordVerificationThrowsException_then_getFailure() throws NoSuchAlgorithmException {
-		/*
-		 * Setup
-		 */
-		final String username = "username";
-		final String password = "password";
-		final String salt = "zfN59oSr9RfFiiSASUO1YIcv8bARsj1OAV8tEydQiKC3su5Mlz1TsjbFwvWrGCjXdkDUsbeXGnYZDavJuTKw6Q==";
-
-		String userHash = Base64.getUrlEncoder()
-			.encodeToString(MessageDigest.getInstance("SHA256")
-				.digest(username.getBytes(StandardCharsets.UTF_8)));
-
-		byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-		byte[] saltBytes = Base64.getDecoder().decode(salt);
-
-		byte[] data = new byte[passwordBytes.length + saltBytes.length];
-		System.arraycopy(passwordBytes, 0, data, 0, passwordBytes.length);
-		System.arraycopy(saltBytes, 0, data, passwordBytes.length, saltBytes.length);
-
-		byte[] passwordHashBytes = MessageDigest.getInstance("SHA256").digest(data);
-
-		String passwordHash = Base64.getEncoder().encodeToString(passwordHashBytes);
-
-		when(repository.getUser(userHash))
-			.thenReturn(UniGenerator.item(new UserEntity()
-				.setAcquirerId("acquirer_id")
-				.setChannel("channel")
-				.setMerchantId("merchant_id")
-				.setPasswordHash(passwordHash)
-				.setSalt(salt)
-				.setUsername(username)));
-
-		when(clientVerifier.verify("client_id", "channel", null))
-			.thenReturn(UniGenerator.item(new ClientEntity()));
-
-		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
-			.thenReturn(UniGenerator.item(new SetOfRolesEntity()
-				.setRoles(List.of("role"))));
-
-		/*
-		 * Test
-		 */
-		try (MockedStatic<PasswordVerifier> passwordVerifier = mockStatic(PasswordVerifier.class)) {
-			passwordVerifier.when(() -> PasswordVerifier.verify(password, salt, passwordHash))
-				.thenThrow(NoSuchAlgorithmException.class);
-
-			GetAccessTokenRequest request = new GetAccessTokenRequest()
-				.setAcquirerId("acquirer_id")
-				.setChannel("channel")
-				.setClientId("client_id")
-				.setGrantType(GrantType.PASSWORD)
-				.setMerchantId("merchant_id")
-				.setTerminalId("terminal_id")
-				.setUsername(username)
-				.setPassword(password);
-
-			tokenByPasswordService.process(request)
-				.subscribe()
-				.withSubscriber(UniAssertSubscriber.create())
-				.assertFailedWith(AuthError.class);
-		}
 	}
 }

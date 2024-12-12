@@ -1,76 +1,39 @@
 /*
- * AuthDataRepository.java
+ * UserRepository.java
  *
  * 23 ott 2023
  */
 package it.pagopa.swclient.mil.auth.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Optional;
 
-import io.quarkus.cache.CacheResult;
-import io.quarkus.logging.Log;
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepository;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.util.AuthError;
-import it.pagopa.swclient.mil.azureservices.storageblob.service.AzureStorageBlobReactiveService;
+import it.pagopa.swclient.mil.observability.TraceReactivePanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.Response;
 
 /**
  * 
  * @author Antonio Tarricone
  */
+@TraceReactivePanacheMongoRepository
 @ApplicationScoped
-public class UserRepository {
-	/*
-	 * 
-	 */
-	private AzureStorageBlobReactiveService blobService;
-
-	/*
-	 * 
-	 */
-	private ObjectMapper json2obj;
-
+public class UserRepository implements ReactivePanacheMongoRepository<UserEntity> {
 	/**
 	 * 
-	 * @param blobService
+	 * @param username
+	 * @return
 	 */
-	UserRepository(AzureStorageBlobReactiveService blobService) {
-		this.blobService = blobService;
-		json2obj = new ObjectMapper();
+	public Uni<Optional<UserEntity>> findByUsername(String username) {
+		return find(UserEntity.USERNAME_PRP, username).firstResultOptional();
 	}
 
 	/**
 	 * 
-	 * @param r
+	 * @param username
 	 * @return
 	 */
-	private UserEntity response2User(Response r) {
-		if (r.getStatus() == 200) {
-			try {
-				return json2obj.readValue(r.readEntity(String.class), UserEntity.class);
-			} catch (JsonProcessingException e) {
-				String message = String.format("[%s] Error deserializing user data", AuthErrorCode.ERROR_SEARCHING_FOR_USER);
-				Log.error(message);
-				throw new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_USER, message);
-			}
-		} else {
-			String message = String.format("[%s] Error searching for user: %d", AuthErrorCode.ERROR_SEARCHING_FOR_USER, r.getStatus());
-			Log.error(message);
-			throw new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_USER, message);
-		}
-	}
-
-	/**
-	 * 
-	 * @param userHash
-	 * @return
-	 */
-	@CacheResult(cacheName = "client-role")
-	public Uni<UserEntity> getUser(String userHash) {
-		return blobService.getBlob("users", userHash + ".json")
-			.map(this::response2User);
+	public Uni<Long> deleteByUsername(String username) {
+		return delete(UserEntity.USERNAME_PRP, username);
 	}
 }

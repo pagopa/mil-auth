@@ -40,6 +40,21 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 			}
 		});
 
+		VALIDATORS.put(GrantType.PASSWORD + "/null", new Verifier() {
+			@Override
+			public boolean test(GetAccessTokenRequest getAccessToken) {
+				return acquirerIdMustBeNull(getAccessToken)
+					&& merchantIdMustBeNull(getAccessToken)
+					&& terminalIdMustBeNull(getAccessToken)
+					&& clientSecretMustBeNull(getAccessToken)
+					&& extTokenMustBeNull(getAccessToken)
+					&& addDataMustBeNull(getAccessToken)
+					&& refreshTokenMustBeNull(getAccessToken)
+					&& usernameMustNotBeNull(getAccessToken)
+					&& passwordMustNotBeNull(getAccessToken);
+			}
+		});
+
 		VALIDATORS.put(GrantType.REFRESH_TOKEN + "/" + Channel.POS, new Verifier() {
 			@Override
 			public boolean test(GetAccessTokenRequest getAccessToken) {
@@ -54,7 +69,22 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& passwordMustBeNull(getAccessToken)
 					&& scopeMustBeNull(getAccessToken);
 			}
+		});
 
+		VALIDATORS.put(GrantType.REFRESH_TOKEN + "/null", new Verifier() {
+			@Override
+			public boolean test(GetAccessTokenRequest getAccessToken) {
+				return acquirerIdMustBeNull(getAccessToken)
+					&& merchantIdMustBeNull(getAccessToken)
+					&& terminalIdMustBeNull(getAccessToken)
+					&& clientSecretMustBeNull(getAccessToken)
+					&& extTokenMustBeNull(getAccessToken)
+					&& addDataMustBeNull(getAccessToken)
+					&& refreshTokenMustNotBeNull(getAccessToken)
+					&& usernameMustBeNull(getAccessToken)
+					&& passwordMustBeNull(getAccessToken)
+					&& scopeMustBeNull(getAccessToken);
+			}
 		});
 
 		VALIDATORS.put(GrantType.POYNT_TOKEN + "/" + Channel.POS, new Verifier() {

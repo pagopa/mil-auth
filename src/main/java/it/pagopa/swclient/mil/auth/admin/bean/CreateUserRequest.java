@@ -1,7 +1,7 @@
 /*
- * CreateOrUpdateClientRequest.java
+ * CreateUserRequest.java
  *
- * 25 lug 2024
+ * 20 nov 2024
  */
 package it.pagopa.swclient.mil.auth.admin.bean;
 
@@ -11,13 +11,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.ErrorCode;
+import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.admin.AdminErrorCode;
+import it.pagopa.swclient.mil.auth.bean.AuthValidationPattern;
 import it.pagopa.swclient.mil.bean.ValidationPattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -30,7 +33,18 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @Data
 @Accessors(chain = true)
-public class CreateOrUpdateClientRequest {
+public class CreateUserRequest {
+	/**
+	 * <p>
+	 * User name.
+	 * </p>
+	 */
+	@JsonProperty(value = AdminJsonPropertyName.USERNAME)
+	@NotNull(message = AdminErrorCode.USERNAME_MUST_NOT_BE_NULL_MSG)
+	@Pattern(regexp = AuthValidationPattern.USERNAME, message = AuthErrorCode.USERNAME_MUST_MATCH_REGEXP_MSG)
+	@ToString.Exclude
+	private String username;
+
 	/**
 	 * <p>
 	 * Channel.
@@ -42,20 +56,19 @@ public class CreateOrUpdateClientRequest {
 
 	/**
 	 * <p>
-	 * Client description.
+	 * Acquirer ID.
 	 * </p>
 	 */
-	@JsonProperty(value = AdminJsonPropertyName.DESCRIPTION)
-	@NotNull(message = AdminErrorCode.DESCRIPTION_MUST_NOT_BE_NULL_MSG)
-	@Pattern(regexp = AdminValidationPattern.DESCRIPTION, message = AdminErrorCode.DESCRIPTION_MUST_MATCH_REGEXP_MSG)
-	private String description;
+	@JsonProperty(value = AdminJsonPropertyName.ACQUIRER_ID)
+	@Pattern(regexp = ValidationPattern.ACQUIRER_ID, message = ErrorCode.ACQUIRER_ID_MUST_MATCH_REGEXP_MSG)
+	private String acquirerId;
 
 	/**
 	 * <p>
-	 * Client subject.
+	 * Merchant ID.
 	 * </p>
 	 */
-	@JsonProperty(value = AdminJsonPropertyName.SUBJECT)
-	@Pattern(regexp = AdminValidationPattern.SUBJECT, message = AdminErrorCode.SUBJECT_MUST_MATCH_REGEXP_MSG)
-	private String subject;
+	@JsonProperty(value = AdminJsonPropertyName.MERCHANT_ID)
+	@Pattern(regexp = ValidationPattern.MERCHANT_ID, message = ErrorCode.MERCHANT_ID_MUST_MATCH_REGEXP_MSG)
+	private String merchantId;
 }

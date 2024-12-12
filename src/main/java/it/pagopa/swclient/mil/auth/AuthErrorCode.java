@@ -24,7 +24,7 @@ public final class AuthErrorCode {
 	public static final String REFRESH_TOKEN_MUST_MATCH_REGEXP  = MODULE_ID + "000008";
 	public static final String ERROR_SEARCHING_FOR_CLIENT       = MODULE_ID + "000009";
 	public static final String CLIENT_NOT_FOUND                 = MODULE_ID + "00000A";
-	public static final String ERROR_SEARCHING_FOR_CREDENTIALS  = MODULE_ID + "00000B";
+	public static final String ERROR_SEARCHING_FOR_USER         = MODULE_ID + "00000B";
 	public static final String WRONG_CREDENTIALS                = MODULE_ID + "00000C";
 	public static final String ERROR_VERIFING_CREDENTIALS       = MODULE_ID + "00000D";
 	public static final String INCONSISTENT_CREDENTIALS         = MODULE_ID + "00000E";
@@ -55,7 +55,7 @@ public final class AuthErrorCode {
 	public static final String ERROR_ENCRYPTING_CLAIM           = MODULE_ID + "000027";
 	public static final String ERROR_DECRYPTING_CLAIM           = MODULE_ID + "000028";
 	public static final String ERROR_SIGNING_TOKEN              = MODULE_ID + "000029";
-	public static final String ERROR_SEARCHING_FOR_USER         = MODULE_ID + "00002A";
+	public static final String USER_NOT_FOUND                   = MODULE_ID + "00002A";
 	// @formatter:on
 
 	public static final String MUST_NOT_BE_NULL_MSG = " must not be null";
@@ -64,7 +64,7 @@ public final class AuthErrorCode {
 	// @formatter:off
 	public static final String GRANT_TYPE_MUST_NOT_BE_NULL_MSG     = "[" + GRANT_TYPE_MUST_NOT_BE_NULL     + "] Grant type"    + MUST_NOT_BE_NULL_MSG;
 	public static final String GRANT_TYPE_MUST_MATCH_REGEXP_MSG    = "[" + GRANT_TYPE_MUST_MATCH_REGEXP    + "] Grant type"    + MUST_MATCH_REGEXP_MSG;
-	public static final String USERNAME_MUST_MATCH_REGEXP_MSG      = "[" + USERNAME_MUST_MATCH_REGEXP      + "] User name"     + MUST_MATCH_REGEXP_MSG;
+	public static final String USERNAME_MUST_MATCH_REGEXP_MSG      = "[" + USERNAME_MUST_MATCH_REGEXP      + "] Username"      + MUST_MATCH_REGEXP_MSG;
 	public static final String PASSWORD_MUST_MATCH_REGEXP_MSG      = "[" + PASSWORD_MUST_MATCH_REGEXP      + "] Password"      + MUST_MATCH_REGEXP_MSG;
 	public static final String REFRESH_TOKEN_MUST_MATCH_REGEXP_MSG = "[" + REFRESH_TOKEN_MUST_MATCH_REGEXP + "] Refresh token" + MUST_MATCH_REGEXP_MSG;
 	public static final String EXT_TOKEN_MUST_MATCH_REGEXP_MSG     = "[" + EXT_TOKEN_MUST_MATCH_REGEXP     + "] Ext token"     + MUST_MATCH_REGEXP_MSG;
@@ -74,9 +74,10 @@ public final class AuthErrorCode {
 	public static final String SCOPE_MUST_MATCH_REGEXP_MSG         = "[" + SCOPE_MUST_MATCH_REGEXP         + "] Scope"         + MUST_MATCH_REGEXP_MSG;
 	public static final String CLIENT_SECRET_MUST_MATCH_REGEXP_MSG = "[" + CLIENT_SECRET_MUST_MATCH_REGEXP + "] Client secret" + MUST_MATCH_REGEXP_MSG;
 	public static final String FISCAL_CODE_MUST_MATCH_REGEXP_MSG   = "[" + FISCAL_CODE_MUST_MATCH_REGEXP   + "] Fiscal code"   + MUST_MATCH_REGEXP_MSG;
-	public static final String INCONSISTENT_REQUEST_MSG            = "[" + INCONSISTENT_REQUEST            + "] Inconsistent request.";
+	public static final String INCONSISTENT_REQUEST_MSG            = "[" + INCONSISTENT_REQUEST            + "] Inconsistent request";
 	public static final String TOKEN_MUST_NOT_BE_NULL_MSG          = "[" + TOKEN_MUST_NOT_BE_NULL          + "] Token"         + MUST_NOT_BE_NULL_MSG;
 	public static final String TOKEN_MUST_MATCH_REGEXP_MSG         = "[" + TOKEN_MUST_MATCH_REGEXP         + "] Token"         + MUST_MATCH_REGEXP_MSG;
+	public static final String USER_NOT_FOUND_MSG                  = "[" + USER_NOT_FOUND                  + "] User not found";
 	// @formatter:on
 
 	/**

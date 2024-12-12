@@ -1,46 +1,34 @@
 /*
  * UserRepositoryTest.java
  *
- * 6 giu 2024
+ * 2 nov 2024
  */
 package it.pagopa.swclient.mil.auth.dao;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.mockito.Mockito;
 
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheQuery;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
-import it.pagopa.swclient.mil.azureservices.storageblob.service.AzureStorageBlobReactiveService;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 
-/**
- * 
- * @author Antonio Tarricone
- */
 @QuarkusTest
 class UserRepositoryTest {
 	/*
 	 * 
 	 */
-	@Inject
-	UserRepository repository;
-
-	/*
-	 * 
-	 */
 	@InjectMock
-	AzureStorageBlobReactiveService blobService;
+	UserRepository repository;
 
 	/**
 	 * 
@@ -52,106 +40,49 @@ class UserRepositoryTest {
 		System.out.println(frame);
 		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
 		System.out.println(frame);
+		Mockito.reset(repository);
 	}
 
 	/**
 	 * 
 	 */
 	@Test
-	void given_userData_when_invokeGetUser_then_getIt() {
-		/*
-		 * Setup
-		 */
-		when(blobService.getBlob("users", "user_hash.json"))
-			.thenReturn(UniGenerator.item(Response.ok("""
-				{
-				  "username": "username",
-				  "salt": "salt",
-				  "passwordHash": "passwordHash",
-				  "acquirerId": "acquirerId",
-				  "channel": "channel",
-				  "merchantId": "merchantId"
-				}
-				""")
-				.build()));
+	void testFindByUsername() {
+		UserEntity entity = new UserEntity("user_id", "username", "channel", "salt", "secret_hash", "acquirer_id", "merchant_id");
 
-		/*
-		 * Test
-		 */
-		repository.getUser("user_hash")
-			.subscribe()
-			.with(
-				actual -> {
-					assertThat(actual)
-						.usingRecursiveComparison()
-						.isEqualTo(new UserEntity("username", "salt", "passwordHash", "acquirerId", "channel", "merchantId"));
-				},
-				f -> fail(f));
-	}
+		@SuppressWarnings("unchecked")
+		ReactivePanacheQuery<UserEntity> query = mock(ReactivePanacheQuery.class);
+		when(query.firstResultOptional())
+			.thenReturn(Uni.createFrom().item(Optional.of(entity)));
 
-	/**
-	 * 
-	 */
-	@Test
-	void given_inexistentUserHash_when_invokeGetUser_then_getFailure() {
-		/*
-		 * Setup
-		 */
-		when(blobService.getBlob("users", "user_hash.json"))
-			.thenReturn(UniGenerator.item(Response.status(Status.NOT_FOUND)
-				.build()));
+		when(repository.find(UserEntity.USERNAME_PRP, "username"))
+			.thenReturn(query);
 
-		/*
-		 * Test
-		 */
-		repository.getUser("user_hash")
+		when(repository.findByUsername("username"))
+			.thenCallRealMethod();
+
+		repository.findByUsername("username")
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
-			.assertFailedWith(AuthError.class);
+			.assertCompleted()
+			.assertItem(Optional.of(entity));
 	}
 
 	/**
 	 * 
 	 */
 	@Test
-	void given_badUserData_when_invokeGetUser_then_getFailure() {
-		/*
-		 * Setup
-		 */
-		when(blobService.getBlob("users", "user_hash.json"))
-			.thenReturn(UniGenerator.item(Response.ok("""
-				{
-				  "imnotauser": "imnotauser"
-				}
-				""")
-				.build()));
+	void testDeleteByUsername() {
+		when(repository.delete(UserEntity.USERNAME_PRP, "83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+			.thenReturn(UniGenerator.item(Long.valueOf(1)));
 
-		/*
-		 * Test
-		 */
-		repository.getUser("user_hash")
+		when(repository.deleteByUsername("83c0b10f-b398-4cc8-b356-a3e0f0291679"))
+			.thenCallRealMethod();
+
+		repository.deleteByUsername("83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
-			.assertFailedWith(AuthError.class);
-	}
-
-	/**
-	 * 
-	 */
-	@Test
-	void given_errorFromBlobService_when_invokeGetUser_then_getFailure() {
-		/*
-		 * Setup
-		 */
-		when(blobService.getBlob("users", "user_hash.json"))
-			.thenReturn(Uni.createFrom().failure(new Exception("synthetic_exception")));
-
-		/*
-		 * Test
-		 */
-		repository.getUser("user_hash")
-			.subscribe()
-			.withSubscriber(UniAssertSubscriber.create())
-			.assertFailedWith(Exception.class);
+			.assertCompleted()
+			.assertItem(Long.valueOf(1));
 	}
 }

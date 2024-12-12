@@ -104,11 +104,11 @@ public class SecretTriplet {
 	 * 
 	 * @return
 	 */
-	public static SecretTriplet generate() {
+	public static SecretTriplet generate(int secretLen) {
 		/*
 		 * Generate random client secret.
 		 */
-		String secretStr = getSecureRandom().ints(SECRET_LEN, 0, SYMBOLS.length()) // 36 random integers included between [0, 63[
+		String secretStr = getSecureRandom().ints(secretLen, 0, SYMBOLS.length()) // 36 random integers included between [0, 63[
 			.map(SYMBOLS::charAt)
 			.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
 			.toString();
@@ -147,5 +147,13 @@ public class SecretTriplet {
 			secretStr,
 			Base64.getEncoder().encodeToString(saltBytes),
 			Base64.getEncoder().encodeToString(hash));
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public static SecretTriplet generate() {
+		return generate(SECRET_LEN);
 	}
 }

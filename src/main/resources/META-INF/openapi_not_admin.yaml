@@ -4,15 +4,18 @@ info:
   version: 2.13.0
   description: Authorization Microservice for Multi-channel Integration Layer of SW Client Project
   contact:
-    name: Antonio Tarricone
-    email: antonio.tarricone@pagopa.it
+    name: CSTAR
+    email: cstar@pagopa.it
 servers:
   - description: Development/Test
-    url: https://mil-d-apim.azure-api.net/mil-auth
+    url: https://api-mcshared.dev.cstar.pagopa.it/auth
     x-internal: true
   - description: User Acceptance Test
-    url: https://mil-u-apim.azure-api.net/mil-auth
+    url: https://api-mcshared.uat.cstar.pagopa.it/auth
     x-internal: true
+  - description: Production
+    url: https://api-mcshared.cstar.pagopa.it/auth
+    x-internal: false
 tags:
   - name: wellknown
     description: Well-known operation
@@ -38,8 +41,8 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/GetAccessToken'
       responses:
-        "201":
-          #description: Created
+        "200":
+          #description: Ok
           $ref: '#/components/responses/AccessToken'
         "400":
           #description: Bad request

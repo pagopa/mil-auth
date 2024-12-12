@@ -71,6 +71,7 @@
         <sonar.issue.ignore.multicriteria.e2.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e2.ruleKey>
         <sonar.issue.ignore.multicriteria.e2.resourceKey>src/test/java/**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
         <skipITs>true</skipITs>
+        <skipUTs>false</skipUTs>
     </properties>
 
     <dependencyManagement>
@@ -268,6 +269,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
+                    <skipTests>${skipUTs}</skipTests>
                     <systemPropertyVariables>
                         <java.util.logging.manager>
                             org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -356,6 +358,7 @@
                                     </limits>
                                 </rule>
                             </rules>
+                            <skip>${skipUTs}</skip>
                         </configuration>
                     </execution>
                 </executions>

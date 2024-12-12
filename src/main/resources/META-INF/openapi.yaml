@@ -4,15 +4,18 @@ info:
   version: 2.14.0
   description: Authorization Microservice for Multi-channel Integration Layer of SW Client Project
   contact:
-    name: Antonio Tarricone
-    email: antonio.tarricone@pagopa.it
+    name: CSTAR
+    email: cstar@pagopa.it
 servers:
   - description: Development/Test
-    url: https://mil-d-apim.azure-api.net/mil-auth
+    url: https://api-mcshared.dev.cstar.pagopa.it/auth
     x-internal: true
   - description: User Acceptance Test
-    url: https://mil-u-apim.azure-api.net/mil-auth
+    url: https://api-mcshared.uat.cstar.pagopa.it/auth
     x-internal: true
+  - description: Production
+    url: https://api-mcshared.cstar.pagopa.it/auth
+    x-internal: false
 tags:
   - name: wellknown
     description: Well-known operation
@@ -26,6 +29,8 @@ tags:
     description: Administrative operation for set of roles
   - name: maintenance
     description: Maintenance operation
+  - name: user
+    description: Administrative operation for user
 paths:
   /token:
     post:
@@ -44,8 +49,8 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/GetAccessToken'
       responses:
-        "201":
-          #description: Created
+        "200":
+          #description: Ok
           $ref: '#/components/responses/AccessToken'
         "400":
           #description: Bad request
@@ -614,6 +619,85 @@ paths:
         default:
           #description: Unexpected error
           $ref: '#/components/responses/Error'
+  /admin/users:
+    post:
+      operationId: createUser
+      description: Creates a new user
+      tags: [user]
+      security:
+        - oAuth2: [admin]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateUser'
+      responses:
+        "201":
+          #description: Created
+          $ref: '#/components/responses/CreateUser'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Wrong credentials
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+    delete:
+      operationId: deleteUserByUserName
+      description: Deletes a user by user name
+      tags: [user]
+      security:
+        - oAuth2: [admin]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/Username'
+      responses:
+        "204":
+          #description: No content
+          $ref: '#/components/responses/NoContent'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "404":
+          #description: Not found
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          #description: Unexpected error
+          $ref: '#/components/responses/Error'
+        
 components:
   # ========================================================
   # Schemas
@@ -945,6 +1029,14 @@ components:
       minimum: 0
       maximum: 9223372036854775807
       example: 20
+    UserLocation:
+      description: URL of the user
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+      minLength: 1
+      maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/mil-auth/admin/users/9c2ef3bb-bca5-4d27-b9a0-0b055cf0540e"
     Username:
       description: User name
       type: string
@@ -1085,6 +1177,32 @@ components:
         terminalId: "NA"
         roles:
           - "mil-auth-admin"
+    CreateUserReq:
+      description: Request to create an user
+      additionalProperties: false
+      properties:
+        username:
+          $ref: '#/components/schemas/Username'
+        channel:
+          $ref: '#/components/schemas/Channel'
+        acquirerId:
+          $ref: '#/components/schemas/AcquirerId'
+        merchantId:
+          $ref: '#/components/schemas/MerchantId'
+      required:
+        - username
+      example:
+        username: "mario.rossi@pagopa.it"
+    CreateUserRes:
+      description: Response to a request to create a new user
+      additionalProperties: false
+      properties:
+        password:
+          $ref: '#/components/schemas/Password'
+      required:
+        - password
+      example:
+        password: "Ar57f-7G-gz8T"
     DeletedKeys:
       description: List of IDs of deleted keys
       additionalProperties: false
@@ -1456,6 +1574,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CreateOrUpdateSetOfRolesReq'
+    CreateUser:
+      description: Request to create an user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUserReq'
     GetAccessToken:
       description: Request to get an access token by means of username and password or by refresh token or by external token
       content:
@@ -1581,6 +1705,13 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/TerminalIdOrNa'
+    Username:
+      name: username
+      in: query
+      description: Username
+      required: true
+      schema:
+        $ref: '#/components/schemas/Username'
     Version:
       name: Version
       in: header
@@ -1690,6 +1821,33 @@ components:
           required: true
           schema:
             $ref: '#/components/schemas/SetOfRolesLocation'
+    CreateUser:
+      description: Response returned when the creation of a new user is requested
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+        Location:
+          description: URL of the user
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserLocation'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUserRes'
     DeletedKeys:
       description: Response returned when cleaning of expired keys is requested
       headers:

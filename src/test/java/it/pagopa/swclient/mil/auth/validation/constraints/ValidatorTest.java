@@ -1250,6 +1250,401 @@ class ValidatorTest {
 	}
 
 	/*
+	 * GRANT TYPE = PASSWORD + CHANNEL = null
+	 */
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_allIsOk_then_getValid() {
+		assertTrue(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_acquirerIdIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId("acquirer_id")
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_merchantIdIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId("merchant_id")
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_terminalIdIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId("terminal_id")
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_clientSecretIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret("client_secret")
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_extTokentIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken("ext_token")
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_addDataIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData("add_data")
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_refreshTokenIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername("username")
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_usernameIsNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername(null)
+				.setPassword("password"),
+				null));
+	}
+
+	@Test
+	void given_grantTypePasswordAndChannelNull_when_passwordIsNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.PASSWORD)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername("username")
+				.setPassword(null),
+				null));
+	}
+
+	/*
+	 * GRANT TYPE = REFRESH TOKEN + CHANNEL = null
+	 */
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_allIsOk_then_getValid() {
+		assertTrue(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_acquirerIdIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId("acquirer_id")
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_merchsntIdIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId("merchant_id")
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_terminalIdIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId("terminal_id")
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_clientSecretIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret("client_secret")
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_extTokenIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken("ext_token")
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_addDatasNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData("add_data")
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_usernamerIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername("username")
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_passwordNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword("password")
+				.setScope(null),
+				null));
+	}
+
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_refreshTokenIsNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken(null)
+				.setUsername(null)
+				.setPassword(null)
+				.setScope(null),
+				null));
+	}
+	
+	@Test
+	void given_grantTypeRefreshTokenAndChannelNull_when_scopeIsNotNull_then_getNotValid() {
+		assertFalse(new Validator()
+			.isValid(new GetAccessTokenRequest()
+				.setGrantType(GrantType.REFRESH_TOKEN)
+				.setChannel(null)
+				.setAcquirerId(null)
+				.setMerchantId(null)
+				.setTerminalId(null)
+				.setClientSecret(null)
+				.setExtToken(null)
+				.setAddData(null)
+				.setRefreshToken("refresh_token")
+				.setUsername(null)
+				.setPassword(null)
+				.setScope("scope"),
+				null));
+	}
+
+	/*
 	 * OTHER GRANT TYPE + CHANNEL
 	 */
 	@Test
