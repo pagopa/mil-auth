@@ -30,7 +30,7 @@
             <organizationUrl>https://www.pagopa.it</organizationUrl>
         </developer>
     </developers>
-
+    
     <properties>
         <!-- Java version -->
         <java.version>21</java.version>
@@ -405,6 +405,34 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation> 
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                                <maven.home>${maven.home}</maven.home>
+                            </systemPropertyVariables>
+                            <excludes>
+                                <excludes>**/*Test.java</excludes>
+                            </excludes>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
