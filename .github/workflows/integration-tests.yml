@@ -26,7 +26,7 @@ jobs:
           container_app_environment_name: ${{ secrets.ACA_ENV_NAME }}
           resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
           pat_token: ${{ secrets.GIT_PAT }}
-          self_hosted_runner_image_tag: "3.5.1"
+          self_hosted_runner_image_tag: 3.5.1
 
 
   integration_tests:
@@ -90,6 +90,6 @@ jobs:
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resource_group_name: ${{ secrets.ACA_ENV_NAME }}
+          resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
           runner_name: ${{ needs.create_runner.outputs.runner_name }}
           pat_token: ${{ secrets.GIT_PAT }}
