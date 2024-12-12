@@ -26,6 +26,7 @@ jobs:
           container_app_environment_name: ${{ secrets.ACA_ENV_NAME }}
           resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
           pat_token: ${{ secrets.GIT_PAT }}
+          self_hosted_runner_image_tag: "v3.5.1"
 
 
   integration_tests:
@@ -35,20 +36,7 @@ jobs:
 
     environment: cstar-d-mcshared
 
-    permissions:
-      id-token: write
-
     steps:
-      #
-      # Login to Azure.
-      #
-      - name: Login to Azure
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
       #
       # Checkout the source code.
       #
