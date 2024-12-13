@@ -233,7 +233,7 @@ paths:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
       requestBody:
-        $ref: '#/components/requestBodies/CreateOrUpdateClient'
+        $ref: '#/components/requestBodies/CreateClient'
       responses:
         "201":
           #description: Created
@@ -339,7 +339,7 @@ paths:
           $ref: '#/components/responses/Error'
     patch:
       operationId: updateClient
-      description: Updated a client
+      description: Update a client
       tags: [client]
       security:
         - oAuth2: [admin]
@@ -348,7 +348,7 @@ paths:
         - $ref: '#/components/parameters/Version'
         - $ref: '#/components/parameters/ClientId'
       requestBody:
-        $ref: '#/components/requestBodies/CreateOrUpdateClient'
+        $ref: '#/components/requestBodies/UpdateClient'
       responses:
         "204":
           #description: No content
@@ -971,6 +971,9 @@ components:
       minLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
       maxLength: 44 # 32 bytes * 4 / 3 rounded up to a multiple of 4
       example: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
+    Secretless:
+      description: If true the client secret will not be generated
+      type: boolean
     SetOfRolesLocation:
       description: URL of the set of roles
       type: string
@@ -1117,8 +1120,8 @@ components:
           secretHash: "HJbRfwgwJ8FN5a4uejZdkuqoUEONdSnVIs5wREkJq+g="
           description: "SEND"
           subject: "send"
-    CreateOrUpdateClientReq:
-      description: Request to create or update a client
+    CreateClientReq:
+      description: Request to create a client
       additionalProperties: false
       properties:
         channel:
@@ -1127,6 +1130,8 @@ components:
           $ref: '#/components/schemas/ClientDescription'
         subject:
           $ref: '#/components/schemas/Subject'
+        secretless:
+          $ref: '#/components/schemas/Secretless'
       required:
         - description
       example:
@@ -1142,7 +1147,6 @@ components:
           $ref: '#/components/schemas/ClientSecret'
       required:
         - clientId
-        - clientSecret
       example:
         clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
         clientSecret: "265a5ac0-c651-428e-bed6-763f6cd244b5"
@@ -1558,16 +1562,31 @@ components:
         - fiscalCode
       example:
         fiscalCode: "RSSMRA85T10A562S"
+    UpdateClientReq:
+      description: Request to update a client
+      additionalProperties: false
+      properties:
+        channel:
+          $ref: '#/components/schemas/Channel'
+        description:
+          $ref: '#/components/schemas/ClientDescription'
+        subject:
+          $ref: '#/components/schemas/Subject'
+      required:
+        - description
+      example:
+        channel: "ATM"
+        description: "ATM Layer - Test Environment"
   # ========================================================
   # Request bodies
   # ========================================================
   requestBodies:
-    CreateOrUpdateClient:
-      description: Request to create or update a client
+    CreateClient:
+      description: Request to create a client
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/CreateOrUpdateClientReq'
+            $ref: '#/components/schemas/CreateClientReq'
     CreateOrUpdateSetOfRoles:
       description: Request to create or update a set of roles
       content:
@@ -1596,6 +1615,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/TokenInfoRequest'
+    UpdateClient:
+      description: Request to update a client
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateClientReq'
   # ========================================================
   # Parameters
   # ========================================================

@@ -21,11 +21,13 @@ import it.pagopa.swclient.mil.auth.admin.AdminErrorCode;
 import it.pagopa.swclient.mil.auth.admin.bean.AdminPathParamName;
 import it.pagopa.swclient.mil.auth.admin.bean.Client;
 import it.pagopa.swclient.mil.auth.admin.bean.CreateClientResponse;
-import it.pagopa.swclient.mil.auth.admin.bean.CreateOrUpdateClientRequest;
+import it.pagopa.swclient.mil.auth.admin.bean.CreateClientRequest;
 import it.pagopa.swclient.mil.auth.admin.bean.PageMetadata;
 import it.pagopa.swclient.mil.auth.admin.bean.PageOfClients;
 import it.pagopa.swclient.mil.auth.admin.bean.ReadClientsRequest;
+import it.pagopa.swclient.mil.auth.admin.bean.UpdateClientRequest;
 import it.pagopa.swclient.mil.auth.admin.util.ClientConverter;
+import it.pagopa.swclient.mil.auth.admin.util.SecretHolder;
 import it.pagopa.swclient.mil.auth.bean.AuthValidationPattern;
 import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.auth.dao.ClientRepository;
@@ -132,7 +134,7 @@ public class ClientResource {
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Uni<Response> create(@Valid CreateOrUpdateClientRequest req) {
+	public Uni<Response> create(@Valid CreateClientRequest req) {
 		Log.tracef("Create a new client: %s", req.toString());
 
 		/*
@@ -141,11 +143,19 @@ public class ClientResource {
 		Log.tracef("Generate random client id");
 		String clientId = UUID.randomUUID().toString();
 
-		/*
-		 * Generate secret triplet (secret, salt and hash).
-		 */
-		Log.tracef("Generate secret, salt and hash");
-		SecretTriplet triplet = SecretTriplet.generate();
+		String salt = null;
+		String hash = null;
+		SecretHolder secretHolder = new SecretHolder();
+		if (!req.isSecretless()) {
+			/*
+			 * Generate secret triplet (secret, salt and hash).
+			 */
+			Log.tracef("Generate secret, salt and hash");
+			SecretTriplet triplet = SecretTriplet.generate();
+			salt = triplet.getSalt();
+			hash = triplet.getHash();
+			secretHolder.setSecret(triplet.getSecret());
+		}
 
 		/*
 		 * Store client in the DB.
@@ -154,15 +164,16 @@ public class ClientResource {
 		ClientEntity entity = new ClientEntity(
 			clientId,
 			req.getChannel(),
-			triplet.getSalt(),
-			triplet.getHash(),
+			salt,
+			hash,
 			req.getDescription(),
 			req.getSubject());
 
 		return repository
 			.persist(entity)
 			.map(e -> {
-				CreateClientResponse res = new CreateClientResponse(clientId, triplet.getSecret());
+
+				CreateClientResponse res = new CreateClientResponse(clientId, secretHolder.getSecret());
 				Log.debugf("Client created successfully: %s", res.toString());
 				return Response.created(URI.create(baseUrl + "/admin/clients/" + clientId))
 					.entity(res)
@@ -292,7 +303,7 @@ public class ClientResource {
 	public Uni<Response> update(
 		@PathParam(AdminPathParamName.CLIENT_ID)
 		@Pattern(regexp = AuthValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG) String clientId,
-		CreateOrUpdateClientRequest req) {
+		UpdateClientRequest req) {
 		Log.tracef("Update client %s: %s", clientId, req);
 		return repository.updateByClientId(
 			clientId,

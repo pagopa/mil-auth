@@ -1,5 +1,5 @@
 /*
- * CreateOrUpdateClientRequest.java
+ * CreateClientRequest.java
  *
  * 25 lug 2024
  */
@@ -30,7 +30,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @Data
 @Accessors(chain = true)
-public class CreateOrUpdateClientRequest {
+public class CreateClientRequest {
 	/**
 	 * <p>
 	 * Channel.
@@ -58,4 +58,12 @@ public class CreateOrUpdateClientRequest {
 	@JsonProperty(value = AdminJsonPropertyName.SUBJECT)
 	@Pattern(regexp = AdminValidationPattern.SUBJECT, message = AdminErrorCode.SUBJECT_MUST_MATCH_REGEXP_MSG)
 	private String subject;
+	
+	/**
+	 * <p>
+	 * If true the secret will not be generated.
+	 * </p>
+	 */
+	@JsonProperty(value = AdminJsonPropertyName.SECRETLESS)
+	private boolean secretless;
 }

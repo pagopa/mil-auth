@@ -159,6 +159,13 @@ public class AdminJsonPropertyName {
 	 * </p>
 	 */
 	public static final String PASSWORD = "password";
+	
+	/**
+	 * <p>
+	 * Secretless flag.
+	 * </p>
+	 */
+	public static final String SECRETLESS = "secretless";
 
 	/**
 	 * <p>

@@ -8,6 +8,7 @@ package it.pagopa.swclient.mil.auth.admin.resource;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -37,9 +38,10 @@ import it.pagopa.swclient.mil.auth.admin.bean.AdminJsonPropertyName;
 import it.pagopa.swclient.mil.auth.admin.bean.AdminPathParamName;
 import it.pagopa.swclient.mil.auth.admin.bean.AdminQueryParamName;
 import it.pagopa.swclient.mil.auth.admin.bean.Client;
-import it.pagopa.swclient.mil.auth.admin.bean.CreateOrUpdateClientRequest;
+import it.pagopa.swclient.mil.auth.admin.bean.CreateClientRequest;
 import it.pagopa.swclient.mil.auth.admin.bean.PageMetadata;
 import it.pagopa.swclient.mil.auth.admin.bean.PageOfClients;
+import it.pagopa.swclient.mil.auth.admin.bean.UpdateClientRequest;
 import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.auth.dao.ClientRepository;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
@@ -101,7 +103,7 @@ class ClientResourceTest {
 			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
+			.body(new CreateClientRequest(null, "Test description", "test-subject", false))
 			.when()
 			.post()
 			.then()
@@ -110,6 +112,29 @@ class ClientResourceTest {
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(AdminJsonPropertyName.CLIENT_ID, notNullValue())
 			.body(AdminJsonPropertyName.CLIENT_SECRET, notNullValue());
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void given_requestToCreateNewSecretlessClient_when_allGoesOk_then_getClientId() {
+		when(repository.persist(any(ClientEntity.class)))
+			.thenReturn(UniGenerator.item(new ClientEntity()));
+
+		given()
+			.log().all()
+			.filter(validationFilter)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(new CreateClientRequest(null, "Test description", "test-subject", true))
+			.when()
+			.post()
+			.then()
+			.log().all()
+			.statusCode(201)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(AdminJsonPropertyName.CLIENT_ID, notNullValue())
+			.body(AdminJsonPropertyName.CLIENT_SECRET, nullValue());
 	}
 
 	/**
@@ -127,7 +152,7 @@ class ClientResourceTest {
 			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
+			.body(new CreateClientRequest(null, "Test description", "test-subject", false))
 			.when()
 			.post()
 			.then()
@@ -150,7 +175,7 @@ class ClientResourceTest {
 			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
+			.body(new CreateClientRequest(null, "Test description", "test-subject", false))
 			.when()
 			.post()
 			.then()
@@ -170,7 +195,7 @@ class ClientResourceTest {
 			.log().all()
 			.filter(validationFilter)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new CreateOrUpdateClientRequest(null, "Test description", "test-subject"))
+			.body(new CreateClientRequest(null, "Test description", "test-subject", false))
 			.when()
 			.post()
 			.then()
@@ -446,7 +471,7 @@ class ClientResourceTest {
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new CreateOrUpdateClientRequest("ATM", "Test description", "test-subject"))
+			.body(new UpdateClientRequest("ATM", "Test description", "test-subject"))
 			.when()
 			.patch("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
@@ -479,7 +504,7 @@ class ClientResourceTest {
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new CreateOrUpdateClientRequest("ATM", "Test description", "test-subject"))
+			.body(new UpdateClientRequest("ATM", "Test description", "test-subject"))
 			.when()
 			.patch("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
@@ -513,7 +538,7 @@ class ClientResourceTest {
 			.filter(validationFilter)
 			.pathParam(AdminPathParamName.CLIENT_ID, "83c0b10f-b398-4cc8-b356-a3e0f0291679")
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new CreateOrUpdateClientRequest("ATM", "Test description", "test-subject"))
+			.body(new UpdateClientRequest("ATM", "Test description", "test-subject"))
 			.when()
 			.patch("/{" + AdminPathParamName.CLIENT_ID + "}")
 			.then()
