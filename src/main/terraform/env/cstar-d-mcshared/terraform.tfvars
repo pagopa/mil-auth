@@ -19,8 +19,6 @@ general_kv_name                = "cstar-d-mcshared-gen-kv"
 general_kv_resource_group_name = "cstar-d-mcshared-sec-rg"
 auth_kv_name                   = "cstar-d-mcshared-auth-kv"
 auth_kv_resource_group_name    = "cstar-d-mcshared-sec-rg"
-auth_st_name                   = "cstardmcsharedauthst"
-auth_st_resource_group_name    = "cstar-d-mcshared-data-rg"
 
 # ------------------------------------------------------------------------------
 # Names of key vault secrets.
