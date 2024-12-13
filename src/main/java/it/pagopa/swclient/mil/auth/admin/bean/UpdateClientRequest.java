@@ -33,29 +33,29 @@ import lombok.experimental.Accessors;
 public class UpdateClientRequest {
 	/**
 	 * <p>
-	 * Channel.
+	 * New channel.
 	 * </p>
 	 */
 	@JsonProperty(value = AdminJsonPropertyName.CHANNEL)
 	@Pattern(regexp = ValidationPattern.CHANNEL, message = ErrorCode.CHANNEL_MUST_MATCH_REGEXP_MSG)
-	private String channel;
+	private String newChannel;
 
 	/**
 	 * <p>
-	 * Client description.
+	 * New client description.
 	 * </p>
 	 */
 	@JsonProperty(value = AdminJsonPropertyName.DESCRIPTION)
 	@NotNull(message = AdminErrorCode.DESCRIPTION_MUST_NOT_BE_NULL_MSG)
 	@Pattern(regexp = AdminValidationPattern.DESCRIPTION, message = AdminErrorCode.DESCRIPTION_MUST_MATCH_REGEXP_MSG)
-	private String description;
+	private String newDescription;
 
 	/**
 	 * <p>
-	 * Client subject.
+	 * New client subject.
 	 * </p>
 	 */
 	@JsonProperty(value = AdminJsonPropertyName.SUBJECT)
 	@Pattern(regexp = AdminValidationPattern.SUBJECT, message = AdminErrorCode.SUBJECT_MUST_MATCH_REGEXP_MSG)
-	private String subject;
+	private String newSubject;
 }

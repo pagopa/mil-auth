@@ -307,9 +307,9 @@ public class ClientResource {
 		Log.tracef("Update client %s: %s", clientId, req);
 		return repository.updateByClientId(
 			clientId,
-			req.getChannel(),
-			req.getDescription(),
-			req.getSubject())
+			req.getNewChannel(),
+			req.getNewDescription(),
+			req.getNewSubject())
 			.onFailure().transform(this::onUpdateError)
 			.map(n -> {
 				if (n > 0) {
