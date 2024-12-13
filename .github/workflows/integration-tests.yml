@@ -66,7 +66,6 @@ jobs:
             -Dadmin_client_id=${{ secrets.IT_ADMIN_CLIENT_ID }} \
             -Dadmin_client_secret=${{ secrets.IT_ADMIN_CLIENT_SECRET }} \
             -Dsecretless_client_id=${{ secrets.IT_SECRETLESS_CLIENT_ID }} \
-            -Dtoken_info_client_secret=${{ secrets.IT_TOKEN_INFO_CLIENT_SECRET }} \
             -Dtest_username=${{ secrets.IT_TEST_USERNAME }} \
             -Dtest_password=${{ secrets.IT_TEST_PASSWORD }}
 
