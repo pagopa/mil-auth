@@ -211,7 +211,7 @@ jobs:
   #                                                                            #
   ############################################################################## 
   cleanup_runner:
-    needs: create_runner
+    needs: [create_runner, integration_tests]
     
     if: always()
     
