@@ -1,4 +1,4 @@
-name: Post-merge/release workflow
+name: Post-merge/release workflow for CSTAR
 
 on:
   workflow_dispatch:

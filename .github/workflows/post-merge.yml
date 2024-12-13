@@ -1,4 +1,4 @@
-name: Post-merge/release workflow
+name: Post-merge/release workflow for MIL
 
 on:
   workflow_dispatch:
