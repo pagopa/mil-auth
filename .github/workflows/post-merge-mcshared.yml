@@ -117,14 +117,8 @@ jobs:
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
         run: |
-          terraform init \
-            -backend-config="env/cstar-d-mcshared/backend.tfvars" \ 
-            -reconfigure
-          terraform apply \
-            -var-file="env/cstar-d-mcshared/terraform.tfvars" \
-            -var="mil_auth_image=${{ steps.rc_image.outputs.image }}" \
-            -auto-approve \
-            -lock-timeout=300s
+          terraform init -backend-config="env/cstar-d-mcshared/backend.tfvars" -reconfigure
+          terraform apply -var-file="env/cstar-d-mcshared/terraform.tfvars" -var="mil_auth_image=${{ steps.rc_image.outputs.image }}" -auto-approve -lock-timeout=300s
 
   ##############################################################################
   #                                                                            #
@@ -308,14 +302,8 @@ jobs:
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
         run: |
-          terraform init \
-            -backend-config="env/cstar-d-mcshared/backend.tfvars" \
-            -reconfigure
-          terraform apply \
-            -var-file="env/cstar-d-mcshared/terraform.tfvars" \
-            -var="mil_auth_image=${{ steps.stable_image.outputs.image }}" \
-            -auto-approve \
-            -lock-timeout=300s
+          terraform init -backend-config="env/cstar-d-mcshared/backend.tfvars" -reconfigure
+          terraform apply -var-file="env/cstar-d-mcshared/terraform.tfvars" -var="mil_auth_image=${{ steps.stable_image.outputs.image }}" -auto-approve -lock-timeout=300s
 
   ##############################################################################
   #                                                                            #
@@ -358,11 +346,5 @@ jobs:
           ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
         run: |
-          terraform init \
-            -backend-config="env/cstar-u-mcshared/backend.tfvars" \
-            -reconfigure
-          terraform apply \
-            -var-file="env/cstar-u-mcshared/terraform.tfvars" \
-            -var="mil_auth_image=${{ needs.stable.outputs.image }}" \
-            -auto-approve \
-            -lock-timeout=300s
+          terraform init -backend-config="env/cstar-u-mcshared/backend.tfvars" -reconfigure
+          terraform apply -var-file="env/cstar-u-mcshared/terraform.tfvars" -var="mil_auth_image=${{ needs.stable.outputs.image }}" -auto-approve -lock-timeout=300s
