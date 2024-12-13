@@ -6,39 +6,27 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.File;
 
 import org.assertj.core.util.Files;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.nimbusds.jose.util.StandardCharset;
 
-import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import it.pagopa.swclient.mil.auth.bean.AuthFormParamName;
 import it.pagopa.swclient.mil.auth.bean.AuthJsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
-import it.pagopa.swclient.mil.auth.bean.TokenType;
-import jakarta.ws.rs.core.MediaType;
 
 /**
  * To run this from your workstation, connect to CSTAR-DEV by VPN and:
  * 
  * // @formatter:off
  * 
- * mvn verify \
-  -DskipUTs=true \
-  -DskipITs=false \
+ * mvn test-compile -q exec:java -Pit2 -Dexec.classpathScope=test
   -Dbase_uri=https://cstar-d-mcshared-auth-ca.blueforest-569cf489.westeurope.azurecontainerapps.io:443 \
   -Dadmin_client_id=f0ef1b15-c54a-4552-9e9a-2ca4d83260d7 \
   -Dadmin_client_secret=7fc345f5-0f6f-4df1-9f1c-21a6a8a95da0 \
@@ -51,75 +39,56 @@ import jakarta.ws.rs.core.MediaType;
  * 
  * @author antonio.tarricone
  */
-@QuarkusTest
-class TokenResourceIT {
+public class TokenResourceIntegration {
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "base_uri", defaultValue = "null")
-	String baseUri;
-	
-	@ConfigProperty(name = "port", defaultValue = "443")
-	int port;
-	
-	/*
-	 * 
-	 */
-	@ConfigProperty(name = "admin_client_id", defaultValue = "null")
-	String adminClientId;
-
-	@ConfigProperty(name = "admin_client_secret", defaultValue = "null")
-	String adminClientSecret;
+	private String baseUri;
 
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "token_info_client_id", defaultValue = "null")
-	String tokenInfoClientId;
-
-	@ConfigProperty(name = "token_info_client_secret", defaultValue = "null")
-	String tokenInfoClientSecret;
+	private String adminClientId;
+	private String adminClientSecret;
 
 	/*
 	 * 
 	 */
-	@ConfigProperty(name = "test_username", defaultValue = "null")
-	String testUsername;
+	private String tokenInfoClientId;
+	private String tokenInfoClientSecret;
 
-	@ConfigProperty(name = "test_password", defaultValue = "null")
-	String testPassword;
+	/*
+	 * 
+	 */
+	private String testUsername;
+	private String testPassword;
 
 	/**
 	 * 
 	 */
-	@BeforeAll
-	static void loadOpenApiDescriptor() {
+	public TokenResourceIntegration() {
 		RestAssured.filters(
 			new OpenApiValidationFilter(
 				Files.contentOf(
 					new File("src/main/resources/META-INF/openapi.yaml"),
-					StandardCharset.UTF_8))/*,
-			new RequestLoggingFilter(System.out),
-			new ResponseLoggingFilter(System.out)*/);
-	}
+					StandardCharset.UTF_8)));
 
-	/**
-	 * 
-	 * @param testInfo
-	 */
-	@BeforeEach
-	void init(TestInfo testInfo) {
-		String frame = "*".repeat(testInfo.getDisplayName().length() + 11);
-		System.out.println(frame);
-		System.out.printf("* %s: START *%n", testInfo.getDisplayName());
-		System.out.println(frame);
+		baseUri = System.getProperty("base_uri");
+
+		adminClientId = System.getProperty("admin_client_id");
+		adminClientSecret = System.getProperty("admin_client_secret");
+
+		tokenInfoClientId = System.getProperty("token_info_client_id");
+		tokenInfoClientSecret = System.getProperty("token_info_client_secret");
+
+		testUsername = System.getProperty("test_username");
+		testPassword = System.getProperty("test_password");
 	}
 
 	/**
 	 * 
 	 */
-	@Test
-	void given_rightClientCredentials_when_theEndPointIsInvoked_then_getAccessToken() {
+	private TokenResourceIntegration given_rightClientCredentials_when_theEndPointIsInvoked_then_getAccessToken() {
 		given()
 			.baseUri(baseUri)
 			.formParam(AuthFormParamName.CLIENT_ID, adminClientId)
@@ -130,13 +99,13 @@ class TokenResourceIT {
 			.then()
 			.statusCode(200)
 			.body(AuthJsonPropertyName.REFRESH_TOKEN, nullValue());
+		return this;
 	}
-	
+
 	/**
 	 * 
 	 */
-	@Test
-	void given_wrongClientId_when_theEndPointIsInvoked_then_getError() {
+	private TokenResourceIntegration given_wrongClientId_when_theEndPointIsInvoked_then_getError() {
 		given()
 			.baseUri(baseUri)
 			.formParam(AuthFormParamName.CLIENT_ID, "00000000-0000-0000-0000-000000000000")
@@ -146,13 +115,13 @@ class TokenResourceIT {
 			.post("/token")
 			.then()
 			.statusCode(401);
+		return this;
 	}
-	
+
 	/**
 	 * 
 	 */
-	@Test
-	void given_wrongClientSecret_when_theEndPointIsInvoked_then_getError() {
+	private TokenResourceIntegration given_wrongClientSecret_when_theEndPointIsInvoked_then_getError() {
 		given()
 			.baseUri(baseUri)
 			.formParam(AuthFormParamName.CLIENT_ID, adminClientId)
@@ -162,13 +131,13 @@ class TokenResourceIT {
 			.post("/token")
 			.then()
 			.statusCode(401);
+		return this;
 	}
-	
+
 	/**
 	 * 
 	 */
-	@Test
-	void given_rightClientCredentialsAndOfflineAccessIsRequired_when_theEndPointIsInvoked_then_getAccessToken() {
+	private TokenResourceIntegration given_rightClientCredentialsAndOfflineAccessIsRequired_when_theEndPointIsInvoked_then_getAccessToken() {
 		given()
 			.baseUri(baseUri)
 			.formParam(AuthFormParamName.CLIENT_ID, adminClientId)
@@ -179,13 +148,13 @@ class TokenResourceIT {
 			.post("/token")
 			.then()
 			.statusCode(400);
+		return this;
 	}
-	
+
 	/**
 	 * 
 	 */
-	@Test
-	void given_rightClientCredentialsAndFiscalCode_when_theEndPointIsInvoked_then_getAccessToken() {
+	private TokenResourceIntegration given_rightClientCredentialsAndFiscalCode_when_theEndPointIsInvoked_then_getAccessToken() {
 		given()
 			.baseUri(baseUri)
 			.formParam(AuthFormParamName.CLIENT_ID, adminClientId)
@@ -197,5 +166,19 @@ class TokenResourceIT {
 			.then()
 			.statusCode(200)
 			.body(AuthJsonPropertyName.REFRESH_TOKEN, nullValue());
+		return this;
+	}
+
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		new TokenResourceIntegration()
+			.given_rightClientCredentials_when_theEndPointIsInvoked_then_getAccessToken()
+			.given_wrongClientId_when_theEndPointIsInvoked_then_getError()
+			.given_wrongClientSecret_when_theEndPointIsInvoked_then_getError()
+			.given_rightClientCredentialsAndOfflineAccessIsRequired_when_theEndPointIsInvoked_then_getAccessToken()
+			.given_rightClientCredentialsAndFiscalCode_when_theEndPointIsInvoked_then_getAccessToken();
 	}
 }
