@@ -26,7 +26,7 @@ jobs:
           container_app_environment_name: ${{ secrets.ACA_ENV_NAME }}
           resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
           pat_token: ${{ secrets.GIT_PAT }}
-          self_hosted_runner_image_tag: "3.5.1"
+          self_hosted_runner_image_tag: "v3.5.1"
 
 
   integration_tests:
@@ -58,10 +58,9 @@ jobs:
       - name: Run integration tests
         run: |
           ${{ runner.temp }}/maven/bin/mvn verify \
+            -Pit \
             -s ${{ runner.temp }}/settings.xml \
             --no-transfer-progress \
-            -DskipUTs=true \
-            -DskipITs=false \
             -Dbase_uri=${{ secrets.IT_BASE_URI }} \
             -Dadmin_client_id=${{ secrets.IT_ADMIN_CLIENT_ID }} \
             -Dadmin_client_secret=${{ secrets.IT_ADMIN_CLIENT_SECRET }} \
