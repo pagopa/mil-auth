@@ -4,8 +4,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  integration_tests:
+  create_runner:
     runs-on: ubuntu-22.04
+    
+    environment: cstar-d-mcshared
+    
+    permissions:
+      id-token: write
+    
+    outputs:
+      runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
+    
+    steps:
+      - name: Create GitHub Runner
+        id: create_github_runner
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@ca5ac73f306764b9ec186af3594d905deab50590
+        with:
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          container_app_environment_name: ${{ secrets.ACA_ENV_NAME }}
+          resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
+          pat_token: ${{ secrets.GIT_PAT }}
+          self_hosted_runner_image_tag: "3.5.1"
+
+
+  integration_tests:
+    runs-on: [self-hosted, "${{ needs.create_runner.outputs.runner_name }}"]
+    
+    needs: create_runner
 
     environment: cstar-d-mcshared
 
@@ -42,3 +69,27 @@ jobs:
             -Dtoken_info_client_secret=${{ secrets.IT_TOKEN_INFO_CLIENT_SECRET }} \
             -Dtest_username=${{ secrets.IT_TEST_USERNAME }} \
             -Dtest_password=${{ secrets.IT_TEST_PASSWORD }}
+
+
+  cleanup_runner:
+    if: always()
+    
+    runs-on: ubuntu-22.04
+    
+    environment: cstar-d-mcshared
+    
+    permissions:
+      id-token: write
+    
+    needs: [create_runner, integration_tests]
+    
+    steps:
+      - name: Cleanup GitHub Runner
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-cleanup-action@0ee2f58fd46d10ac7f00bce4304b98db3dbdbe9a
+        with:
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
+          runner_name: ${{ needs.create_runner.outputs.runner_name }}
+          pat_token: ${{ secrets.GIT_PAT }}
