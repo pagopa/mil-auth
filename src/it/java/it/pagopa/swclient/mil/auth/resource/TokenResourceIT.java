@@ -81,9 +81,9 @@ class TokenResourceIT {
 			new OpenApiValidationFilter(
 				Files.contentOf(
 					new File("src/main/resources/META-INF/openapi.yaml"),
-					StandardCharset.UTF_8)),
+					StandardCharset.UTF_8))/*,
 			new RequestLoggingFilter(),
-			new ResponseLoggingFilter());
+			new ResponseLoggingFilter()*/);
 
 		baseUri = System.getProperty("base_uri");
 
