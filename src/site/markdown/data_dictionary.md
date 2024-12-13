@@ -181,3 +181,23 @@
 	]
 }
 ```
+
+## Ruoli attualmente registrati
+| Ruoli                   | Descrizione |
+| ----------------------- | ----------- |
+| `emd-tpp`               |             |
+| `EnrollToIDPay`         |             |
+| `InstitutionPortal`     |             |
+| `mil_papos_admin`       |             |
+| `mil-auth-admin`        |             |
+| `Nodo`                  |             |
+| `NoticePayer`           |             |
+| `PayWithIDPay`          |             |
+| `pos_service_provider`  |             |
+| `public_administration` |             |
+| `read_rtp_activations`  |             |
+| `send`                  |             |
+| `SlavePos`              |             |
+| `token_info`            |             |
+| `write_rtp_activations` |             |
+| `write_rtp_send`        |             |
