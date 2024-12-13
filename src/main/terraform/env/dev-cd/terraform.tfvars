@@ -26,8 +26,6 @@ general_kv_name                = "mil-d-general-kv"
 general_kv_resource_group_name = "mil-d-sec-rg"
 auth_kv_name                   = "mil-d-auth-kv"
 auth_kv_resource_group_name    = "mil-d-sec-rg"
-auth_st_name                   = "mildauthst"
-auth_st_resource_group_name    = "mil-d-data-rg"
 
 # ------------------------------------------------------------------------------
 # Names of key vault secrets.
