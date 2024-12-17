@@ -101,7 +101,7 @@ class TokenByPasswordServiceTest {
 		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
 		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel(Channel.POS)
@@ -157,7 +157,7 @@ class TokenByPasswordServiceTest {
 		final String username = "username";
 		final String password = "password";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(Uni.createFrom()
 				.item(Optional.empty()));
 
@@ -191,7 +191,7 @@ class TokenByPasswordServiceTest {
 		final String username = "username";
 		final String password = "password";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(Uni.createFrom().failure(new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build())));
 
 		/*
@@ -224,7 +224,7 @@ class TokenByPasswordServiceTest {
 		final String username = "username";
 		final String password = "password";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(Uni.createFrom().failure(new Exception("synthetic_exception")));
 
 		/*
@@ -259,7 +259,7 @@ class TokenByPasswordServiceTest {
 		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
 		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id_2")
 				.setChannel("channel")
@@ -307,7 +307,7 @@ class TokenByPasswordServiceTest {
 		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
 		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel_2")
@@ -355,7 +355,7 @@ class TokenByPasswordServiceTest {
 		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
 		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel")
@@ -402,7 +402,7 @@ class TokenByPasswordServiceTest {
 		final String salt = "TSO2VIJixd6taCapX1Aq9bTIbTAEuDtXzLleB9A3W6NUgppiJkNbAnBX8CVYvpsPMpzJHGhK2ouHDONevrcVUg==";
 		final String passwordHash = "gKWXj0IXDkeO5xvrozbm47tO+SXHNGN8pE5ql3W4Hgo=";
 
-		when(repository.findByUsername(username))
+		when(repository.findByUsernameAndClientId(username, "client_id"))
 			.thenReturn(UniGenerator.item(Optional.of(new UserEntity()
 				.setAcquirerId("acquirer_id")
 				.setChannel("channel")

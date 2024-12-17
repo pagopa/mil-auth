@@ -71,4 +71,14 @@ public class CreateUserRequest {
 	@JsonProperty(value = AdminJsonPropertyName.MERCHANT_ID)
 	@Pattern(regexp = ValidationPattern.MERCHANT_ID, message = ErrorCode.MERCHANT_ID_MUST_MATCH_REGEXP_MSG)
 	private String merchantId;
+	
+	/**
+	 * <p>
+	 * Client ID.
+	 * </p>
+	 */
+	@JsonProperty(value = AdminJsonPropertyName.CLIENT_ID)
+	@NotNull(message = AuthErrorCode.CLIENT_ID_MUST_NOT_BE_NULL_MSG)
+	@Pattern(regexp = AuthValidationPattern.CLIENT_ID, message = AuthErrorCode.CLIENT_ID_MUST_MATCH_REGEXP_MSG)
+	private String clientId;
 }

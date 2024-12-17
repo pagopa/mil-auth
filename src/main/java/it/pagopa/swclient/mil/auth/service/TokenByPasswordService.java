@@ -63,15 +63,16 @@ public class TokenByPasswordService extends TokenService {
 	@CacheResult(cacheName = "client-role")
 	public Uni<UserEntity> findUser(GetAccessTokenRequest getAccessToken) {
 		String username = getAccessToken.getUsername();
-		Log.tracef("Search for the user %s", username);
-		return repository.findByUsername(username)
+		String clientId = getAccessToken.getClientId();
+		Log.tracef("Search for the user %s and client %s", username, clientId);
+		return repository.findByUsernameAndClientId(username, clientId)
 			.onFailure().transform(t -> {
-				String message = String.format("[%s] Error searching for user %s", AuthErrorCode.ERROR_SEARCHING_FOR_USER, username);
+				String message = String.format("[%s] Error searching for user %s with client %s", AuthErrorCode.ERROR_SEARCHING_FOR_USER, username, clientId);
 				Log.errorf(t, message);
 				return new AuthError(AuthErrorCode.ERROR_SEARCHING_FOR_USER, message);
 			})
 			.map(opt -> opt.orElseThrow(() -> {
-				String message = String.format("[%s] User %s not found", AuthErrorCode.USER_NOT_FOUND, username);
+				String message = String.format("[%s] User %s with client %s not found", AuthErrorCode.USER_NOT_FOUND, username, clientId);
 				Log.warn(message);
 				throw new AuthException(AuthErrorCode.USER_NOT_FOUND, message);
 			}))
@@ -83,6 +84,8 @@ public class TokenByPasswordService extends TokenService {
 	 * <p>
 	 * If the verification succeeds, the method returns ResourceOwnerCredentialsEntity, otherwise it
 	 * returns a failure with specific error code.
+	 * 
+	 * TODO: AGGIUNGERE IL CONTROLLO DEL CLIENT_ID
 	 *
 	 * @param userEntity
 	 * @param getAccessToken
@@ -136,8 +139,6 @@ public class TokenByPasswordService extends TokenService {
 
 	/**
 	 * This method verifies credentials.
-	 * <p>
-	 * ResourceOwnerCredentialsEntity
 	 *
 	 * @param getAccessToken
 	 */
