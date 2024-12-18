@@ -281,6 +281,14 @@ jobs:
           git push origin main
 
       #
+      # Install Node.
+      #
+      - name: Install Node
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version: "20.18.0"
+          
+      #
       # Calculation of the new version (again) with tagging + releasing + etc.
       #
       - name: Calculation of the new version (w/o dry_run) and put tag
@@ -311,7 +319,6 @@ jobs:
       # STABLE - Update Container App.
       #
       - name: STABLE - Update Container App
-        if: steps.semantic.outputs.new_release_published == 'true'
         shell: bash
         working-directory: src/main/terraform
         env:
