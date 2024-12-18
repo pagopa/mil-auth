@@ -22,6 +22,7 @@ other=$@
 
 source "./env/$env/backend.ini"
 az account set -s "${subscription}"
+export ARM_SUBSCRIPTION_ID="$(az account list --query "[?isDefault].id" --output tsv)"
 
 if echo "init plan apply refresh import output state taint destroy console" | grep -w $action > /dev/null; then
   if [ $action = "init" ]; then

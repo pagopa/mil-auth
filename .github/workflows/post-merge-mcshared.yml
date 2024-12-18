@@ -248,6 +248,21 @@ jobs:
     
     steps:
       #
+      # Checkout the source code.
+      #
+      - name: Checkout the source code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
+
+      #
+      # Setup Java Build Environment.
+      #
+      - name: Setup Java Build Environment
+        uses: pagopa/mil-actions/setup-java-build-env@f782a1b3cdb79afda2c10007ae46b831b31fe640 # 1.1.2
+        with:
+          gh_user: ${{ secrets.GIT_USER }}
+          gh_token: ${{ secrets.GIT_PAT }}
+      
+      #
       # STABLE - Update of pom.xml and openapi.yaml with the new version.
       #
       - name: STABLE - Update of pom.xml and openapi.yaml with the new version
