@@ -35,6 +35,7 @@ public class UserEntity {
 	public static final String PASSWORD_HASH_PRP = "passwordHash";
 	public static final String ACQUIRER_ID_PRP = "acquirerId";
 	public static final String MERCHANT_ID_PRP = "merchantId";
+	public static final String CLIENT_ID_PRP = "clientId";
 
 	/*
 	 * Used by MongoDB for the _id field.
@@ -83,6 +84,12 @@ public class UserEntity {
 	 */
 	@BsonProperty(value = MERCHANT_ID_PRP)
 	public String merchantId;
+	
+	/*
+	 *
+	 */
+	@BsonProperty(value = CLIENT_ID_PRP)
+	public String clientId;
 
 	/**
 	 * 
@@ -93,8 +100,9 @@ public class UserEntity {
 	 * @param passwordHash
 	 * @param acquirerId
 	 * @param merchantId
+	 * @param clientId
 	 */
-	public UserEntity(String userId, String username, String channel, String salt, String passwordHash, String acquirerId, String merchantId) {
+	public UserEntity(String userId, String username, String channel, String salt, String passwordHash, String acquirerId, String merchantId, String clientId) { // NOSONAR
 		this.userId = userId;
 		this.username = username;
 		this.channel = channel;
@@ -102,5 +110,6 @@ public class UserEntity {
 		this.passwordHash = passwordHash;
 		this.acquirerId = acquirerId;
 		this.merchantId = merchantId;
+		this.clientId = clientId;
 	}
 }

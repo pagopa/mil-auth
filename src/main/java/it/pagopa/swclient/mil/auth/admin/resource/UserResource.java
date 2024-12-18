@@ -154,7 +154,8 @@ public class UserResource {
 			triplet.getSalt(),
 			triplet.getHash(),
 			req.getAcquirerId(),
-			req.getMerchantId());
+			req.getMerchantId(),
+			req.getClientId());
 
 		return repository
 			.persist(entity)

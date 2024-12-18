@@ -1193,10 +1193,14 @@ components:
           $ref: '#/components/schemas/AcquirerId'
         merchantId:
           $ref: '#/components/schemas/MerchantId'
+        clientId:
+          $ref: '#/components/schemas/UUID'
       required:
         - username
+        - clientId
       example:
         username: "mario.rossi@pagopa.it"
+        clientId: "d0d654e6-97da-4848-b568-99fedccb642b"
     CreateUserRes:
       description: Response to a request to create a new user
       additionalProperties: false

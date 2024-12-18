@@ -48,20 +48,20 @@ class UserRepositoryTest {
 	 */
 	@Test
 	void testFindByUsername() {
-		UserEntity entity = new UserEntity("user_id", "username", "channel", "salt", "secret_hash", "acquirer_id", "merchant_id");
+		UserEntity entity = new UserEntity("user_id", "username", "channel", "salt", "secret_hash", "acquirer_id", "merchant_id", "client_id");
 
 		@SuppressWarnings("unchecked")
 		ReactivePanacheQuery<UserEntity> query = mock(ReactivePanacheQuery.class);
 		when(query.firstResultOptional())
 			.thenReturn(Uni.createFrom().item(Optional.of(entity)));
 
-		when(repository.find(UserEntity.USERNAME_PRP, "username"))
+		when(repository.find(UserRepository.FIND_BY_USERNAME_AND_CLIENT_ID, "username", "client_id"))
 			.thenReturn(query);
 
-		when(repository.findByUsername("username"))
+		when(repository.findByUsernameAndClientId("username", "client_id"))
 			.thenCallRealMethod();
 
-		repository.findByUsername("username")
+		repository.findByUsernameAndClientId("username", "client_id")
 			.subscribe()
 			.withSubscriber(UniAssertSubscriber.create())
 			.assertCompleted()
