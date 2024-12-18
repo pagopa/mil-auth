@@ -126,7 +126,7 @@ resource "azurerm_container_app" "auth" {
     custom_scale_rule {
       name             = "office-hours"
       custom_rule_type = "cron"
-      metadata {
+      metadata         = {
         timezone        = "Europe/Rome"
         start           = "0 8 * * 1-5"
         end             = "0 18 * * 1-5"
