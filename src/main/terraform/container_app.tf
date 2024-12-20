@@ -118,6 +118,39 @@ resource "azurerm_container_app" "auth" {
         name        = "IDENTITY_CLIENT_ID"
         secret_name = "identity-client-id"
       }
+
+      liveness_probe {
+        path = "/q/health/live"
+        port = 8080
+        transport = HTTP
+        initial_delay = 0
+        interval_seconds = 10
+        failure_count_threshold = 3
+        timeout = 1
+        termination_grace_period_seconds = 120
+      }
+
+      readiness_probe {
+        path = "/q/health/ready"
+        port = 8080
+        transport = HTTP
+        initial_delay = 0
+        interval_seconds = 10
+        failure_count_threshold = 3
+        success_count_threshold = 3
+        timeout = 1
+      }
+
+      startup_probe {
+        path = "/q/health/started"
+        port = 8080
+        transport = HTTP
+        initial_delay = 0
+        interval_seconds = 10
+        failure_count_threshold = 3
+        timeout = 1
+        termination_grace_period_seconds = 120
+      }
     }
 
     max_replicas = var.mil_auth_max_replicas
