@@ -123,20 +123,20 @@ resource "azurerm_container_app" "auth" {
     max_replicas = var.mil_auth_max_replicas
     min_replicas = var.mil_auth_min_replicas
     
-    custom_scale_rule {
-      name             = "office-hours"
-      custom_rule_type = "cron"
-      metadata         = {
-        timezone        = "Europe/Rome"
-        start           = "0 8 * * 1-5"
-        end             = "0 18 * * 1-5"
-        desiredReplicas = "1"
-      }
-    }
+    #custom_scale_rule {
+    #  name             = "office-hours"
+    #  custom_rule_type = "cron"
+    #  metadata         = {
+    #    timezone        = "Europe/Rome"
+    #    start           = "0 8 * * 1-5"
+    #    end             = "0 18 * * 1-5"
+    #    desiredReplicas = "1"
+    #  }
+    #}
     
     http_scale_rule {
       name                = "http-requests"
-      concurrent_requests = "25"
+      concurrent_requests = "20"
     }
   }
 
