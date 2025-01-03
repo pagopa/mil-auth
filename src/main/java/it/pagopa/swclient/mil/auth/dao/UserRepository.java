@@ -26,7 +26,7 @@ public class UserRepository implements ReactivePanacheMongoRepository<UserEntity
 		"%s = ?1 and %s = ?2",
 		UserEntity.USERNAME_PRP,
 		UserEntity.CLIENT_ID_PRP);
-	
+
 	/**
 	 * 
 	 * @param username

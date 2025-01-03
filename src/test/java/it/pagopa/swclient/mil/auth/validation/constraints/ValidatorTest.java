@@ -8,9 +8,14 @@ package it.pagopa.swclient.mil.auth.validation.constraints;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.text.ParseException;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+
+import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
@@ -23,6 +28,20 @@ import it.pagopa.swclient.mil.bean.Channel;
  */
 @QuarkusTest
 class ValidatorTest {
+	/*
+	 * 
+	 */
+	private static SignedJWT refreshToken;
+
+	/**
+	 * 
+	 * @throws ParseException
+	 */
+	@BeforeAll
+	static void setup() throws ParseException {
+		refreshToken = SignedJWT.parse("eyJraWQiOiIzOGE1ZDA4ZGM4NzU0MGVhYjc3ZGViNGQ5ZWFiMjM4MC8zNzExY2U3NWFiYmI0MWM5YmZhOTEwMzM0Y2FiMDMzZSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NTg1NjI1LzI4NDA1ZkhmazczeDg4RC8wMTIzNDU2NyIsImF1ZCI6Im1pbC5wYWdvcGEuaXQiLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzM1OTEwMTcxLCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTczNTkwNjU3MX0.Ztu8SlQCjXErum9xRsqUMOd0ucGvfeKhDHAjR3lzo9KV0KiRdy8RckcR-Zg6Yt1Pu4jIl59xlMIE0KZFoHBTFqIzJp0h6HiSvvus8fArJ6Fu5YfMmtOoq9yEkw1GfBWHiYXt-y4LMw9gfus5DA2fEttY6kQVK7mznDUL3eGzTM2OSQlS3rrrnJUuxVR_8RsS1bYVpsUmu36W0Uf0Jd49GvnuqCKakJpr4rzcyvt358NVWrNH4Qqtjg4dCAyXPkM_MHez4XtaMXRh6O8UkOym9DI9n7zkmkkmx-ZccHDkAMmsGJKwviaIMVyrQJ2S3RXzAbcXZS13nb3djskN-3XC5Q");
+	}
+
 	/**
 	 * 
 	 * @param testInfo
@@ -165,7 +184,7 @@ class ValidatorTest {
 	}
 
 	@Test
-	void given_grantTypePasswordAndChannelPos_when_refreshTokenIsNotNull_then_getNotValid() {
+	void given_grantTypePasswordAndChannelPos_when_refreshTokenIsNotNull_then_getNotValid() throws ParseException {
 		assertFalse(new Validator()
 			.isValid(new GetAccessTokenRequest()
 				.setGrantType(GrantType.PASSWORD)
@@ -176,7 +195,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(SignedJWT.parse("eyJraWQiOiIzOGE1ZDA4ZGM4NzU0MGVhYjc3ZGViNGQ5ZWFiMjM4MC8zNzExY2U3NWFiYmI0MWM5YmZhOTEwMzM0Y2FiMDMzZSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NTg1NjI1LzI4NDA1ZkhmazczeDg4RC8wMTIzNDU2NyIsImF1ZCI6Im1pbC5wYWdvcGEuaXQiLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzM1OTEwMTcxLCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTczNTkwNjU3MX0.Ztu8SlQCjXErum9xRsqUMOd0ucGvfeKhDHAjR3lzo9KV0KiRdy8RckcR-Zg6Yt1Pu4jIl59xlMIE0KZFoHBTFqIzJp0h6HiSvvus8fArJ6Fu5YfMmtOoq9yEkw1GfBWHiYXt-y4LMw9gfus5DA2fEttY6kQVK7mznDUL3eGzTM2OSQlS3rrrnJUuxVR_8RsS1bYVpsUmu36W0Uf0Jd49GvnuqCKakJpr4rzcyvt358NVWrNH4Qqtjg4dCAyXPkM_MHez4XtaMXRh6O8UkOym9DI9n7zkmkkmx-ZccHDkAMmsGJKwviaIMVyrQJ2S3RXzAbcXZS13nb3djskN-3XC5Q"))
 				.setUsername("username")
 				.setPassword("password"),
 				null));
@@ -233,7 +252,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -252,7 +271,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -271,7 +290,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -290,7 +309,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -309,7 +328,7 @@ class ValidatorTest {
 				.setClientSecret("client_secret")
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -328,7 +347,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken("ext_token")
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -347,7 +366,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData("add_data")
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -385,7 +404,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername("username")
 				.setPassword(null)
 				.setScope(null),
@@ -404,7 +423,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword("password")
 				.setScope(null),
@@ -423,7 +442,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope("scope"),
@@ -571,7 +590,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken("ext_token")
 				.setAddData("add_data")
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null),
 				null));
@@ -761,7 +780,7 @@ class ValidatorTest {
 				.setClientSecret("client_secret")
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -973,7 +992,7 @@ class ValidatorTest {
 				.setClientSecret("client_secret")
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1185,7 +1204,7 @@ class ValidatorTest {
 				.setClientSecret("client_secret")
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1390,7 +1409,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername("username")
 				.setPassword("password"),
 				null));
@@ -1447,7 +1466,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1466,7 +1485,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1485,7 +1504,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1504,7 +1523,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1523,7 +1542,7 @@ class ValidatorTest {
 				.setClientSecret("client_secret")
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1542,7 +1561,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken("ext_token")
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1561,7 +1580,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData("add_data")
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope(null),
@@ -1580,7 +1599,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername("username")
 				.setPassword(null)
 				.setScope(null),
@@ -1599,7 +1618,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword("password")
 				.setScope(null),
@@ -1624,7 +1643,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeRefreshTokenAndChannelNull_when_scopeIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
@@ -1637,7 +1656,7 @@ class ValidatorTest {
 				.setClientSecret(null)
 				.setExtToken(null)
 				.setAddData(null)
-				.setRefreshToken("refresh_token")
+				.setRefreshToken(refreshToken)
 				.setUsername(null)
 				.setPassword(null)
 				.setScope("scope"),

@@ -85,8 +85,6 @@ public class TokenByPasswordService extends TokenService {
 	 * If the verification succeeds, the method returns ResourceOwnerCredentialsEntity, otherwise it
 	 * returns a failure with specific error code.
 	 * 
-	 * TODO: AGGIUNGERE IL CONTROLLO DEL CLIENT_ID
-	 *
 	 * @param userEntity
 	 * @param getAccessToken
 	 * @return

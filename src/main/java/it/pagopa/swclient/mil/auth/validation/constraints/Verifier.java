@@ -163,9 +163,9 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	 * @return
 	 */
 	protected boolean refreshTokenMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() == null;
+		boolean check = getAccessToken.getRefreshToken() == null && getAccessToken.getRefreshCookie() == null;
 		if (!check) {
-			Log.warn("refresh_token must be null.");
+			Log.warn("refresh_token and refresh_cookie must be null.");
 		}
 		return check;
 	}
@@ -175,9 +175,9 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	 * @return
 	 */
 	protected boolean refreshTokenMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() != null;
+		boolean check = getAccessToken.getRefreshToken() != null ^ getAccessToken.getRefreshCookie() != null;
 		if (!check) {
-			Log.warn("refresh_token must not be null.");
+			Log.warn("refresh_token xor refresh_cookie must not be null.");
 		}
 		return check;
 	}

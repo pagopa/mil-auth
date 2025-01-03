@@ -155,22 +155,48 @@ public class RefreshTokensService extends TokenService {
 	}
 
 	/**
+	 * This method verifies that the client ID of the request with the corresponding value reported in
+	 * the claim of the refresh token.
+	 * <p>
+	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
+	 * specific error code.
+	 *
+	 * @param claimsSet
+	 * @param expectedClientId
+	 * @return
+	 */
+	private Void verifyClientId(JWTClaimsSet claimsSet, String expectedClientId) {
+		Log.trace("Client id verification");
+		Object foundClientId = claimsSet.getClaim(ClaimName.CLIENT_ID);
+		if (Objects.equals(foundClientId, expectedClientId)) {
+			Log.debug("Client id has been successfully verified");
+			return null;
+		} else {
+			String message = String.format("[%s] Wrong client ID: expected %s, found %s", AuthErrorCode.WRONG_CLIENT_ID, expectedClientId, foundClientId);
+			Log.warn(message);
+			throw new AuthException(AuthErrorCode.WRONG_CLIENT_ID, AuthErrorCode.WRONG_CLIENT_ID_MSG);
+		}
+	}
+
+	/**
+	 * 
 	 * @param refreshTokenStr
 	 * @return
 	 */
-	private Uni<Void> verify(String tokenStr) {
+	private Uni<Void> verify(GetAccessTokenRequest getAccessToken) {
+		SignedJWT token = getAccessToken.getRefreshToken();
 		try {
-			SignedJWT token = SignedJWT.parse(tokenStr);
 			JWTClaimsSet claimsSet = token.getJWTClaimsSet();
 			return verifyAlgorithm(token)
 				.map(x -> verifyIssueTime(claimsSet))
 				.map(x -> verifyExpirationTime(claimsSet))
 				.map(x -> verifyScope(claimsSet, Scope.OFFLINE_ACCESS))
+				.map(x -> verifyClientId(claimsSet, getAccessToken.getClientId()))
 				.chain(() -> tokenSigner.verify(token));
 		} catch (ParseException e) {
 			String message = String.format("[%s] Error parsing token", AuthErrorCode.ERROR_PARSING_TOKEN);
 			Log.errorf(e, message);
-			Log.errorf("Offending token: %s", tokenStr);
+			Log.errorf("Offending token: %s", token.serialize());
 			return UniGenerator.error(AuthErrorCode.ERROR_PARSING_TOKEN, message);
 		}
 	}
@@ -182,7 +208,11 @@ public class RefreshTokensService extends TokenService {
 	@Override
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
 		Log.trace("Tokens refreshing");
-		return verify(getAccessToken.getRefreshToken())
-			.chain(() -> super.process(getAccessToken));
+		try {
+			return verify(getAccessToken.normalize())
+				.chain(() -> super.process(getAccessToken));
+		} catch (AuthException e) {
+			return Uni.createFrom().failure(e);
+		}
 	}
 }

@@ -5,14 +5,23 @@
  */
 package it.pagopa.swclient.mil.auth.resource;
 
+import java.net.URI;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
+import it.pagopa.swclient.mil.auth.bean.AuthCookieParamName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
@@ -36,6 +45,8 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.NewCookie.SameSite;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
@@ -67,6 +78,12 @@ public class TokenResource {
 	 */
 	private Instance<TokenService> tokenService;
 
+	/*
+	 * mil-auth base URL.
+	 */
+	@ConfigProperty(name = "base-url", defaultValue = "")
+	String baseUrl;
+
 	/**
 	 * 
 	 * @param tokenService
@@ -85,13 +102,50 @@ public class TokenResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<GetAccessTokenResponse> createOrRefreshToken(@Valid @BeanParam GetAccessTokenRequest getAccessToken) {
+	public Uni<Response> createOrRefreshToken(@Valid @BeanParam GetAccessTokenRequest getAccessToken) {
 		/*
 		 * If the flow reaches this point, the input is validated!
 		 */
 		return tokenService.select(qualifiers.get(getAccessToken.getGrantType()))
 			.get()
 			.process(getAccessToken)
+			.map(Unchecked.function(resp -> {
+				SignedJWT refreshToken = resp.getRefreshToken();
+				if (refreshToken != null && getAccessToken.isReturnCookie()) {
+					Log.debug("Refresh token is returned with cookie");
+
+					/*
+					 * Remove refresh token from the JSON.
+					 */
+					resp.setRefreshToken(null);
+
+					/*
+					 * Build cookie.
+					 */
+					URI tokenUri = new URI(baseUrl.replaceAll("\\/$", "") + "/token");
+
+					JWTClaimsSet claimsSet = refreshToken.getJWTClaimsSet();
+					Date expiry = claimsSet.getExpirationTime();
+
+					NewCookie cookie = new NewCookie.Builder(AuthCookieParamName.REFRESH_COOKIE)
+						.domain(tokenUri.getHost())
+						.path(tokenUri.getPath())
+						.expiry(expiry)
+						.maxAge((int) TimeUnit.SECONDS.convert(new Date().getTime() - expiry.getTime(), TimeUnit.MILLISECONDS))
+						.httpOnly(true)
+						.secure(true)
+						.sameSite(SameSite.STRICT)
+						.value(refreshToken.serialize())
+						.build();
+
+					/*
+					 * Return response.
+					 */
+					return Response.ok(resp).cookie(cookie).build();
+				} else {
+					return Response.ok(resp).build();
+				}
+			}))
 			.onFailure(t -> !(t instanceof AuthError || t instanceof AuthException))
 			.transform(t -> {
 				Log.errorf(t, "Unexpected error.");

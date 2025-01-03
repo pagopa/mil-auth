@@ -46,6 +46,7 @@ paths:
         - $ref: '#/components/parameters/MerchantId'
         - $ref: '#/components/parameters/TerminalId'
         - $ref: '#/components/parameters/FiscalCode'
+        - $ref: '#/components/parameters/RefreshCookie'
       requestBody:
         $ref: '#/components/requestBodies/GetAccessToken'
       responses:
@@ -943,12 +944,24 @@ components:
       format: int32
       minimum: 1
       maximum: 60
+    RefreshCookie:
+      description: Cookie which containes refresh token if required by the client
+      type: string
+      pattern: "^[ -~]{512,4096}$"
+      minLength: 512
+      maxLength: 4096
+      example: refresh_cookie=eyJraWQiOiIzOGE1ZDA4ZGM4NzU0MGVhYjc3ZGViNGQ5ZWFiMjM4MC8zNzExY2U3NWFiYmI0MWM5YmZhOTEwMzM0Y2FiMDMzZSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NTg1NjI1LzI4NDA1ZkhmazczeDg4RC8wMTIzNDU2NyIsImF1ZCI6Im1pbC5wYWdvcGEuaXQiLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzM1OTEwMTcxLCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTczNTkwNjU3MX0.Ztu8SlQCjXErum9xRsqUMOd0ucGvfeKhDHAjR3lzo9KV0KiRdy8RckcR-Zg6Yt1Pu4jIl59xlMIE0KZFoHBTFqIzJp0h6HiSvvus8fArJ6Fu5YfMmtOoq9yEkw1GfBWHiYXt-y4LMw9gfus5DA2fEttY6kQVK7mznDUL3eGzTM2OSQlS3rrrnJUuxVR_8RsS1bYVpsUmu36W0Uf0Jd49GvnuqCKakJpr4rzcyvt358NVWrNH4Qqtjg4dCAyXPkM_MHez4XtaMXRh6O8UkOym9DI9n7zkmkkmx-ZccHDkAMmsGJKwviaIMVyrQJ2S3RXzAbcXZS13nb3djskN-3XC5Q;Version=1;Domain=dummy;Path=/token;Max-Age=9586;Expires=Fri, 03-Jan-2025 13:16:11 GMT;Secure;HttpOnly;SameSite=Strict
     RetryAfter:
       description: The number of seconds to wait before allowing a follow-up request
       type: integer
       format: int32
       minimum: 1
       maximum: 240
+    ReturnCookie:
+      description: |
+        If true, the refresh token (is required) is returned by a cookie,
+        otherwise, it is returned with a JSON property.
+      type: boolean
     Role:
       description: Role
       type: string
@@ -1282,6 +1295,8 @@ components:
           $ref: '#/components/schemas/OfflineAccessScope'
         client_id:
           $ref: '#/components/schemas/UUID'
+        return_cookie:
+          $ref: '#/components/schemas/ReturnCookie'
       required:
         - grant_type
         - ext_token
@@ -1308,6 +1323,8 @@ components:
           $ref: '#/components/schemas/OfflineAccessScope'
         client_id:
           $ref: '#/components/schemas/UUID'
+        return_cookie:
+          $ref: '#/components/schemas/ReturnCookie'
       required:
         - grant_type
         - username
@@ -1462,7 +1479,11 @@ components:
             iat: 1678888689
             n: "qjcVEWJTTySeKxHsJSsmVGk2cEvXJ4tBC4uyU5MxYwBAiIWuZb_yDOIjLz7JN8QsJs3QrZtS3vqv18ljW2db6ED90OUo9CVJveSF4eNRozDHOvnHGT0HR-8Wf5GxcNy63zfQLrnfdp5F9TrhMFRMkEA0TCT7PhT3yF6YvwLtQyMciER1_KKnpGomfAkW-UpaF2nHfXiFPrOIHMuNb5BoRR1f0349tqloLgLd7vyMy1jg-BldmEgRV1bcFqjH0Cg3leROjDy9HzdFauRIlSb4VZrqNni2hgaTUHI5Xp7aCwpS9Y_mf19KpxN0_8d-f3UVRlwtI1dryelpdC5jowxia2Pf8UgSZyMs2ZxDf6eU0SH8wHEvMpeFpwmiBD1XcsISoTan0Yv7w_CLo6JOqX6EfogDQZUBzKKlVCZSoSinAz0_7Bj2orgWKQ9sbfgJWgJweKkJLH-bNSRaVcu02boxPnlJeay3wROhSAgtiKWZnsU1_FpPNG0JBFCh_x-VjkuBoREpNEyJM5NvhRCmyObtzocS4eCtAgvmo3EFv_Xa-rp0p5ez4A-_QUb5OsYOswqYbIV1GbtiAfCTOrNbv6K86LaTllZ9WqYrKgDv7KA-604K37k33LHROqcO9Q-bCN8hKzQDWs7M3DFNP6P5iBUUVs-gtWncHvIuUWTth-fBXa8"
     RefreshAccessToken:
-      description: Request to get an access token by means of a refresh token
+      description: |
+        Request to get an access token (and rotate the refresh token) by means
+        of a refresh token.
+        When refresh_token field is provied, the refresh_cookie must not be
+        provided and viceversa.
       type: object
       #additionalProperties: true
       properties:
@@ -1472,10 +1493,11 @@ components:
           $ref: '#/components/schemas/UUID'
         refresh_token:
           $ref: '#/components/schemas/Token'
+        return_cookie:
+          $ref: '#/components/schemas/ReturnCookie'
       required:
         - grant_type
         - client_id
-        - refresh_token
       example:
         grant_type: "refresh_token"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
@@ -1705,6 +1727,16 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PageSize'
+    RefreshCookie:
+      name: refresh_cookie
+      in: cookie
+      description: |
+        Cookie with refresh token.
+        If this cookie is provided to request the refresh, the form param
+        refresh_token must not be provided.
+      requirer: false
+      schema:
+        $ref: '#/components/schemas/Token'
     RequestId:
       name: RequestId
       in: header
@@ -1773,6 +1805,13 @@ components:
           required: false
           schema:
             $ref: '#/components/schemas/RateLimitReset'
+        Set-Cookie:
+          description: |
+            If required by the client, the refresh token is returned by cookie
+            instead of JSON property.
+          required: false
+          schema:
+            $ref: '#/components/schemas/RefreshCookie'
       content:
         application/json:
           schema:
