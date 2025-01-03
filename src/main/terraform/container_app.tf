@@ -122,18 +122,17 @@ resource "azurerm_container_app" "auth" {
       liveness_probe {
         path = "/q/health/live"
         port = 8080
-        transport = "http"
+        transport = "HTTP"
         initial_delay = 0
         interval_seconds = 10
         failure_count_threshold = 3
         timeout = 1
-        termination_grace_period_seconds = 120
       }
 
       readiness_probe {
         path = "/q/health/ready"
         port = 8080
-        transport = "http"
+        transport = "HTTP"
         initial_delay = 0
         interval_seconds = 10
         failure_count_threshold = 3
@@ -144,12 +143,11 @@ resource "azurerm_container_app" "auth" {
       startup_probe {
         path = "/q/health/started"
         port = 8080
-        transport = "http"
+        transport = "HTTP"
         initial_delay = 0
         interval_seconds = 10
         failure_count_threshold = 3
         timeout = 1
-        termination_grace_period_seconds = 120
       }
     }
 
