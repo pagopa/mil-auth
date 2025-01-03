@@ -5,15 +5,12 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
-import java.text.ParseException;
-
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
-import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.validation.constraints.ValidationTarget;
 import it.pagopa.swclient.mil.bean.HeaderParamName;
 import it.pagopa.swclient.mil.bean.ValidationPattern;
@@ -99,21 +96,6 @@ public class GetAccessTokenRequest {
 	private SignedJWT refreshToken;
 
 	/*
-	 * poynt_token
-	 */
-	@FormParam(AuthFormParamName.EXT_TOKEN)
-	@Pattern(regexp = AuthValidationPattern.EXT_TOKEN, message = AuthErrorCode.EXT_TOKEN_MUST_MATCH_REGEXP_MSG)
-	@ToString.Exclude
-	private String extToken;
-
-	/*
-	 * add_data
-	 */
-	@FormParam(AuthFormParamName.ADD_DATA)
-	@Pattern(regexp = AuthValidationPattern.ADD_DATA, message = AuthErrorCode.ADD_DATA_MUST_MATCH_REGEXP_MSG)
-	private String addData;
-
-	/*
 	 * client_id
 	 */
 	@FormParam(AuthFormParamName.CLIENT_ID)
@@ -145,29 +127,18 @@ public class GetAccessTokenRequest {
 	private String fiscalCode;
 
 	/*
-	 * return_cookie
-	 */
-	@FormParam(AuthFormParamName.RETURN_COOKIE)
-	private boolean returnCookie;
-
-	/*
 	 * refresh_cookie
 	 */
 	@CookieParam(AuthCookieParamName.REFRESH_COOKIE)
-	private String refreshCookie;
+	private SignedJWT refreshCookie;
 
 	/**
 	 * 
 	 */
 	public GetAccessTokenRequest normalize() {
-		if (refreshCookie != null) {
+		if (refreshToken == null && refreshCookie != null) {
 			Log.debug("The request to refresh tokens contains a refresh cookie");
-			try {
-				refreshToken = SignedJWT.parse(refreshCookie);
-			} catch (ParseException e) {
-				Log.errorf(e, "Error parsing refresh cookie");
-				throw new AuthException(AuthErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP, AuthErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP_MSG);
-			}
+			refreshToken = refreshCookie;
 		}
 		return this;
 	}

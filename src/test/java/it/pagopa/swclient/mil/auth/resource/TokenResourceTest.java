@@ -201,6 +201,7 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
+			.cookie(AuthCookieParamName.REFRESH_COOKIE, REFRESH_TOKEN)
 			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
 			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
 			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
@@ -230,13 +231,7 @@ class TokenResourceTest {
 
 		SignedJWT refreshToken = new SignedJWT(header.toBase64URL(), payload.toPayload().toBase64URL(), Base64URL.from("AA"));
 
-		GetAccessTokenRequest request = new GetAccessTokenRequest()
-			.setClientId(CLIENT_ID)
-			.setGrantType(GrantType.REFRESH_TOKEN)
-			.setReturnCookie(true)
-			.setRefreshCookie(refreshToken.serialize());
-
-		when(refreshTokensService.process(request))
+		when(refreshTokensService.process(any(GetAccessTokenRequest.class))) // equals method of GetAccessTokenRequest doesn't work properly due to SignedJWT fields
 			.thenReturn(
 				UniGenerator.item(
 					new GetAccessTokenResponse()
@@ -253,7 +248,6 @@ class TokenResourceTest {
 			.header(HeaderParamName.REQUEST_ID, REQUEST_ID)
 			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
 			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
-			.formParam(AuthFormParamName.RETURN_COOKIE, true)
 			.cookie(AuthCookieParamName.REFRESH_COOKIE, refreshToken.serialize())
 			.when()
 			.post()
@@ -266,7 +260,7 @@ class TokenResourceTest {
 			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
 			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
 			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-			.body(AuthJsonPropertyName.REFRESH_TOKEN, nullValue());
+			.body(AuthJsonPropertyName.REFRESH_TOKEN, equalTo(REFRESH_TOKEN));
 	}
 
 	/**
@@ -292,12 +286,6 @@ class TokenResourceTest {
 
 		SignedJWT refreshToken = new SignedJWT(header.toBase64URL(), payload.toPayload().toBase64URL(), Base64URL.from("AA"));
 
-		// GetAccessTokenRequest request = new GetAccessTokenRequest()
-		// .setClientId(CLIENT_ID)
-		// .setGrantType(GrantType.REFRESH_TOKEN)
-		// .setReturnCookie(false)
-		// .setRefreshToken(refreshToken);
-
 		when(refreshTokensService.process(any(GetAccessTokenRequest.class))) // equals method of GetAccessTokenRequest doesn't work properly due to SignedJWT fields
 			.thenReturn(
 				UniGenerator.item(
@@ -315,7 +303,6 @@ class TokenResourceTest {
 			.header(HeaderParamName.REQUEST_ID, REQUEST_ID)
 			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
 			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
-			.formParam(AuthFormParamName.RETURN_COOKIE, false)
 			.formParam(AuthFormParamName.REFRESH_TOKEN, refreshToken.serialize())
 			.when()
 			.post()
@@ -324,6 +311,7 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
+			.cookie(AuthCookieParamName.REFRESH_COOKIE, REFRESH_TOKEN)
 			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
 			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
 			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
@@ -332,10 +320,9 @@ class TokenResourceTest {
 
 	/**
 	 * 
-	 * @throws ParseException
 	 */
 	@Test
-	void given_requestToRefreshTokens_when_refreshTokenIsBad_then_getFailure() throws ParseException {
+	void given_requestToRefreshTokens_when_refreshTokenIsBad_then_getFailure() {
 		/*
 		 * Test
 		 */
@@ -344,7 +331,6 @@ class TokenResourceTest {
 			.header(HeaderParamName.REQUEST_ID, REQUEST_ID)
 			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
 			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
-			.formParam(AuthFormParamName.RETURN_COOKIE, false)
 			.formParam(AuthFormParamName.REFRESH_TOKEN, "@.@.@")
 			.when()
 			.post()

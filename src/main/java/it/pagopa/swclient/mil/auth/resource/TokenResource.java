@@ -48,6 +48,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.NewCookie.SameSite;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.Response.Status;
 
 /**
@@ -66,8 +67,6 @@ public class TokenResource {
 		qualifiers.put(GrantType.CLIENT_CREDENTIALS, new AnnotationLiteral<ClientCredentials>() {
 		});
 		qualifiers.put(GrantType.PASSWORD, new AnnotationLiteral<Password>() {
-		});
-		qualifiers.put(GrantType.POYNT_TOKEN, new AnnotationLiteral<PoyntToken>() {
 		});
 		qualifiers.put(GrantType.REFRESH_TOKEN, new AnnotationLiteral<RefreshToken>() {
 		});
@@ -111,13 +110,9 @@ public class TokenResource {
 			.process(getAccessToken)
 			.map(Unchecked.function(resp -> {
 				SignedJWT refreshToken = resp.getRefreshToken();
-				if (refreshToken != null && getAccessToken.isReturnCookie()) {
-					Log.debug("Refresh token is returned with cookie");
-
-					/*
-					 * Remove refresh token from the JSON.
-					 */
-					resp.setRefreshToken(null);
+				ResponseBuilder respBuilder = Response.ok(resp);
+				if (refreshToken != null) {
+					Log.debug("Refresh token is returned with cookie also");
 
 					/*
 					 * Build cookie.
@@ -138,13 +133,9 @@ public class TokenResource {
 						.value(refreshToken.serialize())
 						.build();
 
-					/*
-					 * Return response.
-					 */
-					return Response.ok(resp).cookie(cookie).build();
-				} else {
-					return Response.ok(resp).build();
+					respBuilder.cookie(cookie);
 				}
+				return respBuilder.build();
 			}))
 			.onFailure(t -> !(t instanceof AuthError || t instanceof AuthException))
 			.transform(t -> {

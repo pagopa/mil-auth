@@ -10,7 +10,7 @@ package it.pagopa.swclient.mil.auth.bean;
  * @author Antonio Tarricone
  */
 public class AuthValidationPattern {
-	public static final String GRANT_TYPE = "^" + GrantType.PASSWORD + "|" + GrantType.REFRESH_TOKEN + "|" + GrantType.POYNT_TOKEN + "|" + GrantType.CLIENT_CREDENTIALS + "$";
+	public static final String GRANT_TYPE = "^" + GrantType.PASSWORD + "|" + GrantType.REFRESH_TOKEN + "|" + GrantType.CLIENT_CREDENTIALS + "$";
 	public static final String USERNAME = "^[ -~]{1,64}$";
 	public static final String PASSWORD = "^[ -~]{1,64}$"; // NOSONAR This isn't a password!!!
 	public static final String REFRESH_TOKEN = "^[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}\\.[a-zA-Z0-9_-]{1,1024}$";
