@@ -114,54 +114,6 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	 * @param getAccessToken
 	 * @return
 	 */
-	protected boolean extTokenMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getExtToken() == null;
-		if (!check) {
-			Log.warn("ext_token must be null.");
-		}
-		return check;
-	}
-
-	/**
-	 * @param getAccessToken
-	 * @return
-	 */
-	protected boolean extTokenMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getExtToken() != null;
-		if (!check) {
-			Log.warn("ext_token must not be null.");
-		}
-		return check;
-	}
-
-	/**
-	 * @param getAccessToken
-	 * @return
-	 */
-	protected boolean addDataMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getAddData() == null;
-		if (!check) {
-			Log.warn("add_data must be null.");
-		}
-		return check;
-	}
-
-	/**
-	 * @param getAccessToken
-	 * @return
-	 */
-	protected boolean addDataMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getAddData() != null;
-		if (!check) {
-			Log.warn("add_data must not be null.");
-		}
-		return check;
-	}
-
-	/**
-	 * @param getAccessToken
-	 * @return
-	 */
 	protected boolean refreshTokenMustBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getRefreshToken() == null;
 		if (!check) {
@@ -175,9 +127,9 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	 * @return
 	 */
 	protected boolean refreshTokenMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() != null;
+		boolean check = getAccessToken.getRefreshToken() != null || getAccessToken.getRefreshCookie() != null;
 		if (!check) {
-			Log.warn("refresh_token must not be null.");
+			Log.warn("refresh_token or refresh_cookie must not be null.");
 		}
 		return check;
 	}

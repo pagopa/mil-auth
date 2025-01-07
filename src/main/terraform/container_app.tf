@@ -126,6 +126,7 @@ resource "azurerm_container_app" "auth" {
         initial_delay = 0
         interval_seconds = 10
         failure_count_threshold = 3
+        success_count_threshold = 1
         timeout = 1
       }
 
@@ -136,7 +137,7 @@ resource "azurerm_container_app" "auth" {
         initial_delay = 0
         interval_seconds = 10
         failure_count_threshold = 3
-        success_count_threshold = 3
+        success_count_threshold = 1
         timeout = 1
       }
 
@@ -147,6 +148,7 @@ resource "azurerm_container_app" "auth" {
         initial_delay = 0
         interval_seconds = 10
         failure_count_threshold = 3
+        success_count_threshold = 1
         timeout = 1
       }
     }

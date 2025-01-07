@@ -22,7 +22,7 @@ tags:
   - name: introspect
     description: Token introspection operation
   - name: token
-    description: Operation to get or refresh access token
+    description: Operation to get or refresh tokens
   - name: client
     description: Administrative operation for client
   - name: roles
@@ -34,8 +34,10 @@ tags:
 paths:
   /token:
     post:
-      operationId: getAccessToken
-      description: Returns access token or refresh it
+      operationId: getAccessTokens
+      description: |
+        Returns access token and refresh token (if `scope=offline_access`) or
+        refreshes them
       tags: [token]
       security: []
       parameters:
@@ -46,6 +48,7 @@ paths:
         - $ref: '#/components/parameters/MerchantId'
         - $ref: '#/components/parameters/TerminalId'
         - $ref: '#/components/parameters/FiscalCode'
+        - $ref: '#/components/parameters/RefreshCookie'
       requestBody:
         $ref: '#/components/requestBodies/GetAccessToken'
       responses:
@@ -79,7 +82,9 @@ paths:
   /token_info:
     post:
       operationId: introspect
-      description: Introspects a given access token returning the clear value of user tax (fiscal) code (if any)
+      description: |
+        Introspects a given access token returning the clear value of user tax
+        code if any
       tags: [introspect]
       security:
         - oAuth2: [token_info]
@@ -122,7 +127,7 @@ paths:
   /.well-known/jwks.json:
     get:
       operationId: getJwks
-      description: Returns public keys
+      description: Returns public keys used to sign the tokens
       tags: [wellknown]
       security: []
       parameters:
@@ -190,7 +195,8 @@ paths:
   /admin/cleanexpkeys:
     post:
       operationId: cleanExpKeys
-      description: Cleans expired keys
+      description: |
+        Cleans expired keys used to sign tokens and to protect sensitive data
       tags: [maintenance]
       security:
         - oAuth2: [admin]
@@ -725,13 +731,6 @@ components:
       minLength: 1
       maxLength: 11
       example: "NA"
-    AdditionalData:
-      description: Additional data for external token authentication
-      type: string
-      pattern: "^[ -~]{1,4096}$"
-      minLength: 1
-      maxLength: 4096
-      example: "4b7eb94b-10c9-4f11-a10e-7292b29ab115"
     BearerTokenType:
       description: Token type for bearer token
       type: string
@@ -801,19 +800,6 @@ components:
       minLength: 0
       maxLength: 256
       example: "Duplicate key"
-    ExternalToken:
-      description: External token
-      type: string
-      pattern: "^[ -~]{1,4096}$"
-      minLength: 1
-      maxLength: 4096
-      example: "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4MDc4MzUzNiwiaWF0IjoxNjgwNjk3MTM2LCJqdGkiOiI3MjBmMDFlZS1iZDk4LTRjYjItOTU2Mi0xZjI4YWY2NGJhZGYifQ.dTuvtzqy9oPWIN4NIBdhIR09Xpm70dgRCP-ybuVLo24DwqaysPKNmEHDXcq2gGE1w2L6e783_PXRK3RI0j1TQRFeLRbiPzN5imBdrJ2LlV8QNdkElOl2x32j652YeFcoAitBzFss_Do0_rquU_008eeIXWa-B-AiMsdAqgLUiMigsTT42rQYr7Mb8Am_NWwvZ9-DWiox6HbuUNUo3TStBmLervqlQ5j2_3AzcOILp8cJX0699fw7Y6gcu_pNHgjswqD0UVPSAmHf_bqFAH6b98qHVKe3isMSoktYi4FfWdpG1ykviEp9Ii0QKfeLnqyIR6g2o2XzGlDv7Usv5ouiXg"
-    ExternalTokenGrantType:
-      description: Grant type to get an access token by means of external token
-      enum:
-        - poynt_token
-      type: string
-      example: "poynt_token"
     FiscalCode:
       description: User fiscal (tax) code
       type: string
@@ -943,6 +929,13 @@ components:
       format: int32
       minimum: 1
       maximum: 60
+    RefreshCookie:
+      description: Cookie which contains refresh token if required by the client
+      type: string
+      pattern: "^[ -~]{512,4096}$"
+      minLength: 512
+      maxLength: 4096
+      example: refresh_cookie=eyJraWQiOiIzOGE1ZDA4ZGM4NzU0MGVhYjc3ZGViNGQ5ZWFiMjM4MC8zNzExY2U3NWFiYmI0MWM5YmZhOTEwMzM0Y2FiMDMzZSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NTg1NjI1LzI4NDA1ZkhmazczeDg4RC8wMTIzNDU2NyIsImF1ZCI6Im1pbC5wYWdvcGEuaXQiLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzM1OTEwMTcxLCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTczNTkwNjU3MX0.Ztu8SlQCjXErum9xRsqUMOd0ucGvfeKhDHAjR3lzo9KV0KiRdy8RckcR-Zg6Yt1Pu4jIl59xlMIE0KZFoHBTFqIzJp0h6HiSvvus8fArJ6Fu5YfMmtOoq9yEkw1GfBWHiYXt-y4LMw9gfus5DA2fEttY6kQVK7mznDUL3eGzTM2OSQlS3rrrnJUuxVR_8RsS1bYVpsUmu36W0Uf0Jd49GvnuqCKakJpr4rzcyvt358NVWrNH4Qqtjg4dCAyXPkM_MHez4XtaMXRh6O8UkOym9DI9n7zkmkkmx-ZccHDkAMmsGJKwviaIMVyrQJ2S3RXzAbcXZS13nb3djskN-3XC5Q;Version=1;Domain=dummy;Path=/token;Max-Age=9586;Expires=Fri, 03-Jan-2025 13:16:11 GMT;Secure;HttpOnly;SameSite=Strict
     RetryAfter:
       description: The number of seconds to wait before allowing a follow-up request
       type: integer
@@ -1267,34 +1260,10 @@ components:
         grant_type: "client_credentials"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
         client_secret: "265a5ac0-c651-428e-bed6-763f6cd244b5"
-    GetAccessTokenByExternalToken:
-      description: Request to get an access token by means of external token
-      type: object
-      additionalProperties: false
-      properties:
-        grant_type:
-          $ref: '#/components/schemas/ExternalTokenGrantType'
-        ext_token:
-          $ref: '#/components/schemas/ExternalToken'
-        add_data:
-          $ref: '#/components/schemas/AdditionalData'
-        scope:
-          $ref: '#/components/schemas/OfflineAccessScope'
-        client_id:
-          $ref: '#/components/schemas/UUID'
-      required:
-        - grant_type
-        - ext_token
-        - add_data
-        - client_id
-      example:
-        grant_type: "poynt_token"
-        ext_token: "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJOZXhpIiwicG95bnQuZGlkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC5kc3QiOiJEIiwicG95bnQub3JnIjoiMGU2Zjc4ODYtMDk1Ni00NDA1LWJjNDgtYzE5ODY4ZDdlZTIyIiwicG95bnQuc2N0IjoiVSIsImlzcyI6Imh0dHBzOlwvXC9zZXJ2aWNlcy1ldS5wb3ludC5uZXQiLCJwb3ludC51cmUiOiJPIiwicG95bnQua2lkIjozOTMyNDI1MjY4MDY5NDA5MjM0LCJwb3ludC5zY3YiOiJOZXhpIiwicG95bnQuc3RyIjoiZDNmZDNmZDMtMTg5ZC00N2M4LThjMzYtYjY4NWRkNjBkOTY0IiwiYXVkIjoidXJuOnRpZDo1NTYyYjhlZC1lODljLTMzMmEtYThkYy1jYTA4MTcxMzUxMTAiLCJwb3ludC51aWQiOjM3MzY1NzQsInBveW50LmJpeiI6IjRiN2ViOTRiLTEwYzktNGYxMS1hMTBlLTcyOTJiMjlhYjExNSIsImV4cCI6MTY4MDc4MzUzNiwiaWF0IjoxNjgwNjk3MTM2LCJqdGkiOiI3MjBmMDFlZS1iZDk4LTRjYjItOTU2Mi0xZjI4YWY2NGJhZGYifQ.dTuvtzqy9oPWIN4NIBdhIR09Xpm70dgRCP-ybuVLo24DwqaysPKNmEHDXcq2gGE1w2L6e783_PXRK3RI0j1TQRFeLRbiPzN5imBdrJ2LlV8QNdkElOl2x32j652YeFcoAitBzFss_Do0_rquU_008eeIXWa-B-AiMsdAqgLUiMigsTT42rQYr7Mb8Am_NWwvZ9-DWiox6HbuUNUo3TStBmLervqlQ5j2_3AzcOILp8cJX0699fw7Y6gcu_pNHgjswqD0UVPSAmHf_bqFAH6b98qHVKe3isMSoktYi4FfWdpG1ykviEp9Ii0QKfeLnqyIR6g2o2XzGlDv7Usv5ouiXg"
-        add_data: "4b7eb94b-10c9-4f11-a10e-7292b29ab115"
-        scope: "offline_access"
-        client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
     GetAccessTokenByPassword:
-      description: Request to get an access token by means of resource owner password
+      description: |
+        Request to get an access token and refresh token
+        (is scope = offline_access) by means of username and password
       type: object
       additionalProperties: false
       properties:
@@ -1462,7 +1431,9 @@ components:
             iat: 1678888689
             n: "qjcVEWJTTySeKxHsJSsmVGk2cEvXJ4tBC4uyU5MxYwBAiIWuZb_yDOIjLz7JN8QsJs3QrZtS3vqv18ljW2db6ED90OUo9CVJveSF4eNRozDHOvnHGT0HR-8Wf5GxcNy63zfQLrnfdp5F9TrhMFRMkEA0TCT7PhT3yF6YvwLtQyMciER1_KKnpGomfAkW-UpaF2nHfXiFPrOIHMuNb5BoRR1f0349tqloLgLd7vyMy1jg-BldmEgRV1bcFqjH0Cg3leROjDy9HzdFauRIlSb4VZrqNni2hgaTUHI5Xp7aCwpS9Y_mf19KpxN0_8d-f3UVRlwtI1dryelpdC5jowxia2Pf8UgSZyMs2ZxDf6eU0SH8wHEvMpeFpwmiBD1XcsISoTan0Yv7w_CLo6JOqX6EfogDQZUBzKKlVCZSoSinAz0_7Bj2orgWKQ9sbfgJWgJweKkJLH-bNSRaVcu02boxPnlJeay3wROhSAgtiKWZnsU1_FpPNG0JBFCh_x-VjkuBoREpNEyJM5NvhRCmyObtzocS4eCtAgvmo3EFv_Xa-rp0p5ez4A-_QUb5OsYOswqYbIV1GbtiAfCTOrNbv6K86LaTllZ9WqYrKgDv7KA-604K37k33LHROqcO9Q-bCN8hKzQDWs7M3DFNP6P5iBUUVs-gtWncHvIuUWTth-fBXa8"
     RefreshAccessToken:
-      description: Request to get an access token by means of a refresh token
+      description: |
+        Request to get a new couple access/refresh token by means of a refresh
+        token
       type: object
       #additionalProperties: true
       properties:
@@ -1475,7 +1446,6 @@ components:
       required:
         - grant_type
         - client_id
-        - refresh_token
       example:
         grant_type: "refresh_token"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
@@ -1603,14 +1573,16 @@ components:
           schema:
             $ref: '#/components/schemas/CreateUserReq'
     GetAccessToken:
-      description: Request to get an access token by means of username and password or by refresh token or by external token
+      description: |
+        Request to get an access token and refresh token
+        (if `scope=offline_access`) by means of username and password or by
+        refresh token or by client secret
       content:
         application/x-www-form-urlencoded:
           schema:
             oneOf:
               - $ref: '#/components/schemas/GetAccessTokenByPassword'
               - $ref: '#/components/schemas/RefreshAccessToken'
-              - $ref: '#/components/schemas/GetAccessTokenByExternalToken'
               - $ref: '#/components/schemas/GetAccessTokenByClientCredentials'
     TokenInfo:
       description: Request to introspect an access token
@@ -1705,6 +1677,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PageSize'
+    RefreshCookie:
+      name: refresh_cookie
+      in: cookie
+      description: Cookie with refresh token.
+      required: false
+      schema:
+        $ref: '#/components/schemas/Token'
     RequestId:
       name: RequestId
       in: header
@@ -1756,7 +1735,7 @@ components:
   # ========================================================
   responses:
     AccessToken:
-      description: Response returned when an access token is requested
+      description: Response returned when an access token and refresh token is requested
       headers:
         Access-Control-Allow-Origin:
           description: Indicates whether the response can be shared with requesting code from the given origin
@@ -1773,6 +1752,13 @@ components:
           required: false
           schema:
             $ref: '#/components/schemas/RateLimitReset'
+        Set-Cookie:
+          description: |
+            If a refresh token is required (`scope=offline_access`), it is
+            returned also by means of a cookie.
+          required: false
+          schema:
+            $ref: '#/components/schemas/RefreshCookie'
       content:
         application/json:
           schema:

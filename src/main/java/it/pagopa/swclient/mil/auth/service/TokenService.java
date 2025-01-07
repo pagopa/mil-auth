@@ -121,7 +121,7 @@ public abstract class TokenService {
 	 * @param scopes
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, ClientEntity client, List<String> roles, List<String> scopes) {
+	private Uni<SignedJWT> generate(GetAccessTokenRequest request, long duration, ClientEntity client, List<String> roles, List<String> scopes) {
 		String fiscalCode = request.getFiscalCode();
 		if (fiscalCode == null) {
 			Log.trace("Fiscal code not present");
@@ -168,7 +168,7 @@ public abstract class TokenService {
 	 * @param encFiscalCode
 	 * @return
 	 */
-	private Uni<String> generate(GetAccessTokenRequest request, long duration, ClientEntity client, List<String> roles, List<String> scopes, EncryptedClaim encFiscalCode) {
+	private Uni<SignedJWT> generate(GetAccessTokenRequest request, long duration, ClientEntity client, List<String> roles, List<String> scopes, EncryptedClaim encFiscalCode) {
 		Log.tracef("Encrypted fiscal code: %s", encFiscalCode);
 		Date now = new Date();
 		JWTClaimsSet payload = new JWTClaimsSet.Builder()
@@ -187,7 +187,7 @@ public abstract class TokenService {
 			.audience(audience)
 			.build();
 		Log.trace("Token signing");
-		return tokenSigner.sign(payload).map(SignedJWT::serialize);
+		return tokenSigner.sign(payload);
 	}
 
 	/**

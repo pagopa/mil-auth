@@ -58,7 +58,7 @@ public class CreateClientRequest {
 	@JsonProperty(value = AdminJsonPropertyName.SUBJECT)
 	@Pattern(regexp = AdminValidationPattern.SUBJECT, message = AdminErrorCode.SUBJECT_MUST_MATCH_REGEXP_MSG)
 	private String subject;
-	
+
 	/**
 	 * <p>
 	 * If true the secret will not be generated.

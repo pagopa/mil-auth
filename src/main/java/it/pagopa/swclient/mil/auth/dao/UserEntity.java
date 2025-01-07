@@ -84,7 +84,7 @@ public class UserEntity {
 	 */
 	@BsonProperty(value = MERCHANT_ID_PRP)
 	public String merchantId;
-	
+
 	/*
 	 *
 	 */

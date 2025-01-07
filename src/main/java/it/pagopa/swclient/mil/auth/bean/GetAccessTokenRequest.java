@@ -5,6 +5,9 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.nimbusds.jwt.SignedJWT;
+
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
@@ -13,6 +16,7 @@ import it.pagopa.swclient.mil.bean.HeaderParamName;
 import it.pagopa.swclient.mil.bean.ValidationPattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.HeaderParam;
 import lombok.AllArgsConstructor;
@@ -88,24 +92,8 @@ public class GetAccessTokenRequest {
 	 * refresh_token
 	 */
 	@FormParam(AuthFormParamName.REFRESH_TOKEN)
-	@Pattern(regexp = AuthValidationPattern.REFRESH_TOKEN, message = AuthErrorCode.REFRESH_TOKEN_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
-	private String refreshToken;
-
-	/*
-	 * poynt_token
-	 */
-	@FormParam(AuthFormParamName.EXT_TOKEN)
-	@Pattern(regexp = AuthValidationPattern.EXT_TOKEN, message = AuthErrorCode.EXT_TOKEN_MUST_MATCH_REGEXP_MSG)
-	@ToString.Exclude
-	private String extToken;
-
-	/*
-	 * add_data
-	 */
-	@FormParam(AuthFormParamName.ADD_DATA)
-	@Pattern(regexp = AuthValidationPattern.ADD_DATA, message = AuthErrorCode.ADD_DATA_MUST_MATCH_REGEXP_MSG)
-	private String addData;
+	private SignedJWT refreshToken;
 
 	/*
 	 * client_id
@@ -137,4 +125,21 @@ public class GetAccessTokenRequest {
 	@Pattern(regexp = AuthValidationPattern.FISCAL_CODE, message = AuthErrorCode.FISCAL_CODE_MUST_MATCH_REGEXP_MSG)
 	@ToString.Exclude
 	private String fiscalCode;
+
+	/*
+	 * refresh_cookie
+	 */
+	@CookieParam(AuthCookieParamName.REFRESH_COOKIE)
+	private SignedJWT refreshCookie;
+
+	/**
+	 * 
+	 */
+	public GetAccessTokenRequest normalize() {
+		if (refreshToken == null && refreshCookie != null) {
+			Log.debug("The request to refresh tokens contains a refresh cookie");
+			refreshToken = refreshCookie;
+		}
+		return this;
+	}
 }

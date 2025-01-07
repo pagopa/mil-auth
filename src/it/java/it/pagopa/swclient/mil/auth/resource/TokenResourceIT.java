@@ -6,8 +6,8 @@
 package it.pagopa.swclient.mil.auth.resource;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.io.File;
 
@@ -21,8 +21,6 @@ import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.nimbusds.jose.util.StandardCharset;
 
 import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import it.pagopa.swclient.mil.auth.bean.AuthFormParamName;
 import it.pagopa.swclient.mil.auth.bean.AuthJsonPropertyName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
@@ -60,7 +58,7 @@ class TokenResourceIT {
 	 */
 	private static String adminClientId;
 	private static String adminClientSecret;
-	
+
 	/*
 	 * 
 	 */
@@ -81,15 +79,15 @@ class TokenResourceIT {
 			new OpenApiValidationFilter(
 				Files.contentOf(
 					new File("src/main/resources/META-INF/openapi.yaml"),
-					StandardCharset.UTF_8))/*,
-			new RequestLoggingFilter(),
-			new ResponseLoggingFilter()*/);
+					StandardCharset.UTF_8))/*
+											 * , new RequestLoggingFilter(), new ResponseLoggingFilter()
+											 */);
 
 		baseUri = System.getProperty("base_uri");
 
 		adminClientId = System.getProperty("admin_client_id");
 		adminClientSecret = System.getProperty("admin_client_secret");
-		
+
 		secretlessClientId = System.getProperty("secretless_client_id");
 
 		testUsername = System.getProperty("test_username");
@@ -297,7 +295,7 @@ class TokenResourceIT {
 			.response()
 			.as(GetAccessTokenResponse.class);
 
-		String refreshToken = getAccessTokenResponse.getRefreshToken();
+		String refreshToken = getAccessTokenResponse.getRefreshToken().serialize();
 
 		/*
 		 * Test
@@ -357,7 +355,7 @@ class TokenResourceIT {
 			.response()
 			.as(GetAccessTokenResponse.class);
 
-		String refreshToken = getAccessTokenResponse.getRefreshToken();
+		String refreshToken = getAccessTokenResponse.getRefreshToken().serialize();
 
 		/*
 		 * Test

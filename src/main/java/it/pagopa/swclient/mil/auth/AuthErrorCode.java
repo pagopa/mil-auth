@@ -56,6 +56,7 @@ public final class AuthErrorCode {
 	public static final String ERROR_DECRYPTING_CLAIM           = MODULE_ID + "000028";
 	public static final String ERROR_SIGNING_TOKEN              = MODULE_ID + "000029";
 	public static final String USER_NOT_FOUND                   = MODULE_ID + "00002A";
+	public static final String WRONG_CLIENT_ID                  = MODULE_ID + "00002B";
 	// @formatter:on
 
 	public static final String MUST_NOT_BE_NULL_MSG = " must not be null";
@@ -78,6 +79,7 @@ public final class AuthErrorCode {
 	public static final String TOKEN_MUST_NOT_BE_NULL_MSG          = "[" + TOKEN_MUST_NOT_BE_NULL          + "] Token"         + MUST_NOT_BE_NULL_MSG;
 	public static final String TOKEN_MUST_MATCH_REGEXP_MSG         = "[" + TOKEN_MUST_MATCH_REGEXP         + "] Token"         + MUST_MATCH_REGEXP_MSG;
 	public static final String USER_NOT_FOUND_MSG                  = "[" + USER_NOT_FOUND                  + "] User not found";
+	public static final String WRONG_CLIENT_ID_MSG                 = "[" + WRONG_CLIENT_ID                 + "] Wrong client ID";
 	// @formatter:on
 
 	/**

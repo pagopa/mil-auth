@@ -113,7 +113,7 @@ class ClientResourceTest {
 			.body(AdminJsonPropertyName.CLIENT_ID, notNullValue())
 			.body(AdminJsonPropertyName.CLIENT_SECRET, notNullValue());
 	}
-	
+
 	/**
 	 * 
 	 */
