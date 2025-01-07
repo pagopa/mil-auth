@@ -29,12 +29,10 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
-import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.dao.ClientEntity;
@@ -348,9 +346,7 @@ class RefreshTokensServiceTest {
 			.setMerchantId("merchant_id")
 			.setTerminalId("terminal_id");
 
-		Uni<GetAccessTokenResponse> resp = refreshTokensService.process(request);
-		
-		assertThrows(NullPointerException.class, resp::await);
+		assertThrows(NullPointerException.class, () -> refreshTokensService.process(request));
 	}
 
 	/**
