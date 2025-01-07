@@ -6,6 +6,7 @@
 package it.pagopa.swclient.mil.auth.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,7 @@ import it.pagopa.swclient.mil.auth.bean.Scope;
 import it.pagopa.swclient.mil.auth.dao.ClientEntity;
 import it.pagopa.swclient.mil.auth.dao.SetOfRolesEntity;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
+import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.inject.Inject;
@@ -198,6 +200,72 @@ class RefreshTokensServiceTest {
 			.setAcquirerId("acquirer_id")
 			.setChannel("channel")
 			.setClientId("client_id")
+			// .setRefreshToken(refreshToken)
+			.setGrantType(GrantType.REFRESH_TOKEN)
+			.setMerchantId("merchant_id")
+			.setTerminalId("terminal_id")
+			.setRefreshCookie(refreshToken);
+
+		refreshTokensService.process(request)
+			.subscribe()
+			.with(
+				response -> {
+					assertEquals(
+						"eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA",
+						response.getAccessToken());
+				},
+				f -> fail(f));
+	}
+
+	/**
+	 * 
+	 * @throws ParseException
+	 */
+	@Test
+	void given_refreshCookieAndRefreshToken_when_allGoesOk_then_getTokens() throws ParseException {
+		/*
+		 * Setup
+		 */
+		Instant now = Instant.now();
+
+		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, "key_id", true, null, null);
+
+		JWTClaimsSet payload = new JWTClaimsSet.Builder()
+			.subject("subject")
+			.issueTime(new Date(now.toEpochMilli()))
+			.expirationTime(new Date(now.plus(15, ChronoUnit.MINUTES).toEpochMilli()))
+			.claim(ClaimName.ACQUIRER_ID, "acquirer_id")
+			.claim(ClaimName.CHANNEL, "channel")
+			.claim(ClaimName.MERCHANT_ID, "merchant_id")
+			.claim(ClaimName.CLIENT_ID, "client_id")
+			.claim(ClaimName.TERMINAL_ID, "teminal_id")
+			.claim(ClaimName.SCOPE, Scope.OFFLINE_ACCESS)
+			.build();
+
+		SignedJWT refreshToken = new SignedJWT(header.toBase64URL(), payload.toPayload().toBase64URL(), Base64URL.from("AA"));
+
+		when(tokenSigner.verify(any(SignedJWT.class)))
+			.thenReturn(UniGenerator.item(null));
+
+		when(clientVerifier.verify("client_id", "channel", null))
+			.thenReturn(UniGenerator.item(new ClientEntity()));
+
+		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
+			.thenReturn(UniGenerator.item(new SetOfRolesEntity()
+				.setRoles(List.of("role"))));
+
+		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");
+
+		when(tokenSigner.sign(any(JWTClaimsSet.class)))
+			.thenReturn(UniGenerator.item(signedJwt));
+
+		/*
+		 * Test
+		 */
+		GetAccessTokenRequest request = new GetAccessTokenRequest()
+			.setAcquirerId("acquirer_id")
+			.setChannel("channel")
+			.setClientId("client_id")
 			.setRefreshToken(refreshToken)
 			.setGrantType(GrantType.REFRESH_TOKEN)
 			.setMerchantId("merchant_id")
@@ -213,6 +281,80 @@ class RefreshTokensServiceTest {
 						response.getAccessToken());
 				},
 				f -> fail(f));
+	}
+
+	/**
+	 * 
+	 * @throws ParseException
+	 */
+	@Test
+	void given_badRefreshToken_when_tokensRefreshIsRequestes_then_getFailure() throws ParseException {
+		/*
+		 * Setup
+		 */
+		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, "key_id", true, null, null);
+
+		SignedJWT refreshToken = new SignedJWT(header.toBase64URL(), new Base64URL("dGVzdA=="), Base64URL.from("AA"));
+
+		when(tokenSigner.verify(any(SignedJWT.class)))
+			.thenReturn(UniGenerator.item(null));
+
+		when(clientVerifier.verify("client_id", "channel", null))
+			.thenReturn(UniGenerator.item(new ClientEntity()));
+
+		when(roleFinder.findRoles("acquirer_id", "channel", "client_id", "merchant_id", "terminal_id"))
+			.thenReturn(UniGenerator.item(new SetOfRolesEntity()
+				.setRoles(List.of("role"))));
+
+		SignedJWT signedJwt = SignedJWT.parse("eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA");
+
+		when(tokenSigner.sign(any(JWTClaimsSet.class)))
+			.thenReturn(UniGenerator.item(signedJwt));
+
+		/*
+		 * Test
+		 */
+		GetAccessTokenRequest request = new GetAccessTokenRequest()
+			.setAcquirerId("acquirer_id")
+			.setChannel("channel")
+			.setClientId("client_id")
+			.setRefreshToken(refreshToken)
+			.setGrantType(GrantType.REFRESH_TOKEN)
+			.setMerchantId("merchant_id")
+			.setTerminalId("terminal_id")
+			.setRefreshCookie(refreshToken);
+
+		refreshTokensService.process(request)
+			.subscribe()
+			.withSubscriber(UniAssertSubscriber.create())
+			.assertFailedWith(AuthError.class);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void given_refreshCookieAndRefreshTokenBothNull_when_tokesRefreshIsRequested_then_getFailure() {
+		/*
+		 * Test
+		 */
+		GetAccessTokenRequest request = new GetAccessTokenRequest()
+			.setAcquirerId("acquirer_id")
+			.setChannel("channel")
+			.setClientId("client_id")
+			.setGrantType(GrantType.REFRESH_TOKEN)
+			.setMerchantId("merchant_id")
+			.setTerminalId("terminal_id");
+
+		assertThrows(
+			NullPointerException.class,
+			() -> refreshTokensService.process(request)
+				.subscribe()
+				.with(
+					i -> {
+					},
+					f -> {
+					}));
 	}
 
 	/**

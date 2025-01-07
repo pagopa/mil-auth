@@ -25,7 +25,6 @@ import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
 import it.pagopa.swclient.mil.auth.qualifier.Password;
-import it.pagopa.swclient.mil.auth.qualifier.PoyntToken;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
 import it.pagopa.swclient.mil.auth.service.TokenService;
 import it.pagopa.swclient.mil.auth.util.AuthError;

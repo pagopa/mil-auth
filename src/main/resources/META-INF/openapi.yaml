@@ -22,7 +22,7 @@ tags:
   - name: introspect
     description: Token introspection operation
   - name: token
-    description: Operation to get or refresh access token
+    description: Operation to get or refresh tokens
   - name: client
     description: Administrative operation for client
   - name: roles
@@ -34,10 +34,10 @@ tags:
 paths:
   /token:
     post:
-      operationId: getAccessToken
+      operationId: getAccessTokens
       description: |
-        Returns access token and refresh token (if required) or
-        refresh it (or them, if refresh token required)
+        Returns access token and refresh token (if `scope=offline_access`) or
+        refreshes them
       tags: [token]
       security: []
       parameters:
@@ -82,7 +82,9 @@ paths:
   /token_info:
     post:
       operationId: introspect
-      description: Introspects a given access token returning the clear value of user tax (fiscal) code (if any)
+      description: |
+        Introspects a given access token returning the clear value of user tax
+        code if any
       tags: [introspect]
       security:
         - oAuth2: [token_info]
@@ -125,7 +127,7 @@ paths:
   /.well-known/jwks.json:
     get:
       operationId: getJwks
-      description: Returns public keys
+      description: Returns public keys used to sign the tokens
       tags: [wellknown]
       security: []
       parameters:
@@ -193,7 +195,8 @@ paths:
   /admin/cleanexpkeys:
     post:
       operationId: cleanExpKeys
-      description: Cleans expired keys
+      description: |
+        Cleans expired keys used to sign tokens and to protect sensitive data
       tags: [maintenance]
       security:
         - oAuth2: [admin]
@@ -1571,8 +1574,9 @@ components:
             $ref: '#/components/schemas/CreateUserReq'
     GetAccessToken:
       description: |
-        Request to get an access token and refresh token (if required) by means
-        of username and password or by refresh token or by client secret
+        Request to get an access token and refresh token
+        (if `scope=offline_access`) by means of username and password or by
+        refresh token or by client secret
       content:
         application/x-www-form-urlencoded:
           schema:
@@ -1676,10 +1680,7 @@ components:
     RefreshCookie:
       name: refresh_cookie
       in: cookie
-      description: |
-        Cookie with refresh token.
-        If this cookie is provided to request the refresh, the form param
-        refresh_token must not be provided.
+      description: Cookie with refresh token.
       required: false
       schema:
         $ref: '#/components/schemas/Token'
@@ -1753,8 +1754,8 @@ components:
             $ref: '#/components/schemas/RateLimitReset'
         Set-Cookie:
           description: |
-            If a refresh token is required, it is returned also by means of a
-            cookie.
+            If a refresh token is required (`scope=offline_access`), it is
+            returned also by means of a cookie.
           required: false
           schema:
             $ref: '#/components/schemas/RefreshCookie'

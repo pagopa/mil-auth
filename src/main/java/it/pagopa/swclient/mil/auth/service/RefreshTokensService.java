@@ -208,11 +208,7 @@ public class RefreshTokensService extends TokenService {
 	@Override
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
 		Log.trace("Tokens refreshing");
-		try {
-			return verify(getAccessToken.normalize())
-				.chain(() -> super.process(getAccessToken));
-		} catch (AuthException e) {
-			return Uni.createFrom().failure(e);
-		}
+		return verify(getAccessToken.normalize())
+			.chain(() -> super.process(getAccessToken));
 	}
 }

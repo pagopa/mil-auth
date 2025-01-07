@@ -27,7 +27,7 @@ public class SignedJWTParamConverterProvider implements ParamConverterProvider {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations) {
-		Log.trace("getConverter");
+		Log.tracef("getConverter: %s", rawType);
 		if (rawType.isAssignableFrom(SignedJWT.class)) {
 			return (ParamConverter<T>) new SignedJWTParamConverter();
 		}
