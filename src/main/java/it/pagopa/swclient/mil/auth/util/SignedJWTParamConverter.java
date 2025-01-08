@@ -45,11 +45,7 @@ public class SignedJWTParamConverter implements ParamConverter<SignedJWT> {
 	 */
 	@Override
 	public String toString(SignedJWT value) {
-		// For now this method is not useful, so to avoid coverage checking,
-		// I prefer to return an exception!
-		// The real implementation should be:
-		// Log.trace("toString"); // NOSONAR
-		// return value.serialize(); // NOSONAR
-		throw new UnsupportedOperationException();
+		Log.trace("toString");
+		return value.serialize();
 	}
 }
