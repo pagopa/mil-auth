@@ -8,10 +8,12 @@ package it.pagopa.swclient.mil.auth.bean;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import it.pagopa.swclient.mil.auth.util.SignedJWTDeserializer;
 import it.pagopa.swclient.mil.auth.util.SignedJWTSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,6 +37,7 @@ public class GetAccessTokenResponse {
 	@JsonProperty(AuthJsonPropertyName.ACCESS_TOKEN)
 	@ToString.Exclude
 	@JsonSerialize(using = SignedJWTSerializer.class)
+	@JsonDeserialize(using = SignedJWTDeserializer.class)
 	private SignedJWT accessToken;
 
 	/*
@@ -43,6 +46,7 @@ public class GetAccessTokenResponse {
 	@JsonProperty(AuthJsonPropertyName.REFRESH_TOKEN)
 	@ToString.Exclude
 	@JsonSerialize(using = SignedJWTSerializer.class)
+	@JsonDeserialize(using = SignedJWTDeserializer.class)
 	private SignedJWT refreshToken;
 
 	/*
