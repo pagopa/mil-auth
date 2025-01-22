@@ -21,7 +21,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean acquirerIdMustBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getAcquirerId() == null;
 		if (!check) {
-			Log.warn("AcquirerId must be null.");
+			Log.warn("AcquirerId must be null");
 		}
 		return check;
 	}
@@ -33,7 +33,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean acquirerIdMustNotBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getAcquirerId() != null;
 		if (!check) {
-			Log.warn("AcquirerId must not be null.");
+			Log.warn("AcquirerId must not be null");
 		}
 		return check;
 	}
@@ -45,7 +45,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean merchantIdMustBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getMerchantId() == null;
 		if (!check) {
-			Log.warn("MerchantId must be null.");
+			Log.warn("MerchantId must be null");
 		}
 		return check;
 	}
@@ -57,7 +57,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean merchantIdMustNotBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getMerchantId() != null;
 		if (!check) {
-			Log.warn("MerchantId must not be null.");
+			Log.warn("MerchantId must not be null");
 		}
 		return check;
 	}
@@ -69,7 +69,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean terminalIdMustBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getTerminalId() == null;
 		if (!check) {
-			Log.warn("TerminalId must be null.");
+			Log.warn("TerminalId must be null");
 		}
 		return check;
 	}
@@ -81,7 +81,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean terminalIdMustNotBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getTerminalId() != null;
 		if (!check) {
-			Log.warn("TerminalId must not be null.");
+			Log.warn("TerminalId must not be null");
 		}
 		return check;
 	}
@@ -93,7 +93,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean clientSecretMustBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getClientSecret() == null;
 		if (!check) {
-			Log.warn("client_secret must be null.");
+			Log.warn("client_secret must be null");
 		}
 		return check;
 	}
@@ -105,7 +105,7 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	protected boolean clientSecretMustNotBeNull(GetAccessTokenRequest getAccessToken) {
 		boolean check = getAccessToken.getClientSecret() != null;
 		if (!check) {
-			Log.warn("client_secret must not be null.");
+			Log.warn("client_secret must not be null");
 		}
 		return check;
 	}
@@ -114,22 +114,23 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	 * @param getAccessToken
 	 * @return
 	 */
-	protected boolean refreshTokenMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() == null;
+	protected boolean bothRefreshTokenAndRefreshCookieMustBeNull(GetAccessTokenRequest getAccessToken) {
+		boolean check = getAccessToken.getRefreshToken() == null && getAccessToken.getRefreshCookie() == null;
 		if (!check) {
-			Log.warn("refresh_token must be null.");
+			Log.warn("both refresh_token and refresh_cookie must be null");
 		}
 		return check;
 	}
 
 	/**
+	 * 
 	 * @param getAccessToken
 	 * @return
 	 */
-	protected boolean refreshTokenMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() != null || getAccessToken.getRefreshCookie() != null;
+	protected boolean onlyOneOfRefreshTokenAndRefreshCookieMustNotBeNull(GetAccessTokenRequest getAccessToken) {
+		boolean check = getAccessToken.getRefreshToken() != null ^ getAccessToken.getRefreshCookie() != null;
 		if (!check) {
-			Log.warn("refresh_token or refresh_cookie must not be null.");
+			Log.warn("only one of refresh_token and refresh_cookie must not be null");
 		}
 		return check;
 	}

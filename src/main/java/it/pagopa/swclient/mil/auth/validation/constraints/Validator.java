@@ -32,7 +32,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& merchantIdMustNotBeNull(getAccessToken)
 					&& terminalIdMustNotBeNull(getAccessToken)
 					&& clientSecretMustBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
+					&& bothRefreshTokenAndRefreshCookieMustBeNull(getAccessToken)
 					&& usernameMustNotBeNull(getAccessToken)
 					&& passwordMustNotBeNull(getAccessToken);
 			}
@@ -45,7 +45,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& merchantIdMustBeNull(getAccessToken)
 					&& terminalIdMustBeNull(getAccessToken)
 					&& clientSecretMustBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
+					&& bothRefreshTokenAndRefreshCookieMustBeNull(getAccessToken)
 					&& usernameMustNotBeNull(getAccessToken)
 					&& passwordMustNotBeNull(getAccessToken);
 			}
@@ -58,7 +58,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& merchantIdMustNotBeNull(getAccessToken)
 					&& terminalIdMustNotBeNull(getAccessToken)
 					&& clientSecretMustBeNull(getAccessToken)
-					&& refreshTokenMustNotBeNull(getAccessToken)
+					&& onlyOneOfRefreshTokenAndRefreshCookieMustNotBeNull(getAccessToken)
 					&& usernameMustBeNull(getAccessToken)
 					&& passwordMustBeNull(getAccessToken)
 					&& scopeMustBeNull(getAccessToken);
@@ -72,7 +72,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& merchantIdMustBeNull(getAccessToken)
 					&& terminalIdMustBeNull(getAccessToken)
 					&& clientSecretMustBeNull(getAccessToken)
-					&& refreshTokenMustNotBeNull(getAccessToken)
+					&& onlyOneOfRefreshTokenAndRefreshCookieMustNotBeNull(getAccessToken)
 					&& usernameMustBeNull(getAccessToken)
 					&& passwordMustBeNull(getAccessToken)
 					&& scopeMustBeNull(getAccessToken);
@@ -86,7 +86,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& merchantIdMustBeNull(getAccessToken)
 					&& terminalIdMustNotBeNull(getAccessToken)
 					&& clientSecretMustNotBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
+					&& bothRefreshTokenAndRefreshCookieMustBeNull(getAccessToken)
 					&& usernameMustBeNull(getAccessToken)
 					&& passwordMustBeNull(getAccessToken)
 					&& scopeMustBeNull(getAccessToken);
@@ -100,7 +100,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& merchantIdMustNotBeNull(getAccessToken)
 					&& terminalIdMustNotBeNull(getAccessToken)
 					&& clientSecretMustNotBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
+					&& bothRefreshTokenAndRefreshCookieMustBeNull(getAccessToken)
 					&& usernameMustBeNull(getAccessToken)
 					&& passwordMustBeNull(getAccessToken)
 					&& scopeMustBeNull(getAccessToken);
@@ -114,7 +114,7 @@ public class Validator implements ConstraintValidator<ValidationTarget, GetAcces
 					&& merchantIdMustBeNull(getAccessToken)
 					&& terminalIdMustBeNull(getAccessToken)
 					&& clientSecretMustNotBeNull(getAccessToken)
-					&& refreshTokenMustBeNull(getAccessToken)
+					&& bothRefreshTokenAndRefreshCookieMustBeNull(getAccessToken)
 					&& usernameMustBeNull(getAccessToken)
 					&& passwordMustBeNull(getAccessToken)
 					&& scopeMustBeNull(getAccessToken);

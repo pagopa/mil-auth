@@ -60,11 +60,13 @@
 		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
 		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-		<sonar.issue.ignore.multicriteria>e1,e2</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria>e1,e2,e3</sonar.issue.ignore.multicriteria>
 		<sonar.issue.ignore.multicriteria.e1.ruleKey>java:S116</sonar.issue.ignore.multicriteria.e1.ruleKey>
 		<sonar.issue.ignore.multicriteria.e1.resourceKey>src/test/java/**/*.java</sonar.issue.ignore.multicriteria.e1.resourceKey>
 		<sonar.issue.ignore.multicriteria.e2.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e2.ruleKey>
 		<sonar.issue.ignore.multicriteria.e2.resourceKey>src/test/java/**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
+		<sonar.issue.ignore.multicriteria.e3.ruleKey>java:S5961</sonar.issue.ignore.multicriteria.e3.ruleKey>
+        <sonar.issue.ignore.multicriteria.e3.resourceKey>src/test/java/**/*.java</sonar.issue.ignore.multicriteria.e3.resourceKey>
 		<skipITs>true</skipITs>
 		<skipUTs>false</skipUTs>
 	</properties>

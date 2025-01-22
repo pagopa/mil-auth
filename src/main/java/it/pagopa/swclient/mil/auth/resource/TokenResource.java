@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -21,6 +22,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.AuthCookieParamName;
+import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
@@ -108,17 +110,23 @@ public class TokenResource {
 			.get()
 			.process(getAccessToken)
 			.map(Unchecked.function(resp -> {
-				SignedJWT refreshToken = resp.getRefreshToken();
 				ResponseBuilder respBuilder = Response.ok(resp);
-				if (refreshToken != null) {
-					Log.debug("Refresh token is returned with cookie also");
+				SignedJWT currentRefreshToken = getAccessToken.getTheRefreshToken();
+				SignedJWT newRefreshToken = resp.getRefreshToken();
+				boolean returnRefreshTokenInTheCookie = newRefreshToken != null
+					&& (getAccessToken.isReturnTheRefreshTokenInTheCookie()
+						|| (currentRefreshToken != null
+							&& Objects.equals(currentRefreshToken.getJWTClaimsSet().getBooleanClaim(ClaimName.RETURNED_IN_THE_COOKIE), Boolean.TRUE)));
+				if (returnRefreshTokenInTheCookie) {
+					Log.debug("Refresh token is returned within cookie");
 
 					/*
 					 * Build cookie.
 					 */
 					URI tokenUri = new URI(baseUrl.replaceAll("\\/$", "") + "/token");
 
-					JWTClaimsSet claimsSet = refreshToken.getJWTClaimsSet();
+					@SuppressWarnings("null")
+					JWTClaimsSet claimsSet = newRefreshToken.getJWTClaimsSet();
 					Date expiry = claimsSet.getExpirationTime();
 
 					NewCookie cookie = new NewCookie.Builder(AuthCookieParamName.REFRESH_COOKIE)
@@ -129,10 +137,15 @@ public class TokenResource {
 						.httpOnly(true)
 						.secure(true)
 						.sameSite(SameSite.STRICT)
-						.value(refreshToken.serialize())
+						.value(newRefreshToken.serialize())
 						.build();
 
 					respBuilder.cookie(cookie);
+
+					/*
+					 * Remove refresh token from the body.
+					 */
+					resp.setRefreshToken(null);
 				}
 				return respBuilder.build();
 			}))

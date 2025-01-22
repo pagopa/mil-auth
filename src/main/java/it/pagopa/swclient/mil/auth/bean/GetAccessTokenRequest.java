@@ -7,7 +7,6 @@ package it.pagopa.swclient.mil.auth.bean;
 
 import com.nimbusds.jwt.SignedJWT;
 
-import io.quarkus.logging.Log;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
@@ -127,6 +126,12 @@ public class GetAccessTokenRequest {
 	private String fiscalCode;
 
 	/*
+	 * cookie
+	 */
+	@FormParam(AuthFormParamName.RETURN_THE_REFRESH_TOKEN_IN_THE_COOKIE)
+	private boolean returnTheRefreshTokenInTheCookie;
+
+	/*
 	 * refresh_cookie
 	 */
 	@CookieParam(AuthCookieParamName.REFRESH_COOKIE)
@@ -134,12 +139,21 @@ public class GetAccessTokenRequest {
 
 	/**
 	 * 
+	 * @return
 	 */
-	public GetAccessTokenRequest normalize() {
-		if (refreshToken == null && refreshCookie != null) {
-			Log.debug("The request to refresh tokens contains a refresh cookie");
-			refreshToken = refreshCookie;
+	public SignedJWT getTheRefreshToken() {
+		if (refreshCookie == null) {
+			return refreshToken;
+		} else {
+			return refreshCookie;
 		}
-		return this;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isTheRefreshTokenInTheCookie() {
+		return refreshCookie != null;
 	}
 }
