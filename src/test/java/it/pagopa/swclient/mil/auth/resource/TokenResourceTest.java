@@ -624,7 +624,7 @@ class TokenResourceTest {
 			.setPassword(PASSWORD)
 			.setScope(Scope.OFFLINE_ACCESS)
 			.setReturnTheRefreshTokenInTheCookie(true);
-	
+
 		when(tokenByPasswordService.process(request))
 			.thenReturn(
 				UniGenerator.item(
@@ -633,7 +633,7 @@ class TokenResourceTest {
 						.setRefreshToken(SignedJWT.parse(REFRESH_TOKEN))
 						.setExpiresIn(ACCESS_DURATION * 60)
 						.setTokenType(TokenType.BEARER)));
-	
+
 		/*
 		 * Test
 		 */
