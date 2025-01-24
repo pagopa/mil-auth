@@ -516,7 +516,7 @@ class RefreshTokensServiceTest {
 				i -> fail("Failure expected"),
 				f -> assertAuthException(f, AuthErrorCode.WRONG_REFRESH_TOKEN_LOCATION));
 	}
-	
+
 	/**
 	 * 
 	 * @throws JOSEException
@@ -1147,7 +1147,7 @@ class RefreshTokensServiceTest {
 				i -> fail("Failure expected"),
 				f -> assertAuthException(f, AuthErrorCode.REFRESH_TOKEN_REVOKED));
 	}
-	
+
 	/**
 	 * 
 	 * @throws JOSEException
@@ -1544,7 +1544,7 @@ class RefreshTokensServiceTest {
 				i -> fail("Failure expected"),
 				f -> assertAuthError(f, AuthErrorCode.ERROR_PARSING_TOKEN));
 	}
-	
+
 	/**
 	 * 
 	 * @throws JOSEException

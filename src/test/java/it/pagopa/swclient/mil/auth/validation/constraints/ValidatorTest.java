@@ -757,7 +757,7 @@ class ValidatorTest {
 				.setScope(null),
 				null));
 	}
-	
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_refreshCookieIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()
