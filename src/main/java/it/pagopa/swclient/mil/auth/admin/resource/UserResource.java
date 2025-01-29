@@ -52,9 +52,9 @@ import jakarta.ws.rs.core.Response.Status;
 })
 public class UserResource {
 	/*
-	 * Lenght of generated password.
+	 * Length of generated password.
 	 */
-	private static final int PASSWORD_LEN = 12;
+	public static final int PASSWORD_LEN = 12;
 
 	/*
 	 * mil-auth base URL.
