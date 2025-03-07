@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
 
       - name: PR validation
-        uses: pagopa/mil-actions/pr-validation@63477e234c35c65476a37982635cd524aa71193c # 1.1.3
+        uses: pagopa/mil-actions/pr-validation@1d931c3252f320c1cd94fd626e4a62539c50593a # 1.2.1
         with:
           gh_user: ${{ secrets.GIT_USER }}
           gh_token: ${{ secrets.GIT_PAT }}

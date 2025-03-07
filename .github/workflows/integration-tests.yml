@@ -47,7 +47,7 @@ jobs:
       # Setup Java Build Environment.
       #
       - name: Setup Java Build Environment
-        uses: pagopa/mil-actions/setup-java-build-env@f782a1b3cdb79afda2c10007ae46b831b31fe640 # 1.1.2
+        uses: pagopa/mil-actions/setup-java-build-env@1d931c3252f320c1cd94fd626e4a62539c50593a # 1.2.1
         with:
           gh_user: ${{ secrets.GIT_USER }}
           gh_token: ${{ secrets.GIT_PAT }}
