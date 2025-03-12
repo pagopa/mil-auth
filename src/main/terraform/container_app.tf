@@ -6,6 +6,7 @@ resource "azurerm_container_app" "auth" {
   container_app_environment_id = data.azurerm_container_app_environment.mil.id
   resource_group_name          = data.azurerm_container_app_environment.mil.resource_group_name
   revision_mode                = "Single"
+  workload_profile_name        = "Consumption"
 
   template {
     container {
