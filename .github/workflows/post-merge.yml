@@ -63,7 +63,7 @@ jobs:
       # Setup Java Build Environment.
       #
       - name: Setup Java Build Environment
-        uses: pagopa/mil-actions/setup-java-build-env@f782a1b3cdb79afda2c10007ae46b831b31fe640 # 1.1.2
+        uses: pagopa/mil-actions/setup-java-build-env@1d931c3252f320c1cd94fd626e4a62539c50593a # 1.2.1
         with:
           gh_user: ${{ secrets.GIT_USER }}
           gh_token: ${{ secrets.GIT_PAT }}
@@ -84,7 +84,7 @@ jobs:
       - name: RELEASE CANDIDATE - Build and push native container image
         id: rc_image
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: pagopa/mil-actions/build-push-native-image@241c6c17f483229fdd4ac26c6d79d1d65be2659c # 1.1.1
+        uses: pagopa/mil-actions/build-push-native-image@1d931c3252f320c1cd94fd626e4a62539c50593a # 1.2.1
         with:
           gh_token: ${{ secrets.GIT_PAT }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
@@ -173,7 +173,7 @@ jobs:
       - name: STABLE - Build and push native container image
         id: stable_image
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: pagopa/mil-actions/build-push-native-image@241c6c17f483229fdd4ac26c6d79d1d65be2659c # 1.1.1
+        uses: pagopa/mil-actions/build-push-native-image@1d931c3252f320c1cd94fd626e4a62539c50593a # 1.2.1
         with:
           gh_token: ${{ secrets.GIT_PAT }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
