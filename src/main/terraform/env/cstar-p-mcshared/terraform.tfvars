@@ -29,11 +29,16 @@ key_vault_auth_vault_uri_kv_secret                             = "key-vault-auth
 application_insigths_connection_string_kv_secret               = "core-application-insigths-connection-string"
 
 # ------------------------------------------------------------------------------
+# Configuration of the Container App used by the microservice.
+# ------------------------------------------------------------------------------
+workload_profile_name = "Consumption"
+
+# ------------------------------------------------------------------------------
 # Configuration of the microservice.
 # ------------------------------------------------------------------------------
-mil_auth_quarkus_log_level                 = "ERROR"
-mil_auth_app_log_level                     = "INFO"
-mil_auth_json_log                          = true
+mil_auth_quarkus_log_level                 = "DEBUG"
+mil_auth_app_log_level                     = "DEBUG"
+mil_auth_json_log                          = false
 mil_auth_quarkus_rest_client_logging_scope = "request-response"
 mil_auth_cryptoperiod                      = 31536000
 mil_auth_keysize                           = 4096
