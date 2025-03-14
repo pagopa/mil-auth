@@ -47,7 +47,7 @@
 		<quarkus.platform.version>3.17.5</quarkus.platform.version>
         <!-- Other dependecies version -->
 		<common.version>2.9.0</common.version>
-		<azure-services.version>5.8.0</azure-services.version>
+		<azure-services.version>5.9.0</azure-services.version>
 		<lombok.version>1.18.36</lombok.version>
 		<otel-exporter-azure.version>3.16.2.0</otel-exporter-azure.version>
 		<assertj-core.version>3.27.2</assertj-core.version>
