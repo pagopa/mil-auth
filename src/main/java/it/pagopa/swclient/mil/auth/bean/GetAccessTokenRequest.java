@@ -5,6 +5,9 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -155,5 +158,17 @@ public class GetAccessTokenRequest {
 	 */
 	public boolean isTheRefreshTokenInTheCookie() {
 		return refreshCookie != null;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String allToJsonString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			return e.getMessage();
+		}
 	}
 }
