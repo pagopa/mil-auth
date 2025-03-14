@@ -106,6 +106,12 @@ public class TokenResource {
 		/*
 		 * If the flow reaches this point, the input is validated!
 		 */
+		if (Log.isTraceEnabled()) {
+			Log.tracef("createOrRefreshToken - Input parameters: %s", getAccessToken.allToJsonString());
+		} else {
+			Log.debugf("createOrRefreshToken - Input parameters: %s", getAccessToken.toString());
+		}
+
 		return tokenService.select(qualifiers.get(getAccessToken.getGrantType()))
 			.get()
 			.process(getAccessToken)
@@ -113,10 +119,13 @@ public class TokenResource {
 				ResponseBuilder respBuilder = Response.ok(resp);
 				SignedJWT currentRefreshToken = getAccessToken.getTheRefreshToken();
 				SignedJWT newRefreshToken = resp.getRefreshToken();
+
 				boolean returnRefreshTokenInTheCookie = newRefreshToken != null
 					&& (getAccessToken.isReturnTheRefreshTokenInTheCookie()
-						|| (currentRefreshToken != null
+						|| (getAccessToken.getGrantType().equals(GrantType.REFRESH_TOKEN)
+							&& currentRefreshToken != null
 							&& Objects.equals(currentRefreshToken.getJWTClaimsSet().getBooleanClaim(ClaimName.RETURNED_IN_THE_COOKIE), Boolean.TRUE)));
+
 				if (returnRefreshTokenInTheCookie) {
 					Log.debug("Refresh token is returned within cookie");
 
@@ -133,7 +142,7 @@ public class TokenResource {
 						.domain(tokenUri.getHost())
 						.path(tokenUri.getPath())
 						.expiry(expiry)
-						.maxAge((int) TimeUnit.SECONDS.convert(new Date().getTime() - expiry.getTime(), TimeUnit.MILLISECONDS))
+						.maxAge((int) TimeUnit.SECONDS.convert(expiry.getTime() - new Date().getTime(), TimeUnit.MILLISECONDS))
 						.httpOnly(true)
 						.secure(true)
 						.sameSite(SameSite.STRICT)
