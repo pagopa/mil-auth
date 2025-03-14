@@ -186,11 +186,11 @@ public class CensorDevService {
 			.persist(new UserEntity(
 				USER_ID,
 				USERNAME,
-				NA,
+				null,
 				Base64.getEncoder().encodeToString(SALT),
 				Base64.getEncoder().encodeToString(passwordHash),
-				NA,
-				NA,
+				null,
+				null,
 				SECRETLESS_CLIENT_ID))
 			.subscribe()
 			.with(
