@@ -8,8 +8,6 @@ resource "azurerm_container_app" "auth" {
   revision_mode                = "Single"
   workload_profile_name        = var.workload_profile_name
 
-  workload_profile_name = "Consumption"
-
   template {
     container {
       name   = "mil-auth"
