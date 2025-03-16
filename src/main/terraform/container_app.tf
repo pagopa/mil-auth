@@ -6,6 +6,7 @@ resource "azurerm_container_app" "auth" {
   container_app_environment_id = data.azurerm_container_app_environment.mil.id
   resource_group_name          = data.azurerm_container_app_environment.mil.resource_group_name
   revision_mode                = "Single"
+  workload_profile_name        = var.workload_profile_name
 
   workload_profile_name = "Consumption"
 
@@ -156,16 +157,19 @@ resource "azurerm_container_app" "auth" {
     max_replicas = var.mil_auth_max_replicas
     min_replicas = var.mil_auth_min_replicas
     
-    #custom_scale_rule {
-    #  name             = "office-hours"
-    #  custom_rule_type = "cron"
-    #  metadata         = {
-    #    timezone        = "Europe/Rome"
-    #    start           = "0 8 * * 1-5"
-    #    end             = "0 18 * * 1-5"
-    #    desiredReplicas = "1"
-    #  }
-    #}
+    dynamic "custom_scale_rule" {
+      for_each = var.env_short != "p" ? [1] : []
+      content {
+        name             = "office-hours"
+        custom_rule_type = "cron"
+        metadata         = {
+          timezone        = "Europe/Rome"
+          start           = "0 8 * * 1-5"
+          end             = "0 18 * * 1-5"
+          desiredReplicas = "1"
+        }
+      }
+    }
     
     http_scale_rule {
       name                = "http-requests"
