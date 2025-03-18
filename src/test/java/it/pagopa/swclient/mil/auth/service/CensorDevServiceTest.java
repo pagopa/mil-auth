@@ -79,7 +79,7 @@ class CensorDevServiceTest {
 		CensorDevService service = new CensorDevService(clientRepository, rolesRepository, userRepository);
 		assertThatNoException().isThrownBy(() -> service.onStart(null));
 	}
-	
+
 	/**
 	 * 
 	 */
