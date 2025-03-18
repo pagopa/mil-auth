@@ -2,7 +2,9 @@ openapi: 3.0.3
 info:
   title: Authorization Microservice
   version: 3.0.0
-  description: Authorization Microservice for Multi-channel Integration Layer of SW Client Project
+  description: |
+    Authorization Microservice for Multi-channel Integration Layer of SW Client
+    Project
   contact:
     name: CSTAR
     email: cstar@pagopa.it
@@ -712,7 +714,9 @@ components:
     # Basic types
     # ------------------------------------------------------
     AccessControlAllowOrigin:
-      description: Indicates whether the response can be shared with requesting code from the given origin
+      description: |
+        Indicates whether the response can be shared with requesting code from
+        the given origin
       type: string
       pattern: "^[ -~]{1,2048}$"
       minLength: 1
@@ -885,7 +889,8 @@ components:
       maximum: 128 # See #/components/schemas/Clients.maxItems
       example: 20
     PasswordGrantType:
-      description: Grant type to get an access token with resource owner password
+      description: |
+        Grant type to get an access token with resource owner password
       enum:
         - password
       type: string
@@ -937,11 +942,16 @@ components:
       maxLength: 4096
       example: refresh_cookie=eyJraWQiOiIzOGE1ZDA4ZGM4NzU0MGVhYjc3ZGViNGQ5ZWFiMjM4MC8zNzExY2U3NWFiYmI0MWM5YmZhOTEwMzM0Y2FiMDMzZSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NTg1NjI1LzI4NDA1ZkhmazczeDg4RC8wMTIzNDU2NyIsImF1ZCI6Im1pbC5wYWdvcGEuaXQiLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzM1OTEwMTcxLCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTczNTkwNjU3MX0.Ztu8SlQCjXErum9xRsqUMOd0ucGvfeKhDHAjR3lzo9KV0KiRdy8RckcR-Zg6Yt1Pu4jIl59xlMIE0KZFoHBTFqIzJp0h6HiSvvus8fArJ6Fu5YfMmtOoq9yEkw1GfBWHiYXt-y4LMw9gfus5DA2fEttY6kQVK7mznDUL3eGzTM2OSQlS3rrrnJUuxVR_8RsS1bYVpsUmu36W0Uf0Jd49GvnuqCKakJpr4rzcyvt358NVWrNH4Qqtjg4dCAyXPkM_MHez4XtaMXRh6O8UkOym9DI9n7zkmkkmx-ZccHDkAMmsGJKwviaIMVyrQJ2S3RXzAbcXZS13nb3djskN-3XC5Q;Version=1;Domain=dummy;Path=/token;Max-Age=9586;Expires=Fri, 03-Jan-2025 13:16:11 GMT;Secure;HttpOnly;SameSite=Strict
     RetryAfter:
-      description: The number of seconds to wait before allowing a follow-up request
+      description: |
+        The number of seconds to wait before allowing a follow-up request
       type: integer
       format: int32
       minimum: 1
       maximum: 240
+    ReturnTheRefreshTokenInTheCookie:
+      description: If true, the refresh token is returned in a cookie.
+      type: boolean
+      example: false
     Role:
       description: Role
       type: string
@@ -982,7 +992,9 @@ components:
       maxLength: 256
       example: "send"
     TerminalId:
-      description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
+      description: |
+        ID of the terminal originating the transaction. It must be unique per
+        acquirer and channel.
       type: string
       pattern: "^[0-9a-zA-Z]{1,8}$"
       minLength: 1
@@ -1263,7 +1275,7 @@ components:
     GetAccessTokenByPassword:
       description: |
         Request to get an access token and refresh token
-        (is scope = offline_access) by means of username and password
+        (if `scope=offline_access`) by means of username and password
       type: object
       additionalProperties: false
       properties:
@@ -1277,6 +1289,8 @@ components:
           $ref: '#/components/schemas/OfflineAccessScope'
         client_id:
           $ref: '#/components/schemas/UUID'
+        return_the_refresh_token_in_the_cookie:
+          $ref: '#/components/schemas/ReturnTheRefreshTokenInTheCookie'
       required:
         - grant_type
         - username
@@ -1288,6 +1302,7 @@ components:
         password: "Password-001$"
         scope: "offline_access"
         client_id: "d0d654e6-97da-4848-b568-99fedccb642b"
+        return_the_refresh_token_in_the_cookie: true
     OpenIdConf:
       description: OpenID configuration
       type: object
@@ -1433,7 +1448,8 @@ components:
     RefreshAccessToken:
       description: |
         Request to get a new couple access/refresh token by means of a refresh
-        token
+        token. If refresh token has been returned in a cookie, it must be
+        provided in a cookie - in this case `refresh_token` mustn't be present. 
       type: object
       #additionalProperties: true
       properties:
@@ -1701,7 +1717,9 @@ components:
     TerminalId:
       name: TerminalId
       in: header
-      description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
+      description: |
+        ID of the terminal originating the transaction. It must be unique per
+        acquirer and channel.
       required: false
       schema:
         $ref: '#/components/schemas/TerminalId'
@@ -1735,10 +1753,13 @@ components:
   # ========================================================
   responses:
     AccessToken:
-      description: Response returned when an access token and refresh token is requested
+      description: |
+        Response returned when an access token and refresh token is requested
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1754,8 +1775,8 @@ components:
             $ref: '#/components/schemas/RateLimitReset'
         Set-Cookie:
           description: |
-            If a refresh token is required (`scope=offline_access`), it is
-            returned also by means of a cookie.
+            If a refresh token is required in the cookie with 
+            `return_the_refresh_token_in_the_cookie=true`
           required: false
           schema:
             $ref: '#/components/schemas/RefreshCookie'
@@ -1767,7 +1788,9 @@ components:
       description: Response returned when client data is requested
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1786,10 +1809,13 @@ components:
           schema:
             $ref: '#/components/schemas/Client'
     CreateClient:
-      description: Response returned when the creation of a new client is requested
+      description: |
+        Response returned when the creation of a new client is requested
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1813,10 +1839,13 @@ components:
           schema:
             $ref: '#/components/schemas/CreateClientRes'
     CreateSetOfRoles:
-      description: Response returned when the creation of a new set of roles is requested
+      description: |
+        Response returned when the creation of a new set of roles is requested
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1836,10 +1865,13 @@ components:
           schema:
             $ref: '#/components/schemas/SetOfRolesLocation'
     CreateUser:
-      description: Response returned when the creation of a new user is requested
+      description: |
+        Response returned when the creation of a new user is requested
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1866,7 +1898,9 @@ components:
       description: Response returned when cleaning of expired keys is requested
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1888,7 +1922,9 @@ components:
       description: Error response
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1903,7 +1939,8 @@ components:
           schema:
             $ref: '#/components/schemas/RateLimitReset'
         Retry-After:
-          description: The number of seconds to wait before allowing a follow-up request
+          description: |
+            The number of seconds to wait before allowing a follow-up request
           required: false
           schema:
             $ref: '#/components/schemas/RetryAfter'
@@ -1920,7 +1957,9 @@ components:
       description: Public keys
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1942,7 +1981,9 @@ components:
       description: No content response
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1960,7 +2001,9 @@ components:
       description: OpenID configuration
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -1982,7 +2025,9 @@ components:
       description: Response to the request to get clients
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -2004,7 +2049,9 @@ components:
       description: Response to the request to get list of sets of roles
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -2026,7 +2073,9 @@ components:
       description: Response returned when set of roles data is requested
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -2048,7 +2097,9 @@ components:
       description: Response to the request to introspect an access token
       headers:
         Access-Control-Allow-Origin:
-          description: Indicates whether the response can be shared with requesting code from the given origin
+          description: |
+            Indicates whether the response can be shared with requesting code
+            from the given origin
           required: false
           schema:
             $ref: '#/components/schemas/AccessControlAllowOrigin'
@@ -2071,7 +2122,9 @@ components:
   # ----------------------------------------------------------------------------------
   securitySchemes:
     oAuth2:
-      description: A bearer token in the format of a JWS and conforms to the specifications included in RFC8725
+      description: |
+        A bearer token in the format of a JWS and conforms to the specifications
+        included in RFC8725
       type: oauth2
       flows:
         clientCredentials:
