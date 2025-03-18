@@ -107,7 +107,7 @@ public class TokenResource {
 		 * If the flow reaches this point, the input is validated!
 		 */
 		if (Log.isTraceEnabled()) {
-			Log.tracef("createOrRefreshToken - Input parameters: %s", getAccessToken.allToJsonString());
+			Log.tracef("createOrRefreshToken - Input parameters: %s", getAccessToken.allToString());
 		} else {
 			Log.debugf("createOrRefreshToken - Input parameters: %s", getAccessToken.toString());
 		}
@@ -148,6 +148,8 @@ public class TokenResource {
 						.sameSite(SameSite.STRICT)
 						.value(newRefreshToken.serialize())
 						.build();
+
+					Log.tracef("Cookie: %s", cookie);
 
 					respBuilder.cookie(cookie);
 
