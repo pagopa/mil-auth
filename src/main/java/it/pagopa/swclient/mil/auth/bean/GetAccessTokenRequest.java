@@ -5,9 +5,6 @@
  */
 package it.pagopa.swclient.mil.auth.bean;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -159,16 +156,41 @@ public class GetAccessTokenRequest {
 	public boolean isTheRefreshTokenInTheCookie() {
 		return refreshCookie != null;
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public String allToJsonString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (JsonProcessingException e) {
-			return e.getMessage();
-		}
+	public String allToString() {
+		return new StringBuilder()
+			.append("GetAccessTokenRequest [acquirerId=")
+			.append(acquirerId)
+			.append(", channel=")
+			.append(channel)
+			.append(", merchantId=")
+			.append(merchantId)
+			.append(", terminalId=")
+			.append(terminalId)
+			.append(", grantType=")
+			.append(grantType)
+			.append(", username=")
+			.append(username)
+			.append(", password=")
+			.append(password)
+			.append(", refreshToken=")
+			.append(refreshToken)
+			.append(", clientId=")
+			.append(clientId)
+			.append(", scope=")
+			.append(scope)
+			.append(", clientSecret=")
+			.append(clientSecret)
+			.append(", fiscalCode=")
+			.append(fiscalCode)
+			.append(", returnTheRefreshTokenInTheCookie=")
+			.append(returnTheRefreshTokenInTheCookie)
+			.append(", refreshCookie=")
+			.append(refreshCookie).append("]")
+			.toString();
 	}
 }
