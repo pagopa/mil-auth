@@ -10,6 +10,7 @@ import java.util.List;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.EncryptedClaim;
 import it.pagopa.swclient.mil.auth.util.AuthError;
@@ -40,10 +41,11 @@ public class ClaimEncryptor extends KeyManCapabilities {
 	 * 
 	 * @param keysExtService
 	 * @param keysService
+	 * @param eventBus
 	 */
 	@Inject
-	ClaimEncryptor(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
-		super(keysExtService, keysService);
+	ClaimEncryptor(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService, EventBus eventBus) {
+		super(keysExtService, keysService, eventBus);
 	}
 
 	/**

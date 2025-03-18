@@ -37,15 +37,15 @@ public class ExpKeysCleanerResource {
 	/*
 	 *
 	 */
-	private AzureKeyVaultKeysExtReactiveService keyExtService;
+	private AzureKeyVaultKeysExtReactiveService keysExtService;
 
 	/**
 	 * 
-	 * @param keyExtService
+	 * @param keysExtService
 	 */
 	@Inject
-	ExpKeysCleanerResource(AzureKeyVaultKeysExtReactiveService keyExtService) {
-		this.keyExtService = keyExtService;
+	ExpKeysCleanerResource(AzureKeyVaultKeysExtReactiveService keysExtService) {
+		this.keysExtService = keysExtService;
 	}
 
 	/**
@@ -67,8 +67,8 @@ public class ExpKeysCleanerResource {
 	 */
 	@POST
 	public Uni<DeletedKeys> clean() {
-		Log.trace("Delete expired key");
-		return keyExtService.deleteExpiredKeys(KeyUtils.DOMAIN_VALUE)
+		Log.trace("Delete expired keys");
+		return keysExtService.deleteExpiredKeys(KeyUtils.DOMAIN_VALUE)
 			.map(DeletedKeyBundle::getKey)
 			.map(JsonWebKey::getKid)
 			.map(KeyUtils::azureKid2MyKid)

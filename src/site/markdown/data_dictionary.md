@@ -201,3 +201,4 @@
 | `token_info`            |             |
 | `write_rtp_activations` |             |
 | `write_rtp_send`        |             |
+| `write_idpay_bonus_io`  |             |

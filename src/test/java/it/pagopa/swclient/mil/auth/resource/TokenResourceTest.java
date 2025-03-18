@@ -9,6 +9,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -16,21 +17,28 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.mockito.Mockito;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.auth.bean.AuthCookieParamName;
 import it.pagopa.swclient.mil.auth.bean.AuthFormParamName;
@@ -73,6 +81,10 @@ class TokenResourceTest {
 	private static final String PASSWORD = "password";
 	private static final String ACCESS_TOKEN = "eyJraWQiOiIzOGE1ZDA4ZGM4NzU0MGVhYjc3ZGViNGQ5ZWFiMjM4MC8zNzExY2U3NWFiYmI0MWM5YmZhOTEwMzM0Y2FiMDMzZSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJOb2RvIiwiYXVkIjoibWlsLnBhZ29wYS5pdCIsImNsaWVudElkIjoiOTJmYWYzMTktNDIxOS00NTVmLTg0MWItYmI2OTI2ODQ2NzJhIiwiaXNzIjoiaHR0cHM6Ly9taWwtZC1hcGltLmF6dXJlLWFwaS5uZXQvbWlsLWF1dGgiLCJncm91cHMiOlsiTm9kbyJdLCJleHAiOjE3MzU5MDQ3MTIsImlhdCI6MTczNTkwMzgxMn0.m0bA-s-BQbjNtd3eXbux7tXyn0ITz-wPPPbThLlNQMVxr-erzLIGT0t3jTDoxRPuXe49tlio6ivMWugIKH74CQxQKe9fgmoJuiZ8h9cIQVyg1sFfdS0_EHOp3ubI40IEsvHa7zvoYU3QWB9ByZxupyNPRgfJXKmJwaHU-9sM4Wm381P54gu_CH2QEG7iyHZbCe1t9B3ILcfRozudw3v8_iE8hYZQsUU66gcXrW2Fqh3F_8y4F8FGkXR1bmlY18REpjqZlywTaY4nAts-nA9XQIK4dFriq9c6dVzDiX3RHjQLvCyW8ZeVY0pE5E8WgaEX7z4b-kgefAPasil9YkNoTw";
 	private static final String REFRESH_TOKEN = "eyJraWQiOiIzOGE1ZDA4ZGM4NzU0MGVhYjc3ZGViNGQ5ZWFiMjM4MC8zNzExY2U3NWFiYmI0MWM5YmZhOTEwMzM0Y2FiMDMzZSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NTg1NjI1LzI4NDA1ZkhmazczeDg4RC8wMTIzNDU2NyIsImF1ZCI6Im1pbC5wYWdvcGEuaXQiLCJjbGllbnRJZCI6IjUyNTRmMDg3LTEyMTQtNDVjZC05NGFlLWZkYTUzYzgzNTE5NyIsIm1lcmNoYW50SWQiOiIyODQwNWZIZms3M3g4OEQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiY2hhbm5lbCI6IlBPUyIsImlzcyI6Imh0dHBzOi8vbWlsLWQtYXBpbS5henVyZS1hcGkubmV0L21pbC1hdXRoIiwidGVybWluYWxJZCI6IjAxMjM0NTY3IiwiZXhwIjoxNzM1OTEwMTcxLCJhY3F1aXJlcklkIjoiNDU4NTYyNSIsImlhdCI6MTczNTkwNjU3MX0.Ztu8SlQCjXErum9xRsqUMOd0ucGvfeKhDHAjR3lzo9KV0KiRdy8RckcR-Zg6Yt1Pu4jIl59xlMIE0KZFoHBTFqIzJp0h6HiSvvus8fArJ6Fu5YfMmtOoq9yEkw1GfBWHiYXt-y4LMw9gfus5DA2fEttY6kQVK7mznDUL3eGzTM2OSQlS3rrrnJUuxVR_8RsS1bYVpsUmu36W0Uf0Jd49GvnuqCKakJpr4rzcyvt358NVWrNH4Qqtjg4dCAyXPkM_MHez4XtaMXRh6O8UkOym9DI9n7zkmkkmx-ZccHDkAMmsGJKwviaIMVyrQJ2S3RXzAbcXZS13nb3djskN-3XC5Q";
+	private static final String KID = "kid";
+	private static final String SUBJECT = "subject";
+	private static final int ACCESS_DURATION = 5; // mins
+	private static final int REFRESH_DURATION = 15; // mins
 
 	/*
 	 * 
@@ -113,7 +125,7 @@ class TokenResourceTest {
 	 * @throws ParseException
 	 */
 	@Test
-	void given_requestToGetAccessToken_when_theEndPointIsInvoked_then_getAccessToken() throws ParseException {
+	void given_requestToGetAccessToken_when_allGoesOk_then_getAccessToken() throws ParseException {
 		/*
 		 * Setup
 		 */
@@ -129,7 +141,7 @@ class TokenResourceTest {
 		when(tokenByClientSecretService.process(request))
 			.thenReturn(UniGenerator.item(new GetAccessTokenResponse()
 				.setAccessToken(SignedJWT.parse(ACCESS_TOKEN))
-				.setExpiresIn(900)
+				.setExpiresIn(ACCESS_DURATION * 60)
 				.setTokenType(TokenType.BEARER)));
 
 		/*
@@ -152,7 +164,7 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(AuthJsonPropertyName.ACCESS_TOKEN, notNullValue())
+			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
 			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
 			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
 			.body(AuthJsonPropertyName.REFRESH_TOKEN, nullValue());
@@ -163,7 +175,7 @@ class TokenResourceTest {
 	 * @throws ParseException
 	 */
 	@Test
-	void given_requestToGetAccessAndRefreshToken_when_theEndPointIsInvoked_then_getTokens() throws ParseException {
+	void given_requestToGetAccessAndRefreshToken_when_allGoesOk_then_getTokens() throws ParseException {
 		/*
 		 * Setup
 		 */
@@ -180,7 +192,7 @@ class TokenResourceTest {
 					new GetAccessTokenResponse()
 						.setAccessToken(SignedJWT.parse(ACCESS_TOKEN))
 						.setRefreshToken(SignedJWT.parse(REFRESH_TOKEN))
-						.setExpiresIn(900)
+						.setExpiresIn(ACCESS_DURATION * 60)
 						.setTokenType(TokenType.BEARER)));
 
 		/*
@@ -201,7 +213,6 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.cookie(AuthCookieParamName.REFRESH_COOKIE, REFRESH_TOKEN)
 			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
 			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
 			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
@@ -210,34 +221,135 @@ class TokenResourceTest {
 
 	/**
 	 * 
+	 * @param algorithm
+	 * @param kid
+	 * @param jwtId
+	 * @param subject
+	 * @param issueTime
+	 * @param expirationTime
+	 * @param acquirerId
+	 * @param channel
+	 * @param merchantId
+	 * @param clientId
+	 * @param terminalId
+	 * @param generationId
+	 * @param scope
+	 * @param returnedInTheCookie
+	 * @return
+	 * @throws JOSEException
+	 */
+	private SignedJWT generateRefreshToken(
+		JWSAlgorithm algorithm,
+		String kid,
+		String jwtId,
+		String subject,
+		Date issueTime,
+		Date expirationTime,
+		String acquirerId,
+		String channel,
+		String merchantId,
+		String clientId,
+		String terminalId,
+		String generationId,
+		String scope,
+		Object returnedInTheCookie) throws JOSEException {
+		JWSHeader header = new JWSHeader(
+			algorithm,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			kid,
+			true,
+			null,
+			null);
+
+		JWTClaimsSet payload = new JWTClaimsSet.Builder()
+			.jwtID(jwtId)
+			.subject(subject)
+			.issueTime(issueTime)
+			.expirationTime(expirationTime)
+			.claim(ClaimName.ACQUIRER_ID, acquirerId)
+			.claim(ClaimName.CHANNEL, channel)
+			.claim(ClaimName.MERCHANT_ID, merchantId)
+			.claim(ClaimName.CLIENT_ID, clientId)
+			.claim(ClaimName.TERMINAL_ID, terminalId)
+			.claim(ClaimName.GENERATION_ID, generationId)
+			.claim(ClaimName.SCOPE, scope)
+			.claim(ClaimName.RETURNED_IN_THE_COOKIE, returnedInTheCookie)
+			.build();
+
+		RSAKey rsaKey = new RSAKeyGenerator(2048)
+			.keyID(kid)
+			.generate();
+
+		JWSSigner signer = new RSASSASigner(rsaKey);
+
+		SignedJWT refreshToken = new SignedJWT(header, payload);
+		refreshToken.sign(signer);
+
+		return refreshToken;
+	}
+
+	/**
+	 * 
 	 * @throws ParseException
+	 * @throws JOSEException
 	 */
 	@Test
-	void given_requestToRefreshTokensWithCookie_when_theEndPointIsInvoked_then_getTokens() throws ParseException {
+	void given_requestToRefreshTokens_when_refreshTokenIsInTheCookie_then_getTokens() throws ParseException, JOSEException {
 		/*
 		 * Setup
 		 */
 		Instant now = Instant.now();
+		String jwtId = UUID.randomUUID().toString();
+		String generationId = UUID.randomUUID().toString();
+		SignedJWT currentRefreshToken = generateRefreshToken(
+			JWSAlgorithm.RS256,
+			KID,
+			jwtId,
+			SUBJECT,
+			new Date(now.toEpochMilli()),
+			new Date(now.plus(REFRESH_DURATION, ChronoUnit.MINUTES).toEpochMilli()),
+			ACQUIRER_ID,
+			CHANNEL,
+			MERCHANT_ID,
+			CLIENT_ID,
+			TERMINAL_ID,
+			generationId,
+			Scope.OFFLINE_ACCESS,
+			true);
 
-		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, "key_id", true, null, null);
-
-		JWTClaimsSet payload = new JWTClaimsSet.Builder()
-			.subject("subject")
-			.issueTime(new Date(now.toEpochMilli()))
-			.expirationTime(new Date(now.plus(15, ChronoUnit.MINUTES).toEpochMilli()))
-			.claim(ClaimName.CLIENT_ID, CLIENT_ID)
-			.claim(ClaimName.SCOPE, Scope.OFFLINE_ACCESS)
-			.build();
-
-		SignedJWT refreshToken = new SignedJWT(header.toBase64URL(), payload.toPayload().toBase64URL(), Base64URL.from("AA"));
+		now = Instant.now();
+		jwtId = UUID.randomUUID().toString();
+		SignedJWT newRefreshToken = generateRefreshToken(
+			JWSAlgorithm.RS256,
+			KID,
+			jwtId,
+			SUBJECT,
+			new Date(now.toEpochMilli()),
+			new Date(now.plus(REFRESH_DURATION, ChronoUnit.MINUTES).toEpochMilli()),
+			ACQUIRER_ID,
+			CHANNEL,
+			MERCHANT_ID,
+			CLIENT_ID,
+			TERMINAL_ID,
+			generationId,
+			Scope.OFFLINE_ACCESS,
+			false);
 
 		when(refreshTokensService.process(any(GetAccessTokenRequest.class))) // equals method of GetAccessTokenRequest doesn't work properly due to SignedJWT fields
 			.thenReturn(
 				UniGenerator.item(
 					new GetAccessTokenResponse()
 						.setAccessToken(SignedJWT.parse(ACCESS_TOKEN))
-						.setRefreshToken(SignedJWT.parse(REFRESH_TOKEN))
-						.setExpiresIn(900)
+						.setRefreshToken(newRefreshToken)
+						.setExpiresIn(ACCESS_DURATION * 60)
 						.setTokenType(TokenType.BEARER)));
 
 		/*
@@ -248,7 +360,7 @@ class TokenResourceTest {
 			.header(HeaderParamName.REQUEST_ID, REQUEST_ID)
 			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
 			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
-			.cookie(AuthCookieParamName.REFRESH_COOKIE, refreshToken.serialize())
+			.cookie(AuthCookieParamName.REFRESH_COOKIE, currentRefreshToken.serialize())
 			.when()
 			.post()
 			.then()
@@ -256,54 +368,78 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.cookie(AuthCookieParamName.REFRESH_COOKIE, REFRESH_TOKEN)
+			.cookie(AuthCookieParamName.REFRESH_COOKIE, equalTo(newRefreshToken.serialize()))
 			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
 			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
 			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-			.body(AuthJsonPropertyName.REFRESH_TOKEN, equalTo(REFRESH_TOKEN));
+			.body(AuthJsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
 
 	/**
 	 * 
 	 * @throws ParseException
+	 * @throws JOSEException
 	 */
 	@Test
-	void given_requestToRefreshTokens_when_theEndPointIsInvoked_then_getTokens() throws ParseException {
+	void given_requestToRefreshTokens_when_refreshTokenIsTheBody_then_getTokens() throws ParseException, JOSEException {
 		/*
 		 * Setup
 		 */
 		Instant now = Instant.now();
+		String jwtId = UUID.randomUUID().toString();
+		String generationId = UUID.randomUUID().toString();
+		SignedJWT currentRefreshToken = generateRefreshToken(
+			JWSAlgorithm.RS256,
+			KID,
+			jwtId,
+			SUBJECT,
+			new Date(now.toEpochMilli()),
+			new Date(now.plus(REFRESH_DURATION, ChronoUnit.MINUTES).toEpochMilli()),
+			ACQUIRER_ID,
+			CHANNEL,
+			MERCHANT_ID,
+			CLIENT_ID,
+			TERMINAL_ID,
+			generationId,
+			Scope.OFFLINE_ACCESS,
+			false);
 
-		JWSHeader header = new JWSHeader(JWSAlgorithm.RS256, null, null, null, null, null, null, null, null, null, "key_id", true, null, null);
-
-		JWTClaimsSet payload = new JWTClaimsSet.Builder()
-			.subject("subject")
-			.issueTime(new Date(now.toEpochMilli()))
-			.expirationTime(new Date(now.plus(15, ChronoUnit.MINUTES).toEpochMilli()))
-			.claim(ClaimName.CLIENT_ID, CLIENT_ID)
-			.claim(ClaimName.SCOPE, Scope.OFFLINE_ACCESS)
-			.build();
-
-		SignedJWT refreshToken = new SignedJWT(header.toBase64URL(), payload.toPayload().toBase64URL(), Base64URL.from("AA"));
+		now = Instant.now();
+		jwtId = UUID.randomUUID().toString();
+		SignedJWT newRefreshToken = generateRefreshToken(
+			JWSAlgorithm.RS256,
+			KID,
+			jwtId,
+			SUBJECT,
+			new Date(now.toEpochMilli()),
+			new Date(now.plus(REFRESH_DURATION, ChronoUnit.MINUTES).toEpochMilli()),
+			ACQUIRER_ID,
+			CHANNEL,
+			MERCHANT_ID,
+			CLIENT_ID,
+			TERMINAL_ID,
+			generationId,
+			Scope.OFFLINE_ACCESS,
+			false);
 
 		when(refreshTokensService.process(any(GetAccessTokenRequest.class))) // equals method of GetAccessTokenRequest doesn't work properly due to SignedJWT fields
 			.thenReturn(
 				UniGenerator.item(
 					new GetAccessTokenResponse()
 						.setAccessToken(SignedJWT.parse(ACCESS_TOKEN))
-						.setRefreshToken(SignedJWT.parse(REFRESH_TOKEN))
-						.setExpiresIn(900)
+						.setRefreshToken(newRefreshToken)
+						.setExpiresIn(ACCESS_DURATION * 60)
 						.setTokenType(TokenType.BEARER)));
 
 		/*
 		 * Test
 		 */
-		given()
+		ExtractableResponse<Response> response = given()
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.header(HeaderParamName.REQUEST_ID, REQUEST_ID)
 			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
 			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.REFRESH_TOKEN)
-			.formParam(AuthFormParamName.REFRESH_TOKEN, refreshToken.serialize())
+			.formParam(AuthFormParamName.REFRESH_TOKEN, currentRefreshToken.serialize())
 			.when()
 			.post()
 			.then()
@@ -311,11 +447,13 @@ class TokenResourceTest {
 			.everything()
 			.statusCode(200)
 			.contentType(MediaType.APPLICATION_JSON)
-			.cookie(AuthCookieParamName.REFRESH_COOKIE, REFRESH_TOKEN)
 			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
 			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
-			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
-			.body(AuthJsonPropertyName.REFRESH_TOKEN, equalTo(REFRESH_TOKEN));
+			.body(AuthJsonPropertyName.EXPIRES_IN, equalTo(ACCESS_DURATION * 60))
+			.body(AuthJsonPropertyName.REFRESH_TOKEN, equalTo(newRefreshToken.serialize()))
+			.extract();
+
+		assertFalse(response.cookies().containsKey(AuthCookieParamName.REFRESH_COOKIE));
 	}
 
 	/**
@@ -359,7 +497,7 @@ class TokenResourceTest {
 			.setTerminalId(TERMINAL_ID);
 
 		when(tokenByClientSecretService.process(request))
-			.thenReturn(Uni.createFrom().failure(new Exception("synthetic_exception")));
+			.thenReturn(Uni.createFrom().failure(new Exception("<synthetic exception>")));
 
 		/*
 		 * Test
@@ -388,7 +526,7 @@ class TokenResourceTest {
 	 * 
 	 */
 	@Test
-	void given_requestToGetAccessToken_when_tokenServiceHandledExceptionOccurs_then_getFailure() {
+	void given_requestToGetAccessToken_when_tokenServiceExceptionOccurs_then_getFailure() {
 		/*
 		 * Setup
 		 */
@@ -402,7 +540,7 @@ class TokenResourceTest {
 			.setTerminalId(TERMINAL_ID);
 
 		when(tokenByClientSecretService.process(request))
-			.thenReturn(UniGenerator.exception("code", "string"));
+			.thenReturn(UniGenerator.exception("<error code>", "<error description>"));
 
 		/*
 		 * Test
@@ -431,7 +569,7 @@ class TokenResourceTest {
 	 * 
 	 */
 	@Test
-	void given_requestToGetAccessToken_when_tokenServiceHandledErrorOccurs_then_getFailure() {
+	void given_requestToGetAccessToken_when_tokenServiceErrorOccurs_then_getFailure() {
 		/*
 		 * Setup
 		 */
@@ -445,7 +583,7 @@ class TokenResourceTest {
 			.setTerminalId(TERMINAL_ID);
 
 		when(tokenByClientSecretService.process(request))
-			.thenReturn(UniGenerator.error("code", "string"));
+			.thenReturn(UniGenerator.error("<error code>", "<error description>"));
 
 		/*
 		 * Test
@@ -468,5 +606,57 @@ class TokenResourceTest {
 			.statusCode(500)
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(AuthJsonPropertyName.ERRORS, notNullValue());
+	}
+
+	/**
+	 * 
+	 * @throws ParseException
+	 */
+	@Test
+	void given_requestToGetAccessAndRefreshToken_when_returnRefreshCookieIsRequired_then_getTokens() throws ParseException {
+		/*
+		 * Setup
+		 */
+		GetAccessTokenRequest request = new GetAccessTokenRequest()
+			.setClientId(CLIENT_ID)
+			.setGrantType(GrantType.PASSWORD)
+			.setUsername(USERNAME)
+			.setPassword(PASSWORD)
+			.setScope(Scope.OFFLINE_ACCESS)
+			.setReturnTheRefreshTokenInTheCookie(true);
+
+		when(tokenByPasswordService.process(request))
+			.thenReturn(
+				UniGenerator.item(
+					new GetAccessTokenResponse()
+						.setAccessToken(SignedJWT.parse(ACCESS_TOKEN))
+						.setRefreshToken(SignedJWT.parse(REFRESH_TOKEN))
+						.setExpiresIn(ACCESS_DURATION * 60)
+						.setTokenType(TokenType.BEARER)));
+
+		/*
+		 * Test
+		 */
+		given()
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header(HeaderParamName.REQUEST_ID, REQUEST_ID)
+			.formParam(AuthFormParamName.CLIENT_ID, CLIENT_ID)
+			.formParam(AuthFormParamName.GRANT_TYPE, GrantType.PASSWORD)
+			.formParam(AuthFormParamName.USERNAME, USERNAME)
+			.formParam(AuthFormParamName.PASSWORD, PASSWORD)
+			.formParam(AuthFormParamName.SCOPE, Scope.OFFLINE_ACCESS)
+			.formParam(AuthFormParamName.RETURN_THE_REFRESH_TOKEN_IN_THE_COOKIE, true)
+			.when()
+			.post()
+			.then()
+			.log()
+			.everything()
+			.statusCode(200)
+			.contentType(MediaType.APPLICATION_JSON)
+			.cookie(AuthCookieParamName.REFRESH_COOKIE, equalTo(REFRESH_TOKEN))
+			.body(AuthJsonPropertyName.ACCESS_TOKEN, equalTo(ACCESS_TOKEN))
+			.body(AuthJsonPropertyName.TOKEN_TYPE, equalTo(TokenType.BEARER))
+			.body(AuthJsonPropertyName.EXPIRES_IN, notNullValue(Long.class))
+			.body(AuthJsonPropertyName.REFRESH_TOKEN, nullValue());
 	}
 }

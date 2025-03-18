@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 
 import com.nimbusds.jwt.SignedJWT;
 
-import io.quarkus.logging.Log;
 import jakarta.ws.rs.ext.ParamConverter;
 import jakarta.ws.rs.ext.ParamConverterProvider;
 import jakarta.ws.rs.ext.Provider;
@@ -27,7 +26,6 @@ public class SignedJWTParamConverterProvider implements ParamConverterProvider {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations) {
-		Log.tracef("getConverter: %s", rawType);
 		if (rawType.isAssignableFrom(SignedJWT.class)) {
 			return (ParamConverter<T>) new SignedJWTParamConverter();
 		}

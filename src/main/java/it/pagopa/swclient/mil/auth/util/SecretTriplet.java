@@ -32,9 +32,9 @@ public class SecretTriplet {
 	 * The following parameters are suggested by OWASP.
 	 * https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#argon2id
 	 */
-	private static final int ITERATIONS = 2;
-	private static final int MEM_LIMIT = 19 * 1024; // 19MB
-	private static final int PARALLELISM = 1;
+	public static final int ITERATIONS = 2;
+	public static final int MEM_LIMIT = 19 * 1024; // 19MB
+	public static final int PARALLELISM = 1;
 
 	/*
 	 * Secret symbols.
@@ -44,17 +44,17 @@ public class SecretTriplet {
 	/*
 	 * 
 	 */
-	private static final int SECRET_LEN = 36;
+	public static final int SECRET_LEN = 36;
 
 	/*
 	 * 
 	 */
-	private static final int SALT_LEN = 64;
+	public static final int SALT_LEN = 64;
 
 	/*
 	 * 
 	 */
-	private static final int HASH_LEN = 32;
+	public static final int HASH_LEN = 32;
 
 	/*
 	 * 

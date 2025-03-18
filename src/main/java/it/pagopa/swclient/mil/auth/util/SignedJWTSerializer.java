@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.nimbusds.jwt.SignedJWT;
 
-import io.quarkus.logging.Log;
-
 /**
  * <p>
  * Serialize signed JWT in a string.
@@ -37,7 +35,6 @@ public class SignedJWTSerializer extends JsonSerializer<SignedJWT> {
 	 */
 	@Override
 	public void serialize(SignedJWT value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-		Log.trace("serialize");
 		gen.writeString(value.serialize());
 	}
 }

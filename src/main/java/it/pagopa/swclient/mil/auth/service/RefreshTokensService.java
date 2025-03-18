@@ -20,7 +20,12 @@ import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenResponse;
 import it.pagopa.swclient.mil.auth.bean.Scope;
+import it.pagopa.swclient.mil.auth.dao.RevokedRefreshTokenEntity;
+import it.pagopa.swclient.mil.auth.dao.RevokedRefreshTokenRepository;
+import it.pagopa.swclient.mil.auth.dao.RevokedRefreshTokensGenerationEntity;
+import it.pagopa.swclient.mil.auth.dao.RevokedRefreshTokensGenerationRepository;
 import it.pagopa.swclient.mil.auth.qualifier.RefreshToken;
+import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -33,12 +38,15 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 @RefreshToken
 public class RefreshTokensService extends TokenService {
-	/**
+	/*
 	 * 
 	 */
-	RefreshTokensService() {
-		super();
-	}
+	private RevokedRefreshTokensGenerationRepository revokedRefreshTokensGenerationRepository;
+
+	/*
+	 * 
+	 */
+	private RevokedRefreshTokenRepository revokedRefreshTokenRepository;
 
 	/**
 	 * 
@@ -46,19 +54,25 @@ public class RefreshTokensService extends TokenService {
 	 * @param roleFinder
 	 * @param tokenSigner
 	 * @param claimEncryptor
+	 * @param revokedRefreshTokensGenerationRepository
+	 * @param revokedRefreshTokenRepository
 	 */
 	@Inject
 	RefreshTokensService(
 		ClientVerifier clientVerifier,
 		RolesFinder roleFinder,
 		TokenSigner tokenSigner,
-		ClaimEncryptor claimEncryptor) {
+		ClaimEncryptor claimEncryptor,
+		RevokedRefreshTokensGenerationRepository revokedRefreshTokensGenerationRepository,
+		RevokedRefreshTokenRepository revokedRefreshTokenRepository) {
 		super(clientVerifier, roleFinder, tokenSigner, claimEncryptor);
+		this.revokedRefreshTokensGenerationRepository = revokedRefreshTokensGenerationRepository;
+		this.revokedRefreshTokenRepository = revokedRefreshTokenRepository;
 	}
 
 	/**
 	 * This method verifies the token algorithm.
-	 * <p>
+	 * 
 	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
 	 * specific error code.
 	 *
@@ -80,17 +94,18 @@ public class RefreshTokensService extends TokenService {
 
 	/**
 	 * This method verifies the token issue time.
-	 * <p>
-	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
+	 * 
+	 * If the verification succeeds, the method returns void, otherwise it throws an exception with
 	 * specific error code.
+	 * 
+	 * @param issueTime
+	 * @return
 	 */
-	private Void verifyIssueTime(JWTClaimsSet claimsSet) {
+	private Void verifyIssueTime(Date issueTime) {
 		Log.trace("Issue time verification");
-		Date issueTime = claimsSet.getIssueTime();
 		if (issueTime == null) {
-			String message = String.format("[%s] Issue time must not be null", AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL);
-			Log.warn(message);
-			throw new AuthException(AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL, message);
+			Log.warn(AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL_MSG);
+			throw new AuthException(AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL, AuthErrorCode.ISSUE_TIME_MUST_NOT_BE_NULL_MSG);
 		} else {
 			long issueEpoch = issueTime.getTime();
 			long now = new Date().getTime();
@@ -107,24 +122,21 @@ public class RefreshTokensService extends TokenService {
 
 	/**
 	 * This method verifies the token expiration time.
-	 * <p>
-	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
+	 * 
+	 * If the verification succeeds, the method returns void, otherwise it returns an exception with
 	 * specific error code.
 	 *
-	 * @param claimsSet
+	 * @param expirationTime
 	 * @return
 	 */
-	private Void verifyExpirationTime(JWTClaimsSet claimsSet) {
+	private Void verifyExpirationTime(Date expirationTime) {
 		Log.trace("Expiration time verification");
-		Date expirationTime = claimsSet.getExpirationTime();
 		if (expirationTime == null) {
-			String message = String.format("[%s] Expiration time must not be null", AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL);
-			Log.warn(message);
-			throw new AuthException(AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL, message);
+			Log.warn(AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL_MSG);
+			throw new AuthException(AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL, AuthErrorCode.EXPIRATION_TIME_MUST_NOT_BE_NULL_MSG);
 		} else if (expirationTime.before(new Date())) {
-			String message = String.format("[%s] Token expired", AuthErrorCode.TOKEN_EXPIRED);
-			Log.warn(message);
-			throw new AuthException(AuthErrorCode.TOKEN_EXPIRED, message);
+			Log.warn(AuthErrorCode.TOKEN_EXPIRED);
+			throw new AuthException(AuthErrorCode.TOKEN_EXPIRED, AuthErrorCode.TOKEN_EXPIRED);
 		} else {
 			Log.debug("Expiration time has been successfully verified");
 			return null;
@@ -133,17 +145,16 @@ public class RefreshTokensService extends TokenService {
 
 	/**
 	 * This method verifies the token scope.
-	 * <p>
-	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
-	 * specific error code.
+	 * 
+	 * If the verification succeeds, the method returns void, otherwise it throws returns an exception
+	 * with specific error code.
 	 *
-	 * @param claimsSet
+	 * @param foundScope
 	 * @param expectedScope
 	 * @return
 	 */
-	private Void verifyScope(JWTClaimsSet claimsSet, String expectedScope) {
+	private Void verifyScope(String foundScope, String expectedScope) {
 		Log.trace("Scope verification");
-		Object foundScope = claimsSet.getClaim(ClaimName.SCOPE);
 		if (Objects.equals(foundScope, expectedScope)) {
 			Log.debug("Scope has been successfully verified");
 			return null;
@@ -157,22 +168,21 @@ public class RefreshTokensService extends TokenService {
 	/**
 	 * This method verifies that the client ID of the request with the corresponding value reported in
 	 * the claim of the refresh token.
-	 * <p>
-	 * If the verification succeeds, the method returns void, otherwise it returns a failure with
-	 * specific error code.
+	 * 
+	 * If the verification succeeds, the method returns void, otherwise it throws an exception specific
+	 * error code.
 	 *
-	 * @param claimsSet
+	 * @param foundClientId
 	 * @param expectedClientId
 	 * @return
 	 */
-	private Void verifyClientId(JWTClaimsSet claimsSet, String expectedClientId) {
+	private Void verifyClientId(String foundClientId, String expectedClientId) {
 		Log.trace("Client id verification");
-		Object foundClientId = claimsSet.getClaim(ClaimName.CLIENT_ID);
 		if (Objects.equals(foundClientId, expectedClientId)) {
 			Log.debug("Client id has been successfully verified");
 			return null;
 		} else {
-			String message = String.format("[%s] Wrong client ID: expected %s, found %s", AuthErrorCode.WRONG_CLIENT_ID, expectedClientId, foundClientId);
+			final String message = String.format("[%s] Wrong client ID: expected %s, found %s", AuthErrorCode.WRONG_CLIENT_ID, expectedClientId, foundClientId);
 			Log.warn(message);
 			throw new AuthException(AuthErrorCode.WRONG_CLIENT_ID, AuthErrorCode.WRONG_CLIENT_ID_MSG);
 		}
@@ -180,35 +190,161 @@ public class RefreshTokensService extends TokenService {
 
 	/**
 	 * 
-	 * @param refreshTokenStr
+	 * @param generationId
+	 * @param refreshTokenId
 	 * @return
 	 */
-	private Uni<Void> verify(GetAccessTokenRequest getAccessToken) {
-		SignedJWT token = getAccessToken.getRefreshToken();
-		try {
-			JWTClaimsSet claimsSet = token.getJWTClaimsSet();
-			return verifyAlgorithm(token)
-				.map(x -> verifyIssueTime(claimsSet))
-				.map(x -> verifyExpirationTime(claimsSet))
-				.map(x -> verifyScope(claimsSet, Scope.OFFLINE_ACCESS))
-				.map(x -> verifyClientId(claimsSet, getAccessToken.getClientId()))
-				.chain(() -> tokenSigner.verify(token));
-		} catch (ParseException e) {
-			String message = String.format("[%s] Error parsing token", AuthErrorCode.ERROR_PARSING_TOKEN);
-			Log.errorf(e, message);
-			Log.errorf("Offending token: %s", token.serialize());
-			return UniGenerator.error(AuthErrorCode.ERROR_PARSING_TOKEN, message);
+	private Uni<Void> verifyRefreshTokenRevocationList(String generationId, String refreshTokenId) {
+		/*
+		 * If the refresh token generation has not been revoked, check if the refresh token has been
+		 * revoked.
+		 */
+		Log.debug("Check if the refresh token has been revoked");
+		if (generationId != null) {
+			if (refreshTokenId != null) {
+				return revokedRefreshTokenRepository.findByJwtId(refreshTokenId)
+					.chain(revokedRefreshTokenEntity -> {
+						if (revokedRefreshTokenEntity.isPresent()) {
+							/*
+							 * If the refresh token has been revoked, revoke the entire refresh token generation.
+							 */
+							Log.warn("Refresh token has been revoked, the entire refresh token generation will be revoked");
+							return revokedRefreshTokensGenerationRepository.persist(new RevokedRefreshTokensGenerationEntity()
+								.setGenerationId(generationId))
+								.onItem().invoke(() -> Log.debug("Refresh token generation revoked successfully"))
+								.onFailure().invoke(failure -> Log.errorf(failure, "Error revoling refresh token"))
+								.onItemOrFailure().transform((i, f) -> {
+									throw new AuthException(AuthErrorCode.REFRESH_TOKEN_REVOKED, AuthErrorCode.REFRESH_TOKEN_REVOKED_MSG);
+								});
+						} else {
+							Log.debug("Refresh token has not been revoked");
+							return Uni.createFrom().voidItem();
+						}
+					});
+			} else {
+				Log.warn(AuthErrorCode.REFRESH_TOKEN_ID_MUST_NOT_BE_NULL_MSG);
+				return UniGenerator.exception(AuthErrorCode.REFRESH_TOKEN_ID_MUST_NOT_BE_NULL, AuthErrorCode.REFRESH_TOKEN_ID_MUST_NOT_BE_NULL_MSG);
+			}
+		} else {
+			Log.warn(AuthErrorCode.REFRESH_TOKEN_GENERATION_ID_MUST_NOT_BE_NULL_MSG);
+			return UniGenerator.exception(AuthErrorCode.REFRESH_TOKEN_GENERATION_ID_MUST_NOT_BE_NULL, AuthErrorCode.REFRESH_TOKEN_GENERATION_ID_MUST_NOT_BE_NULL_MSG);
 		}
 	}
 
 	/**
+	 * 
+	 * @param generationId
+	 * @return
+	 */
+	private Uni<Void> verifyRefreshTokensGenerationRevocationList(String generationId) {
+		/*
+		 * Check if refresh token generation has been revoked.
+		 */
+		Log.trace("Check if refresh token generation has been revoked");
+		return revokedRefreshTokensGenerationRepository.findByGenerationId(generationId)
+			.chain(revokedRefreshTokensGenerationEntity -> {
+				if (revokedRefreshTokensGenerationEntity.isPresent()) {
+					/*
+					 * Refresh token generation has been revoked.
+					 */
+					Log.warn(AuthErrorCode.REFRESH_TOKEN_GENERATION_REVOKED_MSG);
+					return UniGenerator.exception(AuthErrorCode.REFRESH_TOKEN_GENERATION_REVOKED, AuthErrorCode.REFRESH_TOKEN_GENERATION_REVOKED_MSG);
+				} else {
+					/*
+					 * Refresh token generation has not been revoked.
+					 */
+					Log.debug("Refresh token generation has not been revoked");
+					return Uni.createFrom().voidItem();
+				}
+			});
+	}
+
+	/**
+	 * Verifies that refresh token is received where expected (cookie or body).
+	 * 
+	 * @param getAccessToken
+	 * @param returnedInTheCookie
+	 * @param refreshTokenId
+	 * @return
+	 */
+	private Uni<Void> verifyLocation(GetAccessTokenRequest getAccessToken, Boolean returnedInTheCookie, String refreshTokenId) {
+		Log.trace("Refresh token location verification");
+
+		boolean expected = returnedInTheCookie != null && returnedInTheCookie.booleanValue();
+		Log.tracef("Refresh token expected in the cookie: %s", expected);
+
+		boolean actual = getAccessToken.isTheRefreshTokenInTheCookie();
+		Log.tracef("Refresh token is in the cookie: %s", actual);
+
+		if (expected == actual) {
+			/*
+			 * Refresh token received where expected.
+			 */
+			Log.debug("Refresh token received where expected");
+			return Uni.createFrom().voidItem();
+		} else {
+			/*
+			 * Refresh token expected in the cookie but received in the body or vice versa.
+			 * 
+			 * In this case the refresh token will be revoked.
+			 */
+			Log.warn("Refresh token expected in the cookie but received in the body or vice versa, the refresh token will be revoked");
+			return revokedRefreshTokenRepository.persist(new RevokedRefreshTokenEntity()
+				.setJwtId(refreshTokenId))
+				.onItem().invoke(item -> Log.debug("Refresh token revoked successfully"))
+				.onFailure().invoke(failure -> Log.errorf(failure, AuthErrorCode.ERROR_REVOKING_REFRESH_TOKEN_MSG))
+				.onItemOrFailure().transform((i, f) -> {
+					throw new AuthException(AuthErrorCode.WRONG_REFRESH_TOKEN_LOCATION, AuthErrorCode.WRONG_REFRESH_TOKEN_LOCATION_MSG);
+				});
+		}
+	}
+
+	/**
+	 * 
 	 * @param getAccessToken
 	 * @return
 	 */
 	@Override
 	public Uni<GetAccessTokenResponse> process(GetAccessTokenRequest getAccessToken) {
 		Log.trace("Tokens refreshing");
-		return verify(getAccessToken.normalize())
-			.chain(() -> super.process(getAccessToken));
+		SignedJWT token = getAccessToken.getTheRefreshToken();
+		try {
+			/*
+			 * To avoid ParseException catching in each other methods!
+			 */
+			JWTClaimsSet claimsSet = token.getJWTClaimsSet();
+			Date issueTime = claimsSet.getIssueTime();
+			Date expirationTime = claimsSet.getExpirationTime();
+			String scope = claimsSet.getStringClaim(ClaimName.SCOPE);
+			String clientId = claimsSet.getStringClaim(ClaimName.CLIENT_ID);
+			String generationId = claimsSet.getStringClaim(ClaimName.GENERATION_ID);
+			String refreshTokenId = claimsSet.getJWTID();
+			Boolean returnedInTheCookie = claimsSet.getBooleanClaim(ClaimName.RETURNED_IN_THE_COOKIE);
+
+			return verifyAlgorithm(token)
+				.map(x -> verifyIssueTime(issueTime))
+				.map(x -> verifyExpirationTime(expirationTime))
+				.map(x -> verifyScope(scope, Scope.OFFLINE_ACCESS))
+				.map(x -> verifyClientId(clientId, getAccessToken.getClientId()))
+				.chain(() -> tokenSigner.verify(token))
+				.chain(() -> verifyRefreshTokenRevocationList(generationId, refreshTokenId))
+				.chain(() -> verifyRefreshTokensGenerationRevocationList(generationId))
+				.chain(() -> verifyLocation(getAccessToken, returnedInTheCookie, refreshTokenId))
+				.chain(() -> {
+					Log.debug("Current refresh token will be revoked");
+					return revokedRefreshTokenRepository.persist(new RevokedRefreshTokenEntity()
+						.setJwtId(refreshTokenId))
+						.onItem().invoke(item -> Log.debug("Refresh token revoked successfully"))
+						.onFailure().transform(failure -> {
+							Log.errorf(failure, AuthErrorCode.ERROR_REVOKING_REFRESH_TOKEN_MSG);
+							return new AuthError(AuthErrorCode.ERROR_REVOKING_REFRESH_TOKEN, AuthErrorCode.ERROR_REVOKING_REFRESH_TOKEN_MSG);
+						});
+				})
+				.chain(() -> super.process(getAccessToken));
+		} catch (ParseException e) {
+			Log.errorf(e, AuthErrorCode.ERROR_PARSING_TOKEN_MSG);
+			Log.errorf("Offending token: %s", token.serialize());
+			return UniGenerator.error(AuthErrorCode.ERROR_PARSING_TOKEN, AuthErrorCode.ERROR_PARSING_TOKEN_MSG);
+		}
 	}
 }

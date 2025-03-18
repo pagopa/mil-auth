@@ -20,6 +20,7 @@ public class AuthFormParamName {
 	public static final String CLIENT_SECRET = "client_secret";
 	public static final String FISCAL_CODE = "fiscal_code";
 	public static final String TOKEN = "token";
+	public static final String RETURN_THE_REFRESH_TOKEN_IN_THE_COOKIE = "return_the_refresh_token_in_the_cookie";
 
 	private AuthFormParamName() {
 	}

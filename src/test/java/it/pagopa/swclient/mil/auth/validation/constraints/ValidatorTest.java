@@ -758,6 +758,24 @@ class ValidatorTest {
 				null));
 	}
 
+	// @Test
+	// void given_grantTypeClientCredetialsAndChannelNull_when_refreshCookieIsNotNull_then_getNotValid()
+	// {
+	// assertFalse(new Validator()
+	// .isValid(new GetAccessTokenRequest()
+	// .setGrantType(GrantType.CLIENT_CREDENTIALS)
+	// .setChannel(null)
+	// .setAcquirerId(null)
+	// .setMerchantId(null)
+	// .setTerminalId(null)
+	// .setClientSecret("client_secret")
+	// .setRefreshCookie(refreshToken)
+	// .setUsername(null)
+	// .setPassword(null)
+	// .setScope(null),
+	// null));
+	// }
+
 	@Test
 	void given_grantTypeClientCredetialsAndChannelNull_when_usernameIsNotNull_then_getNotValid() {
 		assertFalse(new Validator()

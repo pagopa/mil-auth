@@ -5,14 +5,19 @@
  */
 package it.pagopa.swclient.mil.auth.service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.logging.Log;
+import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.TimeoutException;
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import it.pagopa.swclient.mil.auth.bean.KeyIdCache;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
@@ -47,6 +52,12 @@ public abstract class KeyManCapabilities {
 	long keyidCacheExpireAfterWrite;
 
 	/*
+	 * ms
+	 */
+	@ConfigProperty(name = "timeout-for-deleting-expired-keys", defaultValue = "120000")
+	long timeoutForDeletingExpiredKeys = 120000;
+
+	/*
 	 * 
 	 */
 	protected AzureKeyVaultKeysExtReactiveService keysExtService;
@@ -57,9 +68,19 @@ public abstract class KeyManCapabilities {
 	protected AzureKeyVaultKeysReactiveService keysService;
 
 	/*
+	 * Event bus to delete asynchronously expired keys.
+	 */
+	protected EventBus eventBus;
+
+	/*
 	 * 
 	 */
 	private KeyIdCache keyIdCache;
+
+	/*
+	 * 
+	 */
+	static final String DELETE_EXPIRED_KEYS_EVENT = "deleteExpiredKeys";
 
 	/**
 	 * 
@@ -72,10 +93,12 @@ public abstract class KeyManCapabilities {
 	 * 
 	 * @param keysExtService
 	 * @param keysService
+	 * @param eventBus
 	 */
-	KeyManCapabilities(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
+	KeyManCapabilities(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService, EventBus eventBus) {
 		this.keysExtService = keysExtService;
 		this.keysService = keysService;
+		this.eventBus = eventBus;
 		keyIdCache = new KeyIdCache();
 	}
 
@@ -88,6 +111,28 @@ public abstract class KeyManCapabilities {
 		keyIdCache.setKid(keyBundle.getKey().getKid())
 			.setExp(keyBundle.getAttributes().getExp())
 			.setStoredAt(Instant.now().getEpochSecond());
+	}
+
+	/**
+	 * Deletes expired keys. This is triggered by means of event bus.
+	 * 
+	 * @param v
+	 */
+	@ConsumeEvent(value = DELETE_EXPIRED_KEYS_EVENT, blocking = true)
+	void deleteExpiredKeys(Void v) {
+		Log.trace("Delete expired keys");
+		try {
+			keysExtService.deleteExpiredKeys(KeyUtils.DOMAIN_VALUE)
+				.collect()
+				.asList()
+				.invoke(l -> Log.debugf("Deleted %d expired key/s", l.size()))
+				.await()
+				.atMost(Duration.ofMillis(timeoutForDeletingExpiredKeys));
+		} catch (CompletionException e) {
+			Log.errorf(e, "Error deleting expired keys");
+		} catch (TimeoutException e) {
+			Log.errorf(e, "Deleting expired keys is taking too long");
+		}
 	}
 
 	/**
@@ -135,6 +180,14 @@ public abstract class KeyManCapabilities {
 			.chain(keyBundle -> {
 				if (keyBundle.isEmpty()) {
 					Log.debug("No suitable key found");
+					/*
+					 * There is no suitable key. Current keys could be expired, so start an asynchronous job which
+					 * deletes them.
+					 */
+					eventBus.send(DELETE_EXPIRED_KEYS_EVENT, null);
+					/*
+					 * Then, create new key.
+					 */
 					return createKey(keyOps);
 				} else {
 					Log.trace("Suitable key found");

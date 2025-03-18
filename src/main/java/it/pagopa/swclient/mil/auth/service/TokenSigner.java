@@ -20,6 +20,7 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
@@ -56,10 +57,11 @@ public class TokenSigner extends KeyManCapabilities {
 	 * 
 	 * @param keysExtService
 	 * @param keysService
+	 * @param eventBus
 	 */
 	@Inject
-	TokenSigner(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService) {
-		super(keysExtService, keysService);
+	TokenSigner(AzureKeyVaultKeysExtReactiveService keysExtService, AzureKeyVaultKeysReactiveService keysService, EventBus eventBus) {
+		super(keysExtService, keysService, eventBus);
 	}
 
 	/**

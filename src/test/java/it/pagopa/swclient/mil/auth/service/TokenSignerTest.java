@@ -11,6 +11,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.security.MessageDigest;
@@ -21,12 +23,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -34,13 +38,18 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.MockitoConfig;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.TimeoutException;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.util.AuthError;
 import it.pagopa.swclient.mil.auth.util.AuthException;
 import it.pagopa.swclient.mil.auth.util.KeyUtils;
 import it.pagopa.swclient.mil.auth.util.SignedJWTFactory;
 import it.pagopa.swclient.mil.auth.util.UniGenerator;
+import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.DeletedKeyBundle;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKey;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyOperation;
 import it.pagopa.swclient.mil.azureservices.keyvault.keys.bean.JsonWebKeyType;
@@ -80,6 +89,13 @@ class TokenSignerTest {
 	AzureKeyVaultKeysReactiveService keysService;
 
 	/*
+	 * 
+	 */
+	@InjectMock
+	@MockitoConfig(convertScopes = true)
+	EventBus eventBus;
+
+	/*
 	 *
 	 */
 	@ConfigProperty(name = "quarkus.rest-client.azure-key-vault-keys.url")
@@ -102,6 +118,7 @@ class TokenSignerTest {
 		System.out.println(frame);
 		keyBaseUrl = vaultBaseUrl + (vaultBaseUrl.endsWith("/") ? "keys/" : "/keys/");
 		tokenSigner.cleanCache();
+		Mockito.reset(keysExtService, keysService, eventBus);
 	}
 
 	/**
@@ -223,9 +240,9 @@ class TokenSignerTest {
 
 	/**
 	 * 
+	 * @param andException
 	 */
-	@Test
-	void given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAndGetSignedJwt() {
+	private void given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAnd(Throwable andException) {
 		/*
 		 * Setup
 		 */
@@ -235,6 +252,16 @@ class TokenSignerTest {
 			List.of(JsonWebKeyType.RSA)))
 			.thenReturn(UniGenerator.item(
 				Optional.empty()));
+
+		if (andException == null) {
+			when(keysExtService.deleteExpiredKeys(KeyUtils.DOMAIN_VALUE))
+				.thenReturn(Multi.createFrom().items(
+					new DeletedKeyBundle(),
+					new DeletedKeyBundle()));
+		} else {
+			when(keysExtService.deleteExpiredKeys(KeyUtils.DOMAIN_VALUE))
+				.thenThrow(andException);
+		}
 
 		when(keysService.createKey(anyString(), any(KeyCreateParameters.class)))
 			.thenReturn(UniGenerator.item(
@@ -252,6 +279,14 @@ class TokenSignerTest {
 				new KeyOperationResult()
 					.setKid(keyBaseUrl + "key_name/key_version")
 					.setValue(new byte[1])));
+
+		TokenSigner localTokenSigner = spy(new TokenSigner(keysExtService, keysService, eventBus));
+
+		when(eventBus.send(KeyManCapabilities.DELETE_EXPIRED_KEYS_EVENT, null))
+			.thenAnswer(i -> {
+				localTokenSigner.deleteExpiredKeys(null);
+				return null;
+			});
 
 		/*
 		 * Test
@@ -274,11 +309,40 @@ class TokenSignerTest {
 
 		String expected = "eyJraWQiOiJrZXlfbmFtZS9rZXlfdmVyc2lvbiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjbGllbnRfaWQiLCJjbGllbnRJZCI6ImNsaWVudF9pZCIsImNoYW5uZWwiOiJjaGFubmVsIiwiaXNzIjoiaHR0cHM6Ly9taWwtYXV0aCIsImdyb3VwcyI6InJvbGUiLCJ0ZXJtaW5hbElkIjoidGVybWluYWxfaWQiLCJhdWQiOiJodHRwczovL21pbCIsIm1lcmNoYW50SWQiOiJtZXJjaGFudF9pZCIsInNjb3BlIjoic2NvcGUiLCJmaXNjYWxDb2RlIjoiZW5jX2Zpc2NhbF9jb2RlIiwiZXhwIjoxNzE3NjUyLCJhY3F1aXJlcklkIjoiYWNxdWlyZXJfaWQiLCJpYXQiOjE3MTc1OTJ9.AA";
 
-		tokenSigner.sign(payload)
+		localTokenSigner.sign(payload)
 			.subscribe()
 			.with(
-				actual -> assertEquals(expected, actual.serialize()),
+				actual -> {
+					System.out.println(">>>> " + actual.serialize());
+					assertEquals(expected, actual.serialize());
+				},
 				f -> fail(f));
+
+		verify(localTokenSigner).deleteExpiredKeys(null);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAndGetSignedJwt() {
+		given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAnd(null);
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAndGetSignedJwtAndHandleErrorDeletingExpKeys() {
+		given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAnd(new CompletionException(new Exception("synthetic exception")));
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	void given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAndGetSignedJwtAndHandleTimeoutDeletingExpKeys() {
+		given_claimsSetToSign_when_suitableKeyDoesntExist_then_createNewKeyAnd(new TimeoutException());
 	}
 
 	/**

@@ -17,6 +17,8 @@ public class ClaimName {
 	public static final String SCOPE = "scope";
 	public static final String GROUPS = "groups";
 	public static final String FISCAL_CODE = "fiscalCode";
+	public static final String GENERATION_ID = "generationId";
+	public static final String RETURNED_IN_THE_COOKIE = "returnedInTheCookie";
 
 	private ClaimName() {
 	}

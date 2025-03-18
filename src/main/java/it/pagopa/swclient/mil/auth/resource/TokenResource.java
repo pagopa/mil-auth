@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -21,6 +22,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import it.pagopa.swclient.mil.auth.AuthErrorCode;
 import it.pagopa.swclient.mil.auth.bean.AuthCookieParamName;
+import it.pagopa.swclient.mil.auth.bean.ClaimName;
 import it.pagopa.swclient.mil.auth.bean.GetAccessTokenRequest;
 import it.pagopa.swclient.mil.auth.bean.GrantType;
 import it.pagopa.swclient.mil.auth.qualifier.ClientCredentials;
@@ -104,35 +106,57 @@ public class TokenResource {
 		/*
 		 * If the flow reaches this point, the input is validated!
 		 */
+		if (Log.isTraceEnabled()) {
+			Log.tracef("createOrRefreshToken - Input parameters: %s", getAccessToken.allToString());
+		} else {
+			Log.debugf("createOrRefreshToken - Input parameters: %s", getAccessToken.toString());
+		}
+
 		return tokenService.select(qualifiers.get(getAccessToken.getGrantType()))
 			.get()
 			.process(getAccessToken)
 			.map(Unchecked.function(resp -> {
-				SignedJWT refreshToken = resp.getRefreshToken();
 				ResponseBuilder respBuilder = Response.ok(resp);
-				if (refreshToken != null) {
-					Log.debug("Refresh token is returned with cookie also");
+				SignedJWT currentRefreshToken = getAccessToken.getTheRefreshToken();
+				SignedJWT newRefreshToken = resp.getRefreshToken();
+
+				boolean returnRefreshTokenInTheCookie = newRefreshToken != null
+					&& (getAccessToken.isReturnTheRefreshTokenInTheCookie()
+						|| (getAccessToken.getGrantType().equals(GrantType.REFRESH_TOKEN)
+							&& currentRefreshToken != null
+							&& Objects.equals(currentRefreshToken.getJWTClaimsSet().getBooleanClaim(ClaimName.RETURNED_IN_THE_COOKIE), Boolean.TRUE)));
+
+				if (returnRefreshTokenInTheCookie) {
+					Log.debug("Refresh token is returned within cookie");
 
 					/*
 					 * Build cookie.
 					 */
 					URI tokenUri = new URI(baseUrl.replaceAll("\\/$", "") + "/token");
 
-					JWTClaimsSet claimsSet = refreshToken.getJWTClaimsSet();
+					@SuppressWarnings("null")
+					JWTClaimsSet claimsSet = newRefreshToken.getJWTClaimsSet();
 					Date expiry = claimsSet.getExpirationTime();
 
 					NewCookie cookie = new NewCookie.Builder(AuthCookieParamName.REFRESH_COOKIE)
 						.domain(tokenUri.getHost())
 						.path(tokenUri.getPath())
 						.expiry(expiry)
-						.maxAge((int) TimeUnit.SECONDS.convert(new Date().getTime() - expiry.getTime(), TimeUnit.MILLISECONDS))
+						.maxAge((int) TimeUnit.SECONDS.convert(expiry.getTime() - new Date().getTime(), TimeUnit.MILLISECONDS))
 						.httpOnly(true)
 						.secure(true)
 						.sameSite(SameSite.STRICT)
-						.value(refreshToken.serialize())
+						.value(newRefreshToken.serialize())
 						.build();
 
+					Log.tracef("Cookie: %s", cookie);
+
 					respBuilder.cookie(cookie);
+
+					/*
+					 * Remove refresh token from the body.
+					 */
+					resp.setRefreshToken(null);
 				}
 				return respBuilder.build();
 			}))
