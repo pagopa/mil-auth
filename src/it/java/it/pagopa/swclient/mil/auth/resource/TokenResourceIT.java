@@ -23,6 +23,8 @@ import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.nimbusds.jose.util.StandardCharset;
 
 import io.restassured.RestAssured;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import it.pagopa.swclient.mil.auth.bean.AuthCookieParamName;
 import it.pagopa.swclient.mil.auth.bean.AuthFormParamName;
 import it.pagopa.swclient.mil.auth.bean.AuthJsonPropertyName;
@@ -108,9 +110,9 @@ class TokenResourceIT {
 			new OpenApiValidationFilter(
 				Files.contentOf(
 					new File("src/main/resources/META-INF/openapi.yaml"),
-					StandardCharset.UTF_8))/*
-											 * , new RequestLoggingFilter(), new ResponseLoggingFilter()
-											 */);
+					StandardCharset.UTF_8)),
+			new RequestLoggingFilter(),
+			new ResponseLoggingFilter());
 
 		baseUri = System.getProperty("base_uri");
 
