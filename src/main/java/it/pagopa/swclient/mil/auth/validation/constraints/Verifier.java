@@ -110,18 +110,20 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 		return check;
 	}
 
-	/**
-	 * @param getAccessToken
-	 * @return
-	 */
-	protected boolean bothRefreshTokenAndRefreshCookieMustBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() == null && getAccessToken.getRefreshCookie() == null;
-		if (!check) {
-			Log.warn("both refresh_token and refresh_cookie must be null");
-		}
-		return check;
-	}
-	
+	// /**
+	// * @param getAccessToken
+	// * @return
+	// */
+	// protected boolean bothRefreshTokenAndRefreshCookieMustBeNull(GetAccessTokenRequest
+	// getAccessToken) {
+	// boolean check = getAccessToken.getRefreshToken() == null && getAccessToken.getRefreshCookie() ==
+	// null;
+	// if (!check) {
+	// Log.warn("both refresh_token and refresh_cookie must be null");
+	// }
+	// return check;
+	// }
+
 	/**
 	 * @param getAccessToken
 	 * @return
@@ -139,14 +141,16 @@ public abstract class Verifier implements Predicate<GetAccessTokenRequest> {
 	 * @param getAccessToken
 	 * @return
 	 */
-	protected boolean onlyOneOfRefreshTokenAndRefreshCookieMustNotBeNull(GetAccessTokenRequest getAccessToken) {
-		boolean check = getAccessToken.getRefreshToken() != null ^ getAccessToken.getRefreshCookie() != null;
-		if (!check) {
-			Log.warn("only one of refresh_token and refresh_cookie must not be null");
-		}
-		return check;
-	}
-	
+	// protected boolean onlyOneOfRefreshTokenAndRefreshCookieMustNotBeNull(GetAccessTokenRequest
+	// getAccessToken) {
+	// boolean check = getAccessToken.getRefreshToken() != null ^ getAccessToken.getRefreshCookie() !=
+	// null;
+	// if (!check) {
+	// Log.warn("only one of refresh_token and refresh_cookie must not be null");
+	// }
+	// return check;
+	// }
+
 	/**
 	 * 
 	 * @param getAccessToken
