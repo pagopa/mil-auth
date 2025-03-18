@@ -44,7 +44,6 @@ public class SignedJWTDeserializer extends JsonDeserializer<SignedJWT> {
 	 */
 	@Override
 	public SignedJWT deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-		Log.trace("deserialize");
 		try {
 			return SignedJWT.parse(p.getText());
 		} catch (ParseException e) {

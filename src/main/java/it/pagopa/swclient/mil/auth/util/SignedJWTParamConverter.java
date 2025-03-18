@@ -27,7 +27,6 @@ public class SignedJWTParamConverter implements ParamConverter<SignedJWT> {
 	 */
 	@Override
 	public SignedJWT fromString(String value) {
-		Log.trace("fromString");
 		try {
 			return SignedJWT.parse(value);
 		} catch (ParseException e) {
@@ -45,7 +44,6 @@ public class SignedJWTParamConverter implements ParamConverter<SignedJWT> {
 	 */
 	@Override
 	public String toString(SignedJWT value) {
-		Log.trace("toString");
 		return value.serialize();
 	}
 }
