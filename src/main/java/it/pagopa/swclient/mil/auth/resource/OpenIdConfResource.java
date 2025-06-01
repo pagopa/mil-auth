@@ -24,6 +24,13 @@ import jakarta.ws.rs.core.Response.Status;
 @PermitAll
 public class OpenIdConfResource {
 	/*
+	 * 
+	 */
+	static final String[] SIGN_SUPPORTED_ALGS = {
+		"RS256"
+	};
+
+	/*
 	 * mil-auth base URL.
 	 */
 	@ConfigProperty(name = "base-url", defaultValue = "")
@@ -37,7 +44,7 @@ public class OpenIdConfResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> get() {
 		String issuer = baseUrl.replaceAll("\\/$", "") + "/";
-		OpenIdConf conf = new OpenIdConf(issuer, issuer + "token", issuer + ".well-known/jwks.json");
+		OpenIdConf conf = new OpenIdConf(issuer, issuer + "token", issuer + ".well-known/jwks.json", SIGN_SUPPORTED_ALGS, SIGN_SUPPORTED_ALGS, SIGN_SUPPORTED_ALGS);
 		return Uni.createFrom().item(Response
 			.status(Status.OK)
 			.entity(conf)

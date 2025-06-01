@@ -39,4 +39,23 @@ public class OpenIdConf {
 	 */
 	@JsonProperty(AuthJsonPropertyName.JWKS_URI)
 	private String jwksUri;
+
+	/*
+	 * id_token_signing_alg_values_supported
+	 */
+	@JsonProperty(AuthJsonPropertyName.ID_TOKEN_SIGN_ALG_VALUES_SUPPORTED)
+	private String[] idTokenSignAlgValuesSupported;
+
+	/*
+	 * token_endpoint_auth_signing_alg_values_supported
+	 */
+	@JsonProperty(AuthJsonPropertyName.TOKEN_ENDPOINT_AUTH_SIGN_ALG_VALUES_SUPPORTED)
+	private String[] tokenEndpointAuthSignAlgValuesSupported;
+
+	/*
+	 * request_object_signing_alg_values_supported
+	 */
+	@JsonProperty(AuthJsonPropertyName.REQ_OBJ_SIGN_ALG_VALUES_SUPPORTED)
+	private String[] reqObjSignAlgValuesSupported;
+
 }
