@@ -46,7 +46,13 @@ class OpenIdConfResourceTest {
 	@Test
 	void test() {
 		String issuer = baseUrl.replaceAll("\\/$", "") + "/";
-		OpenIdConf expected = new OpenIdConf(issuer, issuer + "token", issuer + ".well-known/jwks.json");
+		OpenIdConf expected = new OpenIdConf(
+			issuer,
+			issuer + "token",
+			issuer + ".well-known/jwks.json",
+			OpenIdConfResource.SIGN_SUPPORTED_ALGS,
+			OpenIdConfResource.SIGN_SUPPORTED_ALGS,
+			OpenIdConfResource.SIGN_SUPPORTED_ALGS);
 
 		OpenIdConf actual = given()
 			.when()

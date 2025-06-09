@@ -29,6 +29,10 @@ public class AuthJsonPropertyName {
 	public static final String TOKEN_ENDPOINT = "token_endpoint";
 	public static final String JWKS_URI = "jwks_uri";
 
+	public static final String ID_TOKEN_SIGN_ALG_VALUES_SUPPORTED = "id_token_signing_alg_values_supported";
+	public static final String TOKEN_ENDPOINT_AUTH_SIGN_ALG_VALUES_SUPPORTED = "token_endpoint_auth_signing_alg_values_supported";
+	public static final String REQ_OBJ_SIGN_ALG_VALUES_SUPPORTED = "request_object_signing_alg_values_supported";
+
 	public static final String FISCAL_CODE = "fiscalCode";
 
 	public static final String TOKEN = "token";
