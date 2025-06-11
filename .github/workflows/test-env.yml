@@ -1,0 +1,19 @@
+name: test-env
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test_env:
+    runs-on: ubuntu-22.04
+
+    environment: dev-cd
+
+    permissions:
+      id-token: write
+      packages: write
+
+    steps:
+      - name: Test ENV
+        run: |
+          echo "${GITHUB_REF////_}"
