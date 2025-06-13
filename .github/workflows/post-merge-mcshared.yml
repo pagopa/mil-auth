@@ -151,7 +151,7 @@ jobs:
           container_app_environment_name: ${{ secrets.ACA_ENV_NAME }}
           resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
           pat_token: ${{ secrets.GIT_PAT }}
-          self_hosted_runner_image_tag: "v3.5.1"
+          self_hosted_runner_image_tag: "v3.6.3@sha256:2dc2bee86c42a89c5db454f20645f0bbb085cb0c3b4bc2d92d10c0a53d0f27b7"
   
   ##############################################################################
   #                                                                            #
