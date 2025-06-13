@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Create GitHub Runner
         id: create_github_runner
-        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@ca5ac73f306764b9ec186af3594d905deab50590
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@main
         with:
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -26,7 +26,7 @@ jobs:
           container_app_environment_name: ${{ secrets.ACA_ENV_NAME }}
           resource_group_name: ${{ secrets.ACA_ENV_RESOURCE_GROUP_NAME }}
           pat_token: ${{ secrets.GIT_PAT }}
-          self_hosted_runner_image_tag: "v3.5.1"
+          self_hosted_runner_image_tag: "v3.6.3@sha256:2dc2bee86c42a89c5db454f20645f0bbb085cb0c3b4bc2d92d10c0a53d0f27b7"
 
 
   integration_tests:
@@ -84,7 +84,7 @@ jobs:
     
     steps:
       - name: Cleanup GitHub Runner
-        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-cleanup-action@0ee2f58fd46d10ac7f00bce4304b98db3dbdbe9a
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-cleanup-action@main
         with:
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
