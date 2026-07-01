@@ -50,7 +50,7 @@
 		<azure-services.version>5.9.0</azure-services.version>
 		<lombok.version>1.18.36</lombok.version>
 		<otel-exporter-azure.version>3.16.2.0</otel-exporter-azure.version>
-		<assertj-core.version>3.27.2</assertj-core.version>
+		<assertj-core.version>3.27.7</assertj-core.version>
 		<bouncycastle.version>2.73.7</bouncycastle.version>
 		<swagger-request-validator.version>2.44.1</swagger-request-validator.version>
         <!-- Sonar config -->
